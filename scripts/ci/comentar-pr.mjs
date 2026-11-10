@@ -30,7 +30,16 @@ if (existe) {
 cpSync("capturas", join(copia, carpeta), { recursive: true });
 git("add", carpeta);
 git("commit", "-q", "-m", `capturas de #${PR} en ${corto}`);
-git("push", "-q", "origin", RAMA);
+// Dos PR pueden guardar capturas al mismo tiempo: si el push choca, traer lo nuevo y volver a intentar.
+for (let intento = 1; ; intento++) {
+  try {
+    git("push", "-q", "origin", RAMA);
+    break;
+  } catch (error) {
+    if (intento === 5 || !existe) throw error;
+    git("pull", "-q", "--rebase", "origin", RAMA);
+  }
+}
 rmSync(copia, { recursive: true, force: true });
 
 const archivo = (nombre) => `https://github.com/${repo}/blob/${RAMA}/${carpeta}/${nombre}?raw=true`;

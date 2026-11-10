@@ -26,10 +26,14 @@ const ARGS = ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swif
 async function servirJuego() {
   const build = spawnSync("pnpm", ["--filter", "tuerce-juego", "build"], { stdio: "inherit" });
   if (build.status !== 0) throw new Error("no se pudo construir el juego");
-  const vite = spawn("node_modules/.bin/vite", ["preview", "--host", "127.0.0.1", "--port", String(PUERTO)], {
-    cwd: "apps/juego",
-    stdio: "ignore",
-  });
+  const vite = spawn(
+    "node_modules/.bin/vite",
+    ["preview", "--host", "127.0.0.1", "--port", String(PUERTO), "--strictPort"],
+    {
+      cwd: "apps/juego",
+      stdio: "ignore",
+    },
+  );
   const base = `http://127.0.0.1:${PUERTO}`;
   for (let i = 0; ; i++) {
     try {
@@ -60,9 +64,10 @@ async function esperarListo(pagina) {
 const servidor = process.env.CAPTURAS_URL
   ? { base: process.env.CAPTURAS_URL.replace(/\/$/, ""), cerrar: () => {} }
   : await servirJuego();
-const navegador = await chromium.launch({ args: ARGS });
 const resumen = { base: servidor.base, tomas: [], video: null };
+let navegador;
 try {
+  navegador = await chromium.launch({ args: ARGS });
   await rm(SALIDA, { recursive: true, force: true });
   await mkdir(SALIDA, { recursive: true });
 
@@ -101,6 +106,6 @@ try {
   console.error("FALLA capturas:", e.message);
   process.exitCode = 1;
 } finally {
-  await navegador.close();
+  await navegador?.close();
   servidor.cerrar();
 }

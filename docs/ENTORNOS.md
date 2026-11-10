@@ -36,6 +36,10 @@ pnpm dev                                # http://localhost:5173/?escena=entrar
 
 ## Pendiente
 
+- **Una sola vista previa de datos**: todos los PR comparten el despliegue `vista-previa` de Convex y la sala
+  `tuerce-sala-preview`; el último PR en publicarse es el que manda. Con dos PR abiertos a la vez, abrí la vista previa
+  del último. Un Convex por PR necesita llaves de vista previa (plan pago).
+
 - **Clerk en producción**: crear la instancia de producción cuando haya dominio (por ejemplo `tuerce.lcfapps.com`),
   cambiar `VITE_CLERK_PUBLISHABLE_KEY_PROD` y `CLERK_JWT_ISSUER_DOMAIN` en `produccion`.
 - **Proteger `main`**: GitHub no permite reglas de rama en repos privados del plan gratis. Con GitHub Pro (o el repo

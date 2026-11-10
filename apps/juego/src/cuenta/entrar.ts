@@ -62,10 +62,18 @@ export async function abrirEntrar(): Promise<void> {
 
   const convex = new ConvexClient(urlConvex);
   let cancelar: (() => void) | undefined;
+  let montado: "entrar" | "dentro" | undefined;
 
+  // Clerk avisa cada vez que algo cambia en la sesión (y una vez al suscribirse): solo se vuelve a montar
+  // cuando se pasa de no tener sesión a tenerla, o al revés.
   const mostrar = () => {
+    const ahora = clerk.isSignedIn ? "dentro" : "entrar";
+    if (ahora === montado) return;
+    if (montado === "entrar") clerk.unmountSignIn(caja);
+    if (montado === "dentro") clerk.unmountUserButton(caja);
+    montado = ahora;
     cancelar?.();
-    caja.replaceChildren();
+    cancelar = undefined;
     if (!clerk.isSignedIn) {
       mensaje.textContent = "Entrá con Google o con tu correo.";
       // Al volver de Google, regresar a esta misma pantalla y no a la portada.
@@ -84,7 +92,12 @@ export async function abrirEntrar(): Promise<void> {
         }
         const perfil = clerk.user;
         const nombre = perfil?.fullName ?? perfil?.username ?? perfil?.primaryEmailAddress?.emailAddress.split("@")[0];
-        await convex.mutation(api.usuarios.guardarme, nombre ? { nombre } : {});
+        try {
+          await convex.mutation(api.usuarios.guardarme, nombre ? { nombre } : {});
+        } catch (error) {
+          mensaje.textContent = "No se pudo guardar tu usuario en Convex. Probá de nuevo.";
+          console.error(error);
+        }
       },
     );
     cancelar = convex.onUpdate(api.usuarios.yo, {}, (yo) => {
@@ -94,7 +107,6 @@ export async function abrirEntrar(): Promise<void> {
   };
 
   clerk.addListener(mostrar);
-  mostrar();
 }
 
 declare global {
