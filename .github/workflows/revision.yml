@@ -1,0 +1,106 @@
+# Revisión automática: cada pull request y cada cambio en main se revisa, se prueba y se construye.
+# En los pull requests además se publica la vista previa en Cloudflare y se toman capturas del juego.
+# Al entrar a main se publica en producción. Las llaves están en Settings → Secrets (ver docs/ENTORNOS.md).
+name: revisión
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# En un PR, un push nuevo cancela la revisión vieja. En main nunca: cortar a la mitad dejaría Convex y Cloudflare
+# en versiones distintas.
+concurrency:
+  group: revision-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  revision:
+    name: revisión
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: reglas de código (Biome y TypeScript)
+        run: pnpm check
+      - name: pruebas
+        run: pnpm test
+      - name: construir
+        run: pnpm build
+
+  vista-previa:
+    name: vista previa y capturas
+    # Los PR que vienen de un fork no tienen llaves ni permiso de escritura: solo corren la revisión.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: revision
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # para guardar las capturas en la rama `capturas`
+      pull-requests: write # para comentar el pull request
+    env:
+      PR: ${{ github.event.pull_request.number }}
+      SHA: ${{ github.event.pull_request.head.sha }}
+      GH_TOKEN: ${{ github.token }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY_PREVIEW }}
+      VITE_CONVEX_URL: ${{ vars.VITE_CONVEX_URL_PREVIEW }}
+      VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY_PREVIEW }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: construir con las llaves de vista previa
+        run: node scripts/ci/construir.mjs vista-previa
+      - name: publicar la vista previa en Cloudflare
+        id: cloudflare
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        working-directory: apps/juego
+        shell: bash # con pipefail: si wrangler falla, el paso falla aunque pase por tee
+        run: |
+          pnpm exec wrangler versions upload --preview-alias "pr-$PR" --message "PR #$PR ${SHA::7}" | tee salida.txt
+          echo "url=$(grep -oE 'https://pr-[0-9]+-[a-z0-9.-]+\.workers\.dev' salida.txt | head -1)" >> "$GITHUB_OUTPUT"
+      - name: publicar la sala de vista previa
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: pnpm --filter tuerce-sala run deploy:preview
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: capturas
+        run: pnpm capturas
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: capturas, path: capturas/, if-no-files-found: ignore }
+      - name: mostrar en el pull request
+        run: node scripts/ci/comentar-pr.mjs "${{ steps.cloudflare.outputs.url }}"
+
+  produccion:
+    name: producción
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: revision
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY_PROD }}
+      VITE_CONVEX_URL: ${{ vars.VITE_CONVEX_URL_PROD }}
+      VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY_PROD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: construir (y subir las funciones de Convex)
+        run: node scripts/ci/construir.mjs produccion
+      - name: publicar el juego y la sala
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          pnpm --filter tuerce-juego exec wrangler deploy
+          pnpm --filter tuerce-sala run deploy

@@ -13,31 +13,37 @@ pañuelos (rojo y turquesa) como único color. La referencia obligatoria son `do
 
 ## Qué hay aquí
 
-| Carpeta | Qué es | Estado |
-|---|---|---|
-| `apps/juego/` | El juego: TypeScript, Three.js y Rapier | Vacío: empieza en la ola 1 (el muñeco) |
-| `convex/` | Modelo de datos (`schema.ts`): parejas, invitaciones, cola, avance | Solo el esquema |
-| `workers/sala/` | Sala de dos (Cloudflare Durable Object): presenta a los jugadores y hace de repetidor | Funciona en local; sin pase firmado ni TURN todavía |
-| `niveles/` | Escenas y guiones de cada nivel | Vacío |
-| `prototipo/` | La propuesta con la demo 2D para dos | Con el estilo descartado; se rehace en TU-36 |
-| `docs/` | Plan, generador y arte | `docs/generador/tuerce.mjs` regenera el plan |
+| Carpeta         | Qué es                                                                                | Estado                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `apps/juego/`   | El juego: TypeScript, Three.js, Rapier y Vite                                         | Base lista: físicas a 60 pasos fijos por segundo, escena de prueba y entrada con Clerk |
+| `convex/`       | Datos: esquema, Clerk y funciones de usuario                                          | Proyecto `tuerce` con desarrollo, vista previa y producción                            |
+| `workers/sala/` | Sala de dos (Cloudflare Durable Object): presenta a los jugadores y hace de repetidor | Funciona en local; sin pase firmado ni TURN todavía                                    |
+| `scripts/`      | Capturas automáticas y lo que corre la revisión                                       | `pnpm capturas`                                                                        |
+| `niveles/`      | Escenas y guiones de cada nivel                                                       | Vacío                                                                                  |
+| `prototipo/`    | La propuesta con la demo 2D para dos                                                  | Con el estilo descartado; se rehace en TU-36                                           |
+| `docs/`         | Plan, generador, arte y entornos                                                      | `docs/generador/tuerce.mjs` regenera el plan                                           |
 
 ## Cómo se corre
 
 ```bash
-pnpm install && pnpm --dir workers/sala install
-
-pnpm convex:check   # revisa los tipos del esquema
-pnpm sala:test      # levanta la sala en local, conecta a los dos jugadores y cruza una señal; debe imprimir PASA
+pnpm install
+pnpm dev        # juego en http://localhost:5173 (?escena=prueba, ?escena=entrar) y sala en :8798
+pnpm check      # Biome y TypeScript estricto
+pnpm test       # pruebas del juego y de la sala
+pnpm build
+pnpm capturas   # imágenes y video del juego en capturas/
 ```
+
+Para entrar con Clerk en local hace falta `apps/juego/.env.local` (ver `docs/ENTORNOS.md`).
+Los agentes leen `AGENTS.md`.
 
 ## Cuentas
 
 Clerk para entrar (Google o correo), Convex para los datos y Cloudflare para publicar y para la sala de dos.
+Cómo se separan desarrollo, vista previa y producción, y dónde vive cada llave: `docs/ENTORNOS.md`.
 
 ## Lo que sigue
 
-Ola 0 (preparar el repo y las herramientas: comandos, revisión automática, guía para los agentes, capturas
-automáticas, vistas previas y entornos; necesita tus cuentas) y después la ola 1: el muñeco caminando con el look
-de las imágenes de referencia. Cada ola se hace en paralelo con varios agentes, se junta en una rama `ola-N` y se
-entrega con vista previa, capturas y un pull request; con «full send» se une a `main`.
+La ola 1: el muñeco caminando con el look de las imágenes de referencia. Cada ola se hace con la skill `ola`:
+varios agentes en paralelo, todo se junta en una rama `ola-N` y se entrega con vista previa, capturas y un pull
+request; con «full send» se une a `main`.
