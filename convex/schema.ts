@@ -24,7 +24,9 @@ export default defineSchema({
     de: v.id("usuarios"),
     vence: v.number(),
     parejaId: v.optional(v.id("parejas")),
-  }).index("por_codigo", ["codigo"]),
+  })
+    .index("por_codigo", ["codigo"])
+    .index("por_de", ["de", "vence"]),
   // quién busca pareja; una mutación empareja a los dos primeros de la misma región
   cola: defineTable({ usuarioId: v.id("usuarios"), region: v.string(), desde: v.number() })
     .index("por_region", ["region", "desde"])

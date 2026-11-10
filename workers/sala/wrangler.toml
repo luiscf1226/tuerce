@@ -1,5 +1,7 @@
 # Producción: `wrangler deploy` → tuerce-sala. Vista previa: `wrangler deploy --env preview` → tuerce-sala-preview.
 # Desarrollo: `wrangler dev` en local. Cada entorno tiene sus propias salas (Durable Objects separados).
+# Secretos (`wrangler secret put`, no van aquí): SALA_SECRETO (el mismo que en el Convex de ese entorno),
+# TURN_KEY_ID y TURN_KEY_API_TOKEN. En local van en .dev.vars. Ver docs/ENTORNOS.md.
 name = "tuerce-sala"
 main = "src/index.ts"
 compatibility_date = "2026-10-01"
