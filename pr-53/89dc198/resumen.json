@@ -1,0 +1,51 @@
+{
+  "base": "http://127.0.0.1:4173",
+  "tomas": [
+    {
+      "archivo": "prueba-inicio",
+      "ruta": "/?escena=prueba&congelar=1",
+      "imagen": "prueba-inicio.png"
+    },
+    {
+      "archivo": "prueba-cajas-en-el-suelo",
+      "ruta": "/?escena=prueba&congelar=240",
+      "imagen": "prueba-cajas-en-el-suelo.png"
+    },
+    {
+      "archivo": "muneco-de-pie",
+      "ruta": "/?escena=muneco&congelar=240",
+      "imagen": "muneco-de-pie.png"
+    },
+    {
+      "archivo": "muneco-caminando",
+      "ruta": "/?escena=muneco&andar=1&congelar=110",
+      "imagen": "muneco-caminando.png"
+    },
+    {
+      "archivo": "muneco-girando",
+      "ruta": "/?escena=muneco&andar=0.7&girar=0.6&congelar=200",
+      "imagen": "muneco-girando.png"
+    },
+    {
+      "archivo": "pinar",
+      "ruta": "/?escena=pinar&congelar=1",
+      "imagen": "pinar.png"
+    },
+    {
+      "archivo": "pinar-caminando",
+      "ruta": "/?escena=pinar&andar=1&congelar=150",
+      "imagen": "pinar-caminando.png"
+    },
+    {
+      "archivo": "pinar-niebla-corrida",
+      "ruta": "/?escena=pinar&congelar=600",
+      "imagen": "pinar-niebla-corrida.png"
+    }
+  ],
+  "video": {
+    "archivo": "pinar.webm",
+    "ruta": "/?escena=pinar&andar=0.7&depurar",
+    "segundos": 5,
+    "pasosPorSegundo": 9
+  }
+}
