@@ -7,6 +7,7 @@ export {
   type EstadoMuneco,
   type Muneco,
   NOMBRES_PARTES,
+  type NombreBrazo,
   type NombreParte,
   type OpcionesMuneco,
   QUIETO,

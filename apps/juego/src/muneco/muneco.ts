@@ -10,7 +10,9 @@
 // Encima de eso, una máquina de estados (TU-04): «de pie», «en el aire» (saltó o se le fue el suelo), «caido» (se
 // pasó de inclinación o recibió un golpe fuerte: el tono baja a cero y cae como un trapo) y «levantandose» (tras un
 // segundo quieto, el tono vuelve de a poco y los mismos torques lo enderezan; nada se teletransporta).
-// Cada brazo es un cuerpo propio unido al torso con una rótula (para agarrar en TU-05).
+// Cada brazo es un cuerpo propio unido al torso con una rótula. Con su botón apretado sube hacia adelante y, si la
+// mano toca algo, lo agarra con otra rótula entre la mano y eso (una caja, el mundo quieto, el otro muñeco) hasta que
+// se suelta el botón (TU-05).
 //
 // Uso: en cada paso de físicas llamá `muneco.pasar(entrada)` y después `mundo.step()`.
 import type RAPIER from "@dimforge/rapier3d-compat";
@@ -37,6 +39,8 @@ export interface EntradaMuneco {
 export type EstadoMuneco = "de pie" | "en el aire" | "caido" | "levantandose";
 
 export const QUIETO: EntradaMuneco = { avanzar: 0, girar: 0 };
+
+export type NombreBrazo = "brazoIzquierdo" | "brazoDerecho";
 
 export type NombreParte =
   | "pelvis"
@@ -88,6 +92,8 @@ export interface Muneco {
   readonly tension: number;
   /** Masa total en kilos. */
   readonly masa: number;
+  /** Lo que tiene agarrado esa mano (el colisionador que tocó), o `null` si no agarra nada. */
+  agarrado(brazo: NombreBrazo): RAPIER.Collider | null;
   /** Ángulo entre el eje del torso y la vertical, en radianes. */
   inclinacion(): number;
   /** Hacia dónde mira de verdad el torso, en radianes alrededor de +y. */
@@ -261,7 +267,68 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
   const torque = new THREE.Vector3();
   const adelante = new THREE.Vector3();
   const eje = new THREE.Vector3();
+  const mano = new THREE.Vector3();
   const rayo = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
+
+  // Agarrar (TU-05). Cada brazo guarda su rótula con lo agarrado. Lo que no tiene cuerpo (el suelo, un borde
+  // quieto) se agarra con un cuerpo fijo propio, que se crea la primera vez que hace falta.
+  const brazos = (
+    [
+      ["brazoIzquierdo", brazoIzquierdo, 1],
+      ["brazoDerecho", brazoDerecho, -1],
+    ] as const
+  ).map(([nombre, cuerpo, lado]) => ({
+    nombre,
+    cuerpo,
+    lado,
+    junta: null as RAPIER.ImpulseJoint | null,
+    agarrado: null as RAPIER.Collider | null,
+  }));
+  let fijo: RAPIER.RigidBody | undefined;
+  const esferaMano = new rapier.Ball(mb.mano + AJUSTES.agarre.margen);
+  const SIN_GIRO = { x: 0, y: 0, z: 0, w: 1 };
+  const MANO = { x: 0, y: -mb.largo / 2, z: 0 };
+  let tocado: RAPIER.Collider | null = null;
+  const alTocar = (c: RAPIER.Collider) => {
+    tocado = c;
+    return false;
+  };
+
+  /** Si la mano toca algo (que no sea el mismo muñeco), lo agarra donde está, sin tironear. */
+  const agarrar = (brazo: (typeof brazos)[number]) => {
+    mano.set(MANO.x, MANO.y, MANO.z).applyQuaternion(q.copy(brazo.cuerpo.rotation())).add(brazo.cuerpo.translation());
+    tocado = null;
+    mundo.intersectionsWithShape(
+      mano,
+      SIN_GIRO,
+      esferaMano,
+      alTocar,
+      rapier.QueryFilterFlags.EXCLUDE_SENSORS,
+      gruposRayo,
+    );
+    const c = tocado as RAPIER.Collider | null;
+    if (!c) return;
+    let otro = c.parent();
+    if (!otro) {
+      fijo ??= mundo.createRigidBody(rapier.RigidBodyDesc.fixed());
+      otro = fijo;
+    }
+    // La mano queda unida a ese punto del otro cuerpo, en su marco local
+    mano.sub(otro.translation()).applyQuaternion(q.copy(otro.rotation()).invert());
+    brazo.junta = mundo.createImpulseJoint(
+      rapier.JointData.spherical(MANO, { x: mano.x, y: mano.y, z: mano.z }),
+      brazo.cuerpo,
+      otro,
+      true,
+    );
+    brazo.agarrado = c;
+  };
+
+  const soltar = (brazo: (typeof brazos)[number]) => {
+    if (brazo.junta) mundo.removeImpulseJoint(brazo.junta, true);
+    brazo.junta = null;
+    brazo.agarrado = null;
+  };
 
   /** Torque PD que gira `cuerpo` hacia `objetivo` (en el mundo). Si hay `padre`, la velocidad es relativa a él y el
    * padre recibe el torque contrario (así el brazo no empuja al muñeco entero). Ganancias de aceleración: se
@@ -331,6 +398,8 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
         else if (apretoSaltar && enElSuelo && espera === 0 && tension > 0.5) {
           const v = AJUSTES.saltar.velocidad;
           for (const [c, m] of conMasa) c.applyImpulse({ x: 0, y: m * v, z: 0 }, true);
+          // El salto mismo no cuenta como golpe en el paso siguiente
+          centro.y += v;
           pasarA("en el aire");
         } else if (tiempoSinSuelo > AJUSTES.saltar.sinSuelo) pasarA("en el aire");
         break;
@@ -463,19 +532,26 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
       amortiguacion,
     );
 
-    // Brazos: cuelgan algo abiertos y se balancean al revés que la pierna del mismo lado
+    // Brazos: con su botón suben hacia adelante y agarran lo que tocan; sueltos, cuelgan algo abiertos y se
+    // balancean al revés que la pierna del mismo lado
     const b = AJUSTES.brazos;
-    const tq = qAux.copy(torso.rotation());
-    for (const [c, lado] of [
-      [brazoIzquierdo, 1],
-      [brazoDerecho, -1],
-    ] as const) {
-      qInclinar.setFromAxisAngle(EJE_X, lado * b.balanceo * amplitud * seno);
-      qObjetivo
-        .setFromAxisAngle(EJE_Z, lado * b.abrir)
-        .multiply(qInclinar)
-        .premultiply(tq);
-      girarHacia(c, qObjetivo, b.frecuencia, b.amortiguacion, torso);
+    for (const brazo of brazos) {
+      const { cuerpo: c, lado } = brazo;
+      if (entrada[brazo.nombre] === true) {
+        // La mano apunta hacia adelante y arriba: el brazo (su -y) rota hacia +z del rumbo y sube `elevacion`
+        qInclinar.setFromAxisAngle(EJE_X, -(Math.PI / 2 + b.alzar.elevacion));
+        qObjetivo.copy(qRumbo).multiply(qInclinar);
+        girarHacia(c, qObjetivo, b.alzar.frecuencia, b.alzar.amortiguacion, torso);
+        if (!brazo.junta && estado !== "caido") agarrar(brazo);
+      } else {
+        if (brazo.junta) soltar(brazo);
+        qInclinar.setFromAxisAngle(EJE_X, lado * b.balanceo * amplitud * seno);
+        qObjetivo
+          .setFromAxisAngle(EJE_Z, lado * b.abrir)
+          .multiply(qInclinar)
+          .premultiply(qAux.copy(torso.rotation()));
+        girarHacia(c, qObjetivo, b.frecuencia, b.amortiguacion, torso);
+      }
     }
   };
 
@@ -501,6 +577,9 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     },
     get tension() {
       return tension;
+    },
+    agarrado(nombre) {
+      return brazos.find((b) => b.nombre === nombre)?.agarrado ?? null;
     },
     inclinacion,
     rumboReal() {

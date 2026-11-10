@@ -22,6 +22,12 @@ const TOMAS = [
   // La meta de la ola 1: el muñeco caminando en el pinar
   { archivo: "pinar-caminando", ruta: "/?escena=pinar&andar=1&congelar=150" },
   { archivo: "pinar-niebla-corrida", ruta: "/?escena=pinar&congelar=600" },
+  // TU-04 y TU-05: un salto en lo más alto, tirado después de saltar de un escalón de 1.5 m, una caja arrastrada
+  // con el brazo derecho y colgado de una rama con los dos (`saltar`, `brazos` y `esperar` son el guion)
+  { archivo: "agarre-salto", ruta: "/?escena=agarre&salida=claro&saltar=30&congelar=48" },
+  { archivo: "agarre-caido", ruta: "/?escena=agarre&salida=borde&andar=1&saltar=22&congelar=240" },
+  { archivo: "agarre-caja", ruta: "/?escena=agarre&brazos=d&andar=-1&esperar=40&congelar=110" },
+  { archivo: "agarre-colgado", ruta: "/?escena=agarre&salida=rama&brazos=id&saltar=40&congelar=150" },
 ];
 const VIDEO = { archivo: "pinar", ruta: "/?escena=pinar&andar=0.7&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

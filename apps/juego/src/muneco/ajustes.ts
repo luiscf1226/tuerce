@@ -69,6 +69,15 @@ export const AJUSTES = {
     /** Separación de los brazos hacia afuera, para que no rocen la panza. */
     abrir: 0.12,
     balanceo: 0.5,
+    /** Con su botón apretado, el brazo sube hacia adelante, hacia donde mira el muñeco (TU-05). Un PD más fuerte,
+     * porque tiene que sostener el brazo (y lo que agarre) contra la gravedad. */
+    alzar: { frecuencia: 20, amortiguacion: 0.9, elevacion: 1 },
+  },
+
+  /** Agarrar (TU-05): la mano alzada que toca algo se une a eso con una rótula hasta que se suelta el botón. */
+  agarre: {
+    /** Cuánto más allá de la mano todavía cuenta como tocar (m). */
+    margen: 0.03,
   },
 
   /** Andar: fuerza horizontal en la pelvis hacia la velocidad deseada (solo con los pies en el suelo). */
@@ -101,8 +110,8 @@ export const AJUSTES = {
 
   /** Saltar (TU-04): un impulso hacia arriba a todo el cuerpo, solo de pie y con los pies en el suelo. */
   saltar: {
-    /** Velocidad hacia arriba que gana cada parte (m/s): unos 40 cm de salto. */
-    velocidad: 2.9,
+    /** Velocidad hacia arriba que gana cada parte (m/s): medio metro de salto. */
+    velocidad: 3.2,
     /** Espera entre un aterrizaje y el salto siguiente (s). */
     espera: 0.3,
     /** En el aire encoge las piernas: cadera hacia adelante y rodilla doblada (rad). */
