@@ -1,0 +1,74 @@
+/* Pantalla «invitar»: el mismo panel claro de «entrar», con el código en letras grandes. */
+.invitar {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  max-width: 420px;
+}
+.invitar button {
+  font: inherit;
+  padding: 8px 16px;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  background: #f4f4f1;
+  color: #2a2a2a;
+  cursor: pointer;
+}
+.invitar button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.invitar .mia {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.invitar .codigo {
+  font:
+    600 56px / 1 ui-monospace,
+    monospace;
+  letter-spacing: 0.18em;
+  padding: 12px 8px 12px 20px;
+  background: rgb(255 255 255 / 0.6);
+  border-radius: 8px;
+}
+.invitar .enlace {
+  color: #2a2a2a;
+  font-size: 13px;
+  word-break: break-all;
+}
+.invitar small {
+  color: #666;
+}
+.invitar .unirme {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.invitar input {
+  font:
+    20px / 1 ui-monospace,
+    monospace;
+  width: 7em;
+  padding: 8px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  background: #fff;
+}
+.invitar .aviso {
+  margin: 0;
+  min-height: 1.2em;
+}
+.invitar .listos {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+/* Va al final para ganarle a los `display` de arriba. */
+.invitar [hidden] {
+  display: none;
+}
