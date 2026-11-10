@@ -69,6 +69,15 @@ export const AJUSTES = {
     /** Separación de los brazos hacia afuera, para que no rocen la panza. */
     abrir: 0.12,
     balanceo: 0.5,
+    /** Con su botón apretado, el brazo sube hacia adelante, hacia donde mira el muñeco (TU-05). Un PD más fuerte,
+     * porque tiene que sostener el brazo (y lo que agarre) contra la gravedad. */
+    alzar: { frecuencia: 20, amortiguacion: 0.9, elevacion: 1 },
+  },
+
+  /** Agarrar (TU-05): la mano alzada que toca algo se une a eso con una rótula hasta que se suelta el botón. */
+  agarre: {
+    /** Cuánto más allá de la mano todavía cuenta como tocar (m). */
+    margen: 0.03,
   },
 
   /** Andar: fuerza horizontal en la pelvis hacia la velocidad deseada (solo con los pies en el suelo). */
@@ -97,6 +106,45 @@ export const AJUSTES = {
     /** Motores (modelo de fuerza): rigidez en N·m/rad y amortiguación en N·m·s/rad. */
     rigidez: 220,
     amortiguacionMotor: 14,
+  },
+
+  /** Saltar (TU-04): un impulso hacia arriba a todo el cuerpo, solo de pie y con los pies en el suelo. */
+  saltar: {
+    /** Velocidad hacia arriba que gana cada parte (m/s): medio metro de salto. */
+    velocidad: 3.2,
+    /** Espera entre un aterrizaje y el salto siguiente (s). */
+    espera: 0.3,
+    /** En el aire encoge las piernas: cadera hacia adelante y rodilla doblada (rad). */
+    cadera: -0.75,
+    rodilla: 1.4,
+    /** Tiempo sin suelo bajo los pies para pasar a «en el aire» sin haber saltado (s). */
+    sinSuelo: 0.1,
+  },
+
+  /** Caer (TU-04): pasado cierto límite el muñeco se afloja y cae como un trapo. */
+  caer: {
+    /** Inclinación del torso a partir de la cual ya no se puede sostener (rad). */
+    inclinacion: 0.95,
+    /** Cambio de la velocidad del centro de masa en un solo paso que cuenta como golpe fuerte (m/s). */
+    golpe: 3.2,
+    /** Velocidad de bajada al tocar el suelo que cuenta como caída de lo alto (m/s): más de unos 80 cm. */
+    aterrizaje: 4.3,
+    /** Cuánto tarda en aflojarse del todo (s). */
+    aflojar: 0.25,
+  },
+
+  /** Levantarse (TU-04): tras un rato quieto en el suelo, recupera la firmeza de a poco y se endereza solo. */
+  levantarse: {
+    /** Cuánto tiene que estar quieto en el suelo antes de levantarse (s). */
+    quietud: 1,
+    /** Por debajo de esta velocidad del centro de masa cuenta como quieto (m/s). */
+    velocidadQuieto: 0.3,
+    /** Cuánto tarda la firmeza en volver de 0 a 1 (s). */
+    duracion: 1.1,
+    /** Inclinación por debajo de la cual ya está de pie (rad). */
+    derecho: 0.3,
+    /** Si en este tiempo no quedó derecho, se vuelve a aflojar y lo intenta de nuevo (s). */
+    intento: 3.5,
   },
 
   /** Rozamiento de pies, manos y cuerpo. Los pies agarran poco: el peso lo carga la suspensión. */
