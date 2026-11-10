@@ -1,23 +1,37 @@
 // Invitación con código: uno crea un código de 5 letras (o un enlace con él), el otro lo acepta y quedan como pareja.
 import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
-import { mutation, type QueryCtx, query } from "./_generated/server";
+import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
 import { juntar, nombreDe, yoObligatorio, yoSiHay } from "./cuenta";
 
 /** Sin I, O, 0 ni 1: se confunden al dictarlos o al leerlos en una pantalla chica. */
 export const ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 export const LARGO = 5;
 export const DURACION_MS = 15 * 60 * 1000;
+/** Códigos equivocados que se aceptan por usuario en VENTANA_MS: con 32^5 códigos posibles, adivinar uno vivo
+ * a este ritmo lleva años. */
+export const MAX_FALLIDOS = 10;
+export const VENTANA_MS = 10 * 60 * 1000;
 
 /** Lo que la persona escribió, en mayúsculas y sin espacios ni guiones. */
 export function normalizarCodigo(texto: string): string {
   return texto.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
+/** Con azar criptográfico: 32 letras dividen justo a 256, así que ninguna sale más que otra. */
 function codigoAlAzar(): string {
-  let codigo = "";
-  for (let i = 0; i < LARGO; i++) codigo += ALFABETO[Math.floor(Math.random() * ALFABETO.length)];
-  return codigo;
+  const bytes = crypto.getRandomValues(new Uint8Array(LARGO));
+  return Array.from(bytes, (b) => ALFABETO[b % ALFABETO.length]).join("");
+}
+
+/** Cuántos códigos equivocados lleva el usuario en la ventana actual (y el documento, si existe). */
+async function fallidosDe(ctx: MutationCtx, usuarioId: Id<"usuarios">) {
+  const doc = await ctx.db
+    .query("intentosCodigo")
+    .withIndex("por_usuario", (q) => q.eq("usuarioId", usuarioId))
+    .unique();
+  const vigente = doc !== null && Date.now() - doc.desde < VENTANA_MS;
+  return { doc, fallidos: vigente ? doc.fallidos : 0, vigente };
 }
 
 /** La invitación más reciente con ese código. Los códigos no se repiten entre invitaciones vivas. */
@@ -60,29 +74,44 @@ export const crearInvitacion = mutation({
   },
 });
 
-/** Acepto el código de otra persona y quedamos como pareja. Aceptar dos veces el mismo código da la misma pareja. */
+/**
+ * Acepto el código de otra persona y quedamos como pareja. Aceptar dos veces el mismo código da la misma pareja.
+ * Un código equivocado (que no existe, venció o ya lo usó otra persona) no lanza error: devuelve `{ ok: false }`
+ * y queda anotado, porque un error desharía la anotación. Pasado MAX_FALLIDOS en la ventana, ya no se prueba más.
+ */
 export const aceptarInvitacion = mutation({
   args: { codigo: v.string() },
   handler: async (ctx, args) => {
     const yo = await yoObligatorio(ctx);
     const codigo = normalizarCodigo(args.codigo);
     if (codigo.length !== LARGO) throw new ConvexError(`El código tiene ${LARGO} letras`);
+    const intentos = await fallidosDe(ctx, yo._id);
+    if (intentos.fallidos >= MAX_FALLIDOS)
+      throw new ConvexError("Probaste demasiados códigos equivocados: esperá unos minutos y pedí el enlace");
+
+    const fallar = async (motivo: string) => {
+      if (intentos.doc && intentos.vigente) await ctx.db.patch(intentos.doc._id, { fallidos: intentos.fallidos + 1 });
+      else if (intentos.doc) await ctx.db.patch(intentos.doc._id, { desde: Date.now(), fallidos: 1 });
+      else await ctx.db.insert("intentosCodigo", { usuarioId: yo._id, desde: Date.now(), fallidos: 1 });
+      return { ok: false as const, motivo };
+    };
+
     const invitacion = await porCodigo(ctx, codigo);
-    if (!invitacion) throw new ConvexError(`No hay ninguna invitación con el código ${codigo}`);
+    if (!invitacion) return await fallar(`No hay ninguna invitación con el código ${codigo}`);
     if (invitacion.de === yo._id) throw new ConvexError("Ese es tu propio código: pasáselo a la otra persona");
 
     if (invitacion.parejaId) {
       const pareja = await ctx.db.get(invitacion.parejaId);
       if (pareja && (pareja.a === yo._id || pareja.b === yo._id)) {
-        return { ...pareja, nombres: await nombresDePareja(ctx, invitacion.de, pareja) };
+        return { ok: true as const, ...pareja, nombres: await nombresDePareja(ctx, invitacion.de, pareja) };
       }
-      throw new ConvexError("Esa invitación ya la usó otra persona: pedí un código nuevo");
+      return await fallar("Esa invitación ya la usó otra persona: pedí un código nuevo");
     }
-    if (invitacion.vence <= Date.now()) throw new ConvexError("Esa invitación venció: pedí un código nuevo");
+    if (invitacion.vence <= Date.now()) return await fallar("Esa invitación venció: pedí un código nuevo");
 
     const pareja = await juntar(ctx, invitacion.de, yo._id);
     await ctx.db.patch(invitacion._id, { parejaId: pareja._id });
-    return { ...pareja, nombres: await nombresDePareja(ctx, invitacion.de, pareja) };
+    return { ok: true as const, ...pareja, nombres: await nombresDePareja(ctx, invitacion.de, pareja) };
   },
 });
 

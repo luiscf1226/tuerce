@@ -103,7 +103,8 @@ export function montarInvitar(
     aviso.textContent = "Uniéndote…";
     try {
       const pareja = await convex.mutation(api.invitaciones.aceptarInvitacion, { codigo });
-      yaSonPareja(pareja.nombres);
+      if (pareja.ok) yaSonPareja(pareja.nombres);
+      else aviso.textContent = pareja.motivo;
     } catch (error) {
       aviso.textContent = mensajeDeError(error);
     }

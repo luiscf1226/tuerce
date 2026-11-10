@@ -53,7 +53,10 @@ export function leerServidoresIce(json: unknown): ServidorIce[] {
   return servidores;
 }
 
-/** Pide credenciales TURN de un día a Cloudflare. Si algo falta o falla, devuelve el STUN público y lo dice. */
+/** Cuánto duran las credenciales TURN: una tarde de juego, no un día entero. */
+export const DURACION_TURN_S = 4 * 60 * 60;
+
+/** Pide credenciales TURN a Cloudflare (duran DURACION_TURN_S). Si algo falta o falla, devuelve el STUN público y lo dice. */
 export async function servidoresIce(llaves: LlavesTurn, pedir: typeof fetch = fetch): Promise<RespuestaIce> {
   const { TURN_KEY_ID: id, TURN_KEY_API_TOKEN: token } = llaves;
   if (!id || !token) return respaldo("La sala no tiene TURN_KEY_ID ni TURN_KEY_API_TOKEN: solo STUN público");
@@ -63,7 +66,7 @@ export async function servidoresIce(llaves: LlavesTurn, pedir: typeof fetch = fe
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ ttl: 86400 }),
+        body: JSON.stringify({ ttl: DURACION_TURN_S }),
       },
     );
     if (!respuesta.ok) return respaldo(`Cloudflare TURN respondió ${respuesta.status}: solo STUN público`);

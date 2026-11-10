@@ -27,6 +27,11 @@ export default defineSchema({
   })
     .index("por_codigo", ["codigo"])
     .index("por_de", ["de", "vence"]),
+  // códigos de invitación equivocados por usuario, para cortar a quien intente adivinarlos
+  intentosCodigo: defineTable({ usuarioId: v.id("usuarios"), desde: v.number(), fallidos: v.number() }).index(
+    "por_usuario",
+    ["usuarioId"],
+  ),
   // quién busca pareja; una mutación empareja a los dos primeros de la misma región
   cola: defineTable({ usuarioId: v.id("usuarios"), region: v.string(), desde: v.number() })
     .index("por_region", ["region", "desde"])

@@ -24,6 +24,7 @@ async function parejaDeAnaYBeto() {
   await carla.mutation(api.usuarios.guardarme, { nombre: "Carla" });
   const { codigo } = await ana.mutation(api.invitaciones.crearInvitacion, {});
   const pareja = await beto.mutation(api.invitaciones.aceptarInvitacion, { codigo });
+  if (!pareja.ok) throw new Error(pareja.motivo);
   return { ana, beto, carla, anaId, parejaId: pareja._id };
 }
 

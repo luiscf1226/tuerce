@@ -105,9 +105,14 @@ try {
   const turn = await (await fetch(`http://${base}/turn?pase=${await pase("ana")}`)).json();
   if (!turn.iceServers?.some((s) => s.urls.some((u) => u.startsWith("stun:"))))
     throw new Error(`/turn sin STUN: ${JSON.stringify(turn)}`);
+  // tope por hora: con la primera ya van 1; las siguientes hasta 6 pasan y la 7.ª no
+  const estados = [];
+  for (let i = 0; i < 6; i++) estados.push((await fetch(`http://${base}/turn?pase=${await pase("ana")}`)).status);
+  if (estados.slice(0, 5).some((e) => e !== 200) || estados[5] !== 429)
+    throw new Error(`/turn no corta en 6 por hora: ${estados.join(",")}`);
 
   console.log(
-    "PASA sala: con pase entran anfitrión e invitado, cruzan señales, reconectar reemplaza; sin pase o un tercero no entra; /turn responde",
+    "PASA sala: con pase entran anfitrión e invitado, cruzan señales, reconectar reemplaza; sin pase o un tercero no entra; /turn responde con tope por hora",
   );
   fin(0);
 } catch (e) {

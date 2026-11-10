@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { leerServidoresIce, STUN_PUBLICO, servidoresIce } from "./turn";
+import { DURACION_TURN_S, leerServidoresIce, STUN_PUBLICO, servidoresIce } from "./turn";
 
 const LLAVES = { TURN_KEY_ID: "llave-123", TURN_KEY_API_TOKEN: "token-abc" };
 
@@ -36,7 +36,7 @@ describe("servidores ICE", () => {
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({ Authorization: "Bearer token-abc" }),
-        body: JSON.stringify({ ttl: 86400 }),
+        body: JSON.stringify({ ttl: DURACION_TURN_S }),
       }),
     );
     expect(respuesta).toEqual({

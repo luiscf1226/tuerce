@@ -1,7 +1,7 @@
 import { convexTest } from "convex-test";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { api } from "./_generated/api";
-import { ALFABETO, DURACION_MS } from "./invitaciones";
+import { ALFABETO, DURACION_MS, MAX_FALLIDOS, VENTANA_MS } from "./invitaciones";
 import schema from "./schema";
 import { modulos } from "./test.setup";
 
@@ -13,6 +13,15 @@ async function preparar() {
   const anaId = await ana.mutation(api.usuarios.guardarme, { nombre: "Ana" });
   const betoId = await beto.mutation(api.usuarios.guardarme, { nombre: "Beto" });
   return { t, ana, beto, anaId, betoId };
+}
+
+type Cliente = Awaited<ReturnType<typeof preparar>>["ana"];
+
+/** Acepta y espera que salga bien; si no, la prueba falla con el motivo. */
+async function aceptar(cliente: Cliente, codigo: string) {
+  const resultado = await cliente.mutation(api.invitaciones.aceptarInvitacion, { codigo });
+  if (!resultado.ok) throw new Error(resultado.motivo);
+  return resultado;
 }
 
 afterEach(() => {
@@ -27,7 +36,7 @@ describe("invitaciones", () => {
     expect(vence).toBeGreaterThan(Date.now() + DURACION_MS - 60_000);
 
     expect((await ana.query(api.invitaciones.estadoInvitacion, { codigo }))?.pareja).toBeNull();
-    const pareja = await beto.mutation(api.invitaciones.aceptarInvitacion, { codigo: codigo.toLowerCase() });
+    const pareja = await aceptar(beto, codigo.toLowerCase());
     expect(pareja.nombres).toEqual(["Ana", "Beto"]);
     expect(pareja.a < pareja.b).toBe(true);
     expect([pareja.a, pareja.b].sort()).toEqual([anaId, betoId].sort());
@@ -60,29 +69,33 @@ describe("invitaciones", () => {
     const { ana, beto } = await preparar();
     const { codigo } = await ana.mutation(api.invitaciones.crearInvitacion, {});
     vi.advanceTimersByTime(DURACION_MS + 1000);
-    await expect(beto.mutation(api.invitaciones.aceptarInvitacion, { codigo })).rejects.toThrow(/venció/);
+    expect(await beto.mutation(api.invitaciones.aceptarInvitacion, { codigo })).toMatchObject({
+      ok: false,
+      motivo: expect.stringMatching(/venció/),
+    });
     const nueva = await ana.mutation(api.invitaciones.crearInvitacion, {});
     expect(nueva.codigo).not.toBe(codigo);
   });
 
   it("rechaza un código que no existe", async () => {
     const { beto } = await preparar();
-    await expect(beto.mutation(api.invitaciones.aceptarInvitacion, { codigo: "ZZZZZ" })).rejects.toThrow(
-      /ninguna invitación/,
-    );
+    expect(await beto.mutation(api.invitaciones.aceptarInvitacion, { codigo: "ZZZZZ" })).toMatchObject({
+      ok: false,
+      motivo: expect.stringMatching(/ninguna invitación/),
+    });
   });
 
   it("aceptar dos veces da la misma pareja", async () => {
     const { t, ana, beto } = await preparar();
     const { codigo } = await ana.mutation(api.invitaciones.crearInvitacion, {});
-    const primera = await beto.mutation(api.invitaciones.aceptarInvitacion, { codigo });
-    const segunda = await beto.mutation(api.invitaciones.aceptarInvitacion, { codigo });
+    const primera = await aceptar(beto, codigo);
+    const segunda = await aceptar(beto, codigo);
     expect(segunda._id).toBe(primera._id);
     expect(await t.run((ctx) => ctx.db.query("parejas").collect())).toHaveLength(1);
 
     // Otra invitación entre los mismos dos tampoco duplica la pareja.
     const otra = await beto.mutation(api.invitaciones.crearInvitacion, {});
-    const tercera = await ana.mutation(api.invitaciones.aceptarInvitacion, { codigo: otra.codigo });
+    const tercera = await aceptar(ana, otra.codigo);
     expect(tercera._id).toBe(primera._id);
     expect(tercera.nombres).toEqual(["Beto", "Ana"]);
     expect(await t.run((ctx) => ctx.db.query("parejas").collect())).toHaveLength(1);
@@ -93,13 +106,31 @@ describe("invitaciones", () => {
     const carla = t.withIdentity({ subject: "carla", issuer: "prueba" });
     await carla.mutation(api.usuarios.guardarme, { nombre: "Carla" });
     const { codigo } = await ana.mutation(api.invitaciones.crearInvitacion, {});
-    await beto.mutation(api.invitaciones.aceptarInvitacion, { codigo });
-    await expect(carla.mutation(api.invitaciones.aceptarInvitacion, { codigo })).rejects.toThrow(/otra persona/);
+    await aceptar(beto, codigo);
+    expect(await carla.mutation(api.invitaciones.aceptarInvitacion, { codigo })).toMatchObject({
+      ok: false,
+      motivo: expect.stringMatching(/otra persona/),
+    });
     expect(await carla.query(api.invitaciones.estadoInvitacion, { codigo })).toBeNull();
   });
 
   it("sin sesión no se puede crear", async () => {
     const t = convexTest(schema, modulos);
     await expect(t.mutation(api.invitaciones.crearInvitacion, {})).rejects.toThrow(/entrar primero/);
+  });
+
+  it("corta a quien prueba demasiados códigos equivocados, aunque después acierte", async () => {
+    vi.useFakeTimers();
+    const { ana, beto } = await preparar();
+    const { codigo } = await ana.mutation(api.invitaciones.crearInvitacion, {});
+    const equivocado = codigo === "ZZZZZ" ? "YYYYY" : "ZZZZZ";
+    for (let i = 0; i < MAX_FALLIDOS; i++)
+      expect((await beto.mutation(api.invitaciones.aceptarInvitacion, { codigo: equivocado })).ok).toBe(false);
+    await expect(beto.mutation(api.invitaciones.aceptarInvitacion, { codigo })).rejects.toThrow(/demasiados/);
+
+    // Pasada la ventana, vuelve a poder
+    vi.advanceTimersByTime(VENTANA_MS + 1000);
+    const nueva = await ana.mutation(api.invitaciones.crearInvitacion, {});
+    expect((await aceptar(beto, nueva.codigo)).nombres).toEqual(["Ana", "Beto"]);
   });
 });

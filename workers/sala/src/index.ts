@@ -5,7 +5,8 @@
 // Para entrar hace falta un pase firmado que emite Convex (`pedirPase`, ver src/pase.ts): /sala/<nombre>?pase=…
 // La sala recuerda a los dos primeros usuarios con pase y no deja entrar a un tercero. Si uno vuelve a entrar
 // (otra pestaña, se cortó la red), su conexión nueva reemplaza a la vieja y conserva el rol.
-// GET /turn?pase=… entrega los servidores ICE (TURN de Cloudflare, o STUN público si faltan las llaves).
+// GET /turn?pase=… entrega los servidores ICE (TURN de Cloudflare, o STUN público si faltan las llaves). Lo
+// atiende la sala del pase, que no da más de TURN_POR_HORA credenciales a cada usuario: cada una se cobra.
 import { DurableObject } from "cloudflare:workers";
 import { verificarPase } from "./pase";
 import { type LlavesTurn, servidoresIce } from "./turn";
@@ -26,6 +27,9 @@ const MAX = 16 * 1024; // una oferta SDP cabe de sobra; las fotos de físicas en
 /** Cabecera con la que el Worker le pasa a la sala el usuario del pase ya revisado. */
 const USUARIO = "X-Tuerce-Usuario";
 const CORS = { "Access-Control-Allow-Origin": "*" };
+/** Credenciales TURN por usuario y por hora: alcanza para reconectar varias veces, no para juntar un montón. */
+const TURN_POR_HORA = 6;
+const HORA_MS = 60 * 60 * 1000;
 
 function conexion(ws: WebSocket): Conexion {
   const datos = ws.deserializeAttachment() as Partial<Conexion> | null;
@@ -46,6 +50,7 @@ export class Sala extends DurableObject<Env> {
   }
 
   override async fetch(req: Request): Promise<Response> {
+    if (new URL(req.url).pathname === "/turn") return this.turn(req.headers.get(USUARIO) ?? "");
     const dentro = this.vivas();
     if (req.headers.get("Upgrade") !== "websocket") return Response.json({ ocupacion: dentro.length, cupo: 2 });
     const usuario = req.headers.get(USUARIO);
@@ -81,6 +86,19 @@ export class Sala extends DurableObject<Env> {
     if (vivas.length === 2) for (const w of vivas) w.send(JSON.stringify({ t: "listos" }));
     return new Response(null, { status: 101, webSocket: cliente });
   }
+  /** Servidores ICE para un usuario con pase de esta sala, con tope por hora. */
+  private async turn(usuario: string): Promise<Response> {
+    if (!usuario) return new Response("falta el pase", { status: 401, headers: CORS });
+    const clave = `turn:${usuario}`;
+    const ahora = Date.now();
+    const cuenta = (await this.ctx.storage.get<{ desde: number; n: number }>(clave)) ?? { desde: ahora, n: 0 };
+    const vigente = ahora - cuenta.desde < HORA_MS ? cuenta : { desde: ahora, n: 0 };
+    if (vigente.n >= TURN_POR_HORA)
+      return new Response("demasiados pedidos de TURN; probá en un rato", { status: 429, headers: CORS });
+    await this.ctx.storage.put(clave, { desde: vigente.desde, n: vigente.n + 1 });
+    return Response.json(await servidoresIce(this.env), { headers: { ...CORS, "Cache-Control": "no-store" } });
+  }
+
   // Todo lo que manda uno le llega tal cual al otro: señales de WebRTC ({ t: 'senal', ... }) o,
   // en modo repetidor, los botones y las fotos de físicas (texto o binario).
   override webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer) {
@@ -114,7 +132,8 @@ export default {
     if (url.pathname === "/turn") {
       const revision = await verificarPase(pase, env.SALA_SECRETO ?? "");
       if (!revision.ok) return new Response(revision.motivo, { status: 401, headers: CORS });
-      return Response.json(await servidoresIce(env), { headers: { ...CORS, "Cache-Control": "no-store" } });
+      const sala = env.SALAS.get(env.SALAS.idFromName(revision.pase.sala));
+      return sala.fetch(new Request(url, { headers: { [USUARIO]: revision.pase.usuario } }));
     }
 
     // /sala/<nombre de la sala, ver salaDePareja en src/pase.ts>
