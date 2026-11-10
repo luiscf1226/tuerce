@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "pnpm --parallel --filter tuerce-juego --filter tuerce-sala dev",
     "build": "pnpm -r build",
-    "test": "pnpm -r test",
+    "test": "pnpm test:convex && pnpm -r test",
+    "test:convex": "vitest run --root convex",
     "check": "biome check . && pnpm -r typecheck && tsc --noEmit -p convex",
     "format": "biome check --write .",
     "capturas": "node scripts/capturas.mjs",
@@ -19,8 +20,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.6",
+    "@edge-runtime/vm": "^5.0.0",
     "convex": "^1.49.0",
+    "convex-test": "^0.0.67",
     "playwright": "1.65.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
   }
 }

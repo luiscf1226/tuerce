@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dominioDeClerk } from "./entrar";
+import { dominioDeClerk } from "./sesion";
 
 describe("llave pública de Clerk", () => {
   it("saca el dominio de Clerk de la llave", () => {

@@ -1,12 +1,13 @@
 import * as THREE from "three";
-import { ESCENA_INICIAL, ESCENAS } from "./escenas";
+import { ESCENA_INICIAL, ESCENAS, PANTALLAS } from "./escenas";
 import { publicarEstado } from "./estado";
+import { crearImagen } from "./imagen";
 import { crearBucle, PASOS_POR_SEGUNDO } from "./motor/bucle";
 import { crearMundo } from "./motor/fisica";
 import "./estilo.css";
 
 // Parámetros de la dirección:
-//   ?escena=<nombre>   qué escena abrir (ver src/escenas/index.ts); `entrar` abre la entrada con Clerk
+//   ?escena=<nombre>   qué escena abrir (ver src/escenas/index.ts); `entrar` e `invitar` son pantallas de la cuenta
 //   ?congelar=<pasos>  corre exactamente esos pasos de físicas y se detiene; para capturas que siempre salen igual
 //   ?depurar           muestra los pasos de físicas por segundo
 const parametros = new URLSearchParams(location.search);
@@ -14,8 +15,9 @@ const nombre = parametros.get("escena") ?? ESCENA_INICIAL;
 const congelar = Number(parametros.get("congelar") ?? Number.NaN);
 
 async function arrancar() {
-  // La pantalla de entrar no es una escena de físicas: se carga aparte para no meter Clerk en el juego.
-  if (nombre === "entrar") return (await import("./cuenta/entrar")).abrirEntrar();
+  // Las pantallas de la cuenta no son escenas de físicas: se cargan aparte para no meter Clerk en el juego.
+  const pantalla = PANTALLAS[nombre];
+  if (pantalla) return pantalla();
 
   const crear = ESCENAS[nombre];
   if (!crear) throw new Error(`No existe la escena «${nombre}». Hay: ${Object.keys(ESCENAS).join(", ")}`);
@@ -26,10 +28,13 @@ async function arrancar() {
 
   const lienzo = document.createElement("canvas");
   document.body.append(lienzo);
-  const pintor = new THREE.WebGLRenderer({ canvas: lienzo, antialias: true, preserveDrawingBuffer: true });
+  const pintor = new THREE.WebGLRenderer({ canvas: lienzo, antialias: false, preserveDrawingBuffer: true });
   pintor.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // Todo se dibuja a través de la imagen (src/imagen): tono, antialias, grano y viñeta de las referencias.
+  const imagen = crearImagen(pintor, escena.escena, escena.camara);
   const ajustar = () => {
     pintor.setSize(window.innerWidth, window.innerHeight);
+    imagen.ajustar(window.innerWidth, window.innerHeight);
     escena.camara.aspect = window.innerWidth / window.innerHeight;
     escena.camara.updateProjectionMatrix();
   };
@@ -44,7 +49,7 @@ async function arrancar() {
   if (Number.isFinite(congelar)) {
     for (let i = 0; i < congelar; i++) escena.pasar();
     escena.dibujar(1);
-    pintor.render(escena.escena, escena.camara);
+    imagen.dibujar();
     Object.assign(estado, { listo: true, pasosTotales: congelar });
     return;
   }
@@ -54,13 +59,16 @@ async function arrancar() {
     pasosEsteSegundo += bucle.avanzar((ahora - anterior) / 1000);
     anterior = ahora;
     escena.dibujar(bucle.alfa);
-    pintor.render(escena.escena, escena.camara);
+    imagen.dibujar();
 
     if (ahora - inicioSegundo >= 1000) {
       estado.pasosPorSegundo = Math.round((pasosEsteSegundo * 1000) / (ahora - inicioSegundo));
       pasosEsteSegundo = 0;
       inicioSegundo = ahora;
-      if (medidor) medidor.textContent = `${estado.pasosPorSegundo} / ${PASOS_POR_SEGUNDO} pasos por segundo`;
+      if (medidor) {
+        const imagenAl = Math.round(imagen.escala * 100);
+        medidor.textContent = `${estado.pasosPorSegundo} / ${PASOS_POR_SEGUNDO} pasos por segundo · imagen al ${imagenAl}%`;
+      }
     }
     estado.pasosTotales = bucle.pasosTotales;
     estado.listo = true;
