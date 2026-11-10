@@ -2,6 +2,19 @@
 
 Tamaños: C = hasta 1 día · M = 2 a 4 días · G = 1 a 2 semanas.
 
+## Preparación · Repo y herramientas
+
+Antes de programar: estructura, revisión automática, guía para agentes, capturas y entornos.
+
+| Id | Ticket | Listo cuando | Tamaño | Depende de |
+|---|---|---|---|---|
+| TU-50 | Estructura y comandos | Un `pnpm install` en la raíz instala todo; `pnpm dev`, `pnpm test`, `pnpm build` y `pnpm check` funcionan para todo el proyecto. | C | — |
+| TU-51 | Reglas de código | TypeScript estricto y Biome para lint y formato; `pnpm check` pasa limpio y corre en cada pull request. | C | — |
+| TU-52 | Guía para los agentes | `CLAUDE.md` y `AGENTS.md` explican el proyecto, cómo probar y qué no tocar; una skill `ola` reparte una ola en paralelo, junta la rama `ola-N` y entrega vista previa, capturas y el pull request. | M | — |
+| TU-53 | Capturas y video automáticos | `pnpm capturas` abre el juego en Chromium sin ventana, recorre las escenas clave y guarda imágenes y un video corto; el pull request de cada ola los muestra. | M | — |
+| TU-54 | Plantillas y protección de main | Plantilla de pull request (qué cambió, cómo se probó, capturas) y de issue; `main` solo acepta cambios por pull request con la revisión automática en verde. | C | — |
+| TU-55 | Entornos y secretos | Desarrollo, vista previa y producción separados en Convex, Clerk y Cloudflare; las llaves viven en los secretos de GitHub y Cloudflare, nunca en el código. | C | tus cuentas |
+
 ## Fase 1 · El muñeco
 
 Lo más difícil va primero. No necesita cuentas.

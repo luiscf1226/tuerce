@@ -42,9 +42,9 @@ const cuerpo = (t, fase, num) => [
 // ------------------------------------------------------------------ crear
 const fases = T.TICKETS, total = fases.reduce((n, f) => n + f[2].length, 0), olas = OLAS[cual];
 const errores = revisarOlas(olas, fases); if (errores.length) { console.error(errores.join('\n')); process.exit(1); }
-const tituloOla = (o, i) => `Ola ${i + 1} · ${o[0]}`;
+const tituloOla = (o, i) => `Ola ${i} · ${o[0]}`;
 const olaDe = Object.fromEntries(olas.flatMap((o, i) => o[3].map(id => [id, tituloOla(o, i)])));
-const faseNum = f => f.match(/^Fase (\d+)/)?.[1] ?? f;
+const faseNum = f => f.match(/^Fase (\d+)/)?.[1] ?? f.split(' · ')[0].toLowerCase();
 console.log(`${repo}: ${olas.length} olas, ${total} issues${seco ? ' (en seco)' : ''}`);
 if (seco) { const f = fases.find(x => x[2].some(t => t[5]?.dept || /^Nivel /.test(t[1]))) ?? fases[0]; const t = f[2].find(x => x[5]?.dept || /^Nivel /.test(x[1])) ?? f[2][0]; console.log(`\n# ${t[0]} · ${t[1]}\n${cuerpo(t, f[0], {})}`); process.exit(0); }
 

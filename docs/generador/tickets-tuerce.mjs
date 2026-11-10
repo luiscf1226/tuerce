@@ -2,6 +2,14 @@ import { N } from './niveles-tuerce.mjs';
 const NIVELES_LATAM = N.filter(l => +l[0] >= 7).map((l, i) => [`TU-${40 + i}`, `Nivel ${l[0]} · ${l[1]}`, `${l[2]}: ${l[6].length} misiones, ${l[3]}; secreto y logro incluidos.`, 'G', i < 5 ? 'TU-24, TU-25, TU-26, TU-27, TU-28' : 'TU-40, TU-41, TU-42, TU-43, TU-44']);
 // Tickets de Tuerce. [id, título, listo cuando, tamaño (C/M/G), depende de]
 export const TICKETS = [
+  ['Preparación · Repo y herramientas', 'Antes de programar: estructura, revisión automática, guía para agentes, capturas y entornos.', [
+    ['TU-50', 'Estructura y comandos', 'Un `pnpm install` en la raíz instala todo; `pnpm dev`, `pnpm test`, `pnpm build` y `pnpm check` funcionan para todo el proyecto.', 'C', ''],
+    ['TU-51', 'Reglas de código', 'TypeScript estricto y Biome para lint y formato; `pnpm check` pasa limpio y corre en cada pull request.', 'C', ''],
+    ['TU-52', 'Guía para los agentes', '`CLAUDE.md` y `AGENTS.md` explican el proyecto, cómo probar y qué no tocar; una skill `ola` reparte una ola en paralelo, junta la rama `ola-N` y entrega vista previa, capturas y el pull request.', 'M', ''],
+    ['TU-53', 'Capturas y video automáticos', '`pnpm capturas` abre el juego en Chromium sin ventana, recorre las escenas clave y guarda imágenes y un video corto; el pull request de cada ola los muestra.', 'M', ''],
+    ['TU-54', 'Plantillas y protección de main', 'Plantilla de pull request (qué cambió, cómo se probó, capturas) y de issue; `main` solo acepta cambios por pull request con la revisión automática en verde.', 'C', ''],
+    ['TU-55', 'Entornos y secretos', 'Desarrollo, vista previa y producción separados en Convex, Clerk y Cloudflare; las llaves viven en los secretos de GitHub y Cloudflare, nunca en el código.', 'C', 'tus cuentas'],
+  ]],
   ['Fase 1 · El muñeco', 'Lo más difícil va primero. No necesita cuentas.', [
     ['TU-01', 'Primer commit y revisión automática', 'Cada cambio compila y corre las pruebas solo.', 'C', ''],
     ['TU-02', 'Base del juego', 'Three.js y Rapier corriendo con físicas a paso fijo de 60 por segundo.', 'C', ''],

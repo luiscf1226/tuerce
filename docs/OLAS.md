@@ -2,22 +2,28 @@
 
 Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una aprobación.
 
-1. **Decís la ola.** Por ejemplo: «haz la ola 1 de Tuerce».
+1. **Decís la ola.** Por ejemplo: «haz la ola 0 de Tuerce».
 2. **Se reparte.** Un agente por ticket, todos al mismo tiempo, cada uno en su copia del proyecto. Antes reviso tus límites.
 3. **Se junta.** Todo entra a una rama `ola-N`; se corren las pruebas del juego completo.
 4. **Lo ves.** Vista previa para jugarlo, capturas o video de lo nuevo y un pull request con el resumen.
 5. **Aprobás.** Con «full send» se une a la rama principal y los issues de la ola se cierran. Si algo no te gusta, lo decís con tus palabras y se corrige dentro de la misma ola.
 
-## Ola 1 · Arranque
+## Ola 0 · Preparar el repo y las herramientas
 
-**Vas a ver:** La página publicada en tu Cloudflare y la entrada con Clerk. _(necesita tus cuentas)_
+**Vas a ver:** Un pull request de prueba con la revisión automática en verde, su vista previa en tu Cloudflare, capturas tomadas solas y la entrada con Clerk. _(necesita tus cuentas)_
 
+- TU-50 · Estructura y comandos
+- TU-51 · Reglas de código
+- TU-52 · Guía para los agentes
+- TU-53 · Capturas y video automáticos
+- TU-54 · Plantillas y protección de main
+- TU-55 · Entornos y secretos
 - TU-01 · Primer commit y revisión automática
 - TU-02 · Base del juego
 - TU-17 · Convex y cuentas con Clerk
 - TU-23 · Publicar en Cloudflare
 
-## Ola 2 · El muñeco y la imagen
+## Ola 1 · El muñeco y la imagen
 
 **Vas a ver:** El muñeco caminando en el pinar, igual a las imágenes de referencia.
 
@@ -26,7 +32,7 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-18 · Parejas e invitación con código
 - TU-19 · Pase firmado y TURN
 
-## Ola 3 · De a dos
+## Ola 2 · De a dos
 
 **Vas a ver:** Dos muñecos en la misma pantalla saltando y agarrando; la propuesta rehecha con la imagen nueva.
 
@@ -37,7 +43,7 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-20 · Conexión directa con repetidor de respaldo
 - TU-31 · Buscar pareja
 
-## Ola 4 · Manos y red
+## Ola 3 · Manos y red
 
 **Vas a ver:** Trepar, cargar y lanzar al compañero; jugar en línea con las físicas sincronizadas y voz.
 
@@ -48,7 +54,7 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-21 · Físicas sincronizadas
 - TU-34 · Voz entre los dos
 
-## Ola 5 · Formato de nivel
+## Ola 4 · Formato de nivel
 
 **Vas a ver:** Un nivel de prueba armado con el formato nuevo; reconexión; versión de escritorio.
 
@@ -56,7 +62,7 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-22 · Reconexión y avance de la pareja
 - TU-35 · Versión de escritorio
 
-## Ola 6 · Las piezas
+## Ola 5 · Las piezas
 
 **Vas a ver:** Las piezas de rompecabezas, ropero, secretos y contrarreloj.
 
@@ -64,7 +70,7 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-29 · Ropero, secretos y logros
 - TU-32 · Contrarreloj
 
-## Ola 7 · Primeros niveles
+## Ola 6 · Primeros niveles
 
 **Vas a ver:** El patio y el pinar jugables de principio a fin; la noche de tuerce.
 
@@ -72,7 +78,7 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-14 · Nivel 1 · El pinar
 - TU-33 · Noche de tuerce
 
-## Ola 8 · Honduras
+## Ola 7 · Honduras
 
 **Vas a ver:** La poza, la calle empedrada, Xibalbá, el tren bananero y Río Plátano; prueba con cinco parejas.
 
@@ -83,7 +89,7 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-27 · Nivel 5 · El tren bananero
 - TU-28 · Nivel 6 · Río Plátano
 
-## Ola 9 · Latinoamérica I
+## Ola 8 · Latinoamérica I
 
 **Vas a ver:** Niveles 7 a 11.
 
@@ -93,7 +99,7 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-43 · Nivel 10 · La garrucha
 - TU-44 · Nivel 11 · El llano
 
-## Ola 10 · Latinoamérica II
+## Ola 9 · Latinoamérica II
 
 **Vas a ver:** Niveles 12 a 16 y el final.
 
