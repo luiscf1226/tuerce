@@ -72,6 +72,9 @@ export function montarInvitar(
   const aviso = elemento(seccion, "p", "aviso");
   const listos = elemento(seccion, "p", "listos");
   listos.hidden = true;
+  const buscar = elemento(seccion, "a", "otra-forma");
+  buscar.href = "?escena=buscar";
+  buscar.textContent = "¿No tenés con quién? Buscar pareja en tu región";
 
   let dejarDeMirar: (() => void) | undefined;
 
