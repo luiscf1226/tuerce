@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - workers/*
+
+# Solo estas dependencias pueden correr scripts al instalarse (pnpm las bloquea por defecto).
+allowBuilds:
+  esbuild: true
+  workerd: true
+  sharp: false
+  browser-tabs-lock: false
+  core-js: false

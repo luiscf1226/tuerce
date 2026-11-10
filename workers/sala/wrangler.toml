@@ -1,3 +1,5 @@
+# Producción: `wrangler deploy` → tuerce-sala. Vista previa: `wrangler deploy --env preview` → tuerce-sala-preview.
+# Desarrollo: `wrangler dev` en local. Cada entorno tiene sus propias salas (Durable Objects separados).
 name = "tuerce-sala"
 main = "src/index.ts"
 compatibility_date = "2026-10-01"
@@ -9,3 +11,10 @@ class_name = "Sala"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["Sala"]
+
+[env.preview]
+name = "tuerce-sala-preview"
+
+[[env.preview.durable_objects.bindings]]
+name = "SALAS"
+class_name = "Sala"

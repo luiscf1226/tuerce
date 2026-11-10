@@ -2,10 +2,25 @@
   "name": "tuerce",
   "private": true,
   "type": "module",
-  "scripts": {
-    "convex:check": "tsc --noEmit -p convex",
-    "sala:dev": "pnpm --dir workers/sala dev",
-    "sala:test": "pnpm --dir workers/sala test"
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22"
   },
-  "devDependencies": { "convex": "^1.17.0", "typescript": "^5.6.0" }
+  "scripts": {
+    "dev": "pnpm --parallel --filter tuerce-juego --filter tuerce-sala dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "check": "biome check . && pnpm -r typecheck && tsc --noEmit -p convex",
+    "format": "biome check --write .",
+    "capturas": "node scripts/capturas.mjs",
+    "convex:dev": "convex dev",
+    "sala:dev": "pnpm --filter tuerce-sala dev",
+    "sala:test": "pnpm --filter tuerce-sala test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.6",
+    "convex": "^1.49.0",
+    "playwright": "1.65.0",
+    "typescript": "^5.9.3"
+  }
 }
