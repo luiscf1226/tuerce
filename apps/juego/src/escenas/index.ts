@@ -19,4 +19,5 @@ export const ESCENA_INICIAL = "pinar";
 export const PANTALLAS: Record<string, () => Promise<void>> = {
   entrar: async () => (await import("../cuenta/entrar")).abrirEntrar(),
   invitar: async () => (await import("../cuenta/invitar")).abrirInvitar(),
+  buscar: async () => (await import("../cuenta/buscar")).abrirBuscar(),
 };

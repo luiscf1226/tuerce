@@ -68,6 +68,19 @@
   font-size: 22px;
   font-weight: 600;
 }
+/* Pantalla «buscar»: el mismo panel, con el selector de región. */
+.invitar select {
+  font: inherit;
+  padding: 7px 10px;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  background: #fff;
+  color: #2a2a2a;
+}
+.invitar .otra-forma {
+  color: #2a2a2a;
+  font-size: 14px;
+}
 /* Va al final para ganarle a los `display` de arriba. */
 .invitar [hidden] {
   display: none;

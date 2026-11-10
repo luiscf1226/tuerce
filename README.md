@@ -20,7 +20,7 @@ pañuelos (rojo y turquesa) como único color. La referencia obligatoria son `do
 | `workers/sala/` | Sala de dos (Cloudflare Durable Object): presenta a los jugadores y hace de repetidor | Funciona en local; sin pase firmado ni TURN todavía                                    |
 | `scripts/`      | Capturas automáticas y lo que corre la revisión                                       | `pnpm capturas`                                                                        |
 | `niveles/`      | Escenas y guiones de cada nivel                                                       | Vacío                                                                                  |
-| `prototipo/`    | La propuesta con la demo 2D para dos                                                  | Con el estilo descartado; se rehace en TU-36                                           |
+| `prototipo/`    | La propuesta con la demo 2D para dos                                                  | Con la imagen nueva (niebla, siluetas de trapo); un solo HTML que se abre directo      |
 | `docs/`         | Plan, generador, arte y entornos                                                      | `docs/generador/tuerce.mjs` regenera el plan                                           |
 
 ## Cómo se corre
