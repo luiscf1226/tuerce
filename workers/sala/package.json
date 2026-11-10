@@ -1,0 +1,7 @@
+{
+  "name": "tuerce-sala",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "wrangler dev --port 8798", "test": "node test/dos-clientes.mjs", "typecheck": "tsc --noEmit", "deploy": "wrangler deploy" },
+  "devDependencies": { "@cloudflare/workers-types": "^4.20251001.0", "typescript": "^5.6.0", "wrangler": "^4.0.0" }
+}

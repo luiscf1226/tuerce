@@ -1,0 +1,11 @@
+{
+  "name": "tuerce",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "convex:check": "tsc --noEmit -p convex",
+    "sala:dev": "pnpm --dir workers/sala dev",
+    "sala:test": "pnpm --dir workers/sala test"
+  },
+  "devDependencies": { "convex": "^1.17.0", "typescript": "^5.6.0" }
+}
