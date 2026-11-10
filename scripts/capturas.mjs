@@ -13,8 +13,11 @@ import { chromium } from "playwright";
 const TOMAS = [
   { archivo: "prueba-inicio", ruta: "/?escena=prueba&congelar=1" },
   { archivo: "prueba-cajas-en-el-suelo", ruta: "/?escena=prueba&congelar=240" },
+  // La imagen del juego (TU-10): compararla con docs/arte/11-pinar.jpg
+  { archivo: "pinar", ruta: "/?escena=pinar&congelar=1" },
+  { archivo: "pinar-niebla-corrida", ruta: "/?escena=pinar&congelar=600" },
 ];
-const VIDEO = { archivo: "prueba", ruta: "/?escena=prueba&depurar", segundos: 5 };
+const VIDEO = { archivo: "pinar", ruta: "/?escena=pinar&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
 const SALIDA = "capturas";
 const PUERTO = 4173;
