@@ -1,0 +1,387 @@
+// El muñeco de trapo: un ragdoll activo hecho de cuerpos rígidos y articulaciones de Rapier.
+//
+// Cómo se mantiene en pie (la receta clásica de los ragdolls activos):
+//   1. Suspensión: un rayo desde la pelvis hasta el suelo y un resorte que la sostiene a la altura de estar de pie.
+//   2. Erguirse: pelvis, torso y cabeza reciben cada uno un torque PD que los lleva a estar derechos y mirando al rumbo.
+//   3. Andar: una fuerza horizontal empuja el tronco hacia la velocidad deseada, solo si hay suelo bajo los pies.
+//   4. Paso: caderas y rodillas son articulaciones de bisagra con motores de posición que siguen un ciclo de pasos
+//      al ritmo de la velocidad real. Los brazos cuelgan de los hombros y se balancean al revés que las piernas.
+//
+// Todo es físico: si se apaga la `firmeza` el muñeco cae como un trapo (para TU-04), y cada brazo es un cuerpo
+// propio unido al torso con una rótula (para agarrar en TU-05).
+//
+// Uso: en cada paso de físicas llamá `muneco.pasar(entrada)` y después `mundo.step()`.
+import type RAPIER from "@dimforge/rapier3d-compat";
+import * as THREE from "three";
+import { PASO } from "../motor/bucle";
+import type { Rapier } from "../motor/fisica";
+import { GRAVEDAD } from "../motor/fisica";
+import { AJUSTES, INERCIA_EXTRA, MASAS, MEDIDAS } from "./ajustes";
+
+export interface EntradaMuneco {
+  /** Hacia adelante (1) o hacia atrás (-1), según hacia dónde mira el muñeco. */
+  avanzar: number;
+  /** Girar a la izquierda (1) o a la derecha (-1). */
+  girar: number;
+}
+
+export const QUIETO: EntradaMuneco = { avanzar: 0, girar: 0 };
+
+export type NombreParte =
+  | "pelvis"
+  | "torso"
+  | "cabeza"
+  | "brazoIzquierdo"
+  | "brazoDerecho"
+  | "musloIzquierdo"
+  | "musloDerecho"
+  | "canillaIzquierda"
+  | "canillaDerecha";
+
+export const NOMBRES_PARTES: readonly NombreParte[] = [
+  "pelvis",
+  "torso",
+  "cabeza",
+  "brazoIzquierdo",
+  "brazoDerecho",
+  "musloIzquierdo",
+  "musloDerecho",
+  "canillaIzquierda",
+  "canillaDerecha",
+];
+
+export interface OpcionesMuneco {
+  /** Dónde quedan los pies al empezar. */
+  posicion?: { x: number; y: number; z: number };
+  /** Hacia dónde mira al empezar, en radianes alrededor de +y (0 = hacia +z). */
+  rumbo?: number;
+  /** Número de jugador (0 o 1). Separa los grupos de choque: las partes de un muñeco no chocan entre sí,
+   * pero sí con el otro muñeco y con el mundo. */
+  indice?: number;
+}
+
+export interface Muneco {
+  readonly partes: Readonly<Record<NombreParte, RAPIER.RigidBody>>;
+  /** Aplica las fuerzas del equilibrio y del paso. Va antes de cada `mundo.step()`. */
+  pasar(entrada: EntradaMuneco): void;
+  /** Hacia dónde quiere mirar, en radianes alrededor de +y. */
+  readonly rumbo: number;
+  /** Si el rayo de la pelvis encontró suelo en el último paso. */
+  readonly enElSuelo: boolean;
+  /** De 0 (trapo flojo) a 1 (de pie). Escala todas las fuerzas del equilibrio y los motores de las piernas. */
+  firmeza: number;
+  /** Masa total en kilos. */
+  readonly masa: number;
+  /** Ángulo entre el eje del torso y la vertical, en radianes. */
+  inclinacion(): number;
+  /** Hacia dónde mira de verdad el torso, en radianes alrededor de +y. */
+  rumboReal(): number;
+}
+
+const ARRIBA = new THREE.Vector3(0, 1, 0);
+const EJE_X = new THREE.Vector3(1, 0, 0);
+const EJE_Z = new THREE.Vector3(0, 0, 1);
+
+export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: OpcionesMuneco = {}): Muneco {
+  const origen = new THREE.Vector3(opciones.posicion?.x ?? 0, opciones.posicion?.y ?? 0, opciones.posicion?.z ?? 0);
+  let rumbo = opciones.rumbo ?? 0;
+  const giroInicial = new THREE.Quaternion().setFromAxisAngle(ARRIBA, rumbo);
+
+  // Grupos de choque: 16 bits de pertenencia arriba y 16 de filtro abajo. Cada muñeco tiene su bit y no se choca
+  // a sí mismo; el rayo de la suspensión usa el mismo filtro para no pisarse los propios pies.
+  const bit = 1 << (1 + (opciones.indice ?? 0));
+  const grupos = ((bit << 16) | (0xffff & ~bit)) >>> 0;
+  const gruposRayo = ((0xffff << 16) | (0xffff & ~bit)) >>> 0;
+
+  const { pelvis: mp, torso: mt, cabeza: mc, brazo: mb, cadera, muslo: mm, canilla: mk, pie } = MEDIDAS;
+
+  const cuerpo = (x: number, y: number, z = 0) => {
+    const p = new THREE.Vector3(x, y, z).applyQuaternion(giroInicial).add(origen);
+    return mundo.createRigidBody(
+      rapier.RigidBodyDesc.dynamic()
+        .setTranslation(p.x, p.y, p.z)
+        .setRotation(giroInicial)
+        .setCanSleep(false)
+        .setLinearDamping(AJUSTES.amortiguacion.lineal)
+        .setAngularDamping(AJUSTES.amortiguacion.angular),
+    );
+  };
+  const pegar = (
+    desc: RAPIER.ColliderDesc,
+    masa: number,
+    a: RAPIER.RigidBody,
+    rozamiento: number = AJUSTES.rozamiento.cuerpo,
+  ) => mundo.createCollider(desc.setMass(masa).setFriction(rozamiento).setCollisionGroups(grupos), a);
+
+  // Tronco
+  const pelvis = cuerpo(0, mp.y);
+  pegar(rapier.ColliderDesc.ball(mp.radio), MASAS.pelvis, pelvis);
+  const torso = cuerpo(0, mt.y);
+  pegar(rapier.ColliderDesc.capsule(mt.medioAlto, mt.radio), MASAS.torso, torso);
+  const cabeza = cuerpo(0, mc.y);
+  pegar(rapier.ColliderDesc.ball(mc.radio), MASAS.cabeza, cabeza);
+  for (const [c, extra] of [
+    [pelvis, INERCIA_EXTRA.pelvis],
+    [torso, INERCIA_EXTRA.torso],
+    [cabeza, INERCIA_EXTRA.cabeza],
+  ] as const) {
+    c.setAdditionalMassProperties(
+      0,
+      { x: 0, y: 0, z: 0 },
+      { x: extra, y: extra, z: extra },
+      { x: 0, y: 0, z: 0, w: 1 },
+      true,
+    );
+    c.recomputeMassPropertiesFromColliders();
+  }
+
+  // Brazos: un solo tramo con la mano redonda en la punta
+  const brazo = (lado: 1 | -1) => {
+    const b = cuerpo(lado * mb.hombroX, mb.hombroY - mb.largo / 2);
+    pegar(rapier.ColliderDesc.capsule(mb.largo / 2, mb.radio), MASAS.brazo * 0.7, b);
+    pegar(rapier.ColliderDesc.ball(mb.mano).setTranslation(0, -mb.largo / 2, 0), MASAS.brazo * 0.3, b);
+    return b;
+  };
+  const brazoIzquierdo = brazo(1);
+  const brazoDerecho = brazo(-1);
+
+  // Piernas: muslo y canilla; el pie va pegado a la canilla
+  const rodillaY = cadera.y - mm.largo;
+  const pierna = (lado: 1 | -1) => {
+    const muslo = cuerpo(lado * cadera.x, cadera.y - mm.largo / 2);
+    pegar(rapier.ColliderDesc.capsule(mm.largo / 2, mm.radio), MASAS.muslo, muslo);
+    const canilla = cuerpo(lado * cadera.x, rodillaY - mk.largo / 2);
+    pegar(rapier.ColliderDesc.capsule(mk.largo / 2, mk.radio), MASAS.canilla * 0.6, canilla);
+    pegar(
+      rapier.ColliderDesc.cuboid(pie.medioAncho, pie.medioAlto, pie.medioLargo).setTranslation(
+        0,
+        pie.medioAlto - (rodillaY - mk.largo / 2),
+        pie.adelante,
+      ),
+      MASAS.canilla * 0.4,
+      canilla,
+      AJUSTES.rozamiento.pie,
+    );
+    return { muslo, canilla };
+  };
+  const izquierda = pierna(1);
+  const derecha = pierna(-1);
+
+  // Articulaciones. Las anclas van en el marco local de cada cuerpo; todos empiezan con la misma rotación, así que
+  // el ángulo cero de cada bisagra es la pose de pie.
+  const local = (a: RAPIER.RigidBody, x: number, y: number) => {
+    const centro = new THREE.Vector3().copy(a.translation()).sub(origen).applyQuaternion(giroInicial.clone().invert());
+    return { x: x - centro.x, y: y - centro.y, z: -centro.z };
+  };
+  const rotula = (a: RAPIER.RigidBody, b: RAPIER.RigidBody, x: number, y: number) =>
+    mundo.createImpulseJoint(rapier.JointData.spherical(local(a, x, y), local(b, x, y)), a, b, true);
+  const bisagra = (a: RAPIER.RigidBody, b: RAPIER.RigidBody, x: number, y: number, min: number, max: number) => {
+    const j = mundo.createImpulseJoint(
+      rapier.JointData.revolute(local(a, x, y), local(b, x, y), { x: 1, y: 0, z: 0 }),
+      a,
+      b,
+      true,
+    ) as RAPIER.RevoluteImpulseJoint;
+    j.setLimits(min, max);
+    j.configureMotorModel(rapier.MotorModel.ForceBased);
+    return j;
+  };
+
+  rotula(pelvis, torso, 0, (mp.y + mt.y) / 2);
+  rotula(torso, cabeza, 0, MEDIDAS.cuello);
+  rotula(torso, brazoIzquierdo, mb.hombroX, mb.hombroY);
+  rotula(torso, brazoDerecho, -mb.hombroX, mb.hombroY);
+  // Cadera: ángulo negativo lleva la pierna hacia adelante. Rodilla: positivo dobla la canilla hacia atrás.
+  const caderaIzquierda = bisagra(pelvis, izquierda.muslo, cadera.x, cadera.y, -1.6, 1);
+  const caderaDerecha = bisagra(pelvis, derecha.muslo, -cadera.x, cadera.y, -1.6, 1);
+  const rodillaIzquierda = bisagra(izquierda.muslo, izquierda.canilla, cadera.x, rodillaY, 0, 2.3);
+  const rodillaDerecha = bisagra(derecha.muslo, derecha.canilla, -cadera.x, rodillaY, 0, 2.3);
+
+  const partes: Record<NombreParte, RAPIER.RigidBody> = {
+    pelvis,
+    torso,
+    cabeza,
+    brazoIzquierdo,
+    brazoDerecho,
+    musloIzquierdo: izquierda.muslo,
+    musloDerecho: derecha.muslo,
+    canillaIzquierda: izquierda.canilla,
+    canillaDerecha: derecha.canilla,
+  };
+  const masa = NOMBRES_PARTES.reduce((suma, n) => suma + partes[n].mass(), 0);
+  const peso = masa * -GRAVEDAD;
+
+  let fase = 0;
+  let enElSuelo = false;
+  let firmeza = 1;
+
+  // Objetos de trabajo, para no crear basura en cada paso
+  const q = new THREE.Quaternion();
+  const qObjetivo = new THREE.Quaternion();
+  const qRumbo = new THREE.Quaternion();
+  const qInclinar = new THREE.Quaternion();
+  const qAux = new THREE.Quaternion();
+  const error = new THREE.Vector3();
+  const w = new THREE.Vector3();
+  const w2 = new THREE.Vector3();
+  const torque = new THREE.Vector3();
+  const adelante = new THREE.Vector3();
+  const rayo = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
+
+  /** Torque PD que gira `cuerpo` hacia `objetivo` (en el mundo). Si hay `padre`, la velocidad es relativa a él y el
+   * padre recibe el torque contrario (así el brazo no empuja al muñeco entero). Ganancias de aceleración: se
+   * multiplican por la inercia del cuerpo, que Rapier da en el marco del mundo. */
+  const girarHacia = (
+    c: RAPIER.RigidBody,
+    objetivo: THREE.Quaternion,
+    frecuencia: number,
+    amortiguacion: number,
+    padre?: RAPIER.RigidBody,
+  ) => {
+    errorDeRotacion(q.copy(c.rotation()), objetivo, error);
+    w.copy(c.angvel());
+    if (padre) w.sub(w2.copy(padre.angvel()));
+    const kp = frecuencia * frecuencia * firmeza;
+    const kd = 2 * amortiguacion * frecuencia * firmeza;
+    torque.copy(error).multiplyScalar(kp).addScaledVector(w, -kd);
+    porInercia(c.effectiveAngularInertia(), torque).multiplyScalar(PASO);
+    c.applyTorqueImpulse(torque, true);
+    if (padre) padre.applyTorqueImpulse(torque.negate(), true);
+  };
+
+  const pasar = (entrada: EntradaMuneco) => {
+    const avanzar = limitar(entrada.avanzar, -1, 1);
+    const girar = limitar(entrada.girar, -1, 1);
+    rumbo += girar * AJUSTES.andar.giro * PASO * firmeza;
+    qRumbo.setFromAxisAngle(ARRIBA, rumbo);
+    adelante.copy(EJE_Z).applyQuaternion(qRumbo);
+
+    const v = pelvis.linvel();
+    const velocidadAdelante = v.x * adelante.x + v.z * adelante.z;
+    const amplitud = limitar(Math.abs(velocidadAdelante) / AJUSTES.paso.velocidadPlena + Math.abs(girar) * 0.6, 0, 1);
+
+    // 1. Suspensión
+    const s = AJUSTES.suspension;
+    const altura = MEDIDAS.pelvis.y + s.subirAlCaminar * amplitud;
+    const p = pelvis.translation();
+    rayo.origin = { x: p.x, y: p.y, z: p.z };
+    const golpe = mundo.castRay(rayo, altura + s.alcanceExtra, true, undefined, gruposRayo);
+    enElSuelo = golpe !== null;
+    if (golpe) {
+      const w0 = s.frecuencia;
+      const aceleracion = -GRAVEDAD + w0 * w0 * (altura - golpe.timeOfImpact) - 2 * s.amortiguacion * w0 * v.y;
+      const empuje = limitar(masa * aceleracion, 0, s.fuerzaMaxima * peso) * firmeza * PASO;
+      pelvis.applyImpulse({ x: 0, y: empuje, z: 0 }, true);
+      // Lo que el muñeco pisa recibe su peso (una caja, el otro muñeco)
+      const debajo = golpe.collider.parent();
+      if (debajo?.isDynamic()) {
+        debajo.applyImpulseAtPoint({ x: 0, y: -empuje, z: 0 }, { x: p.x, y: p.y - golpe.timeOfImpact, z: p.z }, true);
+      }
+    }
+
+    // 2. Erguirse mirando al rumbo; el torso se inclina un poco al caminar
+    const e = AJUSTES.erguir;
+    girarHacia(pelvis, qRumbo, e.pelvis.frecuencia, e.pelvis.amortiguacion);
+    qInclinar.setFromAxisAngle(
+      EJE_X,
+      e.inclinacionAlCaminar * limitar(velocidadAdelante / AJUSTES.andar.velocidad, -1, 1),
+    );
+    girarHacia(torso, qObjetivo.copy(qRumbo).multiply(qInclinar), e.torso.frecuencia, e.torso.amortiguacion);
+    girarHacia(cabeza, qRumbo, e.cabeza.frecuencia, e.cabeza.amortiguacion);
+
+    // 3. Andar: fuerza horizontal hacia la velocidad deseada, repartida en el tronco según la masa
+    if (enElSuelo) {
+      const a = AJUSTES.andar;
+      const deseada = avanzar * a.velocidad;
+      let ax = a.respuesta * (adelante.x * deseada - v.x);
+      let az = a.respuesta * (adelante.z * deseada - v.z);
+      const largo = Math.hypot(ax, az);
+      if (largo > a.aceleracionMaxima) {
+        ax *= a.aceleracionMaxima / largo;
+        az *= a.aceleracionMaxima / largo;
+      }
+      const mTronco = masa - torso.mass() - cabeza.mass();
+      for (const [c, m] of [
+        [pelvis, mTronco],
+        [torso, torso.mass()],
+        [cabeza, cabeza.mass()],
+      ] as const) {
+        c.applyImpulse({ x: ax * m * PASO * firmeza, y: 0, z: az * m * PASO * firmeza }, true);
+      }
+    }
+
+    // 4. Paso: el ciclo avanza con la distancia recorrida (o con el giro, para dar pasitos en el lugar)
+    const pa = AJUSTES.paso;
+    fase += 2 * Math.PI * PASO * (velocidadAdelante / pa.zancada + Math.abs(girar) * pa.ritmoGiro);
+    fase %= 2 * Math.PI;
+    const seno = Math.sin(fase);
+    const coseno = Math.cos(fase);
+    const rigidez = pa.rigidez * firmeza;
+    const amortiguacion = pa.amortiguacionMotor * firmeza;
+    caderaIzquierda.configureMotorPosition(-pa.cadera * amplitud * seno, rigidez, amortiguacion);
+    caderaDerecha.configureMotorPosition(pa.cadera * amplitud * seno, rigidez, amortiguacion);
+    rodillaIzquierda.configureMotorPosition(pa.rodilla * amplitud * Math.max(0, coseno), rigidez, amortiguacion);
+    rodillaDerecha.configureMotorPosition(pa.rodilla * amplitud * Math.max(0, -coseno), rigidez, amortiguacion);
+
+    // Brazos: cuelgan algo abiertos y se balancean al revés que la pierna del mismo lado
+    const b = AJUSTES.brazos;
+    const tq = qAux.copy(torso.rotation());
+    for (const [c, lado] of [
+      [brazoIzquierdo, 1],
+      [brazoDerecho, -1],
+    ] as const) {
+      qInclinar.setFromAxisAngle(EJE_X, lado * b.balanceo * amplitud * seno);
+      qObjetivo
+        .setFromAxisAngle(EJE_Z, lado * b.abrir)
+        .multiply(qInclinar)
+        .premultiply(tq);
+      girarHacia(c, qObjetivo, b.frecuencia, b.amortiguacion, torso);
+    }
+  };
+
+  return {
+    partes,
+    pasar,
+    masa,
+    get rumbo() {
+      return rumbo;
+    },
+    get enElSuelo() {
+      return enElSuelo;
+    },
+    get firmeza() {
+      return firmeza;
+    },
+    set firmeza(valor: number) {
+      firmeza = limitar(valor, 0, 1);
+    },
+    inclinacion() {
+      const eje = new THREE.Vector3(0, 1, 0).applyQuaternion(q.copy(torso.rotation()));
+      return Math.acos(limitar(eje.y, -1, 1));
+    },
+    rumboReal() {
+      const frente = new THREE.Vector3(0, 0, 1).applyQuaternion(q.copy(torso.rotation()));
+      return Math.atan2(frente.x, frente.z);
+    },
+  };
+}
+
+function limitar(x: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, x));
+}
+
+/** Rotación que falta para ir de `actual` a `objetivo`, como eje por ángulo en el marco del mundo. */
+function errorDeRotacion(actual: THREE.Quaternion, objetivo: THREE.Quaternion, salida: THREE.Vector3) {
+  const d = new THREE.Quaternion().copy(objetivo).multiply(actual.invert());
+  if (d.w < 0) d.set(-d.x, -d.y, -d.z, -d.w);
+  const s = Math.hypot(d.x, d.y, d.z);
+  if (s < 1e-9) return salida.set(0, 0, 0);
+  const angulo = 2 * Math.atan2(s, d.w);
+  return salida.set(d.x, d.y, d.z).multiplyScalar(angulo / s);
+}
+
+/** Multiplica el vector por la matriz de inercia (simétrica; Rapier da su triángulo de arriba por filas). */
+function porInercia(m: RAPIER.SdpMatrix3, v: THREE.Vector3) {
+  const [a = 0, b = 0, c = 0, d = 0, e = 0, f = 0] = m.elements;
+  return v.set(a * v.x + b * v.y + c * v.z, b * v.x + d * v.y + e * v.z, c * v.x + e * v.y + f * v.z);
+}

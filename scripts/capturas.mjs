@@ -13,8 +13,12 @@ import { chromium } from "playwright";
 const TOMAS = [
   { archivo: "prueba-inicio", ruta: "/?escena=prueba&congelar=1" },
   { archivo: "prueba-cajas-en-el-suelo", ruta: "/?escena=prueba&congelar=240" },
+  // TU-03: el muñeco de pie solo, a media caminata y girando mientras camina (`andar` y `girar` fijan la entrada)
+  { archivo: "muneco-de-pie", ruta: "/?escena=muneco&congelar=240" },
+  { archivo: "muneco-caminando", ruta: "/?escena=muneco&andar=1&congelar=110" },
+  { archivo: "muneco-girando", ruta: "/?escena=muneco&andar=0.7&girar=0.6&congelar=200" },
 ];
-const VIDEO = { archivo: "prueba", ruta: "/?escena=prueba&depurar", segundos: 5 };
+const VIDEO = { archivo: "muneco", ruta: "/?escena=muneco&andar=0.8&girar=0.35&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
 const SALIDA = "capturas";
 const PUERTO = 4173;
