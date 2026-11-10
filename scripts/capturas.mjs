@@ -22,6 +22,10 @@ const TOMAS = [
   // La meta de la ola 1: el muñeco caminando en el pinar
   { archivo: "pinar-caminando", ruta: "/?escena=pinar&andar=1&congelar=150" },
   { archivo: "pinar-niebla-corrida", ruta: "/?escena=pinar&congelar=600" },
+  // TU-08: dos jugadores en el mismo lugar. `j1`/`j2` fijan la entrada de cada uno; `ayuda` deja ver los controles
+  { archivo: "dos-de-pie", ruta: "/?escena=dos&j1=&j2=&ayuda&congelar=60" },
+  { archivo: "dos-caminando", ruta: "/?escena=dos&j1=andar:1&j2=andar:0.8&congelar=150" },
+  { archivo: "dos-separandose", ruta: "/?escena=dos&j1=andar:1,girar:-0.1&j2=andar:1,girar:0.1&congelar=240" },
 ];
 const VIDEO = { archivo: "pinar", ruta: "/?escena=pinar&andar=0.7&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

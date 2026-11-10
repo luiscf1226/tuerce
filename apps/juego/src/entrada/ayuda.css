@@ -1,0 +1,59 @@
+/* La ayuda de los controles: dos tarjetitas claras abajo, una por jugador, que se desvanecen solas. */
+.ayuda-jugadores {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 28px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgb(244 244 241 / 0.78);
+  color: #2a2a2a;
+  font:
+    12px / 1.35 system-ui,
+    sans-serif;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+}
+.ayuda-jugadores.oculta {
+  opacity: 0;
+}
+.ayuda-jugadores h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ayuda-jugadores .panuelo {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.ayuda-jugadores small {
+  font-weight: 400;
+  opacity: 0.65;
+}
+.ayuda-jugadores dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px 10px;
+  margin: 0;
+}
+.ayuda-jugadores dt {
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+}
+.ayuda-jugadores dd {
+  margin: 0;
+  opacity: 0.8;
+}
+.ayuda-jugadores p {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  text-align: center;
+  opacity: 0.65;
+}

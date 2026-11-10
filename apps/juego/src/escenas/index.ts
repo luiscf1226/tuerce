@@ -1,5 +1,6 @@
 import type RAPIER from "@dimforge/rapier3d-compat";
 import type { Rapier } from "../motor/fisica";
+import { crearEscenaDos } from "./dos";
 import { crearEscenaMuneco } from "./muneco";
 import { crearEscenaPinar } from "./pinar";
 import { crearEscenaPrueba } from "./prueba";
@@ -10,6 +11,7 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
   prueba: crearEscenaPrueba,
   muneco: crearEscenaMuneco,
   pinar: crearEscenaPinar,
+  dos: crearEscenaDos,
 };
 export const ESCENA_INICIAL = "pinar";
 
