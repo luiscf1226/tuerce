@@ -19,6 +19,24 @@ describe("escena dos", () => {
     expect(dos.nombre).toBe("dos");
   });
 
+  it("los dos agarran el huacal pesado, cada uno con un brazo, y lo llevan", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const dos = crearEscenaDos(rapier, mundo, new URLSearchParams("j1=andar:0.6,izq&j2=andar:0.6,der"));
+    const [rojo, turquesa] = dos.munecos;
+    for (let i = 0; i < 2 * 60; i++) dos.pasar();
+    const delRojo = rojo.agarrado("brazoIzquierdo");
+    const delTurquesa = turquesa.agarrado("brazoDerecho");
+    expect(delRojo, "el rojo no agarró nada").not.toBeNull();
+    expect(delTurquesa, "el turquesa no agarró nada").not.toBeNull();
+    const huacal = delRojo?.parent();
+    expect(huacal, "no agarraron lo mismo").toBe(delTurquesa?.parent());
+    const antes = huacal?.translation().x ?? 0;
+    for (let i = 0; i < 2 * 60; i++) dos.pasar();
+    expect((huacal?.translation().x ?? 0) - antes).toBeGreaterThan(0.4);
+    expect(rojo.estado).toBe("de pie");
+    expect(turquesa.estado).toBe("de pie");
+  });
+
   it("cada muñeco hace lo que pide su jugador", async () => {
     const { rapier, mundo } = await crearMundo();
     const dos = crearEscenaDos(rapier, mundo, new URLSearchParams("j1=andar:1"));

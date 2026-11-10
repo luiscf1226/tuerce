@@ -1,6 +1,7 @@
 // Dos jugadores en el mismo lugar (TU-08): un claro del pinar con los dos muñecos de verdad, el del pañuelo rojo
 // (jugador 1) y el del turquesa (jugador 2), cada uno con sus controles (ver src/entrada/mandos.ts). La cámara mira
-// el punto medio entre los dos y se aleja cuanto más se separan; la pantalla partida llega en otro ticket.
+// el punto medio entre los dos y se aleja cuanto más se separan; la pantalla partida llega en otro ticket. Adelante
+// hay un huacal pesado para agarrarlo entre los dos (TU-05) y en el claro se salta, se cae y se levanta (TU-04).
 //
 // Parámetros para capturas que salen siempre igual (con `congelar=N`):
 //   &j1=andar:1,girar:0.2   entrada fija del jugador 1 (también vale `&andar=`/`&girar=`)
@@ -19,6 +20,7 @@ import {
   crearRoca,
   crearTroncoCaido,
   crearVelo,
+  materialCorteza,
   materialOjo,
   materialPanuelo,
   materialTela,
@@ -29,6 +31,7 @@ import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
+import { crearCajas } from "./cajas";
 import { COLORES } from "./colores";
 import type { Escena } from "./tipos";
 
@@ -95,6 +98,21 @@ export function crearEscenaDos(
   if (typeof document !== "undefined" && (!controles.fija || parametros.has("ayuda"))) {
     crearAyuda(controles, { siempre: parametros.has("ayuda") });
   }
+
+  // Huacales para agarrar: uno grande adelante, entre los dos, sobre un tocón a la altura de las manos alzadas
+  // (los dos lo agarran con el brazo de adentro: el izquierdo del rojo y el derecho del turquesa), y dos chicos
+  const corteza = materialCorteza(COLORES.silueta, { repetir: [1, 1] });
+  const TOCON = { x: 1.35, alto: 0.7, radio: 0.26 };
+  const tocon = new THREE.Mesh(new THREE.CylinderGeometry(TOCON.radio, TOCON.radio * 1.15, TOCON.alto, 14), corteza);
+  tocon.position.set(TOCON.x, TOCON.alto / 2, 0);
+  escena.add(tocon);
+  mundo.createCollider(
+    rapier.ColliderDesc.cylinder(TOCON.alto / 2, TOCON.radio).setTranslation(TOCON.x, TOCON.alto / 2, 0),
+  );
+  const cajas = crearCajas(rapier, mundo, escena, corteza);
+  cajas.poner(TOCON.x, TOCON.alto + 0.3, 0, 0.6, 8);
+  cajas.poner(2.6, 0.18, 1.6, 0.36, 2, 0.5);
+  cajas.poner(-1.8, 0.2, -1.4, 0.4, 3, -0.3);
 
   // Un tronco caído al fondo del claro, con su colisionador
   const tronco = crearTroncoCaido({ largo: 7, radio: 0.22, semilla: 5, largoMusgo: 0.2, musgo: 30 });
@@ -194,6 +212,7 @@ export function crearEscenaDos(
       const [uno, dos] = controles.leer();
       rojo.muneco.pasar(uno);
       turquesa.muneco.pasar(dos);
+      cajas.guardar();
       mundo.step();
       rojo.malla.guardar();
       turquesa.malla.guardar();
@@ -209,6 +228,7 @@ export function crearEscenaDos(
     dibujar(alfa) {
       rojo.malla.dibujar(alfa);
       turquesa.malla.dibujar(alfa);
+      cajas.dibujar(alfa);
       const { antes, ahora } = seguido;
       const entre = (a: number, b: number) => a + (b - a) * alfa;
       mirar.set(entre(antes.x, ahora.x), CAMARA.mirarArriba, entre(antes.z, ahora.z));

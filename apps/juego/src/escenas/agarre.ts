@@ -14,6 +14,7 @@ import { materialCorteza, materialOjo, materialPanuelo, materialTela, vestirDeDi
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
+import { crearCajas } from "./cajas";
 import { COLORES } from "./colores";
 import { crearGuion } from "./guion";
 import type { Escena } from "./tipos";
@@ -60,24 +61,9 @@ export function crearEscenaAgarre(
     mundo.createCollider(rapier.ColliderDesc.cuboid(ancho / 2, alto / 2, fondo / 2).setTranslation(x, y, z));
   };
 
-  // Las cajas: cuerpos libres con su malla, que se dibujan interpolando entre el paso anterior y el actual
-  const cajas: { cuerpo: RAPIER.RigidBody; malla: THREE.Mesh; antes: THREE.Vector3; antesQ: THREE.Quaternion }[] = [];
-  const caja = (x: number, y: number, z: number, lado: number, masa: number, giro = 0) => {
-    const cuerpo = mundo.createRigidBody(
-      rapier.RigidBodyDesc.dynamic()
-        .setTranslation(x, y, z)
-        .setRotation(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), giro)),
-    );
-    mundo.createCollider(
-      rapier.ColliderDesc.cuboid(lado / 2, lado / 2, lado / 2)
-        .setMass(masa)
-        .setFriction(0.7),
-      cuerpo,
-    );
-    const malla = new THREE.Mesh(new THREE.BoxGeometry(lado, lado, lado), madera);
-    escena.add(malla);
-    cajas.push({ cuerpo, malla, antes: new THREE.Vector3(x, y, z), antesQ: malla.quaternion.clone() });
-  };
+  // Las cajas: cuerpos libres que se empujan, se agarran y se cargan
+  const cajas = crearCajas(rapier, mundo, escena, madera);
+  const caja = cajas.poner;
 
   // Frente a la salida: una caja de 50 cm sobre un pedestal angosto, justo a la altura de las manos alzadas
   quieto(0.75, 0.42, 0, 0.3, 0.84, 0.3);
@@ -133,8 +119,6 @@ export function crearEscenaAgarre(
   seguido.antes.copy(seguido.ahora);
   const suavizado = 1 - Math.exp(-CAMARA.seguir * PASO);
   const mirar = new THREE.Vector3();
-  const p = new THREE.Vector3();
-  const q = new THREE.Quaternion();
 
   return {
     nombre: "agarre",
@@ -144,10 +128,7 @@ export function crearEscenaAgarre(
     pasar() {
       guion?.(pasos, entrada);
       muneco.pasar(entrada);
-      for (const c of cajas) {
-        c.antes.copy(c.cuerpo.translation());
-        c.antesQ.copy(c.cuerpo.rotation());
-      }
+      cajas.guardar();
       mundo.step();
       malla.guardar();
       seguido.antes.copy(seguido.ahora);
@@ -156,10 +137,7 @@ export function crearEscenaAgarre(
     },
     dibujar(alfa) {
       malla.dibujar(alfa);
-      for (const c of cajas) {
-        c.malla.position.lerpVectors(c.antes, p.copy(c.cuerpo.translation()), alfa);
-        c.malla.quaternion.slerpQuaternions(c.antesQ, q.copy(c.cuerpo.rotation()), alfa);
-      }
+      cajas.dibujar(alfa);
       mirar.lerpVectors(seguido.antes, seguido.ahora, alfa);
       camara.position.copy(mirar).add(CAMARA.desfase);
       camara.lookAt(mirar.x, mirar.y + 0.3, mirar.z);

@@ -19,6 +19,8 @@
 // Parámetros de la dirección para capturas que salen siempre igual (con `congelar=N`); fijan la entrada de los dos
 // jugadores y apagan teclado y mandos:
 //   &j1=andar:1,girar:0.2,saltar:1   entrada fija del jugador 1 (claves: andar, girar, saltar, izq, der)
+//   &j1=saltar@30,der@60             un botón con `@N` se aprieta recién desde el paso N (el salto pide apretar,
+//                                    no mantener: apretado desde el paso 0 no salta nunca)
 //   &j2=andar:0.8                    entrada fija del jugador 2
 //   &andar=…&girar=…                 lo de siempre: entrada fija del jugador 1 (si no hay `j1`)
 // El jugador que no aparece se queda quieto.
@@ -224,11 +226,34 @@ const CLAVES: Record<string, keyof EntradaJugador> = {
   brazoDerecho: "brazoDerecho",
 };
 
-/** Lee `andar:1,girar:0.2,saltar` (una clave sola vale 1). Las claves que no conoce no cuentan. */
+type Boton = "saltar" | "brazoIzquierdo" | "brazoDerecho";
+
+/** Desde qué paso se aprieta cada botón de una entrada fija (`saltar@30`); los que no tienen `@N`, desde el 0. */
+export function pasosDeInicio(texto: string): Partial<Record<Boton, number>> {
+  const desde: Partial<Record<Boton, number>> = {};
+  for (const parte of texto.split(",")) {
+    const [clave = "", paso = ""] = parte.trim().split("@");
+    const campo = CLAVES[clave.split(":")[0] ?? ""];
+    if (paso && (campo === "saltar" || campo === "brazoIzquierdo" || campo === "brazoDerecho"))
+      desde[campo] = Number(paso) || 0;
+  }
+  return desde;
+}
+
+/** La entrada fija en el paso `paso`: los botones con `@N` recién se aprietan desde ese paso. */
+export function entradaFijaEnPaso(fija: EntradaJugador, desde: Partial<Record<Boton, number>>, paso: number) {
+  const entrada = { ...fija };
+  for (const [boton, inicio] of Object.entries(desde) as [Boton, number][])
+    entrada[boton] = fija[boton] && paso >= inicio;
+  return entrada;
+}
+
+/** Lee `andar:1,girar:0.2,saltar` (una clave sola vale 1; `saltar@30` cuenta como apretado). Las claves que no
+ * conoce no cuentan. */
 export function leerEntradaFija(texto: string): EntradaJugador {
   const entrada = entradaQuieta();
   for (const parte of texto.split(",")) {
-    const [clave = "", valor = "1"] = parte.split(":").map((s) => s.trim());
+    const [clave = "", valor = "1"] = (parte.split("@")[0] ?? "").split(":").map((s) => s.trim());
     const campo = CLAVES[clave];
     const numero = Number(valor) || 0;
     if (campo === "avanzar" || campo === "girar") entrada[campo] = numero;
@@ -246,6 +271,11 @@ export function entradasFijas(parametros: URLSearchParams): [EntradaJugador, Ent
   if (j1 === null && j2 === null && andar === null && girar === null) return undefined;
   const viejo = [andar !== null && `andar:${andar}`, girar !== null && `girar:${girar}`].filter(Boolean).join(",");
   return [leerEntradaFija(j1 ?? viejo), leerEntradaFija(j2 ?? "")];
+}
+
+/** Desde qué paso aprieta sus botones cada jugador fijo (ver `pasosDeInicio`). */
+function inicioDeBotones(parametros: URLSearchParams) {
+  return [pasosDeInicio(parametros.get("j1") ?? ""), pasosDeInicio(parametros.get("j2") ?? "")] as const;
 }
 
 // ── Los controles vivos ────────────────────────────────────────────────────────────────────────────────────
@@ -275,7 +305,10 @@ function mandosDelNavegador(): readonly (MandoLeido | null)[] {
 }
 
 export function crearControles(opciones: OpcionesControles = {}): Controles {
-  const fijas = entradasFijas(opciones.parametros ?? parametrosDeLaDireccion());
+  const parametrosFijos = opciones.parametros ?? parametrosDeLaDireccion();
+  const fijas = entradasFijas(parametrosFijos);
+  const desde = inicioDeBotones(parametrosFijos);
+  let pasoFijo = 0;
   const obtenerMandos = opciones.mandos ?? mandosDelNavegador;
   const avisos: ((a: Asignacion) => void)[] = [];
   let asignacion: Asignacion = SIN_MANDOS;
@@ -311,7 +344,10 @@ export function crearControles(opciones: OpcionesControles = {}): Controles {
       avisos.push(aviso);
     },
     leer() {
-      if (fijas) return fijas;
+      if (fijas) {
+        const paso = pasoFijo++;
+        return [entradaFijaEnPaso(fijas[0], desde[0], paso), entradaFijaEnPaso(fijas[1], desde[1], paso)] as const;
+      }
       const conectados = new Map<number, MandoLeido>();
       for (const m of obtenerMandos()) if (m?.connected) conectados.set(m.index, m);
 

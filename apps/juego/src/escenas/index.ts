@@ -15,7 +15,7 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
   agarre: crearEscenaAgarre,
   dos: crearEscenaDos,
 };
-export const ESCENA_INICIAL = "pinar";
+export const ESCENA_INICIAL = "dos";
 
 // Pantallas de la cuenta y de depuración: no son escenas de físicas y se cargan aparte, para no meter Clerk ni Convex en el juego.
 export const PANTALLAS: Record<string, () => Promise<void>> = {

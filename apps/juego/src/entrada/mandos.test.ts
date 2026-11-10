@@ -245,4 +245,12 @@ describe("entrada fija por la dirección", () => {
     expect(controles.leer()).toEqual([quieta({ avanzar: 1 }), entradaQuieta()]);
     expect(controles.asignacion).toEqual([null, null]);
   });
+
+  it("un botón fijo con @N se aprieta recién desde el paso N", () => {
+    const controles = crearControles({ parametros: new URLSearchParams("j1=andar:1,saltar@3&j2=der@1") });
+    const pasos = Array.from({ length: 5 }, () => controles.leer());
+    expect(pasos.map(([uno]) => uno.saltar)).toEqual([false, false, false, true, true]);
+    expect(pasos.map(([uno]) => uno.avanzar)).toEqual([1, 1, 1, 1, 1]);
+    expect(pasos.map(([, dos]) => dos.brazoDerecho)).toEqual([false, true, true, true, true]);
+  });
 });
