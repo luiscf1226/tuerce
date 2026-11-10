@@ -43,3 +43,8 @@ output {
   font-size: 40px;
   letter-spacing: 0.04em;
 }
+.red-estado {
+  font:
+    600 20px / 1.2 ui-monospace,
+    monospace;
+}
