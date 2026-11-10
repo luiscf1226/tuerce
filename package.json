@@ -9,10 +9,12 @@
   "scripts": {
     "dev": "pnpm --parallel --filter tuerce-juego --filter tuerce-sala dev",
     "build": "pnpm -r build",
-    "test": "pnpm test:convex && pnpm -r test",
+    "test": "pnpm test:convex && pnpm -r test && pnpm prueba:red",
     "test:convex": "vitest run --root convex",
     "check": "biome check . && pnpm -r typecheck && tsc --noEmit -p convex",
     "format": "biome check --write .",
+    "prueba:red": "node scripts/prueba-red.mjs",
+    "red:local": "node scripts/red-local.mjs",
     "capturas": "node scripts/capturas.mjs",
     "convex:dev": "convex dev",
     "sala:dev": "pnpm --filter tuerce-sala dev",

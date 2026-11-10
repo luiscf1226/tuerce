@@ -13,8 +13,10 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
 };
 export const ESCENA_INICIAL = "pinar";
 
-// Pantallas de la cuenta: no son escenas de físicas y se cargan aparte, para no meter Clerk ni Convex en el juego.
+// Pantallas de la cuenta y de depuración: no son escenas de físicas y se cargan aparte, para no meter Clerk ni Convex en el juego.
 export const PANTALLAS: Record<string, () => Promise<void>> = {
   entrar: async () => (await import("../cuenta/entrar")).abrirEntrar(),
   invitar: async () => (await import("../cuenta/invitar")).abrirInvitar(),
+  // Depuración de la red (TU-20): estado de la conexión y ping entre los dos.
+  red: async () => (await import("./red")).abrirRed(),
 };
