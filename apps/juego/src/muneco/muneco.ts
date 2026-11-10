@@ -7,8 +7,10 @@
 //   4. Paso: caderas y rodillas son articulaciones de bisagra con motores de posición que siguen un ciclo de pasos
 //      al ritmo de la velocidad real. Los brazos cuelgan de los hombros y se balancean al revés que las piernas.
 //
-// Todo es físico: si se apaga la `firmeza` el muñeco cae como un trapo (para TU-04), y cada brazo es un cuerpo
-// propio unido al torso con una rótula (para agarrar en TU-05).
+// Encima de eso, una máquina de estados (TU-04): «de pie», «en el aire» (saltó o se le fue el suelo), «caido» (se
+// pasó de inclinación o recibió un golpe fuerte: el tono baja a cero y cae como un trapo) y «levantandose» (tras un
+// segundo quieto, el tono vuelve de a poco y los mismos torques lo enderezan; nada se teletransporta).
+// Cada brazo es un cuerpo propio unido al torso con una rótula (para agarrar en TU-05).
 //
 // Uso: en cada paso de físicas llamá `muneco.pasar(entrada)` y después `mundo.step()`.
 import type RAPIER from "@dimforge/rapier3d-compat";
@@ -23,7 +25,16 @@ export interface EntradaMuneco {
   avanzar: number;
   /** Girar a la izquierda (1) o a la derecha (-1). */
   girar: number;
+  /** Saltar: salta al apretarlo (no al mantenerlo apretado), si está de pie. */
+  saltar?: boolean;
+  /** Mientras está apretado, el brazo izquierdo sube hacia adelante y agarra lo que toca. */
+  brazoIzquierdo?: boolean;
+  /** Lo mismo para el brazo derecho. */
+  brazoDerecho?: boolean;
 }
+
+/** En qué anda el muñeco: parado (o caminando), en el aire, tirado como un trapo o levantándose. */
+export type EstadoMuneco = "de pie" | "en el aire" | "caido" | "levantandose";
 
 export const QUIETO: EntradaMuneco = { avanzar: 0, girar: 0 };
 
@@ -68,8 +79,13 @@ export interface Muneco {
   readonly rumbo: number;
   /** Si el rayo de la pelvis encontró suelo en el último paso. */
   readonly enElSuelo: boolean;
-  /** De 0 (trapo flojo) a 1 (de pie). Escala todas las fuerzas del equilibrio y los motores de las piernas. */
+  /** En qué anda: «de pie», «en el aire», «caido» o «levantandose». */
+  readonly estado: EstadoMuneco;
+  /** Tope de 0 (trapo flojo) a 1 (normal) que pone el juego. Con 0 queda tirado y no se levanta. */
   firmeza: number;
+  /** La firmeza de verdad en este paso, de 0 a 1: el tope de `firmeza` por el tono del estado (baja al caer y
+   * sube al levantarse). Escala todas las fuerzas del equilibrio y los motores. */
+  readonly tension: number;
   /** Masa total en kilos. */
   readonly masa: number;
   /** Ángulo entre el eje del torso y la vertical, en radianes. */
@@ -208,12 +224,30 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     canillaIzquierda: izquierda.canilla,
     canillaDerecha: derecha.canilla,
   };
-  const masa = NOMBRES_PARTES.reduce((suma, n) => suma + partes[n].mass(), 0);
+  /** Cada cuerpo con su masa, para sumar el centro de masa sin cruzar a Rapier de más. */
+  const conMasa = NOMBRES_PARTES.map((n) => [partes[n], partes[n].mass()] as const);
+  const masa = conMasa.reduce((suma, [, m]) => suma + m, 0);
   const peso = masa * -GRAVEDAD;
 
   let fase = 0;
   let enElSuelo = false;
   let firmeza = 1;
+
+  // La máquina de estados (TU-04)
+  let estado: EstadoMuneco = "de pie";
+  /** El tono del estado: 1 de pie, baja a 0 al caer y vuelve a subir al levantarse. */
+  let tono = 1;
+  /** `firmeza` por `tono`: lo que escala de verdad las fuerzas en este paso. */
+  let tension = 1;
+  let tiempoEnEstado = 0;
+  let tiempoSinSuelo = 0;
+  let tiempoQuieto = 0;
+  /** Lo que falta para poder volver a saltar (s). */
+  let espera = 0;
+  let saltarAntes = false;
+  /** Velocidad del centro de masa en este paso y en el anterior: su diferencia mide los golpes. */
+  const centro = new THREE.Vector3();
+  const centroAntes = new THREE.Vector3();
 
   // Objetos de trabajo, para no crear basura en cada paso
   const q = new THREE.Quaternion();
@@ -226,6 +260,7 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
   const w2 = new THREE.Vector3();
   const torque = new THREE.Vector3();
   const adelante = new THREE.Vector3();
+  const eje = new THREE.Vector3();
   const rayo = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
 
   /** Torque PD que gira `cuerpo` hacia `objetivo` (en el mundo). Si hay `padre`, la velocidad es relativa a él y el
@@ -241,36 +276,127 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     errorDeRotacion(q.copy(c.rotation()), objetivo, error);
     w.copy(c.angvel());
     if (padre) w.sub(w2.copy(padre.angvel()));
-    const kp = frecuencia * frecuencia * firmeza;
-    const kd = 2 * amortiguacion * frecuencia * firmeza;
+    const kp = frecuencia * frecuencia * tension;
+    const kd = 2 * amortiguacion * frecuencia * tension;
     torque.copy(error).multiplyScalar(kp).addScaledVector(w, -kd);
     porInercia(c.effectiveAngularInertia(), torque).multiplyScalar(PASO);
     c.applyTorqueImpulse(torque, true);
     if (padre) padre.applyTorqueImpulse(torque.negate(), true);
   };
 
+  const inclinacion = () => {
+    eje.set(0, 1, 0).applyQuaternion(q.copy(torso.rotation()));
+    return Math.acos(limitar(eje.y, -1, 1));
+  };
+
+  const pasarA = (nuevo: EstadoMuneco) => {
+    estado = nuevo;
+    tiempoEnEstado = 0;
+    tiempoQuieto = 0;
+  };
+
+  /** El rumbo al que se levanta: el del torso enderezado por el camino más corto, así no da vueltas de más. */
+  const rumboParaLevantarse = () => {
+    q.copy(torso.rotation());
+    eje.set(0, 1, 0).applyQuaternion(q);
+    qAux.setFromUnitVectors(eje, ARRIBA).multiply(q);
+    eje.set(0, 0, 1).applyQuaternion(qAux);
+    return Math.atan2(eje.x, eje.z);
+  };
+
+  /** Mira cómo quedó el cuerpo y decide el estado; ajusta el tono y la tensión de este paso. */
+  const decidir = (entrada: EntradaMuneco) => {
+    centroAntes.copy(centro);
+    centro.set(0, 0, 0);
+    for (const [c, m] of conMasa) {
+      const v = c.linvel();
+      centro.x += v.x * m;
+      centro.y += v.y * m;
+      centro.z += v.z * m;
+    }
+    centro.divideScalar(masa);
+    const golpe = centro.distanceTo(centroAntes) > AJUSTES.caer.golpe;
+    const torcido = inclinacion() > AJUSTES.caer.inclinacion;
+    const apretoSaltar = entrada.saltar === true && !saltarAntes;
+    saltarAntes = entrada.saltar === true;
+
+    tiempoEnEstado += PASO;
+    tiempoSinSuelo = enElSuelo ? 0 : tiempoSinSuelo + PASO;
+    espera = Math.max(0, espera - PASO);
+    const l = AJUSTES.levantarse;
+
+    switch (estado) {
+      case "de pie":
+        if (golpe || torcido) pasarA("caido");
+        else if (apretoSaltar && enElSuelo && espera === 0 && tension > 0.5) {
+          const v = AJUSTES.saltar.velocidad;
+          for (const [c, m] of conMasa) c.applyImpulse({ x: 0, y: m * v, z: 0 }, true);
+          pasarA("en el aire");
+        } else if (tiempoSinSuelo > AJUSTES.saltar.sinSuelo) pasarA("en el aire");
+        break;
+      case "en el aire":
+        if (golpe || torcido) pasarA("caido");
+        else if (enElSuelo && centro.y <= 0 && tiempoEnEstado > 0.1) {
+          // Tocó el suelo: si venía muy rápido es una caída de lo alto
+          if (centro.y < -AJUSTES.caer.aterrizaje) pasarA("caido");
+          else {
+            pasarA("de pie");
+            espera = AJUSTES.saltar.espera;
+          }
+        }
+        break;
+      case "caido":
+        tiempoQuieto = centro.length() < l.velocidadQuieto ? tiempoQuieto + PASO : 0;
+        if (tiempoQuieto >= l.quietud && tono === 0) {
+          rumbo = rumboParaLevantarse();
+          pasarA("levantandose");
+        }
+        break;
+      case "levantandose":
+        if (golpe) pasarA("caido");
+        else if (tono === 1 && inclinacion() < l.derecho) pasarA("de pie");
+        else if (tiempoEnEstado > l.intento) pasarA("caido");
+        break;
+    }
+
+    tono = estado === "caido" ? Math.max(0, tono - PASO / AJUSTES.caer.aflojar) : Math.min(1, tono + PASO / l.duracion);
+    tension = firmeza * tono;
+  };
+
   const pasar = (entrada: EntradaMuneco) => {
-    const avanzar = limitar(entrada.avanzar, -1, 1);
-    const girar = limitar(entrada.girar, -1, 1);
-    rumbo += girar * AJUSTES.andar.giro * PASO * firmeza;
-    qRumbo.setFromAxisAngle(ARRIBA, rumbo);
-    adelante.copy(EJE_Z).applyQuaternion(qRumbo);
-
-    const v = pelvis.linvel();
-    const velocidadAdelante = v.x * adelante.x + v.z * adelante.z;
-    const amplitud = limitar(Math.abs(velocidadAdelante) / AJUSTES.paso.velocidadPlena + Math.abs(girar) * 0.6, 0, 1);
-
-    // 1. Suspensión
+    // El rayo de la suspensión dice si hay suelo; con eso se decide el estado
     const s = AJUSTES.suspension;
-    const altura = MEDIDAS.pelvis.y + s.subirAlCaminar * amplitud;
+    const v = pelvis.linvel();
     const p = pelvis.translation();
     rayo.origin = { x: p.x, y: p.y, z: p.z };
-    const golpe = mundo.castRay(rayo, altura + s.alcanceExtra, true, undefined, gruposRayo);
+    const golpe = mundo.castRay(
+      rayo,
+      MEDIDAS.pelvis.y + s.subirAlCaminar + s.alcanceExtra,
+      true,
+      undefined,
+      gruposRayo,
+    );
     enElSuelo = golpe !== null;
-    if (golpe) {
+    decidir(entrada);
+
+    // Solo de pie se camina; en el aire todavía se puede girar. Caído o levantándose no manda el jugador.
+    const avanzar = estado === "de pie" ? limitar(entrada.avanzar, -1, 1) : 0;
+    const girar = estado === "de pie" || estado === "en el aire" ? limitar(entrada.girar, -1, 1) : 0;
+    rumbo += girar * AJUSTES.andar.giro * PASO * tension;
+    qRumbo.setFromAxisAngle(ARRIBA, rumbo);
+    adelante.copy(EJE_Z).applyQuaternion(qRumbo);
+    const velocidadAdelante = v.x * adelante.x + v.z * adelante.z;
+    const amplitud =
+      estado === "de pie"
+        ? limitar(Math.abs(velocidadAdelante) / AJUSTES.paso.velocidadPlena + Math.abs(girar) * 0.6, 0, 1)
+        : 0;
+
+    // 1. Suspensión (al subir en un salto la fuerza da cero: no empuja hacia abajo, así que no lo frena)
+    const altura = MEDIDAS.pelvis.y + s.subirAlCaminar * amplitud;
+    if (golpe && golpe.timeOfImpact <= altura + s.alcanceExtra) {
       const w0 = s.frecuencia;
       const aceleracion = -GRAVEDAD + w0 * w0 * (altura - golpe.timeOfImpact) - 2 * s.amortiguacion * w0 * v.y;
-      const empuje = limitar(masa * aceleracion, 0, s.fuerzaMaxima * peso) * firmeza * PASO;
+      const empuje = limitar(masa * aceleracion, 0, s.fuerzaMaxima * peso) * tension * PASO;
       pelvis.applyImpulse({ x: 0, y: empuje, z: 0 }, true);
       // Lo que el muñeco pisa recibe su peso (una caja, el otro muñeco)
       const debajo = golpe.collider.parent();
@@ -284,13 +410,14 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     girarHacia(pelvis, qRumbo, e.pelvis.frecuencia, e.pelvis.amortiguacion);
     qInclinar.setFromAxisAngle(
       EJE_X,
-      e.inclinacionAlCaminar * limitar(velocidadAdelante / AJUSTES.andar.velocidad, -1, 1),
+      estado === "de pie" ? e.inclinacionAlCaminar * limitar(velocidadAdelante / AJUSTES.andar.velocidad, -1, 1) : 0,
     );
     girarHacia(torso, qObjetivo.copy(qRumbo).multiply(qInclinar), e.torso.frecuencia, e.torso.amortiguacion);
     girarHacia(cabeza, qRumbo, e.cabeza.frecuencia, e.cabeza.amortiguacion);
 
-    // 3. Andar: fuerza horizontal hacia la velocidad deseada, repartida en el tronco según la masa
-    if (enElSuelo) {
+    // 3. Andar: fuerza horizontal hacia la velocidad deseada, repartida en el tronco según la masa. Al levantarse
+    // la velocidad deseada es cero: lo frena para que se pare en el lugar.
+    if (enElSuelo && estado !== "en el aire") {
       const a = AJUSTES.andar;
       const deseada = avanzar * a.velocidad;
       let ax = a.respuesta * (adelante.x * deseada - v.x);
@@ -306,22 +433,35 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
         [torso, torso.mass()],
         [cabeza, cabeza.mass()],
       ] as const) {
-        c.applyImpulse({ x: ax * m * PASO * firmeza, y: 0, z: az * m * PASO * firmeza }, true);
+        c.applyImpulse({ x: ax * m * PASO * tension, y: 0, z: az * m * PASO * tension }, true);
       }
     }
 
-    // 4. Paso: el ciclo avanza con la distancia recorrida (o con el giro, para dar pasitos en el lugar)
+    // 4. Paso: el ciclo avanza con la distancia recorrida (o con el giro, para dar pasitos en el lugar).
+    // En el aire encoge las piernas.
     const pa = AJUSTES.paso;
     fase += 2 * Math.PI * PASO * (velocidadAdelante / pa.zancada + Math.abs(girar) * pa.ritmoGiro);
     fase %= 2 * Math.PI;
     const seno = Math.sin(fase);
     const coseno = Math.cos(fase);
-    const rigidez = pa.rigidez * firmeza;
-    const amortiguacion = pa.amortiguacionMotor * firmeza;
-    caderaIzquierda.configureMotorPosition(-pa.cadera * amplitud * seno, rigidez, amortiguacion);
-    caderaDerecha.configureMotorPosition(pa.cadera * amplitud * seno, rigidez, amortiguacion);
-    rodillaIzquierda.configureMotorPosition(pa.rodilla * amplitud * Math.max(0, coseno), rigidez, amortiguacion);
-    rodillaDerecha.configureMotorPosition(pa.rodilla * amplitud * Math.max(0, -coseno), rigidez, amortiguacion);
+    const rigidez = pa.rigidez * tension;
+    const amortiguacion = pa.amortiguacionMotor * tension;
+    const encoger = estado === "en el aire";
+    const sa = AJUSTES.saltar;
+    const caderaPaso = pa.cadera * amplitud * seno;
+    caderaIzquierda.configureMotorPosition(encoger ? sa.cadera : -caderaPaso, rigidez, amortiguacion);
+    caderaDerecha.configureMotorPosition(encoger ? sa.cadera : caderaPaso, rigidez, amortiguacion);
+    const rodillaPaso = pa.rodilla * amplitud;
+    rodillaIzquierda.configureMotorPosition(
+      encoger ? sa.rodilla : rodillaPaso * Math.max(0, coseno),
+      rigidez,
+      amortiguacion,
+    );
+    rodillaDerecha.configureMotorPosition(
+      encoger ? sa.rodilla : rodillaPaso * Math.max(0, -coseno),
+      rigidez,
+      amortiguacion,
+    );
 
     // Brazos: cuelgan algo abiertos y se balancean al revés que la pierna del mismo lado
     const b = AJUSTES.brazos;
@@ -349,19 +489,23 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     get enElSuelo() {
       return enElSuelo;
     },
+    get estado() {
+      return estado;
+    },
     get firmeza() {
       return firmeza;
     },
     set firmeza(valor: number) {
       firmeza = limitar(valor, 0, 1);
+      tension = firmeza * tono;
     },
-    inclinacion() {
-      const eje = new THREE.Vector3(0, 1, 0).applyQuaternion(q.copy(torso.rotation()));
-      return Math.acos(limitar(eje.y, -1, 1));
+    get tension() {
+      return tension;
     },
+    inclinacion,
     rumboReal() {
-      const frente = new THREE.Vector3(0, 0, 1).applyQuaternion(q.copy(torso.rotation()));
-      return Math.atan2(frente.x, frente.z);
+      eje.set(0, 0, 1).applyQuaternion(q.copy(torso.rotation()));
+      return Math.atan2(eje.x, eje.z);
     },
   };
 }
@@ -371,8 +515,9 @@ function limitar(x: number, min: number, max: number) {
 }
 
 /** Rotación que falta para ir de `actual` a `objetivo`, como eje por ángulo en el marco del mundo. */
+const diferencia = new THREE.Quaternion();
 function errorDeRotacion(actual: THREE.Quaternion, objetivo: THREE.Quaternion, salida: THREE.Vector3) {
-  const d = new THREE.Quaternion().copy(objetivo).multiply(actual.invert());
+  const d = diferencia.copy(objetivo).multiply(actual.invert());
   if (d.w < 0) d.set(-d.x, -d.y, -d.z, -d.w);
   const s = Math.hypot(d.x, d.y, d.z);
   if (s < 1e-9) return salida.set(0, 0, 0);
