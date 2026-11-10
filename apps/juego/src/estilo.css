@@ -1,0 +1,45 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #dcdcd8;
+  color: #2a2a2a;
+  font-family: system-ui, sans-serif;
+  color-scheme: light;
+}
+canvas {
+  display: block;
+}
+output {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  font:
+    13px / 1 ui-monospace,
+    monospace;
+  background: rgb(255 255 255 / 0.7);
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+.error {
+  position: fixed;
+  inset: 24px;
+  margin: 0;
+  white-space: pre-wrap;
+}
+.entrar {
+  min-height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 24px;
+  box-sizing: border-box;
+  text-align: center;
+}
+.entrar h1 {
+  margin: 0;
+  font-size: 40px;
+  letter-spacing: 0.04em;
+}
