@@ -53,11 +53,10 @@ SALA_SECRETO=<el mismo valor que en tu Convex de desarrollo>
 `pnpm test` no lo necesita: la prueba de la sala levanta `wrangler dev --var SALA_SECRETO:prueba` y firma sus
 propios pases.
 
-## Pendiente
+Estado (10 de noviembre de 2026): `SALA_SECRETO` está puesto en los tres Convex y en las dos salas (un valor por
+entorno) y la llave TURN «tuerce-sala» de Cloudflare Realtime está en las dos salas.
 
-- **Secretos de la sala**: `SALA_SECRETO` está puesto solo en el Convex de desarrollo de Luis. Falta ponerlo en
-  `vista-previa` y `produccion` de Convex y en las dos salas (el mismo valor por entorno), y crear la llave de
-  Cloudflare Realtime TURN para `TURN_KEY_ID` y `TURN_KEY_API_TOKEN` en las dos salas.
+## Pendiente
 
 - **Una sola vista previa de datos**: todos los PR comparten el despliegue `vista-previa` de Convex y la sala
   `tuerce-sala-preview`; el último PR en publicarse es el que manda. Con dos PR abiertos a la vez, abrí la vista previa
