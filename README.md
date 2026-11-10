@@ -9,13 +9,13 @@ pañuelos (rojo y turquesa) como único color. La referencia obligatoria son `do
 - **Propuesta con demo jugable:** https://claude.ai/artifact/P9kmTojq7XBSg4m3vTfWmZ (copia en `prototipo/`)
 - **Plan (requerimientos, arquitectura y los 17 niveles con sus 91 misiones):** `docs/plan.html` · https://claude.ai/artifact/QVzT8avdwoipVvDm2Leg1z
 - **Arte de referencia:** `docs/arte/11-*` a `14-*` (generado con IA). `docs/arte/descartado/` guarda el estilo de colores que se descartó.
-- **Trabajo:** los issues y los hitos de este repositorio, uno por ticket de `docs/TICKETS.md`
+- **Trabajo:** por **olas** (`docs/OLAS.md`): cada hito de GitHub es una ola y cada issue un ticket de `docs/TICKETS.md`
 
 ## Qué hay aquí
 
 | Carpeta | Qué es | Estado |
 |---|---|---|
-| `apps/juego/` | El juego: TypeScript, Three.js y Rapier | Vacío: empieza en la fase 1 (el muñeco) |
+| `apps/juego/` | El juego: TypeScript, Three.js y Rapier | Vacío: empieza en la ola 2 (el muñeco) |
 | `convex/` | Modelo de datos (`schema.ts`): parejas, invitaciones, cola, avance | Solo el esquema |
 | `workers/sala/` | Sala de dos (Cloudflare Durable Object): presenta a los jugadores y hace de repetidor | Funciona en local; sin pase firmado ni TURN todavía |
 | `niveles/` | Escenas y guiones de cada nivel | Vacío |
@@ -37,4 +37,6 @@ Clerk para entrar (Google o correo), Convex para los datos y Cloudflare para pub
 
 ## Lo que sigue
 
-Fase 1 del plan: el muñeco (ragdoll activo en Rapier) con dos jugadores en el mismo teclado, dentro de `apps/juego/`.
+Ola 1 (arranque: base, Clerk y Cloudflare; necesita tus cuentas) y después la ola 2: el muñeco caminando con el look
+de las imágenes de referencia. Cada ola se hace en paralelo con varios agentes, se junta en una rama `ola-N` y se
+entrega con vista previa, capturas y un pull request; con «full send» se une a `main`.

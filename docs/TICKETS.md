@@ -64,16 +64,16 @@ Un ticket por nivel.
 
 | Id | Ticket | Listo cuando | Tamaño | Depende de |
 |---|---|---|---|---|
-| TU-40 | Nivel 7 · Las trenzas | Antigua, Guatemala: 5 misiones, El Sombrerón, que le hace trenzas a todo; secreto y logro incluidos. | G | TU-28 |
-| TU-41 | Nivel 8 · El cafetal | Izalco, El Salvador: 5 misiones, El Cipitío, un cipote barrigón que tira piedritas y se ríe; secreto y logro incluidos. | G | TU-40 |
-| TU-42 | Nivel 9 · Los canales | Xochimilco, México: 5 misiones, La Llorona, que llora tanto que sube el agua; secreto y logro incluidos. | G | TU-41 |
-| TU-43 | Nivel 10 · La garrucha | Eje cafetero, Colombia: 5 misiones, La Patasola, que anda brincando en una sola pata; secreto y logro incluidos. | G | TU-42 |
-| TU-44 | Nivel 11 · El llano | Los Llanos, Venezuela: 5 misiones, El Silbón, un flaco altísimo que silba al revés: si suena cerca, está lejos; secreto y logro incluidos. | G | TU-43 |
-| TU-45 | Nivel 12 · El puente de paja | Q’eswachaka, Perú: 5 misiones, Las llamas, que escupen si las apurás; secreto y logro incluidos. | G | TU-44 |
-| TU-46 | Nivel 13 · La mina | Potosí, Bolivia: 5 misiones, El Tío de la mina, un diablito que quiere su ofrenda; secreto y logro incluidos. | G | TU-45 |
-| TU-47 | Nivel 14 · La minga | Chiloé, Chile: 5 misiones, El Caleuche, un barco fantasma que en realidad anda de fiesta; secreto y logro incluidos. | G | TU-46 |
-| TU-48 | Nivel 15 · La pampa | La Pampa, Argentina: 5 misiones, La Luz Mala, una luciérnaga gigante y despistada; secreto y logro incluidos. | G | TU-47 |
-| TU-49 | Nivel 16 · La medianoche | Amazonía, Brasil: 5 misiones, El Curupira, guardián del bosque con los pies al revés; secreto y logro incluidos. | G | TU-48 |
+| TU-40 | Nivel 7 · Las trenzas | Antigua, Guatemala: 5 misiones, El Sombrerón, que le hace trenzas a todo; secreto y logro incluidos. | G | TU-24, TU-25, TU-26, TU-27, TU-28 |
+| TU-41 | Nivel 8 · El cafetal | Izalco, El Salvador: 5 misiones, El Cipitío, un cipote barrigón que tira piedritas y se ríe; secreto y logro incluidos. | G | TU-24, TU-25, TU-26, TU-27, TU-28 |
+| TU-42 | Nivel 9 · Los canales | Xochimilco, México: 5 misiones, La Llorona, que llora tanto que sube el agua; secreto y logro incluidos. | G | TU-24, TU-25, TU-26, TU-27, TU-28 |
+| TU-43 | Nivel 10 · La garrucha | Eje cafetero, Colombia: 5 misiones, La Patasola, que anda brincando en una sola pata; secreto y logro incluidos. | G | TU-24, TU-25, TU-26, TU-27, TU-28 |
+| TU-44 | Nivel 11 · El llano | Los Llanos, Venezuela: 5 misiones, El Silbón, un flaco altísimo que silba al revés: si suena cerca, está lejos; secreto y logro incluidos. | G | TU-24, TU-25, TU-26, TU-27, TU-28 |
+| TU-45 | Nivel 12 · El puente de paja | Q’eswachaka, Perú: 5 misiones, Las llamas, que escupen si las apurás; secreto y logro incluidos. | G | TU-40, TU-41, TU-42, TU-43, TU-44 |
+| TU-46 | Nivel 13 · La mina | Potosí, Bolivia: 5 misiones, El Tío de la mina, un diablito que quiere su ofrenda; secreto y logro incluidos. | G | TU-40, TU-41, TU-42, TU-43, TU-44 |
+| TU-47 | Nivel 14 · La minga | Chiloé, Chile: 5 misiones, El Caleuche, un barco fantasma que en realidad anda de fiesta; secreto y logro incluidos. | G | TU-40, TU-41, TU-42, TU-43, TU-44 |
+| TU-48 | Nivel 15 · La pampa | La Pampa, Argentina: 5 misiones, La Luz Mala, una luciérnaga gigante y despistada; secreto y logro incluidos. | G | TU-40, TU-41, TU-42, TU-43, TU-44 |
+| TU-49 | Nivel 16 · La medianoche | Amazonía, Brasil: 5 misiones, El Curupira, guardián del bosque con los pies al revés; secreto y logro incluidos. | G | TU-40, TU-41, TU-42, TU-43, TU-44 |
 | TU-31 | Buscar pareja | Quien no tiene con quién jugar encuentra a otra persona de su región. | M | TU-18 |
 | TU-32 | Contrarreloj | Tabla de parejas por nivel. | M | TU-22 |
 | TU-33 | Noche de tuerce | Los mismos niveles con una trampa al azar. | M | — |

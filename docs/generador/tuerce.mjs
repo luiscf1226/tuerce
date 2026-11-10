@@ -2,7 +2,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { contar, esc, mermaid, page, reqs, section, table, tickets, ticketsMd, tree } from './lib.mjs';
+import { contar, esc, mermaid, olas, olasMd, page, reqs, section, table, tickets, ticketsMd, tree } from './lib.mjs';
+import { OLAS, revisarOlas } from './olas.mjs';
 import { TICKETS } from './tickets-tuerce.mjs';
 import { N } from './niveles-tuerce.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
@@ -228,8 +229,9 @@ tuerce/
   prototipo/         la propuesta con la demo 2D
   docs/              arquitectura, requerimientos y este plan`)}
     <p>La carpeta ya está creada en <code>~/Work/personal/tuerce</code> y agregada a T3 Code.</p>`),
+  section('olas', 'Se trabaja por olas', 'Olas', `<p>Son ${OLAS.tuerce.length} olas. Cada una junta varios tickets que se hacen al mismo tiempo y termina con algo que podés ver y jugar de a dos.</p>${olas(OLAS.tuerce, TICKETS)}`),
   section('tickets', 'El trabajo, ticket por ticket', 'Tickets', `
-    <div class="aprobar"><h3>Para aprobar</h3><p>Son ${contar(TICKETS)} tickets. Con tu visto bueno empiezo por <code>TU-01</code>; toda la fase 1 se hace sin cuentas.</p><ul><li><b>Motor:</b> web con Three.js y Rapier. Decime si preferís Unity.</li><li><b>Sin pareja:</b> el compa bot del patio queda fuera salvo que lo pidás.</li><li>Para la fase 3 hacen falta tus cuentas de <b>Convex</b> y <b>Cloudflare</b>.</li></ul></div>
+    <div class="aprobar"><h3>Para aprobar</h3><p>Son ${contar(TICKETS)} tickets, cada uno un issue; cada ola es un hito en GitHub. La ola 1 necesita tus cuentas; desde la ola 2 todo se ve en vista previa.</p><ul><li><b>Motor:</b> web con Three.js y Rapier. Decime si preferís Unity.</li><li><b>Sin pareja:</b> el compa bot del patio queda fuera salvo que lo pidás.</li><li>Para la fase 3 hacen falta tus cuentas de <b>Convex</b> y <b>Cloudflare</b>.</li></ul></div>
     ${tickets(TICKETS)}`),
   section('fases', 'En qué orden', 'Fases', table(['Fase', 'Nombre', 'Qué se entrega', 'Tiempo estimado'], FASES) + `<p class="nota">Los tiempos son estimados para un equipo pequeño; no son un compromiso.</p>`),
   section('riesgos', 'Lo que hay que decidir', 'Riesgos y decisiones', `<div class="cols">${RIESGOS.map(([t, x]) => `<div><h3>${esc(t)}</h3><p>${esc(x)}</p></div>`).join('')}</div>`),
@@ -239,9 +241,11 @@ const html = page({
   title: 'Plan Tuerce', accent: '#c2441c', accentDark: '#ff9a73', accent2: '#0a7c8c', accent2Dark: '#4fd0de',
   lead: 'Lo que el juego tiene que hacer, cómo se arma con Cloudflare y Convex, y los 17 niveles con cada una de sus misiones.',
   facts: [['2', 'jugadores, siempre'], [String(N.length), 'niveles'], [String(misiones), 'misiones'], [String(duo), 'exigen a los dos'], [String(N.length), 'secretos y logros'], [`${RF.reduce((n, g) => n + g[1].length, 0) + RNF.reduce((n, g) => n + g[1].length, 0)}`, 'requerimientos'], [String(contar(TICKETS)), 'tickets']],
-  nav: [['direccion', 'Dirección'], ['funcionales', 'Requerimientos'], ['calidad', 'Calidad'], ['arquitectura', 'Arquitectura'], ['datos', 'Datos'], ['piezas', 'Mecánicas'], ['niveles', 'Niveles'], ...N.map(l => [`n-${l[0]}`, `· ${l[0]}. ${l[1]}`]), ['repositorio', 'Repositorio'], ['tickets', 'Tickets'], ['fases', 'Fases'], ['riesgos', 'Decisiones']],
+  nav: [['direccion', 'Dirección'], ['funcionales', 'Requerimientos'], ['calidad', 'Calidad'], ['arquitectura', 'Arquitectura'], ['datos', 'Datos'], ['piezas', 'Mecánicas'], ['niveles', 'Niveles'], ...N.map(l => [`n-${l[0]}`, `· ${l[0]}. ${l[1]}`]), ['repositorio', 'Repositorio'], ['olas', 'Olas'], ['tickets', 'Tickets'], ['fases', 'Fases'], ['riesgos', 'Decisiones']],
   body,
 });
 writeFileSync(join(here, 'plan-tuerce.html'), html);
 writeFileSync(join(here, 'TICKETS-tuerce.md'), ticketsMd('Tuerce', TICKETS));
+writeFileSync(join(here, 'OLAS-tuerce.md'), olasMd('Tuerce', OLAS.tuerce, TICKETS));
+const errOlas = revisarOlas(OLAS.tuerce, TICKETS); if (errOlas.length) { console.error(errOlas.join('\n')); process.exit(1); }
 console.log('plan-tuerce.html', (html.length / 1024).toFixed(0) + ' KB', N.length, 'niveles', misiones, 'misiones', duo, 'de a dos', ARTE.length, 'imágenes');

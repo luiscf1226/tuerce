@@ -1,5 +1,5 @@
 import { N } from './niveles-tuerce.mjs';
-const NIVELES_LATAM = N.filter(l => +l[0] >= 7).map((l, i) => [`TU-${40 + i}`, `Nivel ${l[0]} · ${l[1]}`, `${l[2]}: ${l[6].length} misiones, ${l[3]}; secreto y logro incluidos.`, 'G', i ? `TU-${39 + i}` : 'TU-28']);
+const NIVELES_LATAM = N.filter(l => +l[0] >= 7).map((l, i) => [`TU-${40 + i}`, `Nivel ${l[0]} · ${l[1]}`, `${l[2]}: ${l[6].length} misiones, ${l[3]}; secreto y logro incluidos.`, 'G', i < 5 ? 'TU-24, TU-25, TU-26, TU-27, TU-28' : 'TU-40, TU-41, TU-42, TU-43, TU-44']);
 // Tickets de Tuerce. [id, título, listo cuando, tamaño (C/M/G), depende de]
 export const TICKETS = [
   ['Fase 1 · El muñeco', 'Lo más difícil va primero. No necesita cuentas.', [

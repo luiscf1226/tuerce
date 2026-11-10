@@ -96,6 +96,9 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
 .est { font: 600 12px/1 var(--mono); padding: 4px 7px; border-radius: 3px; border: 1px solid currentColor; }
 .est.ok { color: var(--ok); } .est.mid { color: var(--mid); } .est.no { color: var(--no); } .est.ask { color: var(--ask); }
 .nota { color: var(--muted); font-size: .92em; }
+ol.pasos { max-width: 78ch; padding-left: 1.4em; display: grid; gap: 6px; }
+table.olas td:first-child { white-space: nowrap; }
+table.olas td:last-child { font-size: .92em; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { font-size: 13px; padding: 3px 9px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; }
 .chip.on { border-color: var(--accent); color: var(--accent); font-weight: 700; }
@@ -153,3 +156,27 @@ export function tickets(fases) {
 }
 export const ticketsMd = (titulo, fases) => `# Tickets · ${titulo}\n\nTamaños: C = hasta 1 día · M = 2 a 4 días · G = 1 a 2 semanas.\n` + fases.map(([fase, nota, ts]) => `\n## ${fase}\n${nota ? `\n${nota}\n` : ''}\n| Id | Ticket | Listo cuando | Tamaño | Depende de |\n|---|---|---|---|---|\n` + ts.map(([id, t, ok, tam, dep]) => `| ${id} | ${t} | ${ok} | ${tam} | ${dep || '—'} |`).join('\n') + '\n').join('');
 export const contar = fases => fases.reduce((n, f) => n + f[2].length, 0);
+
+/** Olas: [nombre, lo que vas a ver, necesita cuentas, ids][] sobre las fases de tickets. */
+export const COMO_OLA = [
+  ['Decís la ola', 'Por ejemplo: «haz la ola 1 de Tuerce».'],
+  ['Se reparte', 'Un agente por ticket, todos al mismo tiempo, cada uno en su copia del proyecto. Antes reviso tus límites.'],
+  ['Se junta', 'Todo entra a una rama <code>ola-N</code>; se corren las pruebas del juego completo.'],
+  ['Lo ves', 'Vista previa para jugarlo, capturas o video de lo nuevo y un pull request con el resumen.'],
+  ['Aprobás', 'Con «full send» se une a la rama principal y los issues de la ola se cierran. Si algo no te gusta, lo decís con tus palabras y se corrige dentro de la misma ola.'],
+];
+export function olas(lista, fases) {
+  const t = Object.fromEntries(fases.flatMap(f => f[2]).map(x => [x[0], x]));
+  const pasos = `<ol class="pasos">${COMO_OLA.map(([a, b]) => `<li><b>${esc(a)}.</b> ${b}</li>`).join('')}</ol>`;
+  return pasos + table(['Ola', 'Lo que vas a ver al final', 'Tickets'], lista.map(([nombre, ver, cuentas, ids], i) => [
+    { html: `<b>Ola ${i + 1}</b><br>${esc(nombre)}` },
+    { html: esc(ver) + (cuentas ? `<br>${chip('necesita tus cuentas')}` : '') },
+    { html: ids.map(id => `<code>${esc(id)}</code> ${esc(t[id][1])}`).join('<br>') },
+  ]), 'olas');
+}
+export const olasMd = (titulo, lista, fases) => {
+  const t = Object.fromEntries(fases.flatMap(f => f[2]).map(x => [x[0], x]));
+  return `# Olas · ${titulo}\n\nUna ola = varios tickets en paralelo, una rama \`ola-N\`, una vista previa y una aprobación.\n\n` +
+    COMO_OLA.map(([a, b], i) => `${i + 1}. **${a}.** ${b.replace(/<\/?code>/g, '`')}`).join('\n') + '\n' +
+    lista.map(([nombre, ver, cuentas, ids], i) => `\n## Ola ${i + 1} · ${nombre}\n\n**Vas a ver:** ${ver}${cuentas ? ' _(necesita tus cuentas)_' : ''}\n\n` + ids.map(id => `- ${id} · ${t[id][1]}`).join('\n') + '\n').join('');
+};
