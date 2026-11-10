@@ -32,10 +32,20 @@ export default defineSchema({
     "por_usuario",
     ["usuarioId"],
   ),
-  // quién busca pareja; una mutación empareja a los dos primeros de la misma región
-  cola: defineTable({ usuarioId: v.id("usuarios"), region: v.string(), desde: v.number() })
-    .index("por_region", ["region", "desde"])
-    .index("por_usuario", ["usuarioId"]),
+  // quién busca pareja (ver cola.ts): `desde` es el orden de llegada, `visto` el último «sigo acá» y `parejaId`
+  // la pareja que le tocó, para avisarle a quien esperaba
+  cola: defineTable({
+    usuarioId: v.id("usuarios"),
+    region: v.string(),
+    desde: v.number(),
+    visto: v.number(),
+    parejaId: v.optional(v.id("parejas")),
+  })
+    // `parejaId` en el índice: la fila de espera de una región son las entradas sin pareja, en orden de llegada,
+    // y las ya emparejadas no la traban
+    .index("por_region", ["region", "parejaId", "desde"])
+    .index("por_usuario", ["usuarioId"])
+    .index("por_visto", ["visto"]),
   sesiones: defineTable({
     parejaId: v.id("parejas"),
     nivel: v.number(),

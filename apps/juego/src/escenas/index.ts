@@ -1,5 +1,7 @@
 import type RAPIER from "@dimforge/rapier3d-compat";
 import type { Rapier } from "../motor/fisica";
+import { crearEscenaAgarre } from "./agarre";
+import { crearEscenaDos } from "./dos";
 import { crearEscenaMuneco } from "./muneco";
 import { crearEscenaPinar } from "./pinar";
 import { crearEscenaPrueba } from "./prueba";
@@ -10,11 +12,16 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
   prueba: crearEscenaPrueba,
   muneco: crearEscenaMuneco,
   pinar: crearEscenaPinar,
+  agarre: crearEscenaAgarre,
+  dos: crearEscenaDos,
 };
-export const ESCENA_INICIAL = "pinar";
+export const ESCENA_INICIAL = "dos";
 
-// Pantallas de la cuenta: no son escenas de físicas y se cargan aparte, para no meter Clerk ni Convex en el juego.
+// Pantallas de la cuenta y de depuración: no son escenas de físicas y se cargan aparte, para no meter Clerk ni Convex en el juego.
 export const PANTALLAS: Record<string, () => Promise<void>> = {
   entrar: async () => (await import("../cuenta/entrar")).abrirEntrar(),
   invitar: async () => (await import("../cuenta/invitar")).abrirInvitar(),
+  buscar: async () => (await import("../cuenta/buscar")).abrirBuscar(),
+  // Depuración de la red (TU-20): estado de la conexión y ping entre los dos.
+  red: async () => (await import("./red")).abrirRed(),
 };

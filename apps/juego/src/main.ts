@@ -7,7 +7,7 @@ import { crearMundo } from "./motor/fisica";
 import "./estilo.css";
 
 // Parámetros de la dirección:
-//   ?escena=<nombre>   qué escena abrir (ver src/escenas/index.ts); `entrar` e `invitar` son pantallas de la cuenta
+//   ?escena=<nombre>   qué escena abrir (ver src/escenas/index.ts); `entrar`, `invitar` y `buscar` son pantallas de la cuenta
 //   ?congelar=<pasos>  corre exactamente esos pasos de físicas y se detiene; para capturas que siempre salen igual
 //   ?depurar           muestra los pasos de físicas por segundo
 const parametros = new URLSearchParams(location.search);

@@ -8,9 +8,12 @@
  * @module
  */
 
+import type * as cola from "../cola.js";
+import type * as crons from "../crons.js";
 import type * as cuenta from "../cuenta.js";
 import type * as invitaciones from "../invitaciones.js";
 import type * as parejas from "../parejas.js";
+import type * as regiones from "../regiones.js";
 import type * as salas from "../salas.js";
 import type * as usuarios from "../usuarios.js";
 
@@ -21,9 +24,12 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  cola: typeof cola;
+  crons: typeof crons;
   cuenta: typeof cuenta;
   invitaciones: typeof invitaciones;
   parejas: typeof parejas;
+  regiones: typeof regiones;
   salas: typeof salas;
   usuarios: typeof usuarios;
 }>;

@@ -4,8 +4,10 @@ export { crearMallaMuneco, crearMaterialesMuneco, type MallaMuneco, type Materia
 export {
   crearMuneco,
   type EntradaMuneco,
+  type EstadoMuneco,
   type Muneco,
   NOMBRES_PARTES,
+  type NombreBrazo,
   type NombreParte,
   type OpcionesMuneco,
   QUIETO,
