@@ -5,8 +5,8 @@ Tres entornos separados. Las llaves viven en los secretos de GitHub, en Cloudfla
 | | Desarrollo | Vista previa | Producción |
 |---|---|---|---|
 | Cuándo | En tu máquina (`pnpm dev`) | Cada pull request | Cada cambio en `main` |
-| Juego (Cloudflare) | `localhost:5173` | `pr-N-tuerce.<subdominio>.workers.dev` (versión con alias del Worker `tuerce`) | `tuerce.<subdominio>.workers.dev` |
-| Sala (Cloudflare) | `wrangler dev` en `:8798` | Worker `tuerce-sala-preview` (`--env preview`) | Worker `tuerce-sala` |
+| Juego (Cloudflare) | `localhost:5173` | `pr-N-tuerce.luiscf1226.workers.dev` (versión con alias del Worker `tuerce`) | https://tuerce.luiscf1226.workers.dev |
+| Sala (Cloudflare) | `wrangler dev` en `:8798` | `tuerce-sala-preview.luiscf1226.workers.dev` (`--env preview`) | `tuerce-sala.luiscf1226.workers.dev` |
 | Datos (Convex, proyecto `tuerce`) | `careful-ptarmigan-335` (tu despliegue personal) | `vista-previa` · `wary-okapi-498` | `produccion` · `glad-ocelot-369` |
 | Cuentas (Clerk, app `Tuerce`) | instancia de desarrollo | instancia de desarrollo | instancia de desarrollo por ahora; la de producción pide un dominio propio |
 
@@ -16,7 +16,7 @@ Tres entornos separados. Las llaves viven en los secretos de GitHub, en Cloudfla
 |---|---|---|
 | `CONVEX_DEPLOY_KEY_PREVIEW` | Secreto de GitHub | Subir funciones al despliegue `vista-previa` |
 | `CONVEX_DEPLOY_KEY_PROD` | Secreto de GitHub | Subir funciones a `produccion` |
-| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Secretos de GitHub | Publicar el juego y la sala. Sin ellos la revisión salta la publicación y lo dice en el PR |
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Secretos de GitHub | Publicar el juego y la sala. Es el token «tuerce-github» de Cloudflare: solo Workers de esta cuenta. Sin él la revisión salta la publicación y lo dice en el PR |
 | `VITE_CLERK_PUBLISHABLE_KEY_PREVIEW` / `_PROD` | Variables de GitHub | Llave **pública** de Clerk que va dentro del juego |
 | `CLERK_JWT_ISSUER_DOMAIN` | Variables de cada despliegue de Convex (`npx convex env set`) | Para que Convex acepte los tokens de Clerk (`convex/auth.config.ts`) |
 | `VITE_CONVEX_URL`, `VITE_CLERK_PUBLISHABLE_KEY` | `apps/juego/.env.local` (ignorado por git) | Desarrollo local. Copiá `apps/juego/.env.example` |

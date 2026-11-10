@@ -6,7 +6,9 @@ import { cpSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const { PR, GITHUB_REPOSITORY: repo, GITHUB_SHA: sha = "local" } = process.env;
+// SHA es el último commit del PR; GITHUB_SHA en un pull_request es el commit de unión que arma GitHub.
+const { PR, GITHUB_REPOSITORY: repo } = process.env;
+const sha = process.env.SHA || process.env.GITHUB_SHA || "local";
 const vistaPrevia = process.argv[2] || "";
 const corto = sha.slice(0, 7);
 const correr = (cmd, args, opciones = {}) => execFileSync(cmd, args, { encoding: "utf8", ...opciones }).trim();

@@ -45,7 +45,7 @@ La descripción del hito dice **qué va a ver Luis** al final: esa es la meta de
 2. Pull request `ola-N` → `main` con la plantilla (`.github/pull_request_template.md`). Título: `Ola N · <nombre>`.
    En «Qué cambió»: lo que Luis va a ver, en palabras simples, y `Closes #…` de cada ticket.
 3. La revisión automática (`.github/workflows/revision.yml`) corre `pnpm check`, `pnpm test` y `pnpm build`,
-   publica la vista previa en Cloudflare (`pr-N-tuerce.<subdominio>.workers.dev`) y comenta el PR con las capturas
+   publica la vista previa en Cloudflare (`pr-N-tuerce.luiscf1226.workers.dev`) y comenta el PR con las capturas
    y el video. Esperá a que esté en verde y arreglá lo que falle.
 4. Que un agente que no escribió el código revise el PR antes de dárselo a Luis.
 
