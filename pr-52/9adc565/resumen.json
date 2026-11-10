@@ -1,0 +1,21 @@
+{
+  "base": "http://127.0.0.1:4173",
+  "tomas": [
+    {
+      "archivo": "prueba-inicio",
+      "ruta": "/?escena=prueba&congelar=1",
+      "imagen": "prueba-inicio.png"
+    },
+    {
+      "archivo": "prueba-cajas-en-el-suelo",
+      "ruta": "/?escena=prueba&congelar=240",
+      "imagen": "prueba-cajas-en-el-suelo.png"
+    }
+  ],
+  "video": {
+    "archivo": "prueba.webm",
+    "ruta": "/?escena=prueba&depurar",
+    "segundos": 5,
+    "pasosPorSegundo": 50
+  }
+}
