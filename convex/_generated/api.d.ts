@@ -11,6 +11,7 @@
 import type * as cuenta from "../cuenta.js";
 import type * as invitaciones from "../invitaciones.js";
 import type * as parejas from "../parejas.js";
+import type * as salas from "../salas.js";
 import type * as usuarios from "../usuarios.js";
 
 import type {
@@ -23,6 +24,7 @@ declare const fullApi: ApiFromModules<{
   cuenta: typeof cuenta;
   invitaciones: typeof invitaciones;
   parejas: typeof parejas;
+  salas: typeof salas;
   usuarios: typeof usuarios;
 }>;
 
