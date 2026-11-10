@@ -314,13 +314,15 @@ export function conectar(op: OpcionesConexion, deps: Dependencias = DEPENDENCIAS
           rol = aviso.rol;
           if (primera) resolver(conexion);
           // Volvimos a entrar: si el otro sigue, la sala manda `listos` enseguida; si no llega, se fue.
-          else if (companero === "presente")
+          else if (companero === "presente") {
+            clearTimeout(confirmar);
             confirmar = setTimeout(() => {
               companero = "se_fue";
               esperandoPrimera = true;
               abandonar(false);
               actualizar();
             }, CONFIRMAR_MS);
+          }
           actualizar();
           return;
         }
@@ -330,7 +332,8 @@ export function conectar(op: OpcionesConexion, deps: Dependencias = DEPENDENCIAS
           if (companero !== "presente") esperandoPrimera = true;
           companero = "presente";
           reintentos = 0;
-          void intentarDirecta();
+          // Si la sala se cortó un momento pero lo directo sigue vivo, no se toca: renegociar lo cortaría
+          if (!directaAbierta) void intentarDirecta();
           actualizar();
           return;
         case "se_fue":
@@ -362,6 +365,8 @@ export function conectar(op: OpcionesConexion, deps: Dependencias = DEPENDENCIAS
           if (socket !== este) return;
           socket = undefined;
           socketAbierto = false;
+          // Un «¿sigue el otro?» de una conexión anterior ya no vale: lo arma de nuevo el próximo `hola`
+          clearTimeout(confirmar);
           if (cerrada) return;
           if (rol === undefined) {
             terminar();

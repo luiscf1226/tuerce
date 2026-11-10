@@ -16,6 +16,8 @@ export { LATIDO_MS, VIGENCIA_MS };
 
 /** Cuántas entradas viejas se miran (y se borran) por llamada antes de rendirse. */
 const REVISAR_A_LO_SUMO = 50;
+/** Cuánto se guarda el «Ya son pareja» de una entrada emparejada antes de que la limpieza la borre. */
+const GUARDAR_EMPAREJADOS_MS = 30 * 60 * 1000;
 
 export type EstadoCola =
   | { estado: "esperando"; region: Region; desde: number }
@@ -128,14 +130,21 @@ export const estadoCola = query({
   },
 });
 
-/** Borra las entradas sin noticias en VIGENCIA_MS, emparejadas o no. La corre `crons.ts`. */
+/**
+ * Borra, de las más viejas a las más nuevas, las entradas sin noticias en VIGENCIA_MS; las emparejadas se guardan
+ * GUARDAR_EMPAREJADOS_MS para que el «Ya son pareja» no se borre de la pantalla. La corre `crons.ts`.
+ */
 export const limpiar = internalMutation({
   args: {},
   handler: async (ctx) => {
     const ahora = Date.now();
     let borradas = 0;
-    for (const entrada of await ctx.db.query("cola").take(500)) {
-      if (vigente(entrada, ahora)) continue;
+    const viejas = await ctx.db
+      .query("cola")
+      .withIndex("por_visto", (q) => q.lt("visto", ahora - VIGENCIA_MS))
+      .take(500);
+    for (const entrada of viejas) {
+      if (entrada.parejaId && ahora - entrada.visto < GUARDAR_EMPAREJADOS_MS) continue;
       await ctx.db.delete(entrada._id);
       borradas++;
     }

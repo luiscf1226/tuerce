@@ -41,8 +41,11 @@ export default defineSchema({
     visto: v.number(),
     parejaId: v.optional(v.id("parejas")),
   })
-    .index("por_region", ["region", "desde"])
-    .index("por_usuario", ["usuarioId"]),
+    // `parejaId` en el índice: la fila de espera de una región son las entradas sin pareja, en orden de llegada,
+    // y las ya emparejadas no la traban
+    .index("por_region", ["region", "parejaId", "desde"])
+    .index("por_usuario", ["usuarioId"])
+    .index("por_visto", ["visto"]),
   sesiones: defineTable({
     parejaId: v.id("parejas"),
     nivel: v.number(),

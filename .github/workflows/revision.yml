@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # la prueba de la red abre dos Chromium
+      - run: pnpm exec playwright install --with-deps chromium
       - name: reglas de código (Biome y TypeScript)
         run: pnpm check
       - name: pruebas

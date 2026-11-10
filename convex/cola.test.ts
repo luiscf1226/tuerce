@@ -206,4 +206,35 @@ describe("buscar pareja", () => {
     const cola = await t.run((ctx) => ctx.db.query("cola").collect());
     expect(cola.map((e) => e.usuarioId)).toEqual([beto.id]);
   });
+
+  it("las entradas ya emparejadas no traban la fila de la región", async () => {
+    const { t, ana, beto, carla, dani } = await preparar();
+    // Ana y Beto se emparejan y sus entradas quedan (con su pareja) en la misma región
+    await ana.cliente.mutation(api.cola.buscarPareja, { region: "caribe" });
+    await beto.cliente.mutation(api.cola.buscarPareja, { region: "caribe" });
+    // Llenamos la región con entradas emparejadas más viejas que cualquiera que llegue después
+    await t.run(async (ctx) => {
+      const pareja = (await ctx.db.query("parejas").first())?._id;
+      for (let i = 0; i < 60; i++)
+        await ctx.db.insert("cola", {
+          usuarioId: ana.id,
+          region: "caribe",
+          desde: 0,
+          visto: Date.now(),
+          parejaId: pareja,
+        });
+    });
+    await carla.cliente.mutation(api.cola.buscarPareja, { region: "caribe" });
+    const deDani = await dani.cliente.mutation(api.cola.buscarPareja, { region: "caribe" });
+    expect(deDani).toMatchObject({ estado: "emparejados", nombres: ["Dani", "Carla"] });
+  });
+
+  it("el «Ya son pareja» sobrevive a la limpieza un rato", async () => {
+    const { t, ana, beto } = await preparar();
+    await ana.cliente.mutation(api.cola.buscarPareja, { region: "mexico" });
+    await beto.cliente.mutation(api.cola.buscarPareja, { region: "mexico" });
+    vi.advanceTimersByTime(VIGENCIA_MS + 1000);
+    expect(await t.mutation(internal.cola.limpiar, {})).toBe(0);
+    expect(await ana.cliente.query(api.cola.estadoCola, {})).toMatchObject({ estado: "emparejados" });
+  });
 });
