@@ -19,9 +19,11 @@ const TOMAS = [
   { archivo: "muneco-girando", ruta: "/?escena=muneco&andar=0.7&girar=0.6&congelar=200" },
   // La imagen del juego (TU-10): compararla con docs/arte/11-pinar.jpg
   { archivo: "pinar", ruta: "/?escena=pinar&congelar=1" },
+  // La meta de la ola 1: el muñeco caminando en el pinar
+  { archivo: "pinar-caminando", ruta: "/?escena=pinar&andar=1&congelar=150" },
   { archivo: "pinar-niebla-corrida", ruta: "/?escena=pinar&congelar=600" },
 ];
-const VIDEO = { archivo: "pinar", ruta: "/?escena=pinar&depurar", segundos: 5 };
+const VIDEO = { archivo: "pinar", ruta: "/?escena=pinar&andar=0.7&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
 const SALIDA = "capturas";
 const PUERTO = 4173;

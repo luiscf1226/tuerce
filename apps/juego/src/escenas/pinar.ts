@@ -1,8 +1,10 @@
-// El pinar de docs/arte/11-pinar: un tronco caído hace de puente sobre un arroyo, los pinos se pierden en la
-// niebla y dos muñecos (de muestra, quietos) cruzan con su pañuelo rojo y turquesa. Sirve para mirar la imagen
-// del juego; los muñecos de verdad son de TU-03.
+// El pinar de docs/arte/11-pinar: un tronco caído hace de puente sobre un arroyo y los pinos se pierden en la
+// niebla. El muñeco del pañuelo rojo es el de verdad (TU-03) y se maneja con el teclado (W/S o ↑/↓ camina, A/D o
+// ←/→ gira; `&andar=`/`&girar=` fijan la entrada para las capturas). La del pañuelo turquesa espera quieta en el
+// tronco hasta que llegue el segundo jugador (ola 2).
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
+import { crearEntradaTeclado, parametrosDeLaDireccion } from "../entrada/teclado";
 import {
   crearAbeto,
   crearCapasDeNiebla,
@@ -21,11 +23,15 @@ import {
 import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
+import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
 import { COLORES } from "./colores";
 import type { Escena } from "./tipos";
 
 /** Altura del agua del arroyo; el tronco cruza por encima, con su cara de arriba en y = 0. */
 const AGUA = -1.45;
+/** Dónde arranca el muñeco sobre el tronco y qué tan rápido lo sigue la cámara de costado (1/s). */
+const SALIDA = { x: -0.6, rumbo: Math.PI / 2 };
+const SEGUIR = 2.5;
 
 /** Muñeco de muestra, quieto: cabeza, cuerpo, brazos y piernas de tela, ojos blancos y su pañuelo. */
 export function crearMunecoQuieto(panuelo: Panuelo, { sombrero = false, trenzas = false } = {}): THREE.Group {
@@ -79,7 +85,11 @@ export function crearMunecoQuieto(panuelo: Panuelo, { sombrero = false, trenzas 
   return grupo;
 }
 
-export function crearEscenaPinar(rapier: Rapier, mundo: RAPIER.World): Escena {
+export function crearEscenaPinar(
+  rapier: Rapier,
+  mundo: RAPIER.World,
+  parametros: URLSearchParams = parametrosDeLaDireccion(),
+): Escena & { readonly muneco: Muneco } {
   const escena = new THREE.Scene();
   vestirDeDia(escena);
   const azar = crearAzar(11);
@@ -98,15 +108,25 @@ export function crearEscenaPinar(rapier: Rapier, mundo: RAPIER.World): Escena {
       .setRotation({ x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 })
       .setTranslation(0.6, -0.15, 0),
   );
+  // Encima, una pasarela plana e invisible del ancho del tronco: caminar sobre un cilindro de 30 cm es
+  // un rompecabezas en sí mismo, y este nivel todavía no lo pide
+  mundo.createCollider(rapier.ColliderDesc.cuboid(7, 0.05, 0.2).setTranslation(0.6, -0.05, 0).setFriction(0.9));
 
-  // Los dos muñecos de muestra, cruzando
-  const nino = crearMunecoQuieto("rojo", { sombrero: true });
-  nino.position.set(-0.85, 0, 0);
-  nino.rotation.y = 0.55;
+  // El muñeco de verdad, con la tela y el pañuelo de la imagen
+  const muneco = crearMuneco(rapier, mundo, { posicion: { x: SALIDA.x, y: 0, z: 0 }, rumbo: SALIDA.rumbo });
+  const malla = crearMallaMuneco(muneco, {
+    cuerpo: materialTela(COLORES.silueta, { repetir: 1, relieve: 2.5 }),
+    panuelo: materialPanuelo("rojo", { repetir: 2 }),
+    ojos: materialOjo(),
+  });
+  escena.add(malla.grupo);
+  const entrada = crearEntradaTeclado(parametros);
+
+  // La compañera, quieta un poco más atrás en el tronco
   const nina = crearMunecoQuieto("turquesa", { trenzas: true });
-  nina.position.set(0.55, 0, 0);
-  nina.rotation.y = 0.4;
-  escena.add(nino, nina);
+  nina.position.set(-1.75, 0, 0);
+  nina.rotation.y = 0.9;
+  escena.add(nina);
 
   // El pino que enmarca a la izquierda, con las ramas hacia la escena
   const grande = crearPino({
@@ -224,15 +244,29 @@ export function crearEscenaPinar(rapier: Rapier, mundo: RAPIER.World): Escena {
 
   const inclinacion = matas.map((m) => m.rotation.z);
   let pasos = 0;
+
+  // La cámara corre de costado siguiendo al muñeco, sin acercarse ni alejarse; se calcula a paso fijo
+  const inicioCamara = camara.position.clone();
+  const suavizado = 1 - Math.exp(-SEGUIR * PASO);
+  const seguido = { antes: SALIDA.x, ahora: SALIDA.x };
   return {
     nombre: "pinar",
     escena,
     camara,
+    muneco,
     pasar() {
+      muneco.pasar(entrada);
       mundo.step();
+      malla.guardar();
+      seguido.antes = seguido.ahora;
+      seguido.ahora += (muneco.partes.pelvis.translation().x - seguido.ahora) * suavizado;
       pasos++;
     },
     dibujar(alfa) {
+      malla.dibujar(alfa);
+      const x = seguido.antes + (seguido.ahora - seguido.antes) * alfa - SALIDA.x;
+      camara.position.set(inicioCamara.x + x, inicioCamara.y, inicioCamara.z);
+      camara.lookAt(x, 0.5, 0);
       const segundos = (pasos - 1 + alfa) * PASO;
       niebla.mover(segundos);
       matas.forEach((m, i) => {

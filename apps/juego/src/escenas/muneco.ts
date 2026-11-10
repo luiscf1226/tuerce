@@ -6,26 +6,15 @@
 //   &girar=<-1..1>  girar fijo, sin teclado
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
+import { crearEntradaTeclado } from "../entrada/teclado";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
-import { crearMallaMuneco, crearMuneco, type EntradaMuneco } from "../muneco";
+import { crearMallaMuneco, crearMuneco } from "../muneco";
 import { COLORES } from "./colores";
 import type { Escena } from "./tipos";
 
 /** Desde dónde mira la cámara, relativo al muñeco, y qué tan rápido lo alcanza (1/s). */
 const CAMARA = { desfase: new THREE.Vector3(3, 1.1, 2.8), mirarArriba: 0.45, seguir: 3 };
-
-const TECLAS: Record<string, keyof EntradaMuneco | undefined> = {
-  KeyW: "avanzar",
-  ArrowUp: "avanzar",
-  KeyS: "avanzar",
-  ArrowDown: "avanzar",
-  KeyA: "girar",
-  ArrowLeft: "girar",
-  KeyD: "girar",
-  ArrowRight: "girar",
-};
-const SIGNO: Record<string, number> = { KeyS: -1, ArrowDown: -1, KeyD: -1, ArrowRight: -1 };
 
 export function crearEscenaMuneco(rapier: Rapier, mundo: RAPIER.World): Escena {
   const escena = new THREE.Scene();
@@ -87,38 +76,7 @@ export function crearEscenaMuneco(rapier: Rapier, mundo: RAPIER.World): Escena {
   const malla = crearMallaMuneco(muneco);
   escena.add(malla.grupo);
 
-  // Entrada: fija por la dirección (para capturas) o del teclado
-  const parametros = new URLSearchParams(location.search);
-  const fija = parametros.has("andar") || parametros.has("girar");
-  const entrada: EntradaMuneco = {
-    avanzar: Number(parametros.get("andar") ?? 0) || 0,
-    girar: Number(parametros.get("girar") ?? 0) || 0,
-  };
-  const apretadas = new Set<string>();
-  const leerTeclado = () => {
-    entrada.avanzar = 0;
-    entrada.girar = 0;
-    for (const codigo of apretadas) {
-      const eje = TECLAS[codigo];
-      if (eje) entrada[eje] += SIGNO[codigo] ?? 1;
-    }
-  };
-  if (!fija) {
-    window.addEventListener("keydown", (e) => {
-      if (!TECLAS[e.code]) return;
-      e.preventDefault();
-      apretadas.add(e.code);
-      leerTeclado();
-    });
-    window.addEventListener("keyup", (e) => {
-      apretadas.delete(e.code);
-      leerTeclado();
-    });
-    window.addEventListener("blur", () => {
-      apretadas.clear();
-      leerTeclado();
-    });
-  }
+  const entrada = crearEntradaTeclado();
 
   // Cámara: el punto que mira sigue a la pelvis con un retraso suave, calculado a paso fijo
   const camara = new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 100);
