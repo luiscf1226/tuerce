@@ -1,0 +1,42 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Tuerce",
+  "mainBinaryName": "tuerce",
+  "version": "0.1.0",
+  "identifier": "com.luiscf1226.tuerce",
+  "build": {
+    "beforeDevCommand": { "script": "pnpm exec vite --port 5179 --strictPort", "cwd": "../../juego", "wait": false },
+    "devUrl": "http://localhost:5179",
+    "beforeBuildCommand": { "script": "pnpm build", "cwd": "../../juego" },
+    "frontendDist": "../../juego/dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "principal",
+        "title": "Tuerce",
+        "width": 1280,
+        "height": 720,
+        "minWidth": 800,
+        "minHeight": 450,
+        "fullscreen": true,
+        "resizable": true,
+        "backgroundColor": "#dedfdc"
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Game",
+    "shortDescription": "Dos muñecos de trapo cruzan Latinoamérica a puro agarrón.",
+    "longDescription": "Juego cooperativo de físicas para dos jugadores, en el mismo lugar o en línea.",
+    "copyright": "© 2026 Luis Carlos Flores Meza",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "linux": { "appimage": { "bundleMediaFramework": true } },
+    "macOS": { "minimumSystemVersion": "11.0", "entitlements": "Entitlements.plist" },
+    "windows": { "webviewInstallMode": { "type": "embedBootstrapper" } }
+  }
+}

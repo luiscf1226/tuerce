@@ -12,6 +12,7 @@ Latinoamérica resolviendo rompecabezas a puro agarrón. El plan completo está 
 | `apps/juego/src/motor/`           | Bucle de paso fijo (`bucle.ts`) y mundo de Rapier (`fisica.ts`).                                                                                                       |
 | `apps/juego/src/escenas/`         | Cada escena se abre con `?escena=<nombre>`; la lista está en `index.ts`.                                                                                               |
 | `apps/juego/src/cuenta/`          | Entrar con Clerk y que Convex reconozca al usuario (`?escena=entrar`).                                                                                                 |
+| `apps/escritorio/`                | El mismo juego empacado para Steam con Tauri v2 (Rust): ventana, ícono, plantillas de Steam. Ver su `README.md`.                                                       |
 | `convex/`                         | Datos: `schema.ts`, `auth.config.ts` (Clerk) y funciones. `_generated/` se regenera con `pnpm convex:dev`.                                                             |
 | `workers/sala/`                   | Sala de dos (Durable Object): presenta a los jugadores y hace de repetidor.                                                                                            |
 | `scripts/`                        | `capturas.mjs` (imágenes y video del juego) y `ci/` (lo que corre la revisión automática).                                                                             |
@@ -29,6 +30,8 @@ pnpm red:local     # dos direcciones de `?escena=red` para mirar la red a mano (
 pnpm build         # construye el juego y la sala
 pnpm capturas      # abre el juego en Chromium sin ventana y guarda imágenes y video en capturas/
 pnpm format        # arregla el formato
+pnpm escritorio:dev      # el juego en la ventana de escritorio (Tauri; pide Rust)
+pnpm escritorio:empacar  # empaca para este sistema (en Arch: NO_STRIP=true); ver apps/escritorio/README.md
 pnpm convex:dev    # sube las funciones de convex/ a tu despliegue de desarrollo y regenera _generated/
 ```
 
