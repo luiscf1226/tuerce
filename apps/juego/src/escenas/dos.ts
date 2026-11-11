@@ -14,7 +14,7 @@
 // Encima, el menú de inicio, la pausa, señalar y los gestos (TU-15, src/ui).
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
-import { type CamaraDeDos, crearCamaraDeDos, ENCUADRE } from "../camara";
+import { type CamaraDeDos, crearCamaraDeDos, despejadoEnElMundo, ENCUADRE } from "../camara";
 import { crearAyuda } from "../entrada/ayuda";
 import { crearControles, type EntradaJugador, entradaQuieta } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
@@ -210,7 +210,7 @@ export function crearEscenaDos(
   escena.add(crearVelo({ y: 5, z: -6, ancho: 26, alto: 9, opacidad: 0.75 }));
 
   // Cámara de los dos: sigue a las pelvis a paso fijo
-  const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA });
+  const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA, despejado: despejadoEnElMundo(rapier, mundo) });
   const camara = camaraDeDos.camara;
   const seguirConLaCamara = () =>
     camaraDeDos.seguir(rojo.muneco.partes.pelvis.translation(), turquesa.muneco.partes.pelvis.translation());
