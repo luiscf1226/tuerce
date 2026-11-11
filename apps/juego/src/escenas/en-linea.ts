@@ -14,6 +14,12 @@
 //      anfitrión guarda cada punto nuevo (src/red/avance.ts). Si uno se cae o recarga, el otro ve «tu pareja se
 //      fue» y al volver siguen donde estaban: cada uno conserva su rol, y si el que vuelve es el anfitrión, el
 //      invitado le devuelve el mundo (src/red/sincronia.ts). Si se fueron los dos, se retoma del punto guardado.
+//   6. Contrarreloj (TU-32, `&contrarreloj`): solo en un nivel que la pareja ya ganó (Convex lo sabe por
+//      `ganarNivel`, que el anfitrión manda al llegar a la meta). Se corre desde la salida, sin retomar ni guardar
+//      puntos de control. El reloj lo cuenta el anfitrión y viaja en las fotos; al llegar, el anfitrión registra el
+//      tiempo y los dos ven la tabla de parejas, que se actualiza sola. «Otra carrera» la arranca el anfitrión: su
+//      página vuelve a empezar, no acepta el mundo de la carrera terminada, y el invitado, al ver que el reloj volvió
+//      a cero, también vuelve a empezar.
 //
 // Para probar sin Convex (solo en desarrollo): `?escena=en-linea&sala=<url de la sala>&pase=<pase>`, como la
 // pantalla `red` (ver scripts/prueba-red.mjs). También valen `forzar=repetidor` y `espera=<ms>`, y las entradas
@@ -23,10 +29,12 @@ import { juntarEntradas } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
+import { formatearTiempo } from "../niveles/contrarreloj";
 import { type Conexion, conectar, type EstadoRed, type Rol } from "../red";
 import { type Guardado, guardarAvance, retomarAvance } from "../red/avance";
 import { crearSincronia, type Medidas, type OrigenMundo, type Sincronia } from "../red/sincronia";
 import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
+import { type DatosTabla, mostrarLlegada } from "../ui/contrarreloj";
 import type { Juego } from "../ui/juego";
 import { crearEscenaDos, type PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
@@ -65,6 +73,8 @@ export interface EstadoEnLinea {
   readonly mundo?: OrigenMundo;
   /** El punto de control de la pareja, si la escena de base los tiene. */
   readonly puntoDeControl?: number;
+  /** El reloj de la carrera en pasos, si es un contrarreloj (TU-32). */
+  readonly reloj?: number;
   /** La voz: en qué anda y cuántas pistas de audio del otro llegaron. */
   voz?: Pick<Voz, "estado" | "pistasRemotas">;
 }
@@ -103,6 +113,8 @@ export function crearEscenaEnLinea(
 ): EscenaDeDos {
   let sincronia: Sincronia | undefined;
   let jugando = false;
+  /** El tiempo con que terminó la carrera: si el reloj del anfitrión vuelve a empezar, arrancó otra. */
+  let final: number | undefined;
   const dos = crearBase(rapier, mundo, parametros, (locales) => {
     if (!sincronia || !jugando) return null;
     // Todos los controles de esta máquina (teclado de los dos lados y mandos) manejan el muñeco propio
@@ -115,6 +127,8 @@ export function crearEscenaEnLinea(
   const juego: Juego | undefined = dos.juego && Object.create(dos.juego, { corren: { get: () => true } });
 
   const avance = dos.avance;
+  // Una carrera solo si la escena es un nivel con reloj
+  const reloj = avance && parametros.has("contrarreloj") ? dos.reloj : undefined;
   const prueba: EstadoEnLinea = {
     estado: "sin_conexion",
     get mundo() {
@@ -122,6 +136,9 @@ export function crearEscenaEnLinea(
     },
     get puntoDeControl() {
       return avance?.puntoDeControl();
+    },
+    get reloj() {
+      return reloj?.pasos;
     },
     munecos: () =>
       dos.munecos.map((m) => {
@@ -133,18 +150,27 @@ export function crearEscenaEnLinea(
   if (typeof document !== "undefined") {
     window.__enLinea = prueba;
     const ui = crearInterfaz();
-    void obtenerConexion(parametros, ui, avance)
+    void obtenerConexion(parametros, ui, avance, reloj !== undefined)
       .then((entrada) => {
         if (!entrada) return;
-        const { conexion, guardado } = entrada;
+        const { conexion, guardado, carrera } = entrada;
+        const meta = avance?.meta ?? 0;
         sincronia = crearSincronia({
           rol: conexion.rol,
           enlace: conexion,
           mundo,
           munecos: dos.munecos,
           ...(avance ? { avance } : {}),
+          // Una carrera ya terminada no se retoma: el anfitrión que vuelve arranca otra desde la salida
+          ...(reloj ? { reloj, aceptarMundo: (foto) => foto.punto < meta } : {}),
         });
         if (avance && guardado) guardarAvance(avance, guardado, conexion.rol);
+        if (reloj && carrera) {
+          reloj.alLlegar((pasos) => {
+            final = pasos;
+            mostrarCarrera(pasos, conexion.rol, carrera);
+          });
+        }
         prueba.rol = conexion.rol;
         prueba.medidas = sincronia.medidas;
         const mostrar = (estado: EstadoRed) => {
@@ -176,9 +202,49 @@ export function crearEscenaEnLinea(
     pasar() {
       dos.pasar();
       if (jugando) sincronia?.despues();
+      if (final !== undefined && reloj && reloj.pasos < final && typeof location !== "undefined") location.reload();
     },
     dibujar: (alfa) => dos.dibujar(alfa),
   };
+}
+
+/** Lo que la carrera necesita de Convex (TU-32). */
+interface Carrera {
+  /** Registra el tiempo de la pareja (lo hace el anfitrión). */
+  registrar(pasos: number): Promise<{ mejor: number; mejoro: boolean }>;
+  /** La tabla del nivel, ahora y cada vez que cambie. Devuelve cómo dejar de mirarla. */
+  mirarTabla(aviso: (datos: DatosTabla) => void): () => void;
+}
+
+/** Al llegar a la meta: el panel con el tiempo y la tabla. El anfitrión registra el tiempo y arranca otra carrera. */
+function mostrarCarrera(pasos: number, rol: Rol, carrera: Carrera): void {
+  const anfitrion = rol === "anfitrion";
+  const llegada = mostrarLlegada({
+    titulo: "Llegaron a la meta",
+    pasos,
+    nota: anfitrion ? "Guardando el tiempo…" : "",
+    acciones: [
+      anfitrion
+        ? { texto: "Otra carrera", fuerte: true, alApretar: () => location.reload() }
+        : {
+            texto: "Otra carrera",
+            fuerte: true,
+            alApretar: () => llegada.nota("La arranca tu pareja (pañuelo rojo)."),
+          },
+      { texto: "Tablas", href: "?escena=tabla" },
+    ],
+  });
+  carrera.mirarTabla((datos) => llegada.tabla(datos));
+  if (!anfitrion) return;
+  carrera
+    .registrar(pasos)
+    .then(({ mejor, mejoro }) =>
+      llegada.nota(mejoro ? "¡Su mejor tiempo!" : `Su mejor tiempo: ${formatearTiempo(mejor)}`),
+    )
+    .catch((error: unknown) => {
+      console.warn("Tuerce · contrarreloj: no se pudo registrar el tiempo", error);
+      llegada.nota("No se pudo guardar este tiempo.");
+    });
 }
 
 interface Interfaz {
@@ -267,7 +333,8 @@ async function obtenerConexion(
   parametros: URLSearchParams,
   ui: Interfaz,
   avance: AvanceDeNivel | undefined,
-): Promise<{ conexion: Conexion; guardado?: Guardado } | undefined> {
+  contrarreloj = false,
+): Promise<{ conexion: Conexion; guardado?: Guardado; carrera?: Carrera } | undefined> {
   const pase = parametros.get("pase");
   const sala = parametros.get("sala");
   const numero = (nombre: string) => {
@@ -311,8 +378,28 @@ async function obtenerConexion(
             leer: (nivel) => convex.query(api.avance.puntoDeControl, { parejaId, nivel }),
             guardar: (nivel, puntoDeControl) =>
               convex.mutation(api.avance.guardarPuntoDeControl, { parejaId, nivel, puntoDeControl }),
+            ganar: (nivel) => convex.mutation(api.contrarreloj.ganarNivel, { parejaId, nivel }),
           };
-          if (avance) {
+          let carrera: Carrera | undefined;
+          if (avance && contrarreloj) {
+            // El contrarreloj se abre solo en niveles ganados, y se corre desde la salida
+            const { nivel } = avance;
+            const ganados = await convex.query(api.contrarreloj.nivelesGanados, { parejaId });
+            if (!ganados.some((g) => g.nivel === nivel)) {
+              const jugarlo = new URLSearchParams(parametros);
+              jugarlo.delete("contrarreloj");
+              ui.mensaje(
+                `Con ${pareja.companero} todavía no ganaron este nivel: el contrarreloj se abre al llegar a la meta.`,
+                { texto: "Jugarlo", href: `?${jugarlo}` },
+              );
+              resolver(undefined);
+              return;
+            }
+            carrera = {
+              registrar: (tiempo) => convex.mutation(api.contrarreloj.registrarTiempo, { parejaId, nivel, tiempo }),
+              mirarTabla: (aviso) => convex.onUpdate(api.contrarreloj.tabla, { nivel, parejaId }, aviso),
+            };
+          } else if (avance) {
             ui.mensaje(`Buscando dónde se quedaron con ${pareja.companero}…`);
             await retomarAvance(avance, guardado);
           }
@@ -325,7 +412,7 @@ async function obtenerConexion(
             pase: primero.pase,
             pedirPase: async () => (await pedir()).pase,
           });
-          resolver({ conexion, guardado });
+          resolver(carrera ? { conexion, carrera } : { conexion, guardado });
         })().catch(rechazar);
         return undefined;
       },

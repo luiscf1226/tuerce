@@ -1,9 +1,12 @@
 import type * as THREE from "three";
+import type { Reloj } from "../niveles/contrarreloj";
 
 /** El avance de un nivel: qué punto de control alcanzó la pareja. Lo guarda la red en Convex (TU-22). */
 export interface AvanceDeNivel {
   /** Número del nivel (0 = El patio, 1 = El pinar…; el de prueba usa 99). */
   readonly nivel: number;
+  /** El último punto de control: la meta. Llegar ahí es ganar el nivel (y abre su contrarreloj, TU-32). */
+  readonly meta: number;
   /** El último punto de control alcanzado por la pareja (0 = la salida). */
   puntoDeControl(): number;
   /** Avisa cada vez que la pareja alcanza un punto de control nuevo. Devuelve cómo dejar de avisar. */
@@ -27,4 +30,6 @@ export interface Escena {
   dibujar(alfa: number): void;
   /** El avance del nivel, en las escenas que son un nivel (TU-11). En línea se guarda en Convex y se retoma (TU-22). */
   readonly avance?: AvanceDeNivel;
+  /** El reloj, si la escena es una carrera de contrarreloj (TU-32, `&contrarreloj`). */
+  readonly reloj?: Reloj;
 }

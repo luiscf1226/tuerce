@@ -1,0 +1,247 @@
+/* Contrarreloj (TU-32): el reloj arriba al centro, el panel de la llegada y las tarjetas de la tabla. Paneles de
+   niebla clara con la letra del menú; solo modo claro, y el único color son los pañuelos de la pareja propia. */
+.contrarreloj-marcador,
+.contrarreloj-capa,
+.contrarreloj-tarjeta {
+  --niebla-clara: #f0f0ed;
+  --tinta: #232321;
+  --tinta-suave: #5a5a56;
+  --honda: #1a1a1a;
+  --silueta: #3c3c3c;
+  --raya: rgb(35 35 33 / 0.18);
+  --rojo: #d2463a;
+  --turquesa: #2bb1ad;
+  --display: "Fraunces", "Georgia", serif;
+  --cuerpo: "Karla", "Segoe UI", system-ui, sans-serif;
+  color: var(--tinta);
+  font: 400 16px / 1.5 var(--cuerpo);
+}
+
+/* El reloj mientras corren */
+.contrarreloj-marcador {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 20px 8px;
+  border-radius: 8px;
+  background: rgb(240 240 237 / 0.72);
+  pointer-events: none;
+}
+.contrarreloj-ceja {
+  margin: 0;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+.contrarreloj-tiempo {
+  font: 800 40px / 1 var(--display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--honda);
+}
+.contrarreloj-marcador.llego .contrarreloj-tiempo {
+  text-decoration: underline dashed 2px;
+  text-underline-offset: 6px;
+}
+
+/* La llegada: un panel sobre la escena viva */
+.contrarreloj-capa {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  box-sizing: border-box;
+  background: rgb(225 226 223 / 0.42);
+}
+.contrarreloj-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(440px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 26px 30px 24px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: rgb(240 240 237 / 0.9);
+  box-shadow: 0 26px 46px -30px rgb(0 0 0 / 0.55);
+  text-align: center;
+}
+.contrarreloj-final {
+  margin: 0;
+  font: 800 64px / 0.95 var(--display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--honda);
+}
+.contrarreloj-nota {
+  margin: 0;
+  min-height: 1.5em;
+  font-weight: 600;
+  color: var(--tinta-suave);
+}
+.contrarreloj-costura {
+  width: 100%;
+  margin: 2px 0;
+  border: 0;
+  border-top: 2px dashed var(--tinta);
+  opacity: 0.8;
+}
+.contrarreloj-botones,
+.contrarreloj-pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.contrarreloj-boton {
+  flex: 1;
+  min-width: 120px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tinta);
+  font: 800 14px / 1 var(--cuerpo);
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px var(--tinta);
+}
+.contrarreloj-boton:hover {
+  background: rgb(35 35 33 / 0.08);
+}
+.contrarreloj-boton.fuerte {
+  background: var(--honda);
+  color: var(--niebla-clara);
+  box-shadow: none;
+}
+.contrarreloj-boton.fuerte:hover {
+  background: var(--silueta);
+}
+.contrarreloj-boton:focus-visible,
+.contrarreloj-boton:focus {
+  outline: 3px solid var(--honda);
+  outline-offset: 3px;
+}
+
+/* La tabla de parejas */
+.contrarreloj-tabla {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.contrarreloj-tabla li {
+  display: grid;
+  grid-template-columns: 2.2em 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--raya);
+}
+.contrarreloj-tabla .puesto {
+  font: 600 18px / 1 var(--display);
+  color: var(--tinta-suave);
+  text-align: right;
+}
+.contrarreloj-tabla .nombres {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.contrarreloj-tabla .tiempo {
+  font: 600 18px / 1 var(--display);
+  font-variant-numeric: tabular-nums;
+}
+.contrarreloj-tabla .propia {
+  font-weight: 800;
+  background: rgb(35 35 33 / 0.07);
+}
+.contrarreloj-tabla .propia .puesto {
+  color: var(--honda);
+}
+.contrarreloj-tabla .nombres i {
+  display: inline-block;
+  width: 10px;
+  height: 7px;
+  margin-right: 3px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.contrarreloj-tabla .nombres i:last-of-type {
+  margin-right: 8px;
+}
+.contrarreloj-tabla .rojo {
+  background: var(--rojo);
+}
+.contrarreloj-tabla .turquesa {
+  background: var(--turquesa);
+}
+.contrarreloj-tabla .salto {
+  display: block;
+  padding: 0;
+  border: 0;
+  text-align: center;
+  letter-spacing: 0.3em;
+  color: var(--tinta-suave);
+}
+.contrarreloj-vacia {
+  margin: 0;
+  color: var(--tinta-suave);
+}
+
+/* La pantalla de tablas: una tarjeta por nivel */
+.contrarreloj-tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(480px, calc(100vw - 32px));
+  padding: 22px 26px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: rgb(240 240 237 / 0.9);
+  box-shadow: 0 26px 46px -30px rgb(0 0 0 / 0.45);
+  text-align: left;
+}
+.contrarreloj-tarjeta h2 {
+  margin: 0;
+  font: 600 28px / 1.1 var(--display);
+}
+.contrarreloj-pie {
+  justify-content: flex-start;
+  align-items: center;
+  color: var(--tinta-suave);
+  font-size: 14px;
+}
+/* La pantalla de tablas usa el panel de las pantallas de la cuenta (`.entrar`), con la letra de la marca */
+.entrar.tablas {
+  font-family: "Karla", "Segoe UI", system-ui, sans-serif;
+  color: #232321;
+}
+.entrar.tablas h1 {
+  font:
+    800 52px / 1 "Fraunces",
+    "Georgia",
+    serif;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+}
+.entrar.tablas > p {
+  margin: 0 0 4px;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #5a5a56;
+}

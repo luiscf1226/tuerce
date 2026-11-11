@@ -6,6 +6,9 @@
 //   &nivel=prueba    qué nivel abrir (ver src/niveles/lista.ts)
 //   &punto=N         empieza en ese punto de control, como al retomar un avance guardado
 //   &vista=todo      la cámara quieta, lejos, mirando el nivel entero (para las capturas)
+//   &contrarreloj    una carrera (TU-32): desde la salida y con el reloj arriba, que arranca cuando alguno se mueve
+//                    y se para en la meta. Sin red, el tiempo queda en este navegador (en línea lo guarda Convex,
+//                    ver en-linea.ts). `&punto` solo vale en el mismo lugar, para probar.
 //
 // En línea (`?escena=en-linea`) se juega esta misma escena: `enRed` decide las entradas de cada paso, como en `dos`.
 // El invitado no simula: no corre el guion, ni los puntos de control, ni las caídas; los cuerpos (también la
@@ -21,8 +24,10 @@ import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
 import { armarNivel, cargarNivel, crearNivel, type GuionDeNivel, type Nivel, type PlanoDeNivel } from "../niveles";
+import { anotarTiempoAqui, crearReloj, formatearTiempo, marcarGanadoAqui, seMueve } from "../niveles/contrarreloj";
 import { NIVEL_INICIAL, NIVELES } from "../niveles/lista";
 import { crearJuego, crearSenas } from "../ui";
+import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
 import { crearInterfaz } from "../ui/menu";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
@@ -138,8 +143,32 @@ export function armarEscenaNivel(
       saltarMallas();
     },
   };
+  // Contrarreloj (TU-32): desde la salida. Llegar a la meta gana el nivel (y abre su contrarreloj) y para el reloj
+  const clave = parametros.get("nivel") ?? NIVEL_INICIAL;
+  const reloj = parametros.has("contrarreloj") ? crearReloj() : undefined;
+  nivel.avance.alCambiar((alcanzado) => {
+    if (alcanzado < nivel.avance.meta) return;
+    reloj?.llegar();
+    if (!enRed && conPantalla) marcarGanadoAqui(clave);
+  });
+  const marcador = reloj && conPantalla ? crearMarcador(`Contrarreloj · ${plano.nombre}`) : undefined;
+  if (reloj && conPantalla && !enRed) {
+    reloj.alLlegar((pasos) => {
+      const mejor = anotarTiempoAqui(clave, pasos);
+      mostrarLlegada({
+        titulo: `Llegaron a la meta · ${plano.nombre}`,
+        pasos,
+        nota: mejor < pasos ? `Su mejor aquí: ${formatearTiempo(mejor)}` : "¡Su mejor tiempo aquí!",
+        acciones: [
+          { texto: "Otra carrera", fuerte: true, alApretar: () => location.reload() },
+          { texto: "Tablas en línea", href: "?escena=tabla" },
+        ],
+      });
+    });
+  }
+
   const punto = Number(parametros.get("punto"));
-  if (parametros.has("punto") && Number.isFinite(punto)) avance.irA(punto);
+  if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
   seguirConLaCamara();
 
   let pasos = 0;
@@ -154,6 +183,7 @@ export function armarEscenaNivel(
     munecos,
     nivel,
     avance,
+    ...(reloj ? { reloj } : {}),
     pasar() {
       const leidas = juego.atienden ? controles.leer() : quietas;
       const entradas = enRed ? enRed(leidas) : leidas;
@@ -162,6 +192,8 @@ export function armarEscenaNivel(
         munecos[0].pasar(senas.entrada(0, entradas[0]));
         munecos[1].pasar(senas.entrada(1, entradas[1]));
         mundo.step();
+        // El reloj cuenta este paso antes de los puntos de control: el paso que llega a la meta también vale
+        if (reloj && (reloj.pasos > 0 || seMueve(entradas[0]) || seMueve(entradas[1]))) reloj.pasar();
         for (const { jugador } of nivel.despues()) saltarMalla(jugador);
       }
       senas.apuntar();
@@ -177,6 +209,7 @@ export function armarEscenaNivel(
       const segundos = (pasos - 1 + alfa) * PASO;
       armado.dibujar(alfa, segundos);
       senas.dibujar(segundos);
+      if (reloj) marcador?.poner(reloj.pasos, reloj.llego);
       if (vistaTodo) return;
       camaraDeDos.dibujar(alfa);
       if (escena.fog instanceof THREE.Fog) {

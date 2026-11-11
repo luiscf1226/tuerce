@@ -5,11 +5,12 @@
 // palanca, A para apretar, B para volver. La pausa (Esc, P o Start) la pide cualquiera de los dos.
 import { DESCRIPCION_CONTROLES } from "../entrada/ayuda";
 import type { Controles } from "../entrada/mandos";
+import { ganadosAqui } from "../niveles/contrarreloj";
 import { enEscritorio, salirDelJuego } from "./escritorio";
 import type { Juego } from "./juego";
 import "./menu.css";
 
-const FUENTES =
+export const FUENTES =
   "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Karla:wght@400;600;800&display=swap";
 
 export interface Interfaz {
@@ -39,6 +40,16 @@ function enlace(texto: string, destino: string): HTMLAnchorElement {
   const a = elemento("a", "boton boton-claro", texto);
   a.href = destino;
   return a;
+}
+
+/** Contrarreloj (TU-32): correr aquí un nivel que la pareja ya ganó en este navegador, y las tablas en línea. */
+function lineaContrarreloj(): HTMLElement {
+  const linea = elemento("div", "menu-linea");
+  linea.append(elemento("span", "menu-nota", "Contrarreloj"));
+  const ganado = ganadosAqui()[0];
+  if (ganado) linea.append(enlace("Aquí", `?escena=nivel&nivel=${encodeURIComponent(ganado)}&contrarreloj`));
+  linea.append(enlace("Tablas", "?escena=tabla"));
+  return linea;
 }
 
 /** El logo de la portada: TUERCE con la E caída y los dos pañuelos al lado. */
@@ -105,7 +116,7 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
       const linea = elemento("div", "menu-linea");
       linea.append(elemento("span", "menu-nota", "Jugar en línea"), enlace("Invitar", "?escena=invitar"));
       linea.append(enlace("Buscar", "?escena=buscar"));
-      hijos.push(linea, elemento("hr", "costura"));
+      hijos.push(linea, lineaContrarreloj(), elemento("hr", "costura"));
       hijos.push(
         boton("Controles", () => {
           viendoControles = true;

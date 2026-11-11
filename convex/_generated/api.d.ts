@@ -10,6 +10,7 @@
 
 import type * as avance from "../avance.js";
 import type * as cola from "../cola.js";
+import type * as contrarreloj from "../contrarreloj.js";
 import type * as crons from "../crons.js";
 import type * as cuenta from "../cuenta.js";
 import type * as invitaciones from "../invitaciones.js";
@@ -27,6 +28,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   avance: typeof avance;
   cola: typeof cola;
+  contrarreloj: typeof contrarreloj;
   crons: typeof crons;
   cuenta: typeof cuenta;
   invitaciones: typeof invitaciones;
