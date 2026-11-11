@@ -5,6 +5,11 @@
 // Para entrar hace falta un pase firmado que emite Convex (`pedirPase`, ver src/pase.ts): /sala/<nombre>?pase=…
 // La sala recuerda a los dos primeros usuarios con pase y no deja entrar a un tercero. Si uno vuelve a entrar
 // (otra pestaña, se cortó la red), su conexión nueva reemplaza a la vieja y conserva el rol.
+//
+// Los roles son de cada usuario y no cambian (TU-22): el primero que entró alguna vez a la sala de la pareja es
+// siempre el anfitrión y el otro siempre el invitado, aunque se vayan los dos y vuelvan en otro orden. Así el que
+// vuelve sigue con su pañuelo y nunca hay dos anfitriones: si el que se quedó era el invitado, espera al anfitrión
+// y le devuelve el mundo (ver apps/juego/src/red/sincronia.ts).
 // GET /turn?pase=… entrega los servidores ICE (TURN de Cloudflare, o STUN público si faltan las llaves). Lo
 // atiende la sala del pase, que no da más de TURN_POR_HORA credenciales a cada usuario: cada una se cobra.
 import { DurableObject } from "cloudflare:workers";
@@ -56,11 +61,13 @@ export class Sala extends DurableObject<Env> {
     const usuario = req.headers.get(USUARIO);
     if (!usuario) return new Response("falta el pase", { status: 401 });
 
-    // Los dos primeros usuarios con pase quedan anotados: la sala es de esa pareja.
-    const conocidos = (await this.ctx.storage.get<string[]>("usuarios")) ?? [];
+    // Los dos primeros usuarios con pase quedan anotados, en orden: la sala es de esa pareja y el primero es el
+    // anfitrión.
+    let conocidos = (await this.ctx.storage.get<string[]>("usuarios")) ?? [];
     if (!conocidos.includes(usuario)) {
       if (conocidos.length >= 2) return new Response("la sala ya tiene a sus dos jugadores", { status: 409 });
-      await this.ctx.storage.put("usuarios", [...conocidos, usuario]);
+      conocidos = [...conocidos, usuario];
+      await this.ctx.storage.put("usuarios", conocidos);
     }
 
     const vieja = dentro.find((w) => conexion(w).usuario === usuario);
@@ -75,7 +82,7 @@ export class Sala extends DurableObject<Env> {
       }
     } else {
       if (dentro.length >= 2) return new Response("la sala ya tiene a sus dos jugadores", { status: 409 });
-      rol = dentro.some((w) => conexion(w).rol === "anfitrion") ? "invitado" : "anfitrion";
+      rol = conocidos.indexOf(usuario) === 0 ? "anfitrion" : "invitado";
     }
 
     const { 0: cliente, 1: servidor } = new WebSocketPair();

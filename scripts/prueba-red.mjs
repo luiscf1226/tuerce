@@ -7,7 +7,9 @@
 //   e) en línea (TU-21): `?escena=en-linea` en las dos páginas, cada uno maneja su muñeco y los dos ven moverse a
 //      los dos muñecos (el anfitrión calcula, el invitado dibuja lo que le manda);
 //   f) voz (TU-34): con un micrófono de mentira (`--use-fake-device-for-media-stream`), uno prende el micrófono con
-//      el botón y al otro le llega una pista de audio viva; con lo directo imposible el botón dice que no hay voz.
+//      el botón y al otro le llega una pista de audio viva; con lo directo imposible el botón dice que no hay voz;
+//   g) reconexión (TU-22): a media partida recarga el invitado y después el anfitrión; cada uno vuelve con su rol y
+//      los muñecos siguen donde estaban (al anfitrión el invitado le devuelve el mundo), no en la salida.
 // Levanta `wrangler dev` de la sala con un secreto de prueba, sirve el juego con Vite y firma sus propios pases.
 import { spawn, spawnSync } from "node:child_process";
 import { chromium } from "playwright";
@@ -205,6 +207,13 @@ try {
   await e.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
   const f = await abrir(`${urlF}&j1=andar:1,girar:0.4`);
   const estadoEnLinea = (pagina) => pagina.evaluate(() => window.__enLinea?.estado);
+  const esperar = async (pagina, buscado) => {
+    try {
+      await pagina.waitForFunction((e) => window.__enLinea?.estado === e, buscado, { timeout: 10_000, polling: 50 });
+    } catch {
+      throw new Error(`en línea no llegó a «${buscado}»: ${await estadoEnLinea(pagina)}`);
+    }
+  };
   for (const pagina of [e, f]) {
     try {
       await pagina.waitForFunction(() => window.__enLinea?.estado === "directa", null, { timeout: 30_000 });
@@ -291,8 +300,81 @@ try {
   console.log(`  f) por la sala no hay voz: «${await g.textContent(boton)}»`);
   await Promise.all([g.close(), h.close()]);
 
+  // g) Reconexión: el invitado anda hasta alejarse; recarga (quieto) y su muñeco sigue donde estaba; después recarga
+  // el anfitrión y, con el mundo que le devuelve el invitado, los dos muñecos siguen donde estaban.
+  const [urlI, urlJ] = await pareja("&espera=15000", "en-linea");
+  const i = await abrir(urlI);
+  await i.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
+  let j = await abrir(`${urlJ}&j1=andar:1,girar:0.3`);
+  const jugando = async (pagina, nombre) => {
+    try {
+      await pagina.waitForFunction(
+        () =>
+          ["directa", "repetidor"].includes(window.__enLinea?.estado ?? "") && window.__enLinea?.mundo !== "esperando",
+        null,
+        { timeout: 30_000, polling: 50 },
+      );
+    } catch {
+      throw new Error(`reconexión: ${nombre} no volvió a jugar (${await estadoEnLinea(pagina)})`);
+    }
+  };
+  await Promise.all([jugando(i, "el anfitrión"), jugando(j, "el invitado")]);
+  const turquesa = async (pagina) => (await munecos(pagina))?.[1];
+  const salida = await turquesa(i);
+  for (const limite = Date.now() + 20_000; ; ) {
+    await dormir(300);
+    const t = await turquesa(i);
+    if (Math.hypot(t.x - salida.x, t.z - salida.z) > 1.5) break;
+    if (Date.now() > limite) throw new Error("reconexión: el invitado no se alejó de la salida");
+  }
+  // El invitado recarga, ahora sin tocar nada
+  await j.close();
+  await esperar(i, "se_fue");
+  j = await abrir(urlJ);
+  await Promise.all([jugando(i, "el anfitrión"), jugando(j, "el invitado")]);
+  revisar(
+    (await j.evaluate(() => window.__enLinea?.rol)) === "invitado",
+    "reconexión: el invitado volvió con otro rol",
+  );
+  await dormir(1500); // que su muñeco termine de frenar y el invitado lo dibuje donde está
+  const [deVerdad, dibujado] = await Promise.all([turquesa(i), turquesa(j)]);
+  const lejosDeLaSalida = Math.hypot(dibujado.x - salida.x, dibujado.z - salida.z);
+  const desfase = Math.hypot(dibujado.x - deVerdad.x, dibujado.z - deVerdad.z);
+  revisar(lejosDeLaSalida > 1, `reconexión: el invitado volvió a la salida (${lejosDeLaSalida.toFixed(2)} m)`);
+  revisar(desfase < 0.3, `reconexión: el invitado ve su muñeco a ${desfase.toFixed(2)} m de donde está`);
+  console.log(`  g) el invitado recargó y su muñeco sigue a ${lejosDeLaSalida.toFixed(1)} m de la salida`);
+
+  // El anfitrión recarga: su página nueva arranca con los muñecos en la salida y el invitado le devuelve el mundo
+  const antesDeRecargar = await munecos(i);
+  await i.close();
+  await esperar(j, "se_fue");
+  const i2 = await abrir(urlI);
+  await Promise.all([jugando(i2, "el anfitrión"), jugando(j, "el invitado")]);
+  revisar(
+    (await i2.evaluate(() => window.__enLinea?.rol)) === "anfitrion",
+    "reconexión: el anfitrión volvió con otro rol",
+  );
+  revisar(
+    (await i2.evaluate(() => window.__enLinea?.mundo)) === "devuelto",
+    `reconexión: el anfitrión no recibió el mundo (${await i2.evaluate(() => window.__enLinea?.mundo)})`,
+  );
+  await dormir(1000);
+  const despuesDeRecargar = await munecos(i2);
+  const corridos = [0, 1].map((m) =>
+    Math.hypot(despuesDeRecargar[m].x - antesDeRecargar[m].x, despuesDeRecargar[m].z - antesDeRecargar[m].z),
+  );
+  revisar(
+    corridos.every((d) => d < 0.3),
+    `reconexión: al volver el anfitrión los muñecos se corrieron ${corridos.map((d) => d.toFixed(2))} m`,
+  );
   console.log(
-    `PASA red: directa, caída al repetidor y vuelta, repetidor forzado, se_fue, en línea y voz (${Date.now() - inicio} ms)`,
+    `  g) el anfitrión recargó, el invitado le devolvió el mundo y los muñecos siguen donde estaban ` +
+      `(se corrieron ${corridos.map((d) => `${(d * 100).toFixed(0)} cm`).join(" y ")})`,
+  );
+  await Promise.all([i2.close(), j.close()]);
+
+  console.log(
+    `PASA red: directa, caída al repetidor y vuelta, repetidor forzado, se_fue, en línea, voz y reconexión (${Date.now() - inicio} ms)`,
   );
   await navegador.close();
   apagar();

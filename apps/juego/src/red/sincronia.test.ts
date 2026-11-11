@@ -9,8 +9,19 @@ import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import { crearMundo } from "../motor/fisica";
 import type { Datos } from "./marco";
-import { escribirEntradas, REDUNDANCIA } from "./paquetes";
-import { crearSincronia, cuerposMoviles, type Enlace, type Sincronia } from "./sincronia";
+import {
+  escribirAviso,
+  escribirEntradas,
+  escribirFoto,
+  leerFoto,
+  REDUNDANCIA,
+  TIPO_FOTO,
+  TIPO_MUNDO,
+  TIPO_PEDIR_MUNDO,
+  TIPO_SIN_MUNDO,
+  tipoDe,
+} from "./paquetes";
+import { crearSincronia, cuerposMoviles, type Enlace, ESPERA_MUNDO, REPEDIR_MUNDO, type Sincronia } from "./sincronia";
 
 interface Red {
   anfitrion: Enlace;
@@ -120,6 +131,17 @@ describe("sincronía con 75 ms de ida, temblor y 2 % de pérdida", () => {
     const pelvisB = cuerposB.indexOf(escenaB.munecos[1].partes.pelvis);
     const pelvisA = cuerposA.indexOf(escenaA.munecos[1].partes.pelvis);
     expect(pelvisA).toBe(pelvisB);
+
+    // Antes de jugar, el anfitrión le pregunta al invitado si tiene un mundo de antes: no tiene (es nuevo). Esta red
+    // pierde paquetes aunque sean fiables, así que puede hacer falta preguntar dos veces.
+    for (let i = 0; anfitrion.mundo === "esperando"; i++) {
+      expect(i).toBeLessThan(2 * REPEDIR_MUNDO);
+      escenaA.pasar();
+      anfitrion.despues();
+      red.avanzar(1000 / 60); // la respuesta llega al final: la historia empieza en el primer paso simulado
+    }
+    expect(anfitrion.mundo).toBe("propio");
+    expect(anfitrion.medidas.fotos).toBe(0);
 
     // La historia del anfitrión, paso a paso, para comparar con lo que dibuja el invitado
     const historia: Instantanea[] = [fotoDe(cuerposA, 0, 0)];
@@ -263,6 +285,8 @@ describe("el anfitrión no confía en lo que manda el invitado", () => {
       },
     };
     const anfitrion = crearSincronia({ rol: "anfitrion", enlace, mundo, munecos: escena.munecos });
+    oyente?.(escribirAviso(TIPO_SIN_MUNDO));
+    expect(anfitrion.mundo).toBe("propio");
     const andar = { ...entradaQuieta(), avanzar: 1 };
     const mandar = (seq: number) => oyente?.(escribirEntradas([{ seq, entrada: andar }]));
     mandar(10);
@@ -275,5 +299,194 @@ describe("el anfitrión no confía en lo que manda el invitado", () => {
     for (let i = 0; i < 5; i++) anfitrion.paso(entradaQuieta());
     expect(performance.now() - inicio).toBeLessThan(1000);
     expect(anfitrion.medidas.esperando).toBeLessThanOrEqual(240);
+  });
+});
+
+/** Una partida en Node: anfitrión e invitado con la escena `dos`, sobre la red de mentira (sin pérdida). */
+async function partida(red: Red) {
+  const crearLado = async (rol: "anfitrion" | "invitado", entrada: () => EntradaJugador) => {
+    const { rapier, mundo } = await crearMundo();
+    const lado: { sincronia?: Sincronia } = {};
+    const escena = crearEscenaDos(rapier, mundo, new URLSearchParams(), () =>
+      lado.sincronia ? lado.sincronia.paso(entrada()) : null,
+    );
+    const enlace = rol === "anfitrion" ? red.anfitrion : red.invitado;
+    const sincronia = crearSincronia({ rol, enlace, mundo, munecos: escena.munecos });
+    lado.sincronia = sincronia;
+    return { escena, sincronia, mundo, cuerpos: cuerposMoviles(mundo) };
+  };
+  return { crearLado };
+}
+
+const pelvis = (escena: ReturnType<typeof crearEscenaDos>, i: 0 | 1) => {
+  const p = escena.munecos[i].partes.pelvis.translation();
+  return { x: p.x, y: p.y, z: p.z };
+};
+const lejos = (a: { x: number; z: number }, b: { x: number; z: number }) => Math.hypot(a.x - b.x, a.z - b.z);
+
+describe("reconexión (TU-22)", () => {
+  it("si el anfitrión vuelve sin mundo, el invitado le devuelve el de antes y siguen ahí", async () => {
+    const red = crearRed({ perdida: 0 });
+    const { crearLado } = await partida(red);
+    let andanDos = true;
+    const anfitrion1 = await crearLado("anfitrion", () => (andanDos ? entrada(1, 0.3) : entradaQuieta()));
+    const invitado = await crearLado("invitado", () => (andanDos ? entrada(1, -0.4) : entradaQuieta()));
+    const salidas = [pelvis(anfitrion1.escena, 0), pelvis(anfitrion1.escena, 1)] as const;
+    const paso = (a: typeof anfitrion1) => {
+      red.avanzar(1000 / 60);
+      a.escena.pasar();
+      a.sincronia.despues();
+      invitado.escena.pasar();
+    };
+    // Dos segundos andando y uno quietos, para que la última foto sea donde quedaron
+    for (let i = 0; i < 180; i++) {
+      if (i === 120) andanDos = false;
+      paso(anfitrion1);
+    }
+    expect(anfitrion1.sincronia.mundo).toBe("propio");
+    const antes = [pelvis(anfitrion1.escena, 0), pelvis(anfitrion1.escena, 1)] as const;
+    expect(lejos(antes[0], salidas[0])).toBeGreaterThan(1);
+    expect(lejos(antes[1], salidas[1])).toBeGreaterThan(1);
+    const rumbos = anfitrion1.escena.munecos.map((m) => m.rumbo);
+    const pasosAntes = anfitrion1.sincronia.medidas.fotos * 2;
+
+    // El anfitrión recarga la página: mundo nuevo, con los muñecos en la salida, en la misma punta de la red
+    anfitrion1.sincronia.cerrar();
+    red.avanzar(500);
+    const anfitrion2 = await crearLado("anfitrion", entradaQuieta);
+    expect(lejos(pelvis(anfitrion2.escena, 1), salidas[1])).toBeLessThan(0.01);
+    const muestraAntes = invitado.sincronia.muestra?.paso ?? 0;
+    for (let i = 0; anfitrion2.sincronia.mundo === "esperando"; i++) {
+      expect(i).toBeLessThan(30);
+      paso(anfitrion2);
+    }
+    expect(anfitrion2.sincronia.mundo).toBe("devuelto");
+    // Mientras preguntaba no simuló ni mandó fotos
+    expect(anfitrion2.sincronia.medidas.fotos).toBe(0);
+
+    for (let i = 0; i < 60; i++) paso(anfitrion2);
+    const despues = [pelvis(anfitrion2.escena, 0), pelvis(anfitrion2.escena, 1)] as const;
+    console.log(
+      `  el anfitrión volvió y los muñecos quedaron a ${(lejos(despues[0], antes[0]) * 100).toFixed(1)} y ` +
+        `${(lejos(despues[1], antes[1]) * 100).toFixed(1)} cm de donde estaban`,
+    );
+    expect(lejos(despues[0], antes[0])).toBeLessThan(0.1);
+    expect(lejos(despues[1], antes[1])).toBeLessThan(0.1);
+    expect(Math.abs(despues[0].y - antes[0].y)).toBeLessThan(0.1);
+    anfitrion2.escena.munecos.forEach((m, i) => {
+      expect(Math.abs(m.rumbo - (rumbos[i] ?? 0))).toBeLessThan(0.01);
+    });
+    // Los pasos siguen desde la foto devuelta: el invitado sigue dibujando sin volver a empezar
+    expect(anfitrion2.sincronia.medidas.fotos).toBeGreaterThan(20);
+    expect(invitado.sincronia.muestra?.paso ?? 0).toBeGreaterThan(Math.max(muestraAntes, pasosAntes - 10));
+
+    // Y el invitado sigue manejando su muñeco en el mundo devuelto
+    andanDos = true;
+    for (let i = 0; i < 90; i++) paso(anfitrion2);
+    expect(lejos(pelvis(anfitrion2.escena, 1), despues[1])).toBeGreaterThan(0.5);
+  });
+
+  it("si el invitado tampoco tiene mundo, el anfitrión juega con el suyo", async () => {
+    const red = crearRed({ perdida: 0 });
+    const { crearLado } = await partida(red);
+    const anfitrion = await crearLado("anfitrion", entradaQuieta);
+    await crearLado("invitado", entradaQuieta);
+    for (let i = 0; anfitrion.sincronia.mundo === "esperando"; i++) {
+      expect(i).toBeLessThan(30);
+      red.avanzar(1000 / 60);
+      anfitrion.escena.pasar();
+    }
+    expect(anfitrion.sincronia.mundo).toBe("propio");
+  });
+
+  it("si nadie contesta, pregunta cada medio segundo y a los dos segundos juega con su mundo", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const escena = crearEscenaDos(rapier, mundo, new URLSearchParams(), () => null);
+    const enviados: ArrayBuffer[] = [];
+    const enlace: Enlace = { enviar: (d) => enviados.push(d), alRecibir: () => () => {} };
+    const anfitrion = crearSincronia({ rol: "anfitrion", enlace, mundo, munecos: escena.munecos });
+    for (let i = 0; i < ESPERA_MUNDO; i++) expect(anfitrion.paso(entradaQuieta())).toBeNull();
+    expect(anfitrion.mundo).toBe("esperando");
+    expect(enviados.map(tipoDe)).toEqual(Array(ESPERA_MUNDO / REPEDIR_MUNDO).fill(TIPO_PEDIR_MUNDO));
+    expect(anfitrion.paso(entradaQuieta())).not.toBeNull();
+    expect(anfitrion.mundo).toBe("propio");
+  });
+
+  it("ya decidido, un mundo que llega tarde no pisa el propio", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const escena = crearEscenaDos(rapier, mundo, new URLSearchParams(), () => null);
+    let oyente: ((datos: Datos) => void) | undefined;
+    const enlace: Enlace = {
+      enviar() {},
+      alRecibir(o) {
+        oyente = o;
+        return () => {};
+      },
+    };
+    const anfitrion = crearSincronia({ rol: "anfitrion", enlace, mundo, munecos: escena.munecos });
+    oyente?.(escribirAviso(TIPO_SIN_MUNDO));
+    const cuerpos = cuerposMoviles(mundo);
+    const foto = {
+      paso: 500,
+      ack: 0,
+      estados: ["de pie", "de pie"] as const,
+      agarres: 0,
+      rumbos: [0, 0] as [number, number],
+      velocidades: [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 0 },
+      ] as const,
+      posiciones: new Float32Array(cuerpos.length * 3).fill(5),
+      rotaciones: new Float32Array(cuerpos.length * 4).fill(0.5),
+    };
+    const antes = pelvis(escena, 0);
+    oyente?.(
+      escribirFoto({ ...foto, estados: [...foto.estados], velocidades: [...foto.velocidades] }, undefined, TIPO_MUNDO),
+    );
+    expect(anfitrion.mundo).toBe("propio");
+    expect(lejos(pelvis(escena, 0), antes)).toBe(0);
+  });
+
+  it("el invitado devuelve la foto más nueva que le llegó, o que no tiene nada", async () => {
+    const red = crearRed({ perdida: 0, temblor: 0 });
+    const { crearLado } = await partida(red);
+    const invitado = await crearLado("invitado", entradaQuieta);
+    const respuestas: ArrayBuffer[] = [];
+    red.anfitrion.alRecibir((d) => {
+      if (typeof d !== "string" && tipoDe(d) !== 0x45) respuestas.push(d);
+    });
+    const preguntar = () => {
+      red.anfitrion.enviar(escribirAviso(TIPO_PEDIR_MUNDO), { fiable: true });
+      red.avanzar(100); // llega la pregunta
+      red.avanzar(100); // vuelve la respuesta
+    };
+    preguntar();
+    expect(respuestas.map(tipoDe)).toEqual([TIPO_SIN_MUNDO]);
+
+    // Le llegan dos fotos, la nueva primero
+    const cuerpos = invitado.cuerpos.length;
+    const foto = (paso: number, x: number) => ({
+      paso,
+      ack: 3,
+      estados: ["de pie", "caido"] as ["de pie", "caido"],
+      agarres: 0,
+      rumbos: [0.5, -1] as [number, number],
+      velocidades: [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 0 },
+      ] as [{ x: number; y: number; z: number }, { x: number; y: number; z: number }],
+      posiciones: new Float32Array(cuerpos * 3).fill(x),
+      rotaciones: new Float32Array(cuerpos * 4).map((_, i) => (i % 4 === 3 ? 1 : 0)),
+    });
+    red.anfitrion.enviar(escribirFoto(foto(40, 2), undefined, TIPO_FOTO), { fiable: false });
+    red.avanzar(10);
+    red.anfitrion.enviar(escribirFoto(foto(38, 1), undefined, TIPO_FOTO), { fiable: false });
+    red.avanzar(200);
+    preguntar();
+    expect(respuestas.map(tipoDe)).toEqual([TIPO_SIN_MUNDO, TIPO_MUNDO]);
+    const devuelta = respuestas[1] && leerFoto(respuestas[1], undefined, TIPO_MUNDO);
+    expect(devuelta).toMatchObject({ paso: 40, ack: 3, estados: ["de pie", "caido"] });
+    expect(devuelta?.posiciones[0]).toBe(2);
+    expect(devuelta?.rumbos[0]).toBeCloseTo(0.5, 3);
   });
 });

@@ -107,6 +107,9 @@ export interface Muneco {
   pasar(entrada: EntradaMuneco): void;
   /** Hacia dónde quiere mirar, en radianes alrededor de +y. */
   readonly rumbo: number;
+  /** Cambia hacia dónde quiere mirar sin girarlo de a poco: al ponerlo en otro lugar (retomar una partida en
+   * línea, TU-22). */
+  orientar(rumbo: number): void;
   /** Si el rayo de la pelvis encontró suelo en el último paso. */
   readonly enElSuelo: boolean;
   /** En qué anda: «de pie», «en el aire», «caido» o «levantandose». */
@@ -938,6 +941,9 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     masa,
     get rumbo() {
       return rumbo;
+    },
+    orientar(nuevo) {
+      if (Number.isFinite(nuevo)) rumbo = nuevo;
     },
     get enElSuelo() {
       return enElSuelo;

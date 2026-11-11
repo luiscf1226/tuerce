@@ -5,6 +5,9 @@
 //   4. Si no, los datos van por la sala enmarcados («repetidor»; ver marco.ts). La API es la misma: el juego no se entera.
 //   5. Si lo directo se cae a media partida, se pasa al repetidor sin perder la sala, y el anfitrión vuelve a intentar.
 //   6. Si se cae el WebSocket, se reconecta con un pase nuevo (`pedirPase`); si lo directo sigue vivo, ni se nota.
+//   7. El rol es de la página entera (TU-22): al volver a entrar se conserva el de la primera vez. La sala da a cada
+//      usuario siempre el mismo, así que no deberían diferir; si difieren, se avisa y se sigue con el propio, porque
+//      el mundo de esta página (y quién calcula las físicas) no puede cambiar de dueño a media partida.
 // Lo que llega por cualquier camino se entrega siempre: así los dos no tienen que ponerse de acuerdo al instante en
 // cuál usar, y un cambio de camino no pierde nada más que lo que iba en el aire.
 import { type AbrirDirecta, abrirDirectaWebRTC, type Directa } from "./directa";
@@ -39,7 +42,8 @@ export interface OpcionesConexion {
 }
 
 export interface Conexion {
-  /** El anfitrión calcula las físicas; el invitado las recibe. Lo decide la sala (el primero en entrar). */
+  /** El anfitrión calcula las físicas; el invitado las recibe. Lo decide la sala (el primero que entró alguna vez a
+   * la sala de la pareja) y no cambia mientras la página siga abierta. */
   readonly rol: Rol;
   readonly estado: EstadoRed;
   /**
@@ -313,7 +317,9 @@ export function conectar(op: OpcionesConexion, deps: Dependencias = DEPENDENCIAS
         case "hola": {
           fallosSeguidos = 0;
           const primera = rol === undefined;
-          rol = aviso.rol;
+          if (primera) rol = aviso.rol;
+          else if (aviso.rol !== rol)
+            console.warn(`Tuerce · red: la sala dice que ahora sos ${aviso.rol}; esta página sigue de ${rol}`);
           if (primera) resolver(conexion);
           // Volvimos a entrar: si el otro sigue, la sala manda `listos` enseguida; si no llega, se fue.
           else if (companero === "presente") {

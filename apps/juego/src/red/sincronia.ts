@@ -16,6 +16,18 @@
 //   · Su propio muñeco además se corre hacia donde va a estar con las entradas que el anfitrión todavía no usó
 //     (prediccion.ts). La corrección es continua, así que no salta.
 //
+// Reconexión (TU-22). Los roles no cambian nunca (la sala se los da a cada usuario; ver workers/sala), así que si
+// uno se va y vuelve, sigue con su pañuelo. Mientras el otro no está, nadie simula: el mundo queda quieto.
+//   · Si vuelve el invitado, no hace falta nada: el anfitrión tiene el mundo y le manda fotos como siempre.
+//   · El anfitrión empieza con el mundo «sin decidir»: antes de simular el primer paso con su pareja le pregunta al
+//     invitado si tiene un mundo de antes (TIPO_PEDIR_MUNDO, cada medio segundo hasta que conteste). El invitado
+//     devuelve la última foto que recibió (TIPO_MUNDO) y el anfitrión pone ahí todos los cuerpos, sigue contando
+//     los pasos desde esa foto (así el colchón del invitado no se entera) y retoma. Si el invitado contesta que
+//     no tiene nada (TIPO_SIN_MUNDO: él también acaba de abrir la página) o no contesta en ESPERA_MUNDO pasos,
+//     se juega con el mundo propio, que ya arrancó en el último punto de control guardado (ver en-linea.ts).
+//   · Una vez decidido no se pregunta más: si al anfitrión solo se le cortó la red, su mundo es el bueno.
+//   · Lo que no vuelve: los agarres (las manos se sueltan) y las velocidades (todo retoma quieto).
+//
 // Los cuerpos se reconocen por orden: los dos arman la misma escena, así que los cuerpos dinámicos de Rapier
 // (ordenados por su `handle`) son los mismos en los dos lados. La foto dice cuántos son y si no coincide se tira.
 import type RAPIER from "@dimforge/rapier3d-compat";
@@ -26,11 +38,18 @@ import { crearBufferFotos, type Muestra, RETRASO_PASOS } from "./interpolar";
 import type { Datos, Rol } from "./marco";
 import {
   type EntradaNumerada,
+  escribirAviso,
   escribirEntradas,
   escribirFoto,
   type Foto,
   leerEntradas,
   leerFoto,
+  TIPO_ENTRADAS,
+  TIPO_FOTO,
+  TIPO_MUNDO,
+  TIPO_PEDIR_MUNDO,
+  TIPO_SIN_MUNDO,
+  tipoDe,
   type Vector,
 } from "./paquetes";
 import { type Desvio, predecir } from "./prediccion";
@@ -53,6 +72,18 @@ const SIN_NOTICIAS = 30;
 const HISTORIAL = 240;
 /** Qué tanto se acerca por paso el desvío dibujado a la predicción nueva (suaviza el ruido de las fotos). */
 const SUAVIZAR = 0.5;
+/** Anfitrión: cada cuántos pasos vuelve a preguntar por el mundo de antes mientras no le contestan. */
+export const REPEDIR_MUNDO = 30;
+/** Anfitrión: pasos que espera la respuesta antes de jugar con su mundo (2 s). */
+export const ESPERA_MUNDO = 120;
+/** Una foto tanto más vieja que la última es de un anfitrión que volvió a empezar (como en interpolar.ts). */
+const REINICIO = 120;
+
+/**
+ * De dónde salió el mundo del anfitrión: todavía preguntando al invitado, el propio (los dos llegaron sin nada, o
+ * el anfitrión nunca se fue) o el que devolvió el invitado al reconectar.
+ */
+export type OrigenMundo = "esperando" | "propio" | "devuelto";
 
 export interface Medidas {
   /** Anfitrión: fotos mandadas. Invitado: fotos recibidas. */
@@ -85,6 +116,8 @@ export interface Sincronia {
   readonly muestra: Muestra | undefined;
   /** Invitado: el desvío de la predicción que se aplicó en el último paso. */
   readonly desvio: Readonly<Desvio>;
+  /** Anfitrión: de dónde salió su mundo (ver OrigenMundo). Invitado: siempre «propio». */
+  readonly mundo: OrigenMundo;
   cerrar(): void;
 }
 
@@ -129,9 +162,45 @@ function crearAnfitrion({ enlace, mundo, munecos, origen }: OpcionesSincronia): 
   let remota = entradaQuieta();
   let sinNoticias = 0;
   let pasos = 0;
+  let origenMundo: OrigenMundo = "esperando";
+  let esperando = 0;
+
+  /** Pone todo como estaba en la foto que devolvió el invitado. */
+  const retomar = (foto: Foto) => {
+    const r = foto.rotaciones;
+    cuerpos.forEach((c, i) => {
+      c.setTranslation(
+        { x: foto.posiciones[3 * i] ?? 0, y: foto.posiciones[3 * i + 1] ?? 0, z: foto.posiciones[3 * i + 2] ?? 0 },
+        false,
+      );
+      c.setRotation({ x: r[4 * i] ?? 0, y: r[4 * i + 1] ?? 0, z: r[4 * i + 2] ?? 0, w: r[4 * i + 3] ?? 1 }, false);
+      c.setLinvel({ x: 0, y: 0, z: 0 }, false);
+      c.setAngvel({ x: 0, y: 0, z: 0 }, false);
+      c.wakeUp();
+    });
+    const [rojo, turquesa] = munecos;
+    rojo.orientar(foto.rumbos[0]);
+    turquesa.orientar(foto.rumbos[1]);
+    // Los pasos y las entradas siguen contando desde la foto: el invitado no ve un salto en la numeración
+    pasos = foto.paso;
+    cola.clear();
+    aplicada = mayor = foto.ack;
+    remota = entradaQuieta();
+  };
 
   const dejar = enlace.alRecibir((datos) => {
     if (typeof datos === "string") return;
+    const tipo = tipoDe(datos);
+    if (tipo === TIPO_MUNDO || tipo === TIPO_SIN_MUNDO) {
+      if (origenMundo !== "esperando") return; // ya se decidió: el mundo propio es el bueno
+      const foto = tipo === TIPO_MUNDO ? leerFoto(datos, origen, TIPO_MUNDO) : null;
+      if (foto && foto.posiciones.length === cuerpos.length * 3) {
+        retomar(foto);
+        origenMundo = "devuelto";
+      } else origenMundo = "propio";
+      return;
+    }
+    if (tipo !== TIPO_ENTRADAS) return;
     const entradas = leerEntradas(datos);
     const nueva = entradas?.[entradas.length - 1];
     if (!entradas || !nueva) return;
@@ -202,9 +271,16 @@ function crearAnfitrion({ enlace, mundo, munecos, origen }: OpcionesSincronia): 
   return {
     rol: "anfitrion",
     paso(local) {
+      if (origenMundo === "esperando") {
+        // No se simula hasta saber si hay un mundo de antes: si no, el invitado vería el mundo nuevo un momento
+        if (esperando % REPEDIR_MUNDO === 0) enlace.enviar(escribirAviso(TIPO_PEDIR_MUNDO), { fiable: true });
+        if (++esperando <= ESPERA_MUNDO) return null;
+        origenMundo = "propio";
+      }
       return [local, siguiente()];
     },
     despues() {
+      if (origenMundo === "esperando") return;
       pasos++;
       if (pasos % PASOS_POR_FOTO !== 0) return;
       cuerpos.forEach((c, i) => {
@@ -233,6 +309,9 @@ function crearAnfitrion({ enlace, mundo, munecos, origen }: OpcionesSincronia): 
     medidas,
     muestra: undefined,
     desvio: SIN_DESVIO,
+    get mundo() {
+      return origenMundo;
+    },
     cerrar: dejar,
   };
 }
@@ -253,6 +332,8 @@ function crearInvitado({
   let seq = 0;
   let pasoLocal = 0;
   let muestra: Muestra | undefined;
+  /** La foto más nueva que llegó: la que se le devuelve al anfitrión si vuelve sin mundo. */
+  let ultima: Foto | undefined;
 
   const propio = munecos[MUNECO_DE.invitado];
   const indice = new Map(cuerpos.map((c, i) => [c.handle, i]));
@@ -264,8 +345,17 @@ function crearInvitado({
 
   const dejar = enlace.alRecibir((datos) => {
     if (typeof datos === "string") return;
+    const tipo = tipoDe(datos);
+    if (tipo === TIPO_PEDIR_MUNDO) {
+      enlace.enviar(ultima ? escribirFoto(ultima, origen, TIPO_MUNDO) : escribirAviso(TIPO_SIN_MUNDO), {
+        fiable: true,
+      });
+      return;
+    }
+    if (tipo !== TIPO_FOTO) return;
     const foto = leerFoto(datos, origen);
     if (!foto || foto.posiciones.length !== cuerpos.length * 3) return;
+    if (!ultima || foto.paso > ultima.paso || foto.paso + REINICIO < ultima.paso) ultima = foto;
     medidas.fotos++;
     medidas.bytesFoto = datos.byteLength;
     colchon.recibir(foto, pasoLocal);
@@ -356,6 +446,7 @@ function crearInvitado({
       return muestra;
     },
     desvio,
+    mundo: "propio",
     cerrar: dejar,
   };
 }
