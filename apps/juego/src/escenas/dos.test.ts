@@ -37,6 +37,34 @@ describe("escena dos", () => {
     expect(turquesa.estado).toBe("de pie");
   });
 
+  it("entre los dos cargan el huacal de 8 kg: lo levantan del suelo y caminan con él (TU-07)", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const dos = crearEscenaDos(rapier, mundo, new URLSearchParams("j1=andar:0.6,izq&j2=andar:0.6,der"));
+    const [rojo] = dos.munecos;
+    for (let i = 0; i < 2 * 60; i++) dos.pasar();
+    const huacal = rojo.agarrado("brazoIzquierdo")?.parent();
+    if (!huacal) throw new Error("el rojo no agarró el huacal");
+    const inicio = huacal.translation().x;
+    let enElAire = 0;
+    const q = new THREE.Quaternion();
+    const esquina = new THREE.Vector3();
+    for (let i = 0; i < 2 * 60; i++) {
+      dos.pasar();
+      // La esquina más baja del huacal (mide 60 cm)
+      q.copy(huacal.rotation());
+      let base = Number.POSITIVE_INFINITY;
+      for (const x of [-0.3, 0.3])
+        for (const y of [-0.3, 0.3])
+          for (const z of [-0.3, 0.3])
+            base = Math.min(base, esquina.set(x, y, z).applyQuaternion(q).add(huacal.translation()).y);
+      if (base > 0.05) enElAire++;
+    }
+    const movio = huacal.translation().x - inicio;
+    console.log(`cargar: el huacal anduvo ${movio.toFixed(2)} m, en el aire ${enElAire} de 120 pasos`);
+    expect(enElAire).toBeGreaterThan(90);
+    expect(movio).toBeGreaterThan(1);
+  });
+
   it("cada muñeco hace lo que pide su jugador", async () => {
     const { rapier, mundo } = await crearMundo();
     const dos = crearEscenaDos(rapier, mundo, new URLSearchParams("j1=andar:1"));

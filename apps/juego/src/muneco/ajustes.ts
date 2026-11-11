@@ -82,6 +82,19 @@ export const AJUSTES = {
     bajoElHombro: 0.1,
   },
 
+  /** Cargar (TU-07): cada mano alzada sostiene su parte de lo suelto que agarra (lo agarrado repartido entre todas
+   * las manos que lo tienen) con un resorte que lleva la mano a `sobreElHombro` (m) a `frecuencia` (rad/s). Pero cada
+   * muñeco levanta a lo sumo `kilos` entre las dos manos: un huacal de 8 kg lo levantan dos, uno solo lo arrastra. */
+  cargar: { kilos: 5, sobreElHombro: 0.2, frecuencia: 6 },
+
+  /** De la mano (TU-07): colgado de la mano del compañero, si su pelvis queda `desnivel` más arriba que la propia,
+   * sube hacia ella: la pelvis va a quedar `bajoLaMano` por debajo de la mano que lo tiene (m, m/s²). */
+  deLaMano: { desnivel: 0.5, bajoLaMano: 0.6, aceleracionMaxima: 16 },
+
+  /** Lanzar (TU-07): lo que se suelta en el aire hasta `ventana` segundos después de saltar sale con esta velocidad
+   * hacia adelante y hacia arriba (m/s), con un tope de impulso (N·s): lo pesado vuela menos. */
+  lanzar: { ventana: 0.6, adelante: 4.5, arriba: 2.5, impulsoMaximo: 30 },
+
   /** Trepar (TU-06): colgado de un borde con las dos manos, `avanzar` lo sube. Es una fuerza en el tronco (un
    * resorte hacia un punto, que además aguanta el peso), como la de andar, y las piernas patalean. */
   trepar: {

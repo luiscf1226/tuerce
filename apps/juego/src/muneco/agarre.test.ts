@@ -85,7 +85,8 @@ describe("brazos y agarre", () => {
         `y quedó a ${lejos.toFixed(2)} m del muñeco`,
     );
     expect(arrastrada).toBeGreaterThan(1.5);
-    expect(despues).toBeLessThan(0.3);
+    // Desde TU-07 la caja de 3 kg va en el aire (uno solo la levanta): al soltarla cae y se desliza un poco
+    expect(despues).toBeLessThan(0.6);
     expect(lejos).toBeGreaterThan(1.5);
     expect(muneco.estado).toBe("de pie");
   });

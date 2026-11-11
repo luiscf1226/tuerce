@@ -43,6 +43,9 @@ const TOMAS = [
   // La meta de la ola 2: los dos saltan juntos, y los dos agarran el huacal pesado con un brazo cada uno
   { archivo: "dos-saltando", ruta: "/?escena=dos&j1=saltar@30&j2=saltar@36&congelar=48" },
   { archivo: "dos-agarrando", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=150" },
+  // TU-07: los dos cargan el huacal de 8 kg en el aire, y se dan la mano y el rojo se lleva al turquesa
+  { archivo: "dos-cargando", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=210" },
+  { archivo: "mano-llevando", ruta: "/?escena=mano&llevar&congelar=150" },
   { archivo: "dos-separandose", ruta: "/?escena=dos&j1=andar:1,girar:-0.1&j2=andar:1,girar:0.1&congelar=240" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
