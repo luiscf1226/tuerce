@@ -6,7 +6,7 @@
 // nivel. Así se prueba en Node leyendo el .glb del disco.
 import * as THREE from "three";
 
-export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla"] as const;
+export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto"] as const;
 export type Tipo = (typeof TIPOS)[number];
 export const FORMAS = ["caja", "cilindro", "malla"] as const;
 export type Forma = (typeof FORMAS)[number];
@@ -85,6 +85,8 @@ export interface PlanoDeNivel {
   readonly vacios: readonly Volumen[];
   readonly adornos: readonly Adorno[];
   readonly nieblas: readonly CapaDeNieblaDelNivel[];
+  /** Dónde está escondido el secreto del nivel (TU-29): el primero de los dos que entra en una lo encuentra. */
+  readonly secretos: readonly Volumen[];
   /** La raíz de la escena del glTF, tal como la dejó el cargador. */
   readonly raiz: THREE.Object3D;
 }
@@ -192,6 +194,7 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
   const vacios: Volumen[] = [];
   const adornos: Adorno[] = [];
   const nieblas: CapaDeNieblaDelNivel[] = [];
+  const secretos: Volumen[] = [];
 
   raiz.traverse((o) => {
     if (o === raiz) return;
@@ -235,6 +238,9 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
       }
       case "vacio":
         vacios.push(volumenDe(o));
+        break;
+      case "secreto":
+        secretos.push(volumenDe(o));
         break;
       case "adorno": {
         const forma = leerOpcion(extras, "forma", ADORNOS, donde, "pino");
@@ -280,5 +286,17 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
     lejos: leerNumero(extrasEscena, "nieblaLejos", "escena", 24),
   };
 
-  return { numero, nombre, vacio, niebla, puntos: [salida, ...controles], solidos, vacios, adornos, nieblas, raiz };
+  return {
+    numero,
+    nombre,
+    vacio,
+    niebla,
+    puntos: [salida, ...controles],
+    solidos,
+    vacios,
+    adornos,
+    nieblas,
+    secretos,
+    raiz,
+  };
 }

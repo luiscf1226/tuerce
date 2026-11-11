@@ -9,7 +9,7 @@ import { enEscritorio, salirDelJuego } from "./escritorio";
 import type { Juego } from "./juego";
 import "./menu.css";
 
-const FUENTES =
+export const FUENTES =
   "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Karla:wght@400;600;800&display=swap";
 
 export interface Interfaz {
@@ -106,6 +106,8 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
       linea.append(elemento("span", "menu-nota", "Jugar en línea"), enlace("Invitar", "?escena=invitar"));
       linea.append(enlace("Buscar", "?escena=buscar"));
       hijos.push(linea, elemento("hr", "costura"));
+      // El ropero (TU-29): sombreros, peinados, máscaras y pañuelos, lo ganado y los logros
+      hijos.push(enlace("Ropero", "?escena=ropero"));
       hijos.push(
         boton("Controles", () => {
           viendoControles = true;

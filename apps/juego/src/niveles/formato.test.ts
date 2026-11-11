@@ -59,6 +59,10 @@ describe("formato de nivel", () => {
     expect(solidos.patio?.material).toBe("suelo");
     expect(solidos.tablon?.material).toBe("corteza");
     expect(plano.vacios).toHaveLength(1);
+    // El secreto (TU-29): una zona detrás de la meta
+    expect(plano.secretos).toHaveLength(1);
+    expect(plano.secretos[0] && adentro(plano.secretos[0], { x: 23.4, y: 2, z: -2.3 })).toBe(true);
+    expect(plano.secretos[0] && adentro(plano.secretos[0], { x: 22.5, y: 2, z: 0 })).toBe(false);
     expect(plano.adornos.filter((a) => a.forma === "pino")).toHaveLength(10);
     expect(plano.nieblas.length).toBeGreaterThan(0);
   });

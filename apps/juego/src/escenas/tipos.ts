@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+import type { Vestuario } from "../../../../convex/premios";
 
 /** El avance de un nivel: qué punto de control alcanzó la pareja. Lo guarda la red en Convex (TU-22). */
 export interface AvanceDeNivel {
@@ -17,6 +18,25 @@ export interface AvanceDeNivel {
   retomar(puntoDeControl: number): void;
 }
 
+/** Le cambia la ropa a un muñeco de la escena (0 el rojo, 1 el turquesa): en línea, lo que cada uno eligió (TU-29). */
+export type Vestir = (jugador: 0 | 1, vestuario: Vestuario) => void;
+
+/** Lo que se gana en un nivel (TU-29): el secreto y el logro. Qué da cada uno está en convex/premios.ts. */
+export type Premio = "secreto" | "logro";
+
+export interface PremiosDeNivel {
+  /** Número del nivel. */
+  readonly nivel: number;
+  /** Si la pareja ya lo ganó. */
+  tiene(premio: Premio): boolean;
+  /** Lo gana (si es nuevo, avisa). Lo llaman el nivel (la zona del secreto, el guion) y, en línea, Convex. */
+  ganar(premio: Premio): void;
+  /** Lo marca como ganado sin avisar: ya estaba guardado de antes. */
+  marcar(premio: Premio): void;
+  /** Avisa cada vez que la pareja gana algo nuevo. Devuelve cómo dejar de avisar. */
+  alGanar(aviso: (premio: Premio) => void): () => void;
+}
+
 export interface Escena {
   readonly nombre: string;
   readonly escena: THREE.Scene;
@@ -27,4 +47,6 @@ export interface Escena {
   dibujar(alfa: number): void;
   /** El avance del nivel, en las escenas que son un nivel (TU-11). En línea se guarda en Convex y se retoma (TU-22). */
   readonly avance?: AvanceDeNivel;
+  /** El secreto y el logro, en las escenas que son un nivel (TU-29). En línea se guardan en Convex. */
+  readonly premios?: PremiosDeNivel;
 }

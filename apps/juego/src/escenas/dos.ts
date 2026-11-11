@@ -9,6 +9,7 @@
 //   &ayuda                  deja la ayuda de los controles a la vista (con entrada fija no aparece)
 //   &menu                   muestra el menú de inicio aunque la entrada sea fija (si no, con entrada fija no aparece)
 //   &j1=senalar             el rojo señala; `&j2=gesto:saludar` el turquesa saluda (también llamar, festejar, encoger)
+//   &ropa1=sombrero:puntudo las prendas del rojo (y `&ropa2=` las del turquesa); si no, las del ropero (TU-29)
 //
 // Encima, el menú de inicio, la pausa, señalar y los gestos (TU-15, src/ui).
 import type RAPIER from "@dimforge/rapier3d-compat";
@@ -36,11 +37,13 @@ import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
+import { vestuarioDe } from "../ropero/vestuario";
 import { crearJuego, crearSenas } from "../ui";
 import { crearInterfaz } from "../ui/menu";
 import { crearCajas } from "./cajas";
 import { COLORES } from "./colores";
 import type { EscenaDeJuego } from "./index";
+import type { Vestir } from "./tipos";
 
 /** Dónde arranca cada muñeco: lado a lado, mirando hacia +x. */
 const SALIDAS = [
@@ -64,7 +67,11 @@ export function crearEscenaDos(
   mundo: RAPIER.World,
   parametros: URLSearchParams = parametrosDeLaDireccion(),
   enRed?: PasoEnRed,
-): EscenaDeJuego & { readonly munecos: readonly [Muneco, Muneco]; readonly camaraDeDos: CamaraDeDos } {
+): EscenaDeJuego & {
+  readonly munecos: readonly [Muneco, Muneco];
+  readonly camaraDeDos: CamaraDeDos;
+  readonly vestir: Vestir;
+} {
   const escena = new THREE.Scene();
   vestirDeDia(escena, { cerca: NIEBLA.cerca, lejos: NIEBLA.lejos });
   const azar = crearAzar(8);
@@ -91,11 +98,15 @@ export function crearEscenaDos(
       rumbo: salida.rumbo,
       indice,
     });
-    const malla = crearMallaMuneco(muneco, {
-      cuerpo: materialTela(COLORES.silueta, { repetir: 1, relieve: 2.5 }),
-      panuelo: materialPanuelo(panuelo, { repetir: 2 }),
-      ojos: materialOjo(),
-    });
+    const malla = crearMallaMuneco(
+      muneco,
+      {
+        cuerpo: materialTela(COLORES.silueta, { repetir: 1, relieve: 2.5 }),
+        panuelo: materialPanuelo(panuelo, { repetir: 2 }),
+        ojos: materialOjo(),
+      },
+      vestuarioDe(parametros, indice),
+    );
     escena.add(malla.grupo);
     return { muneco, malla };
   };
@@ -218,6 +229,7 @@ export function crearEscenaDos(
     juego,
     ...(interfaz ? { interfaz } : {}),
     munecos: [rojo.muneco, turquesa.muneco],
+    vestir: (jugador, vestuario) => [rojo, turquesa][jugador]?.malla.vestir(vestuario),
     pasar() {
       // En el menú la escena sigue viva, pero los muñecos no escuchan a nadie
       cajas.guardar();

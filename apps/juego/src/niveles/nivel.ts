@@ -5,7 +5,7 @@
 // Cada paso de la escena:   nivel.antes()   →   muñecos.pasar() y mundo.step()   →   nivel.despues()
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
-import type { AvanceDeNivel } from "../escenas/tipos";
+import type { AvanceDeNivel, Premio, PremiosDeNivel } from "../escenas/tipos";
 import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import type { NivelArmado, Pieza } from "./armar";
@@ -39,6 +39,7 @@ export interface Reaparicion extends Lugar {
 
 export interface Nivel extends NivelEnJuego {
   readonly avance: AvanceDeNivel;
+  readonly premios: PremiosDeNivel;
   /** Antes de los muñecos y de `mundo.step()`: el guion. */
   antes(): void;
   /** Después de `mundo.step()`: puntos de control y caídas. Devuelve quién reapareció en este paso. */
@@ -73,6 +74,24 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
   let punto = 0;
   let pasos = 0;
   const avisos = new Set<(punto: number) => void>();
+  const ganados = new Set<Premio>();
+  const avisosDePremios = new Set<(premio: Premio) => void>();
+  const premios: PremiosDeNivel = {
+    nivel: plano.numero,
+    tiene: (premio) => ganados.has(premio),
+    ganar(premio) {
+      if (ganados.has(premio)) return;
+      ganados.add(premio);
+      for (const aviso of avisosDePremios) aviso(premio);
+    },
+    marcar(premio) {
+      ganados.add(premio);
+    },
+    alGanar(aviso) {
+      avisosDePremios.add(aviso);
+      return () => avisosDePremios.delete(aviso);
+    },
+  };
 
   /** La altura del piso firme bajo (x, z) mirando desde `desde` hacia abajo `alcance` metros, o `null`. */
   const pisoEn = (x: number, desde: number, z: number, alcance: number) => {
@@ -184,7 +203,16 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
       if (!pieza) throw new Error(`el nivel «${plano.nombre}» no tiene una pieza «${nombre}»`);
       return pieza;
     },
+    get secreto() {
+      return ganados.has("secreto");
+    },
+    get logro() {
+      return ganados.has("logro");
+    },
+    encontrarSecreto: () => premios.ganar("secreto"),
+    lograr: () => premios.ganar("logro"),
     avance,
+    premios,
     antes() {
       guion.cadaPaso?.(nivel);
     },
@@ -203,6 +231,11 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
         punto++;
         guion.alAlcanzar?.(punto, nivel);
         for (const aviso of avisos) aviso(punto);
+      }
+      // El secreto: el primero de los dos que entra en su zona lo encuentra para la pareja
+      if (!ganados.has("secreto")) {
+        const encontrado = munecos.some((m) => plano.secretos.some((z) => adentro(z, m.partes.pelvis.translation())));
+        if (encontrado) premios.ganar("secreto");
       }
       // Caídas: no hay derrota, se reaparece
       const cayeron = ([0, 1] as const).filter(cayo);

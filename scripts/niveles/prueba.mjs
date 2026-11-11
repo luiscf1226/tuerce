@@ -4,7 +4,8 @@
 //
 // El recorrido, de oeste a este (+x), con la pareja mirando hacia +x:
 //   el patio (salida y un huacal) → un hueco de 2.5 m con un tablón angosto → punto 1 → una compuerta que el guion
-//   baja al llegar al punto 1 → un escalón de 1.5 m para trepar → punto 2 arriba → punto 3, la meta.
+//   baja al llegar al punto 1 → un escalón de 1.5 m para trepar → punto 2 arriba → punto 3, la meta. El secreto
+//   (TU-29) está detrás de la meta, escondido en la mata del rincón.
 import { writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -72,6 +73,8 @@ vacio("salida-turquesa", [-4, 0, -0.5], [1, 1, 1], { tipo: "salida", jugador: 2 
 vacio("control-1", [10, 1, 0], [3, 1, 0.5], { tipo: "control", orden: 1 });
 vacio("control-2", [17, 2.5, 0], [3, 1, 0.5], { tipo: "control", orden: 2 });
 vacio("control-3", [22.5, 2.5, 0], [3, 1, 0.5], { tipo: "control", orden: 3 });
+// El secreto (TU-29): una zona detrás de la meta, en el rincón de la mata (ver la mata-4 más abajo)
+vacio("secreto", [23.35, 2.2, -2.3], [0.65, 0.7, 0.7], { tipo: "secreto" }, 0);
 // El fondo del hueco: cuenta como caída antes de llegar a la altura del vacío
 vacio("hueco", [7.25, -2.5, 0], [1.2, 1.5, 3], { tipo: "vacio" }, 0);
 
@@ -101,6 +104,7 @@ vacio("roca-2", [13.8, -0.05, 2.3], [1, 1, 1], { tipo: "adorno", forma: "roca", 
 vacio("mata-1", [3.5, 0, -2.4], [1, 1, 1], { tipo: "adorno", forma: "mata", alto: 0.7, semilla: 11 }, 0);
 vacio("mata-2", [-5.2, 0, 2.3], [1, 1, 1], { tipo: "adorno", forma: "mata", alto: 1, semilla: 12 }, 0);
 vacio("mata-3", [16.5, 1.5, -2.3], [1, 1, 1], { tipo: "adorno", forma: "mata", alto: 0.8, semilla: 13 }, 0);
+vacio("mata-4", [23.5, 1.5, -2.45], [1, 1, 1], { tipo: "adorno", forma: "mata", alto: 1.1, semilla: 14 }, 0);
 vacio(
   "tronco-1",
   [1.5, 0.2, -2.6],

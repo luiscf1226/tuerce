@@ -15,7 +15,11 @@ export const MAX_PUNTO = 999;
 const esEnteroEntre = (n: number, max: number) => Number.isInteger(n) && n >= 0 && n <= max;
 
 /** La pareja, si quien llama es uno de los dos. */
-async function parejaMia(ctx: QueryCtx, yo: Doc<"usuarios">, parejaId: Id<"parejas">): Promise<Doc<"parejas"> | null> {
+export async function parejaMia(
+  ctx: QueryCtx,
+  yo: Doc<"usuarios">,
+  parejaId: Id<"parejas">,
+): Promise<Doc<"parejas"> | null> {
   const pareja = await ctx.db.get(parejaId);
   return pareja && (pareja.a === yo._id || pareja.b === yo._id) ? pareja : null;
 }

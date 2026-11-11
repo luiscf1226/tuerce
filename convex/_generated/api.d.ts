@@ -14,7 +14,9 @@ import type * as crons from "../crons.js";
 import type * as cuenta from "../cuenta.js";
 import type * as invitaciones from "../invitaciones.js";
 import type * as parejas from "../parejas.js";
+import type * as premios from "../premios.js";
 import type * as regiones from "../regiones.js";
+import type * as ropero from "../ropero.js";
 import type * as salas from "../salas.js";
 import type * as usuarios from "../usuarios.js";
 
@@ -31,7 +33,9 @@ declare const fullApi: ApiFromModules<{
   cuenta: typeof cuenta;
   invitaciones: typeof invitaciones;
   parejas: typeof parejas;
+  premios: typeof premios;
   regiones: typeof regiones;
+  ropero: typeof ropero;
   salas: typeof salas;
   usuarios: typeof usuarios;
 }>;
