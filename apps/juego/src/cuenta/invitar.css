@@ -68,6 +68,20 @@
   font-size: 22px;
   font-weight: 600;
 }
+.invitar .jugar {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: #2a2a2a;
+  color: #f0f0ed;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.invitar .jugar[hidden] {
+  display: none;
+}
 /* Pantalla «buscar»: el mismo panel, con el selector de región. */
 .invitar select {
   font: inherit;

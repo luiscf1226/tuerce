@@ -72,6 +72,11 @@ export function montarInvitar(
   const aviso = elemento(seccion, "p", "aviso");
   const listos = elemento(seccion, "p", "listos");
   listos.hidden = true;
+  // Ya juntos, a jugar: la escena en línea toma la pareja más reciente y le pide a Convex el pase de su sala
+  const jugar = elemento(seccion, "a", "jugar");
+  jugar.href = "?escena=en-linea";
+  jugar.textContent = "Jugar en línea";
+  jugar.hidden = true;
   const buscar = elemento(seccion, "a", "otra-forma");
   buscar.href = "?escena=buscar";
   buscar.textContent = "¿No tenés con quién? Buscar pareja en tu región";
@@ -81,6 +86,7 @@ export function montarInvitar(
   const yaSonPareja = (nombres: readonly [string, string]) => {
     listos.textContent = `Ya son pareja: ${nombres[0]} y ${nombres[1]}`;
     listos.hidden = false;
+    jugar.hidden = listos.hidden;
     aviso.textContent = "";
     crear.hidden = true;
     formulario.hidden = true;

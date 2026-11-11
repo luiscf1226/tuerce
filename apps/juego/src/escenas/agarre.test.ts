@@ -54,6 +54,23 @@ describe("escena agarre", () => {
     expect(agarre.muneco.partes.pelvis.translation().y).toBeGreaterThan(0.75);
   });
 
+  it("con el guion de la captura salta, se cuelga del escalón de 1.5 m y lo trepa", async () => {
+    const agarre = await armar("salida=pared&brazos=id&saltar=20&andar=1&esperar=50");
+    const estados: string[] = [];
+    let antes = "";
+    let trepando = false;
+    for (let i = 0; i < 180; i++) {
+      agarre.pasar();
+      if (antes !== agarre.muneco.estado) estados.push(`${i}: ${agarre.muneco.estado}`);
+      antes = agarre.muneco.estado;
+      trepando ||= antes === "trepando";
+    }
+    console.log(`pared: ${estados.join(" → ")}`);
+    expect(trepando).toBe(true);
+    expect(agarre.muneco.estado).toBe("de pie");
+    expect(agarre.muneco.partes.pelvis.translation().y).toBeGreaterThan(1.8);
+  });
+
   it("con el guion de la captura salta del escalón, cae y queda tirado", async () => {
     const agarre = await armar("salida=borde&andar=1&saltar=22");
     const estados: string[] = [];

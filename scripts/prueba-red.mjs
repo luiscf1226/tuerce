@@ -3,7 +3,11 @@
 //   b) si lo directo se cae a media partida pasan al repetidor sin dejar de hablarse, y vuelven a lo directo;
 //   c) con lo directo imposible (`?forzar=repetidor`: no se cruzan candidatos ICE) los dos quedan en «repetidor»
 //      y se siguen mandando mensajes por la sala;
-//   d) si uno cierra la página, el otro ve «se_fue».
+//   d) si uno cierra la página, el otro ve «se_fue»;
+//   e) en línea (TU-21): `?escena=en-linea` en las dos páginas, cada uno maneja su muñeco y los dos ven moverse a
+//      los dos muñecos (el anfitrión calcula, el invitado dibuja lo que le manda);
+//   f) voz (TU-34): con un micrófono de mentira (`--use-fake-device-for-media-stream`), uno prende el micrófono con
+//      el botón y al otro le llega una pista de audio viva; con lo directo imposible el botón dice que no hay voz.
 // Levanta `wrangler dev` de la sala con un secreto de prueba, sirve el juego con Vite y firma sus propios pases.
 import { spawn, spawnSync } from "node:child_process";
 import { chromium } from "playwright";
@@ -40,13 +44,13 @@ const esperarServidor = async (url, nombre) => {
 
 let corrida = 0;
 /** Dos direcciones (una por jugador) para una sala nueva: las salas recuerdan a su pareja. */
-const pareja = async (extra = "") => {
+const pareja = async (extra = "", escena = "red") => {
   const sala = `red-${Date.now()}-${corrida++}`;
   const vence = Date.now() + 10 * 60_000;
   const direccion = async (usuario) => {
     const pase = await firmarPase({ sala, usuario, vence }, SECRETO);
     const urlSala = encodeURIComponent(`${SALA}/sala/${sala}`);
-    return `${JUEGO}/?escena=red&sala=${urlSala}&pase=${pase}${extra}`;
+    return `${JUEGO}/?escena=${escena}&sala=${urlSala}&pase=${pase}${extra}`;
   };
   return [await direccion("ana"), await direccion("beto")];
 };
@@ -105,16 +109,19 @@ const revisar = (condicion, mensaje) => {
   if (!condicion) throw new Error(mensaje);
 };
 
+// Micrófono y permiso de mentira para la voz: un tono generado, sin preguntar.
+const LANZAR = { args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] };
+
 // `pnpm test` corre esta prueba también en la revisión automática, que no siempre trae Chromium: si falta, se baja.
 async function lanzarChromium() {
   try {
-    return await chromium.launch();
+    return await chromium.launch(LANZAR);
   } catch (error) {
     if (!/Executable doesn't exist/.test(String(error))) throw error;
     console.log("  falta Chromium de Playwright: se baja una vez (pnpm exec playwright install chromium)");
     const bajada = spawnSync("pnpm", ["exec", "playwright", "install", "chromium"], { stdio: "inherit" });
     if (bajada.status !== 0) throw new Error("no se pudo bajar Chromium");
-    return await chromium.launch();
+    return await chromium.launch(LANZAR);
   }
 }
 
@@ -191,7 +198,102 @@ try {
   );
   revisar((await estado(d)) === "repetidor", "el invitado dejó el repetidor");
 
-  console.log(`PASA red: directa, caída al repetidor y vuelta, repetidor forzado y se_fue (${Date.now() - inicio} ms)`);
+  // e) En línea: cada uno maneja su muñeco con una entrada fija y los dos ven moverse a los dos. La escena en
+  // línea pesa (dos muñecos dibujados por software en la máquina de la revisión): se le da más tiempo a lo directo.
+  const [urlE, urlF] = await pareja("&espera=15000", "en-linea");
+  const e = await abrir(`${urlE}&j1=andar:1,girar:-0.3`);
+  await e.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
+  const f = await abrir(`${urlF}&j1=andar:1,girar:0.4`);
+  const estadoEnLinea = (pagina) => pagina.evaluate(() => window.__enLinea?.estado);
+  for (const pagina of [e, f]) {
+    try {
+      await pagina.waitForFunction(() => window.__enLinea?.estado === "directa", null, { timeout: 30_000 });
+    } catch {
+      throw new Error(`en línea no llegó a «directa»: ${await estadoEnLinea(pagina)}`);
+    }
+  }
+  revisar((await e.evaluate(() => window.__enLinea?.rol)) === "anfitrion", "en línea: el primero no es el anfitrión");
+  const munecos = (pagina) => pagina.evaluate(() => window.__enLinea?.munecos());
+  const antes = await Promise.all([munecos(e), munecos(f)]);
+  // Se espera a que se muevan, no un tiempo fijo: sin GPU (en la revisión) la escena da menos pasos por segundo
+  let movidas = [];
+  for (const limite = Date.now() + 20_000; ; ) {
+    await dormir(500);
+    const despues = await Promise.all([munecos(e), munecos(f)]);
+    movidas = [0, 1].map((pagina) =>
+      [0, 1].map((m) => {
+        const a = antes[pagina]?.[m];
+        const d = despues[pagina]?.[m];
+        return a && d ? Math.hypot(d.x - a.x, d.z - a.z) : 0;
+      }),
+    );
+    if (movidas.every((m) => m.every((d) => d > 0.8)) || Date.now() > limite) break;
+  }
+  revisar(
+    movidas.every((m) => m.every((d) => d > 0.8)),
+    `en línea: no se movieron los dos muñecos en las dos páginas (metros: ${JSON.stringify(movidas)})`,
+  );
+  // Lo que ve el invitado de su muñeco (con la predicción) y lo que calcula el anfitrión, casi al mismo tiempo
+  const [enAnfitrion, enInvitado] = await Promise.all([munecos(e), munecos(f)]);
+  const distinto = Math.hypot(
+    (enAnfitrion?.[1]?.x ?? 0) - (enInvitado?.[1]?.x ?? 99),
+    (enAnfitrion?.[1]?.z ?? 0) - (enInvitado?.[1]?.z ?? 99),
+  );
+  revisar(distinto < 0.6, `en línea: el invitado ve su muñeco a ${distinto.toFixed(2)} m de donde está`);
+  const medidas = await f.evaluate(() => window.__enLinea?.medidas);
+  console.log(
+    `  e) en línea: los dos ven moverse a los dos (m: ${movidas.flat().map((d) => d.toFixed(1))}); foto de ` +
+      `${medidas?.bytesFoto} bytes, ${medidas?.fotos} fotos recibidas; el invitado ve su muñeco a ${(distinto * 100).toFixed(0)} cm del anfitrión`,
+  );
+
+  // f) Voz: el anfitrión prende el micrófono con el botón y al invitado le llega su audio.
+  const boton = "button.en-linea-microfono";
+  await e.waitForSelector(`${boton}:not([disabled])`, { timeout: 5000 });
+  revisar((await f.evaluate(() => window.__enLinea?.voz?.pistasRemotas)) === 0, "voz: llegó audio sin prender nada");
+  await e.click(boton);
+  await e.waitForFunction(() => window.__enLinea?.voz?.estado === "encendida", null, { timeout: 10_000 });
+  try {
+    await f.waitForFunction(
+      () => {
+        const audio = document.querySelector("audio");
+        const pista = audio?.srcObject instanceof MediaStream ? audio.srcObject.getAudioTracks()[0] : undefined;
+        return (window.__enLinea?.voz?.pistasRemotas ?? 0) > 0 && pista?.readyState === "live";
+      },
+      null,
+      { timeout: 10_000, polling: 100 },
+    );
+  } catch {
+    throw new Error(
+      `voz: al invitado no le llegó audio (${JSON.stringify(await f.evaluate(() => window.__enLinea?.voz))})`,
+    );
+  }
+  // El invitado también prende el suyo (renegocia la misma conexión de voz): al anfitrión le llega audio
+  await f.click(boton);
+  try {
+    await e.waitForFunction(() => (window.__enLinea?.voz?.pistasRemotas ?? 0) > 0, null, { timeout: 10_000 });
+  } catch {
+    throw new Error(
+      `voz: al anfitrión no le llegó audio (${JSON.stringify(await e.evaluate(() => window.__enLinea?.voz))})`,
+    );
+  }
+  await e.click(boton);
+  revisar((await e.evaluate(() => window.__enLinea?.voz?.estado)) === "apagada", "voz: el botón no la apagó");
+  console.log("  f) voz: cada uno prendió su micrófono con el botón y al otro le llegó una pista de audio viva");
+  await Promise.all([e.close(), f.close()]);
+
+  // Sin lo directo no hay voz: el botón lo dice y no se puede apretar.
+  const [urlG, urlH] = await pareja("&forzar=repetidor&espera=1500", "en-linea");
+  const g = await abrir(urlG);
+  await g.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
+  const h = await abrir(urlH);
+  await g.waitForFunction(() => window.__enLinea?.estado === "repetidor", null, { timeout: 15_000 });
+  await g.waitForSelector(`${boton}[disabled][data-estado="no_disponible"]`, { timeout: 5000 });
+  console.log(`  f) por la sala no hay voz: «${await g.textContent(boton)}»`);
+  await Promise.all([g.close(), h.close()]);
+
+  console.log(
+    `PASA red: directa, caída al repetidor y vuelta, repetidor forzado, se_fue, en línea y voz (${Date.now() - inicio} ms)`,
+  );
   await navegador.close();
   apagar();
   process.exit(0);

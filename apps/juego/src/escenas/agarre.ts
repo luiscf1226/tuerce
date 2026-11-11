@@ -1,5 +1,5 @@
-// Escena de agarre (TU-04 y TU-05): un muñeco, cajas de varios tamaños, una rama para colgarse y un escalón alto
-// para caerse. Teclado: W/S o ↑/↓ camina, A/D o ←/→ gira, Espacio salta, Q alza el brazo izquierdo y E el derecho.
+// Escena de agarre (TU-04, TU-05 y TU-06): un muñeco, cajas de varios tamaños, una rama para colgarse y un escalón
+// alto para caerse o para treparlo (con los dos brazos arriba se cuelga del borde y, apretando adelante, sube). Teclado: W/S o ↑/↓ camina, A/D o ←/→ gira, Espacio salta, Q alza el brazo izquierdo y E el derecho.
 // La mano alzada que toca algo lo agarra hasta soltar la tecla.
 //
 // Parámetros para capturas que salen siempre igual (con `congelar=N`), además de los de `guion.ts`:
@@ -7,6 +7,7 @@
 //   &salida=claro  en un claro entre cajas sueltas, sin nada adelante
 //   &salida=rama   bajo la rama: saltando con los dos brazos arriba se cuelga
 //   &salida=borde  arriba del escalón de 1.5 m, mirando al borde
+//   &salida=pared  abajo, frente a la pared del escalón: saltando con los dos brazos arriba se cuelga y trepa
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
 import { crearEntradaTeclado, parametrosDeLaDireccion } from "../entrada/teclado";
@@ -19,12 +20,13 @@ import { COLORES } from "./colores";
 import { crearGuion } from "./guion";
 import type { Escena } from "./tipos";
 
-/** Dónde arranca el muñeco según `&salida=`; siempre mira hacia +x. */
-const SALIDAS: Record<string, { x: number; y: number }> = {
+/** Dónde arranca el muñeco según `&salida=`; mira hacia +x salvo que diga otro rumbo. */
+const SALIDAS: Record<string, { x: number; y: number; rumbo?: number }> = {
   caja: { x: 0, y: 0 },
   claro: { x: 2.1, y: 0 },
   rama: { x: 4, y: 0 },
   borde: { x: -5.1, y: 1.5 },
+  pared: { x: -4.1, y: 0, rumbo: -Math.PI / 2 },
 };
 /** La rama: horizontal, a lo largo de z, apenas adelante del muñeco y al alcance de las manos solo saltando. */
 const RAMA = { x: 4.3, y: 1.82, radio: 0.05, largo: 2.4 };
@@ -101,7 +103,10 @@ export function crearEscenaAgarre(
   }
 
   const salida = SALIDAS[parametros.get("salida") ?? "caja"] ?? SALIDAS.caja ?? { x: 0, y: 0 };
-  const muneco = crearMuneco(rapier, mundo, { posicion: { x: salida.x, y: salida.y, z: 0 }, rumbo: Math.PI / 2 });
+  const muneco = crearMuneco(rapier, mundo, {
+    posicion: { x: salida.x, y: salida.y, z: 0 },
+    rumbo: salida.rumbo ?? Math.PI / 2,
+  });
   const malla = crearMallaMuneco(muneco, {
     cuerpo: materialTela(COLORES.silueta, { repetir: 1, relieve: 2.5 }),
     panuelo: materialPanuelo("rojo", { repetir: 2 }),

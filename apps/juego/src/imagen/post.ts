@@ -1,10 +1,28 @@
 // El paso final sobre la imagen ya hecha, en una sola pasada: tono (lineal con un hombro suave en las luces, sin
 // aplastar las sombras), paso a sRGB, el brillo de la niebla donde está el sol, viñeta suave y grano fino.
+//
+// Con la pantalla partida (TU-09) la escena se dibuja dos veces, una por cámara, cada una en su propia textura y
+// solo en el rectángulo que cubre su lado del corte (scissor). El acabado junta las dos según el lado del corte,
+// pinta la costura oscura y recién ahí pone viñeta y grano, una sola vez para toda la pantalla.
 import * as THREE from "three";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { FullScreenQuad } from "three/examples/jsm/postprocessing/Pass.js";
+import { type Rectangulo, recorteDelLado } from "../camara/encuadre";
 import { crearResolucionAdaptable, type OpcionesResolucion } from "./resolucion";
+
+/** La segunda vista de la pantalla partida. `crearImagen` la lee en cada cuadro (ver src/camara). */
+export interface VistasPartidas {
+  /** Si hay que dibujar la segunda cámara. Sin partir, solo se dibuja la principal. */
+  readonly partida: boolean;
+  /** La cámara del jugador 2, que va del lado hacia donde apunta `normal`. */
+  readonly camaraB: THREE.Camera;
+  /** La normal del corte en pantalla (y hacia arriba), de largo 1. */
+  readonly normal: { readonly x: number; readonly y: number };
+  /** Cuánto se ve la costura, de 0 a 1. */
+  readonly costura: number;
+}
+
+/** Ancho de la costura, en píxeles de pantalla (a densidad 1). */
+const COSTURA = 2.2;
 export interface OpcionesImagen {
   /** Fuerza del grano (0 sin grano). */
   grano?: number;
@@ -18,12 +36,22 @@ export interface OpcionesImagen {
   muestras?: number;
   /** Cuándo y cuánto bajar la resolución si la máquina no da abasto. */
   resolucion?: OpcionesResolucion;
+  /** Pantalla partida: si está, la escena se dibuja también con `vistas.camaraB` cuando haga falta. */
+  vistas?: VistasPartidas;
 }
 
 export const SOMBREADO_GRANO = {
   name: "GranoYVineta",
   uniforms: {
-    tDiffuse: { value: null },
+    tDiffuse: { value: null as THREE.Texture | null },
+    /** La segunda vista, del lado positivo de `normal` (solo cuenta con `partida` en 1). */
+    tSegunda: { value: null as THREE.Texture | null },
+    partida: { value: 0 },
+    normal: { value: new THREE.Vector2(1, 0) },
+    costura: { value: 0 },
+    /** Tamaño del lienzo en píxeles, para la costura. */
+    lienzo: { value: new THREE.Vector2(1, 1) },
+    anchoCostura: { value: COSTURA },
     /** Qué parte de la textura ocupa la escena (menos de 1 cuando la resolución bajó) y medio texel de margen. */
     ventana: { value: new THREE.Vector2(1, 1) },
     medioTexel: { value: new THREE.Vector2(0, 0) },
@@ -43,6 +71,12 @@ export const SOMBREADO_GRANO = {
   `,
   fragmentShader: /* glsl */ `
     uniform sampler2D tDiffuse;
+    uniform sampler2D tSegunda;
+    uniform float partida;
+    uniform vec2 normal;
+    uniform float costura;
+    uniform vec2 lienzo;
+    uniform float anchoCostura;
     uniform vec2 ventana;
     uniform vec2 medioTexel;
     uniform float cuadro;
@@ -66,9 +100,16 @@ export const SOMBREADO_GRANO = {
     }
 
     void main() {
-      vec4 color = texture2D(tDiffuse, clamp(vUv * ventana, medioTexel, ventana - medioTexel));
+      vec2 donde = clamp(vUv * ventana, medioTexel, ventana - medioTexel);
+      vec4 color = texture2D(tDiffuse, donde);
+      // Pantalla partida: de qué lado del corte cae este píxel (en píxeles desde la línea, que pasa por el centro)
+      float lado = dot((vUv - 0.5) * lienzo, normal);
+      if (partida > 0.5 && lado > 0.0) color = texture2D(tSegunda, donde);
       color.rgb = hombro(max(color.rgb, 0.0));
       color = sRGBTransferOETF(color);
+      // La costura: una línea fina del color de las siluetas, con el borde suavizado
+      float linea = 1.0 - smoothstep(anchoCostura * 0.5 - 0.75, anchoCostura * 0.5 + 0.75, abs(lado));
+      color.rgb = mix(color.rgb, vec3(0.235), partida * costura * linea);
       float luz = dot(color.rgb, vec3(0.299, 0.587, 0.114));
 
       // La niebla brilla donde está el sol: solo se aclara lo que ya es claro, las siluetas quedan oscuras.
@@ -126,31 +167,43 @@ export function crearImagen(
   pintor.toneMapping = THREE.NoToneMapping;
   pintor.outputColorSpace = THREE.SRGBColorSpace;
 
-  // La escena se dibuja en lineal (media precisión, sin bandas en la niebla) y con antialias propio.
-  const objetivo = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: opciones.muestras ?? 4 });
-  const compositor = new EffectComposer(pintor, objetivo);
-  compositor.addPass(new RenderPass(escena, camara));
-  const acabado = new ShaderPass(SOMBREADO_GRANO);
+  // La escena se dibuja en lineal (media precisión, sin bandas en la niebla) y con antialias propio. La segunda
+  // textura es para la otra cámara de la pantalla partida; mientras no se parte no se dibuja en ella.
+  const crearObjetivo = () =>
+    new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: opciones.muestras ?? 4 });
+  const primera = crearObjetivo();
+  const segunda = crearObjetivo();
+  const acabado = new THREE.ShaderMaterial({
+    name: SOMBREADO_GRANO.name,
+    uniforms: THREE.UniformsUtils.clone(SOMBREADO_GRANO.uniforms),
+    vertexShader: SOMBREADO_GRANO.vertexShader,
+    fragmentShader: SOMBREADO_GRANO.fragmentShader,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const pantalla = new FullScreenQuad(acabado);
   const u = acabado.uniforms as typeof SOMBREADO_GRANO.uniforms;
+  u.tDiffuse.value = primera.texture;
+  u.tSegunda.value = segunda.texture;
   u.grano.value = opciones.grano ?? u.grano.value;
   u.vineta.value = opciones.vineta ?? u.vineta.value;
   u.bruma.value = opciones.bruma ?? u.bruma.value;
   if (opciones.centroBruma) u.centroBruma.value.set(...opciones.centroBruma);
-  compositor.addPass(acabado);
+  const vistas = opciones.vistas;
 
   const porSoftware = dibujaPorSoftware(pintor);
   const resolucion = crearResolucionAdaptable({
     ...(porSoftware ? { minima: ESCALA_SIN_TARJETA } : {}),
     ...opciones.resolucion,
   });
-  // Al bajar la resolución no se cambian las texturas del compositor (rehacerlas a mitad de juego deja a
-  // algunos navegadores lentos): la escena se dibuja en un rincón más chico de ellas y el acabado lo estira.
+  // Al bajar la resolución no se cambian las texturas (rehacerlas a mitad de juego deja a algunos navegadores
+  // lentos): la escena se dibuja en un rincón más chico de ellas y el acabado lo estira.
   const aplicarEscala = () => {
     const escala = resolucion.escala;
-    for (const destino of [compositor.renderTarget1, compositor.renderTarget2]) {
+    for (const destino of [primera, segunda]) {
       destino.viewport.set(0, 0, Math.round(destino.width * escala), Math.round(destino.height * escala));
     }
-    const { width, height, viewport } = compositor.renderTarget1;
+    const { width, height, viewport } = primera;
     u.ventana.value.set(viewport.z / width, viewport.w / height);
     u.medioTexel.value.set(0.5 / width, 0.5 / height);
   };
@@ -158,6 +211,22 @@ export function crearImagen(
   // Una pestaña escondida no dibuja: ese hueco no es lentitud.
   const alVolver = () => resolucion.reiniciar();
   document.addEventListener("visibilitychange", alVolver);
+
+  /** Dibuja la escena con `camara` en `destino`, solo en el lado `lado` del corte si la pantalla está partida. */
+  const recorte: Rectangulo = { x: 0, y: 0, ancho: 0, alto: 0 };
+  const dibujarVista = (destino: THREE.WebGLRenderTarget, camara: THREE.Camera, lado: 1 | -1 | 0) => {
+    if (lado === 0 || !vistas) {
+      destino.scissorTest = false;
+    } else {
+      const { z: ancho, w: alto } = destino.viewport;
+      const margen = (COSTURA * pintor.getPixelRatio() * ancho) / Math.max(destino.width, 1) + 2;
+      recorteDelLado(vistas.normal, lado, ancho, alto, margen, recorte);
+      destino.scissor.set(recorte.x, recorte.y, recorte.ancho, recorte.alto);
+      destino.scissorTest = true;
+    }
+    pintor.setRenderTarget(destino);
+    pintor.render(escena, camara);
+  };
 
   let cuadro = 0;
   return {
@@ -170,12 +239,27 @@ export function crearImagen(
       }
       if (resolucion.cuadro(performance.now() / 1000)) aplicarEscala();
       u.cuadro.value = cuadro++;
-      compositor.render();
+
+      const partida = vistas?.partida === true;
+      dibujarVista(primera, camara, partida ? -1 : 0);
+      if (partida && vistas) {
+        dibujarVista(segunda, vistas.camaraB, 1);
+        u.normal.value.set(vistas.normal.x, vistas.normal.y);
+        u.costura.value = vistas.costura;
+      }
+      u.partida.value = partida ? 1 : 0;
+      pintor.setRenderTarget(null);
+      pantalla.render(pintor);
     },
     ajustar(ancho, alto) {
-      compositor.setPixelRatio(pintor.getPixelRatio());
-      compositor.setSize(ancho, alto);
+      const densidad = pintor.getPixelRatio();
+      const w = Math.max(1, Math.floor(ancho * densidad));
+      const h = Math.max(1, Math.floor(alto * densidad));
+      primera.setSize(w, h);
+      segunda.setSize(w, h);
       u.aspecto.value = ancho / Math.max(alto, 1);
+      u.lienzo.value.set(w, h);
+      u.anchoCostura.value = COSTURA * densidad;
       aplicarEscala();
     },
     get escala() {
@@ -183,7 +267,10 @@ export function crearImagen(
     },
     liberar() {
       document.removeEventListener("visibilitychange", alVolver);
-      compositor.dispose();
+      primera.dispose();
+      segunda.dispose();
+      acabado.dispose();
+      pantalla.dispose();
     },
   };
 }

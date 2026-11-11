@@ -10,5 +10,7 @@ export {
   type NombreBrazo,
   type NombreParte,
   type OpcionesMuneco,
+  type PoseBrazo,
+  type PoseBrazos,
   QUIETO,
 } from "./muneco";

@@ -1,16 +1,21 @@
 // Dos jugadores en el mismo lugar (TU-08): un claro del pinar con los dos muñecos de verdad, el del pañuelo rojo
-// (jugador 1) y el del turquesa (jugador 2), cada uno con sus controles (ver src/entrada/mandos.ts). La cámara mira
-// el punto medio entre los dos y se aleja cuanto más se separan; la pantalla partida llega en otro ticket. Adelante
+// (jugador 1) y el del turquesa (jugador 2), cada uno con sus controles (ver src/entrada/mandos.ts). La cámara de los
+// dos (src/camara, TU-09) los encuadra juntos y, si se separan mucho, parte la pantalla. Adelante
 // hay un huacal pesado para agarrarlo entre los dos (TU-05) y en el claro se salta, se cae y se levanta (TU-04).
 //
 // Parámetros para capturas que salen siempre igual (con `congelar=N`):
 //   &j1=andar:1,girar:0.2   entrada fija del jugador 1 (también vale `&andar=`/`&girar=`)
 //   &j2=andar:0.8           entrada fija del jugador 2
 //   &ayuda                  deja la ayuda de los controles a la vista (con entrada fija no aparece)
+//   &menu                   muestra el menú de inicio aunque la entrada sea fija (si no, con entrada fija no aparece)
+//   &j1=senalar             el rojo señala; `&j2=gesto:saludar` el turquesa saluda (también llamar, festejar, encoger)
+//
+// Encima, el menú de inicio, la pausa, señalar y los gestos (TU-15, src/ui).
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
+import { type CamaraDeDos, crearCamaraDeDos, ENCUADRE } from "../camara";
 import { crearAyuda } from "../entrada/ayuda";
-import { crearControles } from "../entrada/mandos";
+import { crearControles, type EntradaJugador, entradaQuieta } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import {
   crearAbeto,
@@ -31,32 +36,35 @@ import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
+import { crearJuego, crearSenas } from "../ui";
+import { crearInterfaz } from "../ui/menu";
 import { crearCajas } from "./cajas";
 import { COLORES } from "./colores";
-import type { Escena } from "./tipos";
+import type { EscenaDeJuego } from "./index";
 
 /** Dónde arranca cada muñeco: lado a lado, mirando hacia +x. */
 const SALIDAS = [
   { x: 0, z: 0.5, rumbo: Math.PI / 2 },
   { x: 0, z: -0.5, rumbo: Math.PI / 2 },
 ] as const;
-/** La cámara: hacia dónde queda del punto medio, qué tan cerca está con los dos juntos, cuánto se aleja por
- * cada metro que se separan y qué tan rápido sigue (1/s). */
-const CAMARA = {
-  direccion: new THREE.Vector3(0.45, 0.32, 1).normalize(),
-  cerca: 4.2,
-  porMetro: 1.25,
-  mirarArriba: 0.55,
-  seguir: 2.5,
-};
-/** La niebla con los dos juntos; cuando la cámara se aleja, la niebla se corre con ella para que se sigan leyendo. */
+/** La cámara: hacia dónde queda de lo que mira (el resto, en src/camara/encuadre.ts). */
+const DIRECCION_CAMARA = new THREE.Vector3(0.45, 0.32, 1);
+/** La niebla con los dos juntos (la cámara a `ENCUADRE.cerca`); cuando la cámara se aleja, la niebla se corre con
+ * ella para que se sigan leyendo. */
 const NIEBLA = { cerca: 3, lejos: 24 };
+
+/** Para jugar en línea (TU-21, ver en-linea.ts): con lo que leyeron los controles devuelve las entradas de los dos
+ * muñecos, o `null` si este paso no se simula (el invitado ya puso los cuerpos donde dice el anfitrión). */
+export type PasoEnRed = (
+  locales: readonly [EntradaJugador, EntradaJugador],
+) => readonly [EntradaJugador, EntradaJugador] | null;
 
 export function crearEscenaDos(
   rapier: Rapier,
   mundo: RAPIER.World,
   parametros: URLSearchParams = parametrosDeLaDireccion(),
-): Escena & { readonly munecos: readonly [Muneco, Muneco] } {
+  enRed?: PasoEnRed,
+): EscenaDeJuego & { readonly munecos: readonly [Muneco, Muneco]; readonly camaraDeDos: CamaraDeDos } {
   const escena = new THREE.Scene();
   vestirDeDia(escena, { cerca: NIEBLA.cerca, lejos: NIEBLA.lejos });
   const azar = crearAzar(8);
@@ -98,6 +106,11 @@ export function crearEscenaDos(
   if (typeof document !== "undefined" && (!controles.fija || parametros.has("ayuda"))) {
     crearAyuda(controles, { siempre: parametros.has("ayuda") });
   }
+  // Menú y pausa: el menú arranca sobre la escena viva, salvo con entrada fija (capturas) sin `&menu`
+  const conPantalla = typeof document !== "undefined";
+  const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
+  const interfaz = conPantalla ? crearInterfaz(juego, controles) : undefined;
+  const quietas = [entradaQuieta(), entradaQuieta()] as const;
 
   // Huacales para agarrar: uno grande adelante, entre los dos, sobre un tocón a la altura de las manos alzadas
   // (los dos lo agarran con el brazo de adentro: el izquierdo del rojo y el derecho del turquesa), y dos chicos
@@ -185,21 +198,14 @@ export function crearEscenaDos(
   escena.add(niebla.grupo);
   escena.add(crearVelo({ y: 5, z: -6, ancho: 26, alto: 9, opacidad: 0.75 }));
 
-  // Cámara: sigue al punto medio y a la distancia entre los dos, calculado a paso fijo
-  const camara = new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 140);
-  const medio = new THREE.Vector3();
-  const objetivo = () => {
-    const a = rojo.muneco.partes.pelvis.translation();
-    const b = turquesa.muneco.partes.pelvis.translation();
-    medio.set((a.x + b.x) / 2, 0, (a.z + b.z) / 2);
-    const separacion = Math.hypot(a.x - b.x, a.z - b.z);
-    return { x: medio.x, z: medio.z, distancia: CAMARA.cerca + CAMARA.porMetro * separacion };
-  };
-  const inicio = objetivo();
-  const seguido = { antes: { ...inicio }, ahora: { ...inicio } };
-  const suavizado = 1 - Math.exp(-CAMARA.seguir * PASO);
-  const mirar = new THREE.Vector3();
+  // Cámara de los dos: sigue a las pelvis a paso fijo
+  const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA });
+  const camara = camaraDeDos.camara;
+  const seguirConLaCamara = () =>
+    camaraDeDos.seguir(rojo.muneco.partes.pelvis.translation(), turquesa.muneco.partes.pelvis.translation());
+  seguirConLaCamara();
 
+  const senas = crearSenas(rapier, mundo, escena, [rojo.muneco, turquesa.muneco]);
   const inclinacion = matas.map((m) => m.rotation.z);
   let pasos = 0;
 
@@ -207,40 +213,39 @@ export function crearEscenaDos(
     nombre: "dos",
     escena,
     camara,
+    vistas: camaraDeDos.vistas,
+    camaraDeDos,
+    juego,
+    ...(interfaz ? { interfaz } : {}),
     munecos: [rojo.muneco, turquesa.muneco],
     pasar() {
-      const [uno, dos] = controles.leer();
-      rojo.muneco.pasar(uno);
-      turquesa.muneco.pasar(dos);
+      // En el menú la escena sigue viva, pero los muñecos no escuchan a nadie
       cajas.guardar();
-      mundo.step();
+      const leidas = juego.atienden ? controles.leer() : quietas;
+      const entradas = enRed ? enRed(leidas) : leidas;
+      if (entradas) {
+        rojo.muneco.pasar(senas.entrada(0, entradas[0]));
+        turquesa.muneco.pasar(senas.entrada(1, entradas[1]));
+        mundo.step();
+      }
+      senas.apuntar();
       rojo.malla.guardar();
       turquesa.malla.guardar();
-      const meta = objetivo();
-      seguido.antes = { ...seguido.ahora };
-      seguido.ahora = {
-        x: seguido.ahora.x + (meta.x - seguido.ahora.x) * suavizado,
-        z: seguido.ahora.z + (meta.z - seguido.ahora.z) * suavizado,
-        distancia: seguido.ahora.distancia + (meta.distancia - seguido.ahora.distancia) * suavizado,
-      };
+      seguirConLaCamara();
       pasos++;
     },
     dibujar(alfa) {
       rojo.malla.dibujar(alfa);
       turquesa.malla.dibujar(alfa);
       cajas.dibujar(alfa);
-      const { antes, ahora } = seguido;
-      const entre = (a: number, b: number) => a + (b - a) * alfa;
-      mirar.set(entre(antes.x, ahora.x), CAMARA.mirarArriba, entre(antes.z, ahora.z));
-      const distancia = entre(antes.distancia, ahora.distancia);
-      camara.position.copy(mirar).addScaledVector(CAMARA.direccion, distancia);
-      camara.lookAt(mirar);
+      camaraDeDos.dibujar(alfa);
       if (escena.fog instanceof THREE.Fog) {
-        escena.fog.near = NIEBLA.cerca + distancia - CAMARA.cerca;
-        escena.fog.far = NIEBLA.lejos + distancia - CAMARA.cerca;
+        escena.fog.near = NIEBLA.cerca + camaraDeDos.distancia - ENCUADRE.cerca;
+        escena.fog.far = NIEBLA.lejos + camaraDeDos.distancia - ENCUADRE.cerca;
       }
       const segundos = (pasos - 1 + alfa) * PASO;
       niebla.mover(segundos);
+      senas.dibujar(segundos);
       matas.forEach((m, i) => {
         m.rotation.z = (inclinacion[i] ?? 0) + 0.025 * Math.sin(segundos * 1.1 + i * 1.7);
       });

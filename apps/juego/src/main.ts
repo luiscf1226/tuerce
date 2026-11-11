@@ -31,7 +31,8 @@ async function arrancar() {
   const pintor = new THREE.WebGLRenderer({ canvas: lienzo, antialias: false, preserveDrawingBuffer: true });
   pintor.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   // Todo se dibuja a través de la imagen (src/imagen): tono, antialias, grano y viñeta de las referencias.
-  const imagen = crearImagen(pintor, escena.escena, escena.camara);
+  // Con la cámara de los dos, la pantalla se parte cuando se separan (TU-09).
+  const imagen = crearImagen(pintor, escena.escena, escena.camara, escena.vistas ? { vistas: escena.vistas } : {});
   const ajustar = () => {
     pintor.setSize(window.innerWidth, window.innerHeight);
     imagen.ajustar(window.innerWidth, window.innerHeight);
@@ -56,7 +57,10 @@ async function arrancar() {
 
   let anterior = performance.now();
   pintor.setAnimationLoop((ahora: number) => {
-    pasosEsteSegundo += bucle.avanzar((ahora - anterior) / 1000);
+    // Pausa (TU-15): el bucle no avanza y el tiempo pausado no se acumula, así al seguir no hay que ponerse al día.
+    // El dibujo sigue con el mismo `alfa`, así que la imagen queda quieta (solo el grano se mueve).
+    escena.interfaz?.cuadro();
+    if (escena.juego?.corren ?? true) pasosEsteSegundo += bucle.avanzar((ahora - anterior) / 1000);
     anterior = ahora;
     escena.dibujar(bucle.alfa);
     imagen.dibujar();
