@@ -37,3 +37,23 @@
 body:has(.en-linea) .ayuda-jugadores {
   display: none;
 }
+.en-linea-microfono {
+  margin: 4px 0;
+  padding: 4px 10px;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.en-linea-microfono[aria-pressed="true"] {
+  background: #2a2a2a;
+  color: #f4f4f1;
+}
+.en-linea-microfono:disabled {
+  border-color: transparent;
+  padding-left: 0;
+  cursor: default;
+  opacity: 0.75;
+}

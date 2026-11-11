@@ -5,7 +5,9 @@
 //      y se siguen mandando mensajes por la sala;
 //   d) si uno cierra la página, el otro ve «se_fue»;
 //   e) en línea (TU-21): `?escena=en-linea` en las dos páginas, cada uno maneja su muñeco y los dos ven moverse a
-//      los dos muñecos (el anfitrión calcula, el invitado dibuja lo que le manda).
+//      los dos muñecos (el anfitrión calcula, el invitado dibuja lo que le manda);
+//   f) voz (TU-34): con un micrófono de mentira (`--use-fake-device-for-media-stream`), uno prende el micrófono con
+//      el botón y al otro le llega una pista de audio viva; con lo directo imposible el botón dice que no hay voz.
 // Levanta `wrangler dev` de la sala con un secreto de prueba, sirve el juego con Vite y firma sus propios pases.
 import { spawn, spawnSync } from "node:child_process";
 import { chromium } from "playwright";
@@ -107,16 +109,19 @@ const revisar = (condicion, mensaje) => {
   if (!condicion) throw new Error(mensaje);
 };
 
+// Micrófono y permiso de mentira para la voz: un tono generado, sin preguntar.
+const LANZAR = { args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] };
+
 // `pnpm test` corre esta prueba también en la revisión automática, que no siempre trae Chromium: si falta, se baja.
 async function lanzarChromium() {
   try {
-    return await chromium.launch();
+    return await chromium.launch(LANZAR);
   } catch (error) {
     if (!/Executable doesn't exist/.test(String(error))) throw error;
     console.log("  falta Chromium de Playwright: se baja una vez (pnpm exec playwright install chromium)");
     const bajada = spawnSync("pnpm", ["exec", "playwright", "install", "chromium"], { stdio: "inherit" });
     if (bajada.status !== 0) throw new Error("no se pudo bajar Chromium");
-    return await chromium.launch();
+    return await chromium.launch(LANZAR);
   }
 }
 
@@ -234,10 +239,54 @@ try {
     `  e) en línea: los dos ven moverse a los dos (m: ${movidas.flat().map((d) => d.toFixed(1))}); foto de ` +
       `${medidas?.bytesFoto} bytes, ${medidas?.fotos} fotos recibidas; el invitado ve su muñeco a ${(distinto * 100).toFixed(0)} cm del anfitrión`,
   );
+
+  // f) Voz: el anfitrión prende el micrófono con el botón y al invitado le llega su audio.
+  const boton = "button.en-linea-microfono";
+  await e.waitForSelector(`${boton}:not([disabled])`, { timeout: 5000 });
+  revisar((await f.evaluate(() => window.__enLinea?.voz?.pistasRemotas)) === 0, "voz: llegó audio sin prender nada");
+  await e.click(boton);
+  await e.waitForFunction(() => window.__enLinea?.voz?.estado === "encendida", null, { timeout: 10_000 });
+  try {
+    await f.waitForFunction(
+      () => {
+        const audio = document.querySelector("audio");
+        const pista = audio?.srcObject instanceof MediaStream ? audio.srcObject.getAudioTracks()[0] : undefined;
+        return (window.__enLinea?.voz?.pistasRemotas ?? 0) > 0 && pista?.readyState === "live";
+      },
+      null,
+      { timeout: 10_000, polling: 100 },
+    );
+  } catch {
+    throw new Error(
+      `voz: al invitado no le llegó audio (${JSON.stringify(await f.evaluate(() => window.__enLinea?.voz))})`,
+    );
+  }
+  // El invitado también prende el suyo (renegocia la misma conexión de voz): al anfitrión le llega audio
+  await f.click(boton);
+  try {
+    await e.waitForFunction(() => (window.__enLinea?.voz?.pistasRemotas ?? 0) > 0, null, { timeout: 10_000 });
+  } catch {
+    throw new Error(
+      `voz: al anfitrión no le llegó audio (${JSON.stringify(await e.evaluate(() => window.__enLinea?.voz))})`,
+    );
+  }
+  await e.click(boton);
+  revisar((await e.evaluate(() => window.__enLinea?.voz?.estado)) === "apagada", "voz: el botón no la apagó");
+  console.log("  f) voz: cada uno prendió su micrófono con el botón y al otro le llegó una pista de audio viva");
   await Promise.all([e.close(), f.close()]);
 
+  // Sin lo directo no hay voz: el botón lo dice y no se puede apretar.
+  const [urlG, urlH] = await pareja("&forzar=repetidor&espera=1500", "en-linea");
+  const g = await abrir(urlG);
+  await g.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
+  const h = await abrir(urlH);
+  await g.waitForFunction(() => window.__enLinea?.estado === "repetidor", null, { timeout: 15_000 });
+  await g.waitForSelector(`${boton}[disabled][data-estado="no_disponible"]`, { timeout: 5000 });
+  console.log(`  f) por la sala no hay voz: «${await g.textContent(boton)}»`);
+  await Promise.all([g.close(), h.close()]);
+
   console.log(
-    `PASA red: directa, caída al repetidor y vuelta, repetidor forzado, se_fue y en línea (${Date.now() - inicio} ms)`,
+    `PASA red: directa, caída al repetidor y vuelta, repetidor forzado, se_fue, en línea y voz (${Date.now() - inicio} ms)`,
   );
   await navegador.close();
   apagar();

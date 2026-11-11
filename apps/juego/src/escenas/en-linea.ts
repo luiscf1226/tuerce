@@ -6,6 +6,7 @@
 //      segundo es el invitado (pañuelo turquesa) y ve lo que el anfitrión le manda (src/red/sincronia.ts).
 //   3. Cada uno maneja su muñeco con sus controles de siempre (los del jugador 1, los del 2 o un mando: todos van
 //      al muñeco propio).
+//   4. La voz (TU-34, src/red/voz.ts) está apagada: el botón del micrófono la prende. Solo con conexión directa.
 //
 // Para probar sin Convex (solo en desarrollo): `?escena=en-linea&sala=<url de la sala>&pase=<pase>`, como la
 // pantalla `red` (ver scripts/prueba-red.mjs). También valen `forzar=repetidor` y `espera=<ms>`, y las entradas
@@ -17,6 +18,7 @@ import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import { type Conexion, conectar, type EstadoRed, type Rol } from "../red";
 import { crearSincronia, type Medidas, type Sincronia } from "../red/sincronia";
+import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
 import { crearEscenaDos } from "./dos";
 import type { EscenaDeJuego } from "./index";
 import "./en-linea.css";
@@ -28,6 +30,8 @@ export interface EstadoEnLinea {
   /** Dónde está la pelvis de cada muñeco (rojo y turquesa) en este mundo. */
   munecos(): { x: number; y: number; z: number }[];
   medidas?: Readonly<Medidas>;
+  /** La voz: en qué anda y cuántas pistas de audio del otro llegaron. */
+  voz?: Pick<Voz, "estado" | "pistasRemotas">;
 }
 
 declare global {
@@ -96,6 +100,9 @@ export function crearEscenaEnLinea(
         };
         mostrar(conexion.estado);
         conexion.alCambiarEstado(mostrar);
+        const voz = crearVoz(conexion);
+        prueba.voz = voz;
+        ui.voz(voz);
       })
       .catch((error: unknown) => {
         console.error(error);
@@ -127,7 +134,17 @@ interface Interfaz {
   estado(rol: Rol, estado: EstadoRed): void;
   /** Donde Clerk dibuja la entrada o el botón de la cuenta. */
   cuenta: HTMLDivElement;
+  /** Pone el botón del micrófono. */
+  voz(voz: Voz): void;
 }
+
+const TEXTOS_VOZ: Record<EstadoVoz, string> = {
+  no_disponible: "Voz: solo con conexión directa (ahora van por la sala)",
+  apagada: "Prender micrófono",
+  pidiendo: "Pidiendo el micrófono…",
+  encendida: "Apagar micrófono",
+  sin_permiso: "Sin micrófono: revisá el permiso del navegador",
+};
 
 function crearInterfaz(): Interfaz {
   const caja = document.body.appendChild(document.createElement("aside"));
@@ -144,9 +161,29 @@ function crearInterfaz(): Interfaz {
   ayuda.className = "en-linea-ayuda";
   ayuda.hidden = true;
   ayuda.textContent = "W S caminar · A D girar · Espacio saltar · Q E brazos (también las flechas o un mando)";
+  const microfono = document.createElement("button");
+  microfono.type = "button";
+  microfono.className = "en-linea-microfono";
   return {
     caja,
     cuenta,
+    voz(voz) {
+      const pintar = (estado: EstadoVoz) => {
+        microfono.textContent = TEXTOS_VOZ[estado];
+        microfono.dataset.estado = estado;
+        microfono.disabled = estado === "no_disponible" || estado === "pidiendo";
+        microfono.setAttribute("aria-pressed", String(estado === "encendida"));
+      };
+      pintar(voz.estado);
+      voz.alCambiar(pintar);
+      microfono.onclick = () => {
+        if (voz.estado === "encendida") voz.apagar();
+        else void voz.prender();
+        // Que las teclas sigan yendo al juego y Espacio no vuelva a apretar el botón
+        microfono.blur();
+      };
+      caja.insertBefore(microfono, ayuda);
+    },
     mensaje(texto, vinculo) {
       linea.textContent = texto;
       enlace.hidden = !vinculo;
