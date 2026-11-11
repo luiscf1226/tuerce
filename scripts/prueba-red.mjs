@@ -198,15 +198,16 @@ try {
   );
   revisar((await estado(d)) === "repetidor", "el invitado dejó el repetidor");
 
-  // e) En línea: cada uno maneja su muñeco con una entrada fija y los dos ven moverse a los dos.
-  const [urlE, urlF] = await pareja("", "en-linea");
+  // e) En línea: cada uno maneja su muñeco con una entrada fija y los dos ven moverse a los dos. La escena en
+  // línea pesa (dos muñecos dibujados por software en la máquina de la revisión): se le da más tiempo a lo directo.
+  const [urlE, urlF] = await pareja("&espera=15000", "en-linea");
   const e = await abrir(`${urlE}&j1=andar:1,girar:-0.3`);
   await e.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
   const f = await abrir(`${urlF}&j1=andar:1,girar:0.4`);
   const estadoEnLinea = (pagina) => pagina.evaluate(() => window.__enLinea?.estado);
   for (const pagina of [e, f]) {
     try {
-      await pagina.waitForFunction(() => window.__enLinea?.estado === "directa", null, { timeout: 15_000 });
+      await pagina.waitForFunction(() => window.__enLinea?.estado === "directa", null, { timeout: 30_000 });
     } catch {
       throw new Error(`en línea no llegó a «directa»: ${await estadoEnLinea(pagina)}`);
     }
