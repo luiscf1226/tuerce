@@ -3,7 +3,9 @@
 //   b) si lo directo se cae a media partida pasan al repetidor sin dejar de hablarse, y vuelven a lo directo;
 //   c) con lo directo imposible (`?forzar=repetidor`: no se cruzan candidatos ICE) los dos quedan en «repetidor»
 //      y se siguen mandando mensajes por la sala;
-//   d) si uno cierra la página, el otro ve «se_fue».
+//   d) si uno cierra la página, el otro ve «se_fue»;
+//   e) en línea (TU-21): `?escena=en-linea` en las dos páginas, cada uno maneja su muñeco y los dos ven moverse a
+//      los dos muñecos (el anfitrión calcula, el invitado dibuja lo que le manda).
 // Levanta `wrangler dev` de la sala con un secreto de prueba, sirve el juego con Vite y firma sus propios pases.
 import { spawn, spawnSync } from "node:child_process";
 import { chromium } from "playwright";
@@ -40,13 +42,13 @@ const esperarServidor = async (url, nombre) => {
 
 let corrida = 0;
 /** Dos direcciones (una por jugador) para una sala nueva: las salas recuerdan a su pareja. */
-const pareja = async (extra = "") => {
+const pareja = async (extra = "", escena = "red") => {
   const sala = `red-${Date.now()}-${corrida++}`;
   const vence = Date.now() + 10 * 60_000;
   const direccion = async (usuario) => {
     const pase = await firmarPase({ sala, usuario, vence }, SECRETO);
     const urlSala = encodeURIComponent(`${SALA}/sala/${sala}`);
-    return `${JUEGO}/?escena=red&sala=${urlSala}&pase=${pase}${extra}`;
+    return `${JUEGO}/?escena=${escena}&sala=${urlSala}&pase=${pase}${extra}`;
   };
   return [await direccion("ana"), await direccion("beto")];
 };
@@ -191,7 +193,52 @@ try {
   );
   revisar((await estado(d)) === "repetidor", "el invitado dejó el repetidor");
 
-  console.log(`PASA red: directa, caída al repetidor y vuelta, repetidor forzado y se_fue (${Date.now() - inicio} ms)`);
+  // e) En línea: cada uno maneja su muñeco con una entrada fija y los dos ven moverse a los dos.
+  const [urlE, urlF] = await pareja("", "en-linea");
+  const e = await abrir(`${urlE}&j1=andar:1,girar:-0.3`);
+  await e.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
+  const f = await abrir(`${urlF}&j1=andar:1,girar:0.4`);
+  const estadoEnLinea = (pagina) => pagina.evaluate(() => window.__enLinea?.estado);
+  for (const pagina of [e, f]) {
+    try {
+      await pagina.waitForFunction(() => window.__enLinea?.estado === "directa", null, { timeout: 15_000 });
+    } catch {
+      throw new Error(`en línea no llegó a «directa»: ${await estadoEnLinea(pagina)}`);
+    }
+  }
+  revisar((await e.evaluate(() => window.__enLinea?.rol)) === "anfitrion", "en línea: el primero no es el anfitrión");
+  const munecos = (pagina) => pagina.evaluate(() => window.__enLinea?.munecos());
+  const antes = await Promise.all([munecos(e), munecos(f)]);
+  await dormir(2500);
+  const despues = await Promise.all([munecos(e), munecos(f)]);
+  const movidas = [0, 1].map((pagina) =>
+    [0, 1].map((m) => {
+      const a = antes[pagina]?.[m];
+      const d = despues[pagina]?.[m];
+      return a && d ? Math.hypot(d.x - a.x, d.z - a.z) : 0;
+    }),
+  );
+  revisar(
+    movidas.every((m) => m.every((d) => d > 0.8)),
+    `en línea: no se movieron los dos muñecos en las dos páginas (metros: ${JSON.stringify(movidas)})`,
+  );
+  // Lo que ve el invitado de su muñeco (con la predicción) y lo que calcula el anfitrión, casi al mismo tiempo
+  const [enAnfitrion, enInvitado] = await Promise.all([munecos(e), munecos(f)]);
+  const distinto = Math.hypot(
+    (enAnfitrion?.[1]?.x ?? 0) - (enInvitado?.[1]?.x ?? 99),
+    (enAnfitrion?.[1]?.z ?? 0) - (enInvitado?.[1]?.z ?? 99),
+  );
+  revisar(distinto < 0.6, `en línea: el invitado ve su muñeco a ${distinto.toFixed(2)} m de donde está`);
+  const medidas = await f.evaluate(() => window.__enLinea?.medidas);
+  console.log(
+    `  e) en línea: los dos ven moverse a los dos (m: ${movidas.flat().map((d) => d.toFixed(1))}); foto de ` +
+      `${medidas?.bytesFoto} bytes, ${medidas?.fotos} fotos recibidas; el invitado ve su muñeco a ${(distinto * 100).toFixed(0)} cm del anfitrión`,
+  );
+  await Promise.all([e.close(), f.close()]);
+
+  console.log(
+    `PASA red: directa, caída al repetidor y vuelta, repetidor forzado, se_fue y en línea (${Date.now() - inicio} ms)`,
+  );
   await navegador.close();
   apagar();
   process.exit(0);

@@ -1,0 +1,39 @@
+/* Jugar en línea: una tarjetita clara arriba a la izquierda con quién sos y cómo va la conexión. Antes de conectar
+   lleva también la entrada de la cuenta (Clerk). */
+.en-linea {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 5;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgb(244 244 241 / 0.86);
+  color: #2a2a2a;
+  font:
+    14px / 1.4 system-ui,
+    sans-serif;
+}
+.en-linea h1 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+.en-linea p {
+  margin: 4px 0;
+}
+.en-linea.jugando {
+  padding: 8px 12px;
+  background: rgb(244 244 241 / 0.7);
+}
+.en-linea.jugando h1 {
+  display: none;
+}
+.en-linea-ayuda {
+  font-size: 12px;
+  opacity: 0.8;
+}
+/* La ayuda de la escena `dos` habla de jugador 1 y 2: en línea cada uno maneja su muñeco con todo */
+body:has(.en-linea) .ayuda-jugadores {
+  display: none;
+}
