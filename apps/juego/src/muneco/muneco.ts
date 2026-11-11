@@ -126,6 +126,9 @@ export interface Muneco {
   inclinacion(): number;
   /** Hacia dónde mira de verdad el torso, en radianes alrededor de +y. */
   rumboReal(): number;
+  /** Lo lleva de pie, quieto y con las manos sueltas a `posicion` (donde quedan los pies), mirando hacia `rumbo`.
+   * Para reaparecer después de caer al vacío (TU-11). Si el compañero lo tenía agarrado, también lo suelta. */
+  reaparecer(posicion: { x: number; y: number; z: number }, rumbo: number): void;
 }
 
 /** Lo que un muñeco deja ver a los otros del mismo mundo (TU-07). */
@@ -138,6 +141,8 @@ interface Vecino {
   sujetados(): readonly (RAPIER.RigidBody | null)[];
   /** Le suma la misma velocidad a todas sus partes (al lanzarlo). */
   empujar(dv: THREE.Vector3): void;
+  /** Suelta lo que tenga agarrado de esos cuerpos (el otro muñeco reaparece en otro lado). */
+  soltarDe(cuerpos: ReadonlySet<RAPIER.RigidBody>): void;
 }
 /** Los muñecos de cada mundo: así una mano sabe si lo que agarra es el otro muñeco y cuántas manos sostienen algo. */
 const VECINOS = new WeakMap<RAPIER.World, Vecino[]>();
@@ -273,6 +278,14 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     canillaIzquierda: izquierda.canilla,
     canillaDerecha: derecha.canilla,
   };
+  /** Dónde queda cada parte en la pose de pie, en el marco del muñeco (pies en el origen, mirando hacia +z). */
+  const poseDePie = NOMBRES_PARTES.map(
+    (n) =>
+      [
+        partes[n],
+        new THREE.Vector3().copy(partes[n].translation()).sub(origen).applyQuaternion(giroInicial.clone().invert()),
+      ] as const,
+  );
   /** Cada cuerpo con su masa, para sumar el centro de masa sin cruzar a Rapier de más. */
   const conMasa = NOMBRES_PARTES.map((n) => [partes[n], partes[n].mass()] as const);
   const masa = conMasa.reduce((suma, [, m]) => suma + m, 0);
@@ -882,11 +895,46 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     empujar(dv) {
       for (const [c, m] of conMasa) c.applyImpulse({ x: dv.x * m, y: dv.y * m, z: dv.z * m }, true);
     },
+    soltarDe(cuerpos) {
+      for (const brazo of brazos) if (brazo.otro && cuerpos.has(brazo.otro)) soltar(brazo);
+    },
   });
+
+  const reaparecer = (posicion: { x: number; y: number; z: number }, nuevoRumbo: number) => {
+    for (const brazo of brazos) {
+      soltar(brazo);
+      // Si el jugador sigue apretando agarrar, no se prende de lo primero que toque al aparecer
+      brazo.esperar = true;
+    }
+    for (const v of vecinos) if (v.partes !== propias) v.soltarDe(propias);
+    const giro = new THREE.Quaternion().setFromAxisAngle(ARRIBA, nuevoRumbo);
+    const p = new THREE.Vector3();
+    const cero = { x: 0, y: 0, z: 0 };
+    for (const [c, local] of poseDePie) {
+      p.copy(local).applyQuaternion(giro).add(posicion);
+      c.setTranslation(p, true);
+      c.setRotation(giro, true);
+      c.setLinvel(cero, true);
+      c.setAngvel(cero, true);
+    }
+    rumbo = nuevoRumbo;
+    pasarA("de pie");
+    tono = 1;
+    tension = firmeza;
+    fase = 0;
+    tiempoSinSuelo = 0;
+    espera = 0;
+    desdeSalto = Number.POSITIVE_INFINITY;
+    deLaMano = undefined;
+    colgado = false;
+    centro.set(0, 0, 0);
+    centroAntes.set(0, 0, 0);
+  };
 
   return {
     partes,
     pasar,
+    reaparecer,
     masa,
     get rumbo() {
       return rumbo;

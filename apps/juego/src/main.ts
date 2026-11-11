@@ -23,7 +23,7 @@ async function arrancar() {
   if (!crear) throw new Error(`No existe la escena «${nombre}». Hay: ${Object.keys(ESCENAS).join(", ")}`);
 
   const { rapier, mundo } = await crearMundo();
-  const escena = crear(rapier, mundo);
+  const escena = await crear(rapier, mundo);
   const estado = publicarEstado({ escena: nombre, listo: false, pasosTotales: 0, pasosPorSegundo: 0 });
 
   const lienzo = document.createElement("canvas");
