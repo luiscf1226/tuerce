@@ -6,6 +6,10 @@
 //   &nivel=prueba    qué nivel abrir (ver src/niveles/lista.ts)
 //   &punto=N         empieza en ese punto de control, como al retomar un avance guardado
 //   &vista=todo      la cámara quieta, lejos, mirando el nivel entero (para las capturas)
+//
+// En línea (`?escena=en-linea`) se juega esta misma escena: `enRed` decide las entradas de cada paso, como en `dos`.
+// El invitado no simula: no corre el guion, ni los puntos de control, ni las caídas; los cuerpos (también la
+// compuerta) llegan en la foto del anfitrión.
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
 import { type CamaraDeDos, crearCamaraDeDos, ENCUADRE } from "../camara";
@@ -21,6 +25,7 @@ import { NIVEL_INICIAL, NIVELES } from "../niveles/lista";
 import { crearJuego, crearSenas } from "../ui";
 import { crearInterfaz } from "../ui/menu";
 import { COLORES } from "./colores";
+import type { PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
 
 /** La cámara: hacia dónde queda de lo que mira, un poco más alta que en `dos` para ver los huecos. */
@@ -34,17 +39,25 @@ export type EscenaNivel = EscenaDeJuego & {
   readonly camaraDeDos: CamaraDeDos;
 };
 
+/** Baja el .glb del nivel que pide la dirección (`&nivel=`) y devuelve cómo armar su escena. */
+export async function bajarNivel(
+  parametros: URLSearchParams,
+): Promise<(rapier: Rapier, mundo: RAPIER.World, parametros: URLSearchParams, enRed?: PasoEnRed) => EscenaNivel> {
+  const cual = parametros.get("nivel") ?? NIVEL_INICIAL;
+  const datos = NIVELES[cual];
+  if (!datos) throw new Error(`No existe el nivel «${cual}». Hay: ${Object.keys(NIVELES).join(", ")}`);
+  const plano = await cargarNivel(datos.escena);
+  return (rapier, mundo, parametros, enRed) =>
+    armarEscenaNivel(rapier, mundo, plano, datos.crearGuion(), parametros, enRed);
+}
+
 /** Baja el .glb del nivel que pide la dirección y arma la escena. */
 export async function crearEscenaNivel(
   rapier: Rapier,
   mundo: RAPIER.World,
   parametros: URLSearchParams = parametrosDeLaDireccion(),
 ): Promise<EscenaNivel> {
-  const cual = parametros.get("nivel") ?? NIVEL_INICIAL;
-  const datos = NIVELES[cual];
-  if (!datos) throw new Error(`No existe el nivel «${cual}». Hay: ${Object.keys(NIVELES).join(", ")}`);
-  const plano = await cargarNivel(datos.escena);
-  return armarEscenaNivel(rapier, mundo, plano, datos.crearGuion(), parametros);
+  return (await bajarNivel(parametros))(rapier, mundo, parametros);
 }
 
 /** Arma la escena con un plano ya leído (las pruebas lo leen del disco). */
@@ -54,6 +67,7 @@ export function armarEscenaNivel(
   plano: PlanoDeNivel,
   guion: GuionDeNivel,
   parametros: URLSearchParams,
+  enRed?: PasoEnRed,
 ): EscenaNivel {
   const armado = armarNivel(rapier, mundo, plano);
   const { escena } = armado;
@@ -128,11 +142,14 @@ export function armarEscenaNivel(
     avance: nivel.avance,
     pasar() {
       const leidas = juego.atienden ? controles.leer() : quietas;
-      nivel.antes();
-      munecos[0].pasar(senas.entrada(0, leidas[0]));
-      munecos[1].pasar(senas.entrada(1, leidas[1]));
-      mundo.step();
-      for (const { jugador } of nivel.despues()) saltarMalla(jugador);
+      const entradas = enRed ? enRed(leidas) : leidas;
+      if (entradas) {
+        nivel.antes();
+        munecos[0].pasar(senas.entrada(0, entradas[0]));
+        munecos[1].pasar(senas.entrada(1, entradas[1]));
+        mundo.step();
+        for (const { jugador } of nivel.despues()) saltarMalla(jugador);
+      }
       senas.apuntar();
       jugadores[0].malla.guardar();
       jugadores[1].malla.guardar();

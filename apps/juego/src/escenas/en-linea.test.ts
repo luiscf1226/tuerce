@@ -1,8 +1,12 @@
 // La escena en línea sin navegador: dónde busca la sala y que se arma quieta hasta que haya conexión.
 import { describe, expect, it, vi } from "vitest";
 import { crearMundo } from "../motor/fisica";
+import { NIVELES } from "../niveles/lista";
+import { leerDelDisco } from "../niveles/prueba";
+import { cuerposMoviles } from "../red/sincronia";
 import { crearEscenaDos } from "./dos";
 import { baseDeSala, type CrearEscenaDeDos, crearEscenaEnLinea } from "./en-linea";
+import { armarEscenaNivel } from "./nivel";
 import type { AvanceDeNivel } from "./tipos";
 
 describe("en línea", () => {
@@ -42,5 +46,21 @@ describe("en línea", () => {
 
     const otro = await crearMundo();
     expect(crearEscenaEnLinea(otro.rapier, otro.mundo, new URLSearchParams()).avance).toBeUndefined();
+  });
+
+  it("juega el nivel de prueba: sin conexión no simula ni corre el guion, y la compuerta viaja en la foto", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const plano = await leerDelDisco("99-prueba");
+    const guion = NIVELES.prueba?.crearGuion() ?? {};
+    const escena = crearEscenaEnLinea(rapier, mundo, new URLSearchParams("j1=andar:1"), (r, m, p, red) =>
+      armarEscenaNivel(r, m, plano, guion, p, red),
+    );
+    expect(escena.avance?.nivel).toBe(99);
+    const antes = escena.munecos[0].partes.pelvis.translation();
+    for (let i = 0; i < 60; i++) escena.pasar();
+    const despues = escena.munecos[0].partes.pelvis.translation();
+    expect(Math.hypot(despues.x - antes.x, despues.z - antes.z)).toBeLessThan(1e-6);
+    // La compuerta del guion es cinemática: el invitado no la mueve, la recibe del anfitrión
+    expect(cuerposMoviles(mundo).some((c) => c.isKinematic())).toBe(true);
   });
 });

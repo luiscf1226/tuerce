@@ -134,11 +134,12 @@ export interface OpcionesSincronia {
   predecir?: boolean;
 }
 
-/** Los cuerpos que viajan en la foto: los dinámicos, en el orden en que se crearon. */
+/** Los cuerpos que viajan en la foto, en el orden en que se crearon: los dinámicos y los cinemáticos (las compuertas
+ * y plataformas que mueve el guion de un nivel, que el invitado no simula). */
 export function cuerposMoviles(mundo: RAPIER.World): RAPIER.RigidBody[] {
   const lista: RAPIER.RigidBody[] = [];
   mundo.forEachRigidBody((c) => {
-    if (c.isDynamic()) lista.push(c);
+    if (c.isDynamic() || c.isKinematic()) lista.push(c);
   });
   return lista.sort((a, b) => a.handle - b.handle);
 }

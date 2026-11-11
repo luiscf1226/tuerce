@@ -1,9 +1,10 @@
-// Jugar en línea (TU-21): la escena `dos`, pero cada uno en su casa. `?escena=en-linea`
-// La escena de base se cambia con el último argumento de `crearEscenaEnLinea` (ver ESCENA_DE_BASE).
+// Jugar en línea (TU-21): un nivel para dos (la escena `nivel`, TU-11), pero cada uno en su casa.
+// `?escena=en-linea` juega el nivel que pida `&nivel=` (el de prueba si no pide ninguno); `&base=dos` juega la
+// escena `dos`, sin puntos de control (ver `abrirEscenaEnLinea`).
 //
 //   1. Entra con la cuenta (Clerk y Convex, como `invitar`) y toma la pareja más reciente (`misParejas`). Si no hay,
 //      pide invitar a alguien primero. Con la pareja, Convex firma un pase para su sala (`pedirPase`).
-//   2. Se conecta a la sala (src/red): el primero en entrar es el anfitrión (pañuelo rojo) y calcula las físicas; el
+//   2. Se conecta a la sala (src/red): el primero que entró alguna vez es el anfitrión (pañuelo rojo) y calcula las físicas; el
 //      segundo es el invitado (pañuelo turquesa) y ve lo que el anfitrión le manda (src/red/sincronia.ts).
 //   3. Cada uno maneja su muñeco con sus controles de siempre (los del jugador 1, los del 2 o un mando: todos van
 //      al muñeco propio).
@@ -29,6 +30,7 @@ import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
 import type { Juego } from "../ui/juego";
 import { crearEscenaDos, type PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
+import { bajarNivel } from "./nivel";
 import type { AvanceDeNivel } from "./tipos";
 import "./en-linea.css";
 
@@ -41,8 +43,16 @@ export type CrearEscenaDeDos = (
   parametros: URLSearchParams,
   enRed: PasoEnRed,
 ) => EscenaDeDos;
-/** La escena que se juega en línea si no se pide otra. Al juntar los niveles (TU-11) pasa a ser la escena `nivel`. */
-export const ESCENA_DE_BASE: CrearEscenaDeDos = crearEscenaDos;
+/** La escena de la lista (`?escena=en-linea`): baja el nivel que pide la dirección y lo juega en línea; con
+ * `&base=dos`, la escena `dos`. */
+export async function abrirEscenaEnLinea(
+  rapier: Rapier,
+  mundo: RAPIER.World,
+  parametros: URLSearchParams = parametrosDeLaDireccion(),
+): Promise<EscenaDeDos> {
+  if (parametros.get("base") === "dos") return crearEscenaEnLinea(rapier, mundo, parametros, crearEscenaDos);
+  return crearEscenaEnLinea(rapier, mundo, parametros, await bajarNivel(parametros));
+}
 
 /** Lo que la escena deja ver a las pruebas en Chromium (`window.__enLinea`). */
 export interface EstadoEnLinea {
@@ -89,7 +99,7 @@ export function crearEscenaEnLinea(
   rapier: Rapier,
   mundo: RAPIER.World,
   parametros: URLSearchParams = parametrosDeLaDireccion(),
-  crearBase: CrearEscenaDeDos = ESCENA_DE_BASE,
+  crearBase: CrearEscenaDeDos = crearEscenaDos,
 ): EscenaDeDos {
   let sincronia: Sincronia | undefined;
   let jugando = false;

@@ -5,7 +5,7 @@ import type { Juego } from "../ui";
 import type { Interfaz } from "../ui/menu";
 import { crearEscenaAgarre } from "./agarre";
 import { crearEscenaDos } from "./dos";
-import { crearEscenaEnLinea } from "./en-linea";
+import { abrirEscenaEnLinea } from "./en-linea";
 import { crearEscenaMano } from "./mano";
 import { crearEscenaMuneco } from "./muneco";
 import { crearEscenaNivel } from "./nivel";
@@ -32,8 +32,8 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
     agarre: crearEscenaAgarre,
     dos: crearEscenaDos,
     mano: crearEscenaMano,
-    // En línea (TU-21): la escena `dos` con el otro jugador en su casa.
-    "en-linea": crearEscenaEnLinea,
+    // En línea (TU-21, TU-22): un nivel con el otro jugador en su casa; guarda y retoma el avance de la pareja.
+    "en-linea": abrirEscenaEnLinea,
     // Un nivel con el formato nuevo (TU-11): escena glTF, guion y puntos de control. `&nivel=prueba` por ahora.
     nivel: crearEscenaNivel,
   };
