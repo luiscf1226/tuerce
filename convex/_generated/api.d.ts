@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as avance from "../avance.js";
 import type * as cola from "../cola.js";
 import type * as crons from "../crons.js";
 import type * as cuenta from "../cuenta.js";
@@ -24,6 +25,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  avance: typeof avance;
   cola: typeof cola;
   crons: typeof crons;
   cuenta: typeof cuenta;
