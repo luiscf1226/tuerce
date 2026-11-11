@@ -31,7 +31,8 @@ async function arrancar() {
   const pintor = new THREE.WebGLRenderer({ canvas: lienzo, antialias: false, preserveDrawingBuffer: true });
   pintor.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   // Todo se dibuja a través de la imagen (src/imagen): tono, antialias, grano y viñeta de las referencias.
-  const imagen = crearImagen(pintor, escena.escena, escena.camara);
+  // Con la cámara de los dos, la pantalla se parte cuando se separan (TU-09).
+  const imagen = crearImagen(pintor, escena.escena, escena.camara, escena.vistas ? { vistas: escena.vistas } : {});
   const ajustar = () => {
     pintor.setSize(window.innerWidth, window.innerHeight);
     imagen.ajustar(window.innerWidth, window.innerHeight);

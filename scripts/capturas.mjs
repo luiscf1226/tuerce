@@ -35,6 +35,8 @@ const TOMAS = [
   { archivo: "dos-saltando", ruta: "/?escena=dos&j1=saltar@30&j2=saltar@36&congelar=48" },
   { archivo: "dos-agarrando", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=150" },
   { archivo: "dos-separandose", ruta: "/?escena=dos&j1=andar:1,girar:-0.1&j2=andar:1,girar:0.1&congelar=240" },
+  // TU-09: la cámara de los dos. Lejos, la pantalla se parte con una costura perpendicular a la recta entre los dos
+  { archivo: "dos-pantalla-partida", ruta: "/?escena=dos&j1=andar:1,girar:-0.3&j2=andar:-1,girar:-0.3&congelar=300" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

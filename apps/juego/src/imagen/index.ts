@@ -34,4 +34,4 @@ export {
   type OpcionesTela,
 } from "./materiales";
 export { COLOR_PANUELO, coloresSaturados, esSaturado, type Panuelo, saturacion } from "./paleta";
-export { crearImagen, type Imagen, type OpcionesImagen } from "./post";
+export { crearImagen, type Imagen, type OpcionesImagen, type VistasPartidas } from "./post";
