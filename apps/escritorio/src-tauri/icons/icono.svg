@@ -1,0 +1,19 @@
+<!-- Ícono de Tuerce: una T de trapo, torcida, con los dos pañuelos amarrados. Niebla clara, silueta oscura y los
+     pañuelos rojo y turquesa como único color (src/escenas/colores.ts). Los PNG, .ico e .icns salen de acá con
+     el script «iconos» de apps/escritorio. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Tuerce</title>
+  <rect x="32" y="32" width="960" height="960" rx="200" fill="#dedfdc"/>
+  <g transform="rotate(-7 512 540)">
+    <!-- la barra y el palo de la T, con costuras -->
+    <path d="M196 236 Q512 200 828 248 L818 392 Q512 356 206 382 Z" fill="#3c3c3c"/>
+    <path d="M440 372 Q512 366 590 374 L604 852 Q520 874 430 850 Z" fill="#3c3c3c"/>
+    <path d="M232 312 Q512 282 792 320" fill="none" stroke="#6e6e6b" stroke-width="10" stroke-dasharray="28 22" stroke-linecap="round"/>
+    <path d="M516 420 L522 810" fill="none" stroke="#6e6e6b" stroke-width="10" stroke-dasharray="28 22" stroke-linecap="round"/>
+    <!-- pañuelo rojo amarrado a la izquierda, turquesa a la derecha -->
+    <path d="M250 214 L362 226 L346 408 L230 398 Z" fill="#d2463a"/>
+    <path d="M300 404 L250 520 L332 470 Z" fill="#d2463a"/>
+    <path d="M664 230 L776 240 L768 412 L652 400 Z" fill="#2bb1ad"/>
+    <path d="M730 408 L792 512 L700 470 Z" fill="#2bb1ad"/>
+  </g>
+</svg>

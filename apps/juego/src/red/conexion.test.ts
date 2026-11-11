@@ -303,6 +303,64 @@ describe("el otro se va y la sala se corta", () => {
     expect(conexion.estado).toBe("se_fue");
   });
 
+  it("el anfitrión que vuelve a entrar sigue de anfitrión y vuelve a ofrecer lo directo", async () => {
+    const m = mundo();
+    const { conexion, estados } = await entrar(m, "anfitrion");
+    m.llega({ t: "listos" });
+    await flush();
+    m.abrir();
+    // Se cae todo: la sala y lo directo
+    m.directa().op.alCaer("prueba");
+    m.socket().eventos.alCerrar(1006);
+    await vi.advanceTimersByTimeAsync(500);
+    m.socket().eventos.alAbrir();
+    m.llega({ t: "hola", rol: "anfitrion" });
+    m.llega({ t: "listos" });
+    await flush();
+    expect(conexion.rol).toBe("anfitrion");
+    expect(m.directas).toHaveLength(2);
+    m.abrir();
+    expect(estados.at(-1)).toBe("directa");
+  });
+
+  it("el invitado que vuelve a entrar sigue de invitado y espera la oferta nueva", async () => {
+    const m = mundo();
+    const { conexion } = await entrar(m, "invitado");
+    m.llega({ t: "listos" });
+    m.llega({ t: "senal", intento: "x1", sdp: { type: "offer", sdp: "v=0" } });
+    await flush();
+    m.abrir();
+    m.directa().op.alCaer("prueba");
+    m.socket().eventos.alCerrar(1006);
+    await vi.advanceTimersByTimeAsync(500);
+    m.socket().eventos.alAbrir();
+    m.llega({ t: "hola", rol: "invitado" });
+    m.llega({ t: "listos" });
+    await flush();
+    expect(conexion.rol).toBe("invitado");
+    expect(m.directas).toHaveLength(1); // no ofrece: espera
+    m.llega({ t: "senal", intento: "x2", sdp: { type: "offer", sdp: "v=0" } });
+    await flush();
+    expect(m.directa().op.rol).toBe("invitado");
+    m.abrir();
+    expect(conexion.estado).toBe("directa");
+  });
+
+  it("si al volver la sala le diera otro rol, la página sigue con el suyo", async () => {
+    const m = mundo();
+    const { conexion } = await entrar(m, "invitado");
+    m.llega({ t: "listos" });
+    m.socket().eventos.alCerrar(1006);
+    await vi.advanceTimersByTimeAsync(500);
+    m.socket().eventos.alAbrir();
+    m.llega({ t: "hola", rol: "anfitrion" });
+    m.llega({ t: "listos" });
+    await flush();
+    expect(conexion.rol).toBe("invitado");
+    expect(m.directas).toHaveLength(0); // un invitado no ofrece
+    expect(console.warn).toHaveBeenCalledWith(expect.stringMatching(/sigue de invitado/));
+  });
+
   it("si la sala la reemplaza (entraste desde otro lado) se cierra y no reconecta", async () => {
     const m = mundo();
     const { conexion } = await entrar(m, "anfitrion");

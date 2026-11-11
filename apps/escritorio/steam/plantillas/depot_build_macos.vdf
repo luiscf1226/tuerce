@@ -1,0 +1,11 @@
+// Depósito de macos: todo lo que hay en steam/contenido/macos/ (lo arma scripts/armar-steam.mjs).
+"DepotBuild"
+{
+	"DepotID" "@DEPOT_MACOS@"
+	"FileMapping"
+	{
+		"LocalPath" "macos/*"
+		"DepotPath" "."
+		"Recursive" "1"
+	}
+}

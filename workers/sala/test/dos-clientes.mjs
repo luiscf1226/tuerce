@@ -98,7 +98,22 @@ try {
   b.ws.close();
   if ((await espera(a2, "se_fue")).rol !== "invitado") throw new Error("no avisó que el invitado se fue");
   if (!(await rechazado(await pase("carla")))) throw new Error("con un lugar libre entró alguien de afuera");
+
+  // Se va también Ana y vuelven al revés: los roles son de cada uno, Beto sigue de invitado aunque llegue primero.
   a2.ws.close();
+  await sleep(200);
+  const b2 = await abrir(await pase("beto"));
+  if ((await espera(b2, "hola")).rol !== "invitado") throw new Error("Beto volvió primero y le cambió el rol");
+  const a3 = await abrir(await pase("ana"));
+  if ((await espera(a3, "hola")).rol !== "anfitrion") throw new Error("Ana volvió segunda y le cambió el rol");
+  await espera(b2, "listos");
+  // Y si se va la anfitriona y vuelve mientras Beto espera, vuelve de anfitriona.
+  a3.ws.close();
+  await espera(b2, "se_fue");
+  const a4 = await abrir(await pase("ana"));
+  if ((await espera(a4, "hola")).rol !== "anfitrion") throw new Error("la anfitriona volvió con otro rol");
+  a4.ws.close();
+  b2.ws.close();
 
   // TURN: con pase da servidores ICE (sin llaves de Cloudflare, el STUN público); sin pase, nada.
   if ((await fetch(`http://${base}/turn`)).status !== 401) throw new Error("/turn respondió sin pase");
@@ -112,7 +127,7 @@ try {
     throw new Error(`/turn no corta en 6 por hora: ${estados.join(",")}`);
 
   console.log(
-    "PASA sala: con pase entran anfitrión e invitado, cruzan señales, reconectar reemplaza; sin pase o un tercero no entra; /turn responde con tope por hora",
+    "PASA sala: con pase entran anfitrión e invitado, cruzan señales, reconectar reemplaza, los roles no cambian; sin pase o un tercero no entra; /turn responde con tope por hora",
   );
   fin(0);
 } catch (e) {

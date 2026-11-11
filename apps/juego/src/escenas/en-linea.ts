@@ -1,12 +1,19 @@
-// Jugar en línea (TU-21): la escena `dos`, pero cada uno en su casa. `?escena=en-linea`
+// Jugar en línea (TU-21): un nivel para dos (la escena `nivel`, TU-11), pero cada uno en su casa.
+// `?escena=en-linea` juega el nivel que pida `&nivel=` (el de prueba si no pide ninguno); `&base=dos` juega la
+// escena `dos`, sin puntos de control (ver `abrirEscenaEnLinea`).
 //
 //   1. Entra con la cuenta (Clerk y Convex, como `invitar`) y toma la pareja más reciente (`misParejas`). Si no hay,
 //      pide invitar a alguien primero. Con la pareja, Convex firma un pase para su sala (`pedirPase`).
-//   2. Se conecta a la sala (src/red): el primero en entrar es el anfitrión (pañuelo rojo) y calcula las físicas; el
+//   2. Se conecta a la sala (src/red): el primero que entró alguna vez es el anfitrión (pañuelo rojo) y calcula las físicas; el
 //      segundo es el invitado (pañuelo turquesa) y ve lo que el anfitrión le manda (src/red/sincronia.ts).
 //   3. Cada uno maneja su muñeco con sus controles de siempre (los del jugador 1, los del 2 o un mando: todos van
 //      al muñeco propio).
 //   4. La voz (TU-34, src/red/voz.ts) está apagada: el botón del micrófono la prende. Solo con conexión directa.
+//   5. Avance y reconexión (TU-22). Si la escena de base tiene puntos de control (`avance`, los niveles), antes de
+//      entrar a la sala se lee de Convex el último que alcanzó la pareja y los muñecos arrancan ahí; después, el
+//      anfitrión guarda cada punto nuevo (src/red/avance.ts). Si uno se cae o recarga, el otro ve «tu pareja se
+//      fue» y al volver siguen donde estaban: cada uno conserva su rol, y si el que vuelve es el anfitrión, el
+//      invitado le devuelve el mundo (src/red/sincronia.ts). Si se fueron los dos, se retoma del punto guardado.
 //
 // Para probar sin Convex (solo en desarrollo): `?escena=en-linea&sala=<url de la sala>&pase=<pase>`, como la
 // pantalla `red` (ver scripts/prueba-red.mjs). También valen `forzar=repetidor` y `espera=<ms>`, y las entradas
@@ -17,12 +24,35 @@ import { parametrosDeLaDireccion } from "../entrada/teclado";
 import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import { type Conexion, conectar, type EstadoRed, type Rol } from "../red";
-import { crearSincronia, type Medidas, type Sincronia } from "../red/sincronia";
+import { type Guardado, guardarAvance, retomarAvance } from "../red/avance";
+import { crearSincronia, type Medidas, type OrigenMundo, type Sincronia } from "../red/sincronia";
 import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
 import type { Juego } from "../ui/juego";
-import { crearEscenaDos } from "./dos";
+import { crearEscenaDos, type PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
+import { bajarNivel } from "./nivel";
+import type { AvanceDeNivel } from "./tipos";
 import "./en-linea.css";
+
+/** Lo que en línea necesita de la escena de base: los dos muñecos (rojo y turquesa) y, si es un nivel, su avance. */
+export type EscenaDeDos = EscenaDeJuego & { readonly munecos: readonly [Muneco, Muneco] };
+/** Arma una escena de dos jugadores; `enRed` decide las entradas de cada paso (o que no se simule). */
+export type CrearEscenaDeDos = (
+  rapier: Rapier,
+  mundo: RAPIER.World,
+  parametros: URLSearchParams,
+  enRed: PasoEnRed,
+) => EscenaDeDos;
+/** La escena de la lista (`?escena=en-linea`): baja el nivel que pide la dirección y lo juega en línea; con
+ * `&base=dos`, la escena `dos`. */
+export async function abrirEscenaEnLinea(
+  rapier: Rapier,
+  mundo: RAPIER.World,
+  parametros: URLSearchParams = parametrosDeLaDireccion(),
+): Promise<EscenaDeDos> {
+  if (parametros.get("base") === "dos") return crearEscenaEnLinea(rapier, mundo, parametros, crearEscenaDos);
+  return crearEscenaEnLinea(rapier, mundo, parametros, await bajarNivel(parametros));
+}
 
 /** Lo que la escena deja ver a las pruebas en Chromium (`window.__enLinea`). */
 export interface EstadoEnLinea {
@@ -31,6 +61,10 @@ export interface EstadoEnLinea {
   /** Dónde está la pelvis de cada muñeco (rojo y turquesa) en este mundo. */
   munecos(): { x: number; y: number; z: number }[];
   medidas?: Readonly<Medidas>;
+  /** De dónde salió el mundo del anfitrión: «devuelto» si volvió y el invitado le devolvió el de antes (TU-22). */
+  readonly mundo?: OrigenMundo;
+  /** El punto de control de la pareja, si la escena de base los tiene. */
+  readonly puntoDeControl?: number;
   /** La voz: en qué anda y cuántas pistas de audio del otro llegaron. */
   voz?: Pick<Voz, "estado" | "pistasRemotas">;
 }
@@ -65,10 +99,11 @@ export function crearEscenaEnLinea(
   rapier: Rapier,
   mundo: RAPIER.World,
   parametros: URLSearchParams = parametrosDeLaDireccion(),
-): EscenaDeJuego & { readonly munecos: readonly [Muneco, Muneco] } {
+  crearBase: CrearEscenaDeDos = crearEscenaDos,
+): EscenaDeDos {
   let sincronia: Sincronia | undefined;
   let jugando = false;
-  const dos = crearEscenaDos(rapier, mundo, parametros, (locales) => {
+  const dos = crearBase(rapier, mundo, parametros, (locales) => {
     if (!sincronia || !jugando) return null;
     // Todos los controles de esta máquina (teclado de los dos lados y mandos) manejan el muñeco propio
     return sincronia.paso(juntarEntradas(locales[0], locales[1]));
@@ -79,8 +114,15 @@ export function crearEscenaEnLinea(
   dos.juego?.jugar();
   const juego: Juego | undefined = dos.juego && Object.create(dos.juego, { corren: { get: () => true } });
 
+  const avance = dos.avance;
   const prueba: EstadoEnLinea = {
     estado: "sin_conexion",
+    get mundo() {
+      return sincronia?.mundo;
+    },
+    get puntoDeControl() {
+      return avance?.puntoDeControl();
+    },
     munecos: () =>
       dos.munecos.map((m) => {
         const p = m.partes.pelvis.translation();
@@ -91,10 +133,18 @@ export function crearEscenaEnLinea(
   if (typeof document !== "undefined") {
     window.__enLinea = prueba;
     const ui = crearInterfaz();
-    void obtenerConexion(parametros, ui)
-      .then((conexion) => {
-        if (!conexion) return;
-        sincronia = crearSincronia({ rol: conexion.rol, enlace: conexion, mundo, munecos: dos.munecos });
+    void obtenerConexion(parametros, ui, avance)
+      .then((entrada) => {
+        if (!entrada) return;
+        const { conexion, guardado } = entrada;
+        sincronia = crearSincronia({
+          rol: conexion.rol,
+          enlace: conexion,
+          mundo,
+          munecos: dos.munecos,
+          ...(avance ? { avance } : {}),
+        });
+        if (avance && guardado) guardarAvance(avance, guardado, conexion.rol);
         prueba.rol = conexion.rol;
         prueba.medidas = sincronia.medidas;
         const mostrar = (estado: EstadoRed) => {
@@ -119,6 +169,7 @@ export function crearEscenaEnLinea(
     escena: dos.escena,
     camara: dos.camara,
     munecos: dos.munecos,
+    ...(avance ? { avance } : {}),
     ...(dos.vistas ? { vistas: dos.vistas } : {}),
     ...(juego ? { juego } : {}),
     ...(dos.interfaz ? { interfaz: dos.interfaz } : {}),
@@ -207,8 +258,16 @@ function crearInterfaz(): Interfaz {
   };
 }
 
-/** El pase y la sala: de la dirección (solo en desarrollo) o de Convex, con la pareja más reciente. */
-async function obtenerConexion(parametros: URLSearchParams, ui: Interfaz): Promise<Conexion | undefined> {
+/**
+ * El pase y la sala: de la dirección (solo en desarrollo, sin avance guardado) o de Convex, con la pareja más
+ * reciente. Con Convex, antes de entrar a la sala se retoma el avance guardado de la pareja (si la escena lo tiene):
+ * así, cuando llega el otro, el mundo ya está en el punto de control y no se mueve nada debajo de la red.
+ */
+async function obtenerConexion(
+  parametros: URLSearchParams,
+  ui: Interfaz,
+  avance: AvanceDeNivel | undefined,
+): Promise<{ conexion: Conexion; guardado?: Guardado } | undefined> {
   const pase = parametros.get("pase");
   const sala = parametros.get("sala");
   const numero = (nombre: string) => {
@@ -217,12 +276,13 @@ async function obtenerConexion(parametros: URLSearchParams, ui: Interfaz): Promi
   };
   if (import.meta.env.DEV && pase && sala) {
     ui.mensaje("Entrando a la sala de prueba…");
-    return conectar({
+    const conexion = await conectar({
       urlSala: sala,
       pase,
       forzar: parametros.get("forzar") === "repetidor" ? "repetidor" : undefined,
       esperaDirectaMs: numero("espera"),
     });
+    return { conexion };
   }
 
   // Clerk y Convex se cargan aparte, solo en esta escena
@@ -246,17 +306,26 @@ async function obtenerConexion(parametros: URLSearchParams, ui: Interfaz): Promi
             resolver(undefined);
             return;
           }
-          const pedir = () => convex.mutation(api.salas.pedirPase, { parejaId: pareja.parejaId });
+          const { parejaId } = pareja;
+          const guardado: Guardado = {
+            leer: (nivel) => convex.query(api.avance.puntoDeControl, { parejaId, nivel }),
+            guardar: (nivel, puntoDeControl) =>
+              convex.mutation(api.avance.guardarPuntoDeControl, { parejaId, nivel, puntoDeControl }),
+          };
+          if (avance) {
+            ui.mensaje(`Buscando dónde se quedaron con ${pareja.companero}…`);
+            await retomarAvance(avance, guardado);
+          }
+          const pedir = () => convex.mutation(api.salas.pedirPase, { parejaId });
           const primero = await pedir();
           ui.mensaje(`Entrando a la sala con ${pareja.companero}…`);
           const base = baseDeSala(location.hostname, import.meta.env.DEV, import.meta.env.VITE_SALA_URL);
-          resolver(
-            await conectar({
-              urlSala: `${base}/sala/${primero.sala}`,
-              pase: primero.pase,
-              pedirPase: async () => (await pedir()).pase,
-            }),
-          );
+          const conexion = await conectar({
+            urlSala: `${base}/sala/${primero.sala}`,
+            pase: primero.pase,
+            pedirPase: async () => (await pedir()).pase,
+          });
+          resolver({ conexion, guardado });
         })().catch(rechazar);
         return undefined;
       },

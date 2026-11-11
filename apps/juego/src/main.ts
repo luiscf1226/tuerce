@@ -4,6 +4,7 @@ import { publicarEstado } from "./estado";
 import { crearImagen } from "./imagen";
 import { crearBucle, PASOS_POR_SEGUNDO } from "./motor/bucle";
 import { crearMundo } from "./motor/fisica";
+import { prepararEscritorio } from "./ui/escritorio";
 import "./estilo.css";
 
 // Parámetros de la dirección:
@@ -14,6 +15,8 @@ const parametros = new URLSearchParams(location.search);
 const nombre = parametros.get("escena") ?? ESCENA_INICIAL;
 const congelar = Number(parametros.get("congelar") ?? Number.NaN);
 
+prepararEscritorio();
+
 async function arrancar() {
   // Las pantallas de la cuenta no son escenas de físicas: se cargan aparte para no meter Clerk en el juego.
   const pantalla = PANTALLAS[nombre];
@@ -23,7 +26,7 @@ async function arrancar() {
   if (!crear) throw new Error(`No existe la escena «${nombre}». Hay: ${Object.keys(ESCENAS).join(", ")}`);
 
   const { rapier, mundo } = await crearMundo();
-  const escena = crear(rapier, mundo);
+  const escena = await crear(rapier, mundo);
   const estado = publicarEstado({ escena: nombre, listo: false, pasosTotales: 0, pasosPorSegundo: 0 });
 
   const lienzo = document.createElement("canvas");

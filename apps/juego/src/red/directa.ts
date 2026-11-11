@@ -37,7 +37,26 @@ const ATORADO_BYTES = 64 * 1024;
 /** `disconnected` a veces se arregla solo; si dura más que esto, se da por caída. */
 const DESCONECTADA_MS = 3000;
 
+/** Sin WebRTC (el webview de la versión de escritorio en Linux, WebKitGTK, viene sin él): lo directo se cae apenas
+ * empieza, así `conexion.ts` pasa enseguida a la sala en vez de esperar `esperaDirectaMs`, y el otro se entera por la
+ * señal de fin. */
+const sinWebRTC: AbrirDirecta = (op) => {
+  let viva = true;
+  queueMicrotask(() => {
+    if (viva) op.alCaer("este navegador no tiene WebRTC");
+  });
+  return {
+    intento: op.intento,
+    recibirSenal() {},
+    enviar: () => false,
+    cerrar() {
+      viva = false;
+    },
+  };
+};
+
 export const abrirDirectaWebRTC: AbrirDirecta = (op) => {
+  if (typeof RTCPeerConnection === "undefined") return sinWebRTC(op);
   const pc = new RTCPeerConnection({ iceServers: op.iceServers });
   const fiable = pc.createDataChannel("fiable", { negotiated: true, id: 0, ordered: true });
   const rapido = pc.createDataChannel("rapido", { negotiated: true, id: 1, ordered: false, maxRetransmits: 0 });

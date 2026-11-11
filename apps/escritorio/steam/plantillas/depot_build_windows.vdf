@@ -1,0 +1,11 @@
+// Depósito de windows: todo lo que hay en steam/contenido/windows/ (lo arma scripts/armar-steam.mjs).
+"DepotBuild"
+{
+	"DepotID" "@DEPOT_WINDOWS@"
+	"FileMapping"
+	{
+		"LocalPath" "windows/*"
+		"DepotPath" "."
+		"Recursive" "1"
+	}
+}

@@ -6,18 +6,26 @@
 //     La pausa no viaja: cada uno pausa su pantalla.
 //     Van las últimas 3: si se pierde un paquete, el siguiente trae lo que faltaba.
 //
-//   · Foto (anfitrión → invitado, canal rápido, cada 2 pasos: 30 por segundo). 28 + 10 bytes por cuerpo:
+//   · Foto (anfitrión → invitado, canal rápido, cada 2 pasos: 30 por segundo). 29 + 10 bytes por cuerpo:
 //       [0x46 «F»] [paso u32] [ack u32: la última entrada del invitado que ya se usó, 0 = ninguna]
 //       [estados u8: 3 bits por muñeco] [agarres u8: 1 bit por mano] [rumbo i16 × 2]
-//       [velocidad de la pelvis i16 × 3 × 2, en mm/s] [cuántos cuerpos u8]
+//       [velocidad de la pelvis i16 × 3 × 2, en mm/s] [punto de control de la pareja u8] [cuántos cuerpos u8]
 //       y por cada cuerpo móvil: [posición i16 × 3, en 1/512 m desde el origen de la escena]
 //                                [rotación u32: cuaternión «los tres más chicos», 2 + 3 × 10 bits]
-//     Con los 18 pedazos de los dos muñecos y 3 huacales son 238 bytes: unos 7 KB por segundo.
+//     Con los 18 pedazos de los dos muñecos y 3 huacales son 239 bytes: unos 7 KB por segundo.
+//
+//   · Reconexión (TU-22, canal fiable, ver sincronia.ts):
+//       [0x50 «P»]                      anfitrión → invitado: «volví sin mundo, ¿tenés el de antes?»
+//       [0x4d «M»] y lo mismo que una foto   invitado → anfitrión: la última foto que le llegó, para retomar ahí
+//       [0x4e «N»]                      invitado → anfitrión: «no tengo nada» (él también acaba de llegar)
 import { type EntradaJugador, GESTOS } from "../entrada/mandos";
 import type { EstadoMuneco } from "../muneco";
 
 export const TIPO_ENTRADAS = 0x45;
 export const TIPO_FOTO = 0x46;
+export const TIPO_PEDIR_MUNDO = 0x50;
+export const TIPO_MUNDO = 0x4d;
+export const TIPO_SIN_MUNDO = 0x4e;
 
 /** Cuántas entradas viajan en cada paquete: la nueva y las dos anteriores. */
 export const REDUNDANCIA = 3;
@@ -61,6 +69,8 @@ export interface Foto {
   rumbos: [number, number];
   /** Velocidad de la pelvis de cada muñeco (para predecir el propio). */
   velocidades: [Vector, Vector];
+  /** El punto de control de la pareja (0 si la escena no tiene; ver AvanceDeNivel). */
+  punto: number;
   /** x, y, z de cada cuerpo, en orden. */
   posiciones: Float32Array;
   /** x, y, z, w de cada cuerpo, en orden. */
@@ -68,7 +78,7 @@ export interface Foto {
 }
 
 export function bytesDeFoto(cuerpos: number): number {
-  return 28 + 10 * cuerpos;
+  return 29 + 10 * cuerpos;
 }
 
 const limitar = (x: number, min: number, max: number) => Math.min(max, Math.max(min, x));
@@ -183,12 +193,27 @@ export function leerEntradas(datos: ArrayBuffer): EntradaNumerada[] | null {
 
 // ── Fotos ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function escribirFoto(foto: Foto, origen: Vector = { x: 0, y: 0, z: 0 }): ArrayBuffer {
+/** Un paquete de un solo byte: `TIPO_PEDIR_MUNDO` o `TIPO_SIN_MUNDO`. */
+export function escribirAviso(tipo: typeof TIPO_PEDIR_MUNDO | typeof TIPO_SIN_MUNDO): ArrayBuffer {
+  return new Uint8Array([tipo]).buffer;
+}
+
+/** Qué tipo de paquete es (su primer byte), o `undefined` si viene vacío. */
+export function tipoDe(datos: ArrayBuffer): number | undefined {
+  return datos.byteLength > 0 ? new DataView(datos).getUint8(0) : undefined;
+}
+
+/** Foto → paquete. Con `tipo = TIPO_MUNDO` es la foto que el invitado le devuelve al anfitrión al reconectar. */
+export function escribirFoto(
+  foto: Foto,
+  origen: Vector = { x: 0, y: 0, z: 0 },
+  tipo: typeof TIPO_FOTO | typeof TIPO_MUNDO = TIPO_FOTO,
+): ArrayBuffer {
   const cuerpos = foto.posiciones.length / 3;
   if (cuerpos > 255) throw new RangeError(`Demasiados cuerpos para una foto: ${cuerpos}`);
   const buffer = new ArrayBuffer(bytesDeFoto(cuerpos));
   const vista = new DataView(buffer);
-  vista.setUint8(0, TIPO_FOTO);
+  vista.setUint8(0, tipo);
   vista.setUint32(1, foto.paso >>> 0);
   vista.setUint32(5, foto.ack >>> 0);
   vista.setUint8(9, NUMERO_DE_ESTADO[foto.estados[0]] | (NUMERO_DE_ESTADO[foto.estados[1]] << 3));
@@ -202,6 +227,7 @@ export function escribirFoto(foto: Foto, origen: Vector = { x: 0, y: 0, z: 0 }):
       o += 2;
     }
   }
+  vista.setUint8(o++, limitar(Math.floor(foto.punto) || 0, 0, 255));
   vista.setUint8(o++, cuerpos);
   const { posiciones: p, rotaciones: r } = foto;
   for (let i = 0; i < cuerpos; i++) {
@@ -214,12 +240,16 @@ export function escribirFoto(foto: Foto, origen: Vector = { x: 0, y: 0, z: 0 }):
   return buffer;
 }
 
-/** Paquete → foto. `null` si no es una foto o está cortada. */
-export function leerFoto(datos: ArrayBuffer, origen: Vector = { x: 0, y: 0, z: 0 }): Foto | null {
-  if (datos.byteLength < 28) return null;
+/** Paquete → foto. `null` si no es una foto (o una del `tipo` pedido) o está cortada. */
+export function leerFoto(
+  datos: ArrayBuffer,
+  origen: Vector = { x: 0, y: 0, z: 0 },
+  tipo: typeof TIPO_FOTO | typeof TIPO_MUNDO = TIPO_FOTO,
+): Foto | null {
+  if (datos.byteLength < 29) return null;
   const vista = new DataView(datos);
-  if (vista.getUint8(0) !== TIPO_FOTO) return null;
-  const cuerpos = vista.getUint8(27);
+  if (vista.getUint8(0) !== tipo) return null;
+  const cuerpos = vista.getUint8(28);
   if (datos.byteLength !== bytesDeFoto(cuerpos)) return null;
   const estados = vista.getUint8(9);
   const velocidad = (o: number): Vector => ({
@@ -229,7 +259,7 @@ export function leerFoto(datos: ArrayBuffer, origen: Vector = { x: 0, y: 0, z: 0
   });
   const posiciones = new Float32Array(3 * cuerpos);
   const rotaciones = new Float32Array(4 * cuerpos);
-  let o = 28;
+  let o = 29;
   for (let i = 0; i < cuerpos; i++) {
     posiciones[3 * i] = vista.getInt16(o) / ESCALA_POSICION + origen.x;
     posiciones[3 * i + 1] = vista.getInt16(o + 2) / ESCALA_POSICION + origen.y;
@@ -244,6 +274,7 @@ export function leerFoto(datos: ArrayBuffer, origen: Vector = { x: 0, y: 0, z: 0
     agarres: vista.getUint8(10) & 0xf,
     rumbos: [vista.getInt16(11) / ESCALA_RUMBO, vista.getInt16(13) / ESCALA_RUMBO],
     velocidades: [velocidad(15), velocidad(21)],
+    punto: vista.getUint8(27),
     posiciones,
     rotaciones,
   };
