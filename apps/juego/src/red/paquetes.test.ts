@@ -70,6 +70,7 @@ describe("fotos", () => {
     estados: ["trepando", "levantandose"],
     agarres: 0b1010,
     punto: 3,
+    reloj: 98_765_432,
     rumbos: [1.2, -3],
     velocidades: [
       { x: 1.5, y: -2, z: 0.25 },
@@ -83,7 +84,7 @@ describe("fotos", () => {
   it("van y vuelven: posiciones a 2 mm, rotaciones a 0,002 y todo lo demás igual", () => {
     const paquete = escribirFoto(foto);
     expect(paquete.byteLength).toBe(bytesDeFoto(cuerpos));
-    expect(paquete.byteLength).toBe(239);
+    expect(paquete.byteLength).toBe(243);
     const vuelta = leerFoto(paquete);
     expect(vuelta).not.toBeNull();
     if (!vuelta) return;
@@ -92,6 +93,7 @@ describe("fotos", () => {
     expect(vuelta.estados).toEqual(foto.estados);
     expect(vuelta.agarres).toBe(foto.agarres);
     expect(vuelta.punto).toBe(3);
+    expect(vuelta.reloj).toBe(98_765_432);
     expect(vuelta.rumbos[0]).toBeCloseTo(1.2, 3);
     expect(vuelta.rumbos[1]).toBeCloseTo(-3, 3);
     expect(vuelta.velocidades[0].x).toBeCloseTo(1.5, 2);

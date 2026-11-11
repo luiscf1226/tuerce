@@ -28,6 +28,9 @@
 //   · La foto también lleva el punto de control de la pareja (si la escena es un nivel): el invitado lo anota en su
 //     avance y lo devuelve con el mundo, así el anfitrión que retoma sigue desde ahí aunque Convex no lo sepa todavía
 //     (y el guion no repite lo de un punto ya alcanzado, como hundir otra vez la compuerta).
+//   · En el contrarreloj (TU-32) la foto lleva también el reloj de la carrera: el invitado lo muestra tal cual y lo
+//     devuelve con el mundo, así el anfitrión que vuelve sigue contando desde ahí. `aceptarMundo` deja que la escena
+//     rechace un mundo devuelto (una carrera ya terminada: se empieza otra desde la salida).
 //   · Una vez decidido no se pregunta más: si al anfitrión solo se le cortó la red, su mundo es el bueno.
 //   · Lo que no vuelve: los agarres (las manos se sueltan) y las velocidades (todo retoma quieto).
 //
@@ -38,6 +41,7 @@ import * as THREE from "three";
 import { type EntradaJugador, entradaQuieta } from "../entrada/mandos";
 import type { AvanceDeNivel } from "../escenas/tipos";
 import type { Muneco } from "../muneco";
+import type { Reloj } from "../niveles/contrarreloj";
 import { crearBufferFotos, type Muestra, RETRASO_PASOS } from "./interpolar";
 import type { Datos, Rol } from "./marco";
 import {
@@ -134,6 +138,10 @@ export interface OpcionesSincronia {
   origen?: Vector;
   /** El avance de la escena, si es un nivel: su punto de control viaja en las fotos y vuelve con el mundo. */
   avance?: Pick<AvanceDeNivel, "puntoDeControl" | "retomar">;
+  /** El reloj del contrarreloj, si es una carrera (TU-32): lo cuenta el anfitrión y viaja en las fotos. */
+  reloj?: Pick<Reloj, "pasos" | "fijar">;
+  /** Anfitrión: si retoma el mundo que devuelve el invitado (sí, si no se dice otra cosa). */
+  aceptarMundo?: (foto: Foto) => boolean;
   /** El colchón del invitado en pasos (6 = 100 ms). */
   retraso?: number;
   /** El invitado predice su muñeco (true por omisión). */
@@ -160,7 +168,7 @@ function medidasNuevas(): Medidas {
 
 const SIN_DESVIO: Desvio = { x: 0, z: 0, rumbo: 0 };
 
-function crearAnfitrion({ enlace, mundo, munecos, origen, avance }: OpcionesSincronia): Sincronia {
+function crearAnfitrion({ enlace, mundo, munecos, origen, avance, reloj, aceptarMundo }: OpcionesSincronia): Sincronia {
   const cuerpos = cuerposMoviles(mundo);
   const medidas = medidasNuevas();
   const cola = new Map<number, EntradaJugador>();
@@ -188,6 +196,7 @@ function crearAnfitrion({ enlace, mundo, munecos, origen, avance }: OpcionesSinc
     const [rojo, turquesa] = munecos;
     rojo.orientar(foto.rumbos[0]);
     turquesa.orientar(foto.rumbos[1]);
+    reloj?.fijar(foto.reloj);
     avance?.retomar(foto.punto);
     // Los pasos y las entradas siguen contando desde la foto: el invitado no ve un salto en la numeración
     pasos = foto.paso;
@@ -202,7 +211,7 @@ function crearAnfitrion({ enlace, mundo, munecos, origen, avance }: OpcionesSinc
     if (tipo === TIPO_MUNDO || tipo === TIPO_SIN_MUNDO) {
       if (origenMundo !== "esperando") return; // ya se decidió: el mundo propio es el bueno
       const foto = tipo === TIPO_MUNDO ? leerFoto(datos, origen, TIPO_MUNDO) : null;
-      if (foto && foto.posiciones.length === cuerpos.length * 3) {
+      if (foto && foto.posiciones.length === cuerpos.length * 3 && (aceptarMundo?.(foto) ?? true)) {
         retomar(foto);
         origenMundo = "devuelto";
       } else origenMundo = "propio";
@@ -306,6 +315,7 @@ function crearAnfitrion({ enlace, mundo, munecos, origen, avance }: OpcionesSinc
         rumbos: [rojo.rumbo, turquesa.rumbo],
         velocidades: [rojo.partes.pelvis.linvel(), turquesa.partes.pelvis.linvel()],
         punto: avance?.puntoDeControl() ?? 0,
+        reloj: reloj?.pasos ?? 0,
         posiciones,
         rotaciones,
       };
@@ -331,6 +341,7 @@ function crearInvitado({
   munecos,
   origen,
   avance,
+  reloj,
   retraso = RETRASO_PASOS,
   ...op
 }: OpcionesSincronia): Sincronia {
@@ -365,7 +376,11 @@ function crearInvitado({
     if (tipo !== TIPO_FOTO) return;
     const foto = leerFoto(datos, origen);
     if (!foto || foto.posiciones.length !== cuerpos.length * 3) return;
-    if (!ultima || foto.paso > ultima.paso || foto.paso + REINICIO < ultima.paso) ultima = foto;
+    if (!ultima || foto.paso > ultima.paso || foto.paso + REINICIO < ultima.paso) {
+      ultima = foto;
+      // Antes que el punto de control: al llegar a la meta, el reloj ya marca el tiempo final
+      reloj?.fijar(foto.reloj);
+    }
     if (avance && foto.punto > avance.puntoDeControl()) avance.retomar(foto.punto);
     medidas.fotos++;
     medidas.bytesFoto = datos.byteLength;

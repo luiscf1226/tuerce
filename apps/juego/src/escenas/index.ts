@@ -44,6 +44,8 @@ export const PANTALLAS: Record<string, () => Promise<void>> = {
   entrar: async () => (await import("../cuenta/entrar")).abrirEntrar(),
   invitar: async () => (await import("../cuenta/invitar")).abrirInvitar(),
   buscar: async () => (await import("../cuenta/buscar")).abrirBuscar(),
+  // Las tablas del contrarreloj (TU-32): las mejores parejas de cada nivel; `&ejemplo` sin cuenta, para las capturas.
+  tabla: async () => (await import("../cuenta/tabla")).abrirTabla(),
   // Depuración de la red (TU-20): estado de la conexión y ping entre los dos.
   red: async () => (await import("./red")).abrirRed(),
 };

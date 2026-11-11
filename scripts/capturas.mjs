@@ -61,6 +61,11 @@ const TOMAS = [
   { archivo: "nivel-cayendo", ruta: "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=268" },
   { archivo: "nivel-reaparece", ruta: "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=330" },
   { archivo: "nivel-compuerta", ruta: "/?escena=nivel&punto=1&j1=andar:1&j2=andar:1&congelar=150" },
+  // TU-32: el contrarreloj. El reloj corriendo arriba (arranca cuando se mueven: 2,5 s), la llegada a la meta desde
+  // el punto 2 (en el mismo lugar, sin tabla) y la tabla de parejas con datos de mentira (sin cuenta ni red)
+  { archivo: "contrarreloj-corriendo", ruta: "/?escena=nivel&contrarreloj&j1=andar:1&j2=andar:1&congelar=150" },
+  { archivo: "contrarreloj-llegada", ruta: "/?escena=nivel&contrarreloj&punto=2&j1=andar:1&j2=andar:1&congelar=215" },
+  { archivo: "contrarreloj-tabla", ruta: "/?escena=tabla&nivel=prueba&ejemplo" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

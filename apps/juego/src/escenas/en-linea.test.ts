@@ -34,6 +34,7 @@ describe("en línea", () => {
     const { rapier, mundo } = await crearMundo();
     const avance: AvanceDeNivel = {
       nivel: 99,
+      meta: 3,
       puntoDeControl: () => 2,
       alCambiar: () => () => {},
       irA: vi.fn(),

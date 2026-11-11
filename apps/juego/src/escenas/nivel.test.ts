@@ -29,6 +29,36 @@ describe("escena nivel", () => {
     for (const m of e.munecos) expect(m.partes.pelvis.translation().y).toBeGreaterThan(1.8);
   });
 
+  it("contrarreloj: el reloj no arranca hasta que alguno se mueve", async () => {
+    const e = await escenaDePrueba("j1=&j2=&contrarreloj");
+    for (let i = 0; i < 60; i++) e.pasar();
+    expect(e.reloj?.pasos).toBe(0);
+    expect(e.avance?.meta).toBe(3);
+    // Sin `&contrarreloj` no hay reloj
+    expect((await escenaDePrueba("j1=&j2=")).reloj).toBeUndefined();
+  });
+
+  it("contrarreloj: cuenta pasos y se para justo al llegar a la meta", async () => {
+    const e = await escenaDePrueba("j1=andar:1&j2=andar:1&contrarreloj&punto=2");
+    const reloj = e.reloj;
+    if (!reloj) throw new Error("sin reloj");
+    let llegada = -1;
+    reloj.alLlegar((pasos) => {
+      llegada = pasos;
+    });
+    let pasos = 0;
+    while (!reloj.llego && pasos < 900) {
+      e.pasar();
+      pasos++;
+    }
+    expect(e.avance?.puntoDeControl()).toBe(3);
+    expect(reloj.llego).toBe(true);
+    // Arrancó en el primer paso (los dos andan desde el principio) y contó también el de la llegada
+    expect(llegada).toBe(pasos);
+    for (let i = 0; i < 60; i++) e.pasar();
+    expect(reloj.pasos).toBe(llegada);
+  });
+
   it("la toma de las capturas: el turquesa cae del patio y reaparece junto al rojo", async () => {
     const e = await escenaDePrueba("j1=&j2=andar:1,girar:-0.15");
     const [rojo, turquesa] = e.munecos;

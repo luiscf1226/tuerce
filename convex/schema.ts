@@ -59,6 +59,8 @@ export default defineSchema({
     puntoDeControl: v.number(),
     misiones: v.array(v.boolean()),
     secreto: v.boolean(),
+    // contrarreloj (TU-32, ver contrarreloj.ts): si la pareja ya llegó a la meta, y su mejor tiempo en pasos
+    ganado: v.optional(v.boolean()),
     mejorTiempo: v.optional(v.number()),
   }).index("por_pareja_nivel", ["parejaId", "nivel"]),
   desbloqueos: defineTable({ usuarioId: v.id("usuarios"), cosa: v.string(), nivel: v.number() }).index("por_usuario", [
@@ -69,9 +71,9 @@ export default defineSchema({
     "usuarioId",
     "logroId",
   ]),
-  tiempos: defineTable({ nivel: v.number(), parejaId: v.id("parejas"), tiempo: v.number() }).index("por_nivel", [
-    "nivel",
-    "tiempo",
-  ]),
+  // la tabla del contrarreloj (TU-32): una fila por pareja y nivel con su mejor tiempo, en pasos de físicas
+  tiempos: defineTable({ nivel: v.number(), parejaId: v.id("parejas"), tiempo: v.number() })
+    .index("por_nivel", ["nivel", "tiempo"])
+    .index("por_pareja", ["parejaId", "nivel"]),
   reportes: defineTable({ de: v.id("usuarios"), a: v.id("usuarios"), motivo: v.string() }),
 });

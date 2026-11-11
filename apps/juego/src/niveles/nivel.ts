@@ -143,6 +143,7 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
   const ultimo = plano.puntos.length - 1;
   const avance: AvanceDeNivel = {
     nivel: plano.numero,
+    meta: ultimo,
     puntoDeControl: () => punto,
     alCambiar(aviso) {
       avisos.add(aviso);
