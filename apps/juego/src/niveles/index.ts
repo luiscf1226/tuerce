@@ -6,3 +6,4 @@ export { cargarNivel, parsearGlb } from "./cargar";
 export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from "./formato";
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
+export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";

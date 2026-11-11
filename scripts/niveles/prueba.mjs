@@ -6,57 +6,20 @@
 //   el patio (salida y un huacal) → un hueco de 2.5 m con un tablón angosto → punto 1 → una compuerta que el guion
 //   baja al llegar al punto 1 → un escalón de 1.5 m para trepar → punto 2 arriba → punto 3, la meta. El secreto
 //   (TU-29) está detrás de la meta, escondido en la mata del rincón.
-import { writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { crearEscena } from "./comun.mjs";
 
-const raiz = join(dirname(fileURLToPath(import.meta.url)), "../..");
-// three es del juego: se busca desde apps/juego, con su versión de módulos (la misma que importa el exportador)
-const carpetaThree = join(raiz, "apps/juego/node_modules/three");
-const THREE = await import(pathToFileURL(join(carpetaThree, "build/three.module.js")).href);
-const { GLTFExporter } = await import(pathToFileURL(join(carpetaThree, "examples/jsm/exporters/GLTFExporter.js")).href);
-
-// GLTFExporter lee el .glb armado con FileReader, que en Node no existe
-globalThis.FileReader ??= class {
-  readAsArrayBuffer(blob) {
-    blob.arrayBuffer().then((r) => {
-      this.result = r;
-      this.onloadend?.();
-    });
-  }
-  readAsDataURL(blob) {
-    blob.arrayBuffer().then((r) => {
-      this.result = `data:${blob.type || "application/octet-stream"};base64,${Buffer.from(r).toString("base64")}`;
-      this.onloadend?.();
-    });
-  }
-};
-
-const escena = new THREE.Scene();
 // Las propiedades de la escena: qué nivel es, dónde empieza el vacío y la niebla
-escena.userData = { nivel: 99, nombre: "Prueba", vacio: -4, nieblaCerca: 3, nieblaLejos: 26 };
-const gris = new THREE.MeshStandardMaterial({ color: 0x808080 });
-
-/** Un sólido de caja: centro, medidas y propiedades. */
-function caja(nombre, [x, y, z], [ancho, alto, fondo], extras = {}) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(ancho, alto, fondo), gris);
-  m.name = nombre;
-  m.position.set(x, y, z);
-  m.userData = { tipo: "solido", ...extras };
-  escena.add(m);
-  return m;
-}
-/** Un vacío de Blender (sin malla): su escala es la mitad de lo que mide. */
-function vacio(nombre, [x, y, z], [sx, sy, sz], extras, rumbo = Math.PI / 2) {
-  const o = new THREE.Object3D();
-  o.name = nombre;
-  o.position.set(x, y, z);
-  o.rotation.y = rumbo;
-  o.scale.set(sx, sy, sz);
-  o.userData = extras;
-  escena.add(o);
-  return o;
-}
+const {
+  solido: caja,
+  vacio,
+  exportar,
+} = crearEscena({
+  nivel: 99,
+  nombre: "Prueba",
+  vacio: -4,
+  nieblaCerca: 3,
+  nieblaLejos: 26,
+});
 
 // El suelo: tres tramos, de arriba en y = 0, y el escalón de 1.5 m al final
 caja("patio", [0, -0.5, 0], [12, 1, 6]);
@@ -119,7 +82,4 @@ vacio("niebla-1", [6, 0.5, -5], [12, 3, 1], { tipo: "niebla", opacidad: 0.45, ve
 vacio("niebla-2", [8, 2, -9], [16, 5, 1], { tipo: "niebla", opacidad: 0.6, velocidad: -0.18 }, 0);
 vacio("niebla-3", [10, 3, -14], [22, 8, 1], { tipo: "niebla", opacidad: 0.7, velocidad: 0.22 }, 0);
 
-const glb = await new GLTFExporter().parseAsync(escena, { binary: true });
-const destino = join(raiz, "niveles/99-prueba/escena.glb");
-await writeFile(destino, Buffer.from(glb));
-console.log(`listo: ${destino} (${glb.byteLength} bytes)`);
+await exportar("99-prueba");

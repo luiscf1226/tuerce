@@ -17,6 +17,7 @@ import {
 } from "../imagen";
 import type { Rapier } from "../motor/fisica";
 import { type Adorno, cajaLocal, type Material, type PlanoDeNivel, rumboDe, type Solido } from "./formato";
+import { armarPiezas, type PiezasDeJuego } from "./piezas";
 
 /** Un sólido del nivel ya armado: su nodo y su colisionador (y su cuerpo, si se mueve). */
 export interface Pieza {
@@ -31,6 +32,8 @@ export interface NivelArmado {
   readonly escena: THREE.Scene;
   readonly piezas: readonly Pieza[];
   readonly niebla: Niebla;
+  /** Las piezas de juego (TU-12): huacales, palancas, planchas, balancines y bejucos (ver piezas.ts). */
+  readonly piezasDeJuego: PiezasDeJuego;
   /** La pieza con ese nombre (el del nodo en Blender), o `undefined`. */
   pieza(nombre: string): Pieza | undefined;
   /** Anota dónde quedó cada pieza que se mueve. Va después de cada `mundo.step()`. */
@@ -194,6 +197,10 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
     moviles.push({ pieza, antes: posicion.clone(), ahora: posicion, antesQ: giro.clone(), ahoraQ: giro });
   }
 
+  // Las piezas de juego, después de los sólidos: sus cuerpos van siempre en el mismo orden (la red los reconoce así)
+  const piezasDeJuego = armarPiezas(rapier, mundo, escena, plano.piezas);
+  piezas.push(...piezasDeJuego.solidas);
+
   for (const a of plano.adornos) {
     const adorno = crearAdorno(a);
     adorno.position.copy(a.objeto.getWorldPosition(new THREE.Vector3()));
@@ -222,6 +229,7 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
     escena,
     piezas,
     niebla,
+    piezasDeJuego,
     pieza: (nombre) => piezas.find((p) => p.nombre === nombre),
     guardar() {
       for (const q of moviles) {
@@ -231,12 +239,14 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
         q.ahora.copy(q.pieza.cuerpo.translation());
         q.ahoraQ.copy(q.pieza.cuerpo.rotation());
       }
+      piezasDeJuego.guardar();
     },
     dibujar(alfa, segundos) {
       for (const q of moviles) {
         q.pieza.objeto.position.lerpVectors(q.antes, q.ahora, alfa);
         q.pieza.objeto.quaternion.slerpQuaternions(q.antesQ, q.ahoraQ, alfa);
       }
+      piezasDeJuego.dibujar(alfa);
       niebla.mover(segundos);
     },
   };
