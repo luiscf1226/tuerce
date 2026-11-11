@@ -5,9 +5,16 @@
   "version": "0.1.0",
   "identifier": "com.luiscf1226.tuerce",
   "build": {
-    "beforeDevCommand": { "script": "pnpm exec vite --port 5179 --strictPort", "cwd": "../../juego", "wait": false },
+    "beforeDevCommand": {
+      "script": "pnpm exec vite --port 5179 --strictPort",
+      "cwd": "../../juego",
+      "wait": false
+    },
     "devUrl": "http://localhost:5179",
-    "beforeBuildCommand": { "script": "pnpm build", "cwd": "../../juego" },
+    "beforeBuildCommand": {
+      "script": "pnpm build",
+      "cwd": "../../juego"
+    },
     "frontendDist": "../../juego/dist"
   },
   "app": {
@@ -25,7 +32,30 @@
         "backgroundColor": "#dedfdc"
       }
     ],
-    "security": { "csp": null }
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self' 'wasm-unsafe-eval' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com",
+        "style-src": "'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src": "'self' data: https://fonts.gstatic.com",
+        "img-src": "'self' data: blob: https://img.clerk.com",
+        "media-src": "'self' blob: mediastream:",
+        "worker-src": "'self' blob:",
+        "frame-src": "https://challenges.cloudflare.com https://*.clerk.accounts.dev https://*.clerk.com",
+        "connect-src": "'self' ipc: http://ipc.localhost https://*.convex.cloud wss://*.convex.cloud https://*.luiscf1226.workers.dev wss://*.luiscf1226.workers.dev https://*.clerk.accounts.dev https://*.clerk.com"
+      },
+      "devCsp": {
+        "default-src": "'self'",
+        "script-src": "'self' 'wasm-unsafe-eval' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com",
+        "style-src": "'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src": "'self' data: https://fonts.gstatic.com",
+        "img-src": "'self' data: blob: https://img.clerk.com",
+        "media-src": "'self' blob: mediastream:",
+        "worker-src": "'self' blob:",
+        "frame-src": "https://challenges.cloudflare.com https://*.clerk.accounts.dev https://*.clerk.com",
+        "connect-src": "'self' ipc: http://ipc.localhost https://*.convex.cloud wss://*.convex.cloud https://*.luiscf1226.workers.dev wss://*.luiscf1226.workers.dev https://*.clerk.accounts.dev https://*.clerk.com http://localhost:5179 ws://localhost:5179 http://localhost:8798 ws://localhost:8798"
+      }
+    }
   },
   "bundle": {
     "active": true,
@@ -35,8 +65,19 @@
     "longDescription": "Juego cooperativo de físicas para dos jugadores, en el mismo lugar o en línea.",
     "copyright": "© 2026 Luis Carlos Flores Meza",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
-    "linux": { "appimage": { "bundleMediaFramework": true } },
-    "macOS": { "minimumSystemVersion": "11.0", "entitlements": "Entitlements.plist" },
-    "windows": { "webviewInstallMode": { "type": "embedBootstrapper" } }
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": true
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "11.0",
+      "entitlements": "Entitlements.plist"
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      }
+    }
   }
 }

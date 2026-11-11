@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "principal",
-  "description": "Lo básico de Tauri para la ventana del juego. Los comandos propios de src/lib.rs (salir, pantalla completa) se permiten solos.",
+  "description": "La ventana del juego no usa ninguna API de Tauri: solo los dos comandos propios de src/lib.rs (salir y pantalla completa), que se permiten solos. Nada más, para que un script de afuera no pueda hacer más que eso.",
   "windows": ["principal"],
-  "permissions": ["core:default"]
+  "permissions": []
 }
