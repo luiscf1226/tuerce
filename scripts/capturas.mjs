@@ -61,6 +61,23 @@ const TOMAS = [
   { archivo: "nivel-cayendo", ruta: "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=268" },
   { archivo: "nivel-reaparece", ruta: "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=330" },
   { archivo: "nivel-compuerta", ruta: "/?escena=nivel&punto=1&j1=andar:1&j2=andar:1&congelar=150" },
+  // TU-12: las piezas de juego (niveles/98-piezas), entero y en la salida. El rojo pisa la plancha y baja la compuerta;
+  // el turquesa empuja la palanca y el rojo pasa; el rojo se columpia en un bejuco sobre la quebrada (los brazos se
+  // alzan en el paso 15: al reaparecer en un punto no se agarra con el botón ya apretado); el rojo sube al balancín
+  // y después lo vuelca
+  { archivo: "piezas-entero", ruta: "/?escena=nivel&nivel=piezas&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "piezas-salida", ruta: "/?escena=nivel&nivel=piezas&j1=&j2=&congelar=60" },
+  { archivo: "piezas-plancha", ruta: "/?escena=nivel&nivel=piezas&j1=andar:1&j2=&congelar=230" },
+  {
+    archivo: "piezas-palanca",
+    ruta: "/?escena=nivel&nivel=piezas&punto=1&j1=andar:1&j2=andar:1,izq@15,der@15&congelar=175",
+  },
+  {
+    archivo: "piezas-bejuco",
+    ruta: "/?escena=nivel&nivel=piezas&punto=2&j1=andar:1,izq@15,der@15&j2=&congelar=110",
+  },
+  { archivo: "piezas-balancin", ruta: "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=170" },
+  { archivo: "piezas-balancin-volcado", ruta: "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=230" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

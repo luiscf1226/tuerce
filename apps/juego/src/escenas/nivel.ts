@@ -1,9 +1,9 @@
 // Un nivel con el formato nuevo (TU-11), para dos jugadores en el mismo lugar como la escena `dos`: la escena sale
-// de un .glb de niveles/ y su guion, con puntos de control y reaparición junto al compañero. Por ahora está el de
-// prueba (niveles/99-prueba).
+// de un .glb de niveles/ y su guion, con puntos de control y reaparición junto al compañero. Por ahora están el de
+// prueba (niveles/99-prueba) y el de las piezas de juego (niveles/98-piezas).
 //
 // Parámetros (además de los de `dos`: `&j1=`, `&j2=`, `&ayuda`, `&menu`):
-//   &nivel=prueba    qué nivel abrir (ver src/niveles/lista.ts)
+//   &nivel=prueba    qué nivel abrir: `prueba` o `piezas` (ver src/niveles/lista.ts)
 //   &punto=N         empieza en ese punto de control, como al retomar un avance guardado
 //   &vista=todo      la cámara quieta, lejos, mirando el nivel entero (para las capturas)
 //
@@ -158,9 +158,11 @@ export function armarEscenaNivel(
       const leidas = juego.atienden ? controles.leer() : quietas;
       const entradas = enRed ? enRed(leidas) : leidas;
       if (entradas) {
-        nivel.antes();
-        munecos[0].pasar(senas.entrada(0, entradas[0]));
-        munecos[1].pasar(senas.entrada(1, entradas[1]));
+        const rojo = senas.entrada(0, entradas[0]);
+        const turquesa = senas.entrada(1, entradas[1]);
+        nivel.antes([rojo, turquesa]);
+        munecos[0].pasar(rojo);
+        munecos[1].pasar(turquesa);
         mundo.step();
         for (const { jugador } of nivel.despues()) saltarMalla(jugador);
       }

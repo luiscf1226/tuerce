@@ -7,10 +7,11 @@ import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
 import type { AvanceDeNivel } from "../escenas/tipos";
 import type { Rapier } from "../motor/fisica";
-import type { Muneco } from "../muneco";
+import type { EntradaMuneco, Muneco } from "../muneco";
 import type { NivelArmado, Pieza } from "./armar";
-import { adentro, type Lugar, type PlanoDeNivel } from "./formato";
+import { adentro, type Lugar, type PlanoDeNivel, type TipoDePieza } from "./formato";
 import type { GuionDeNivel, NivelEnJuego } from "./guion";
+import type { PiezaPorTipo } from "./piezas";
 
 /** Hasta dónde se puede alejar un muñeco de lo sólido, de costado, antes de contar como fuera del nivel (metros). */
 const MARGEN = 12;
@@ -39,8 +40,9 @@ export interface Reaparicion extends Lugar {
 
 export interface Nivel extends NivelEnJuego {
   readonly avance: AvanceDeNivel;
-  /** Antes de los muñecos y de `mundo.step()`: el guion. */
-  antes(): void;
+  /** Antes de los muñecos y de `mundo.step()`: el guion y las piezas (con las entradas de los dos, para columpiarse
+   * en los bejucos). */
+  antes(entradas?: readonly [EntradaMuneco, EntradaMuneco]): void;
   /** Después de `mundo.step()`: puntos de control y caídas. Devuelve quién reapareció en este paso. */
   despues(): readonly Reaparicion[];
   /** Si ese muñeco cayó al vacío o salió del nivel. */
@@ -90,12 +92,13 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     return mundo.castRay(rayo, largo, true, banderas, grupos) !== null;
   };
 
-  const cayo = (jugador: Jugador) => {
-    const p = munecos[jugador].partes.pelvis.translation();
+  /** Si ese punto quedó en el vacío o fuera del nivel. */
+  const fuera = (p: THREE.Vector3Like) => {
     if (p.y < plano.vacio) return true;
     if (p.x < limites.min.x || p.x > limites.max.x || p.z < limites.min.z || p.z > limites.max.z) return true;
     return plano.vacios.some((v) => adentro(v, p));
   };
+  const cayo = (jugador: Jugador) => fuera(munecos[jugador].partes.pelvis.translation());
 
   /** Si el muñeco está de pie en terreno firme: no cayó, tiene los pies en el suelo y no anda en otra cosa. */
   const firme = (jugador: Jugador) => {
@@ -138,6 +141,13 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     const donde = dondeReaparece(jugador, companeroCayo);
     munecos[jugador].reaparecer(donde.posicion, donde.rumbo);
     return donde;
+  };
+
+  /** La pieza de juego de esa clase y con ese nombre (TU-12). */
+  const deJuego = <C extends TipoDePieza>(cual: C, nombre: string): PiezaPorTipo[C] => {
+    const pieza = armado.piezasDeJuego.buscar(cual, nombre);
+    if (!pieza) throw new Error(`el nivel «${plano.nombre}» no tiene ${cual} «${nombre}»`);
+    return pieza;
   };
 
   const ultimo = plano.puntos.length - 1;
@@ -184,9 +194,15 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
       if (!pieza) throw new Error(`el nivel «${plano.nombre}» no tiene una pieza «${nombre}»`);
       return pieza;
     },
+    huacal: (nombre) => deJuego("huacal", nombre),
+    palanca: (nombre) => deJuego("palanca", nombre),
+    plancha: (nombre) => deJuego("plancha", nombre),
+    balancin: (nombre) => deJuego("balancin", nombre),
+    bejuco: (nombre) => deJuego("bejuco", nombre),
     avance,
-    antes() {
+    antes(entradas) {
       guion.cadaPaso?.(nivel);
+      armado.piezasDeJuego.antes(munecos, entradas);
     },
     despues() {
       pasos++;
@@ -204,9 +220,11 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
         guion.alAlcanzar?.(punto, nivel);
         for (const aviso of avisos) aviso(punto);
       }
-      // Caídas: no hay derrota, se reaparece
+      // Caídas: no hay derrota, se reaparece. Después las piezas: los huacales que cayeron vuelven a su lugar
       const cayeron = ([0, 1] as const).filter(cayo);
-      return cayeron.map((jugador) => reaparecer(jugador, cayeron.length === 2));
+      const reaparecidos = cayeron.map((jugador) => reaparecer(jugador, cayeron.length === 2));
+      armado.piezasDeJuego.despues(munecos, fuera);
+      return reaparecidos;
     },
     cayo,
     dondeReaparece,
