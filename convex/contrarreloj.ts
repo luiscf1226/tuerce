@@ -7,16 +7,36 @@
 //     mejor en `avance.mejorTiempo` y en `tiempos`, una fila por pareja y nivel.
 //   · `tabla`: las mejores parejas de un nivel, con los nombres de los dos, y dónde queda la propia.
 //   · `nivelesGanados`: qué niveles ganó la pareja y su mejor tiempo en cada uno.
+//
+// La tabla es de confianza: el servidor no ve la carrera, así que cualquiera de los dos de la pareja podría mandar un
+// tiempo inventado (siempre en un nivel del juego que ganaron, y no más corto que el mínimo de ese nivel). Igual que
+// el avance, el secreto y el logro (ver ropero.ts).
 import { ConvexError, v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { mutation, type QueryCtx, query } from "./_generated/server";
 import { avanceDe, esEnteroEntre, MAX_NIVEL, parejaMia } from "./avance";
 import { nombreDe, yoObligatorio, yoSiHay } from "./cuenta";
+import { NIVELES_CON_PREMIOS } from "./premios";
 
 /** Pasos de físicas por segundo: los tiempos se cuentan en pasos. */
 export const PASOS_POR_SEGUNDO = 60;
 /** Ningún nivel se cruza en menos de 10 s: un tiempo más corto es un error o una trampa. */
 export const TIEMPO_MINIMO = 10 * PASOS_POR_SEGUNDO;
+/**
+ * El tiempo mínimo de cada nivel en pasos, cuando se sabe uno más ajustado que TIEMPO_MINIMO: lo que tarda en cruzarlo
+ * en línea recta un muñeco a toda velocidad. Un nivel nuevo pone acá el suyo.
+ */
+const MINIMO_POR_NIVEL: Readonly<Record<number, number>> = {};
+/** Los niveles del juego: los del plan (los que tienen secreto y logro) y el de piezas. Otro número no existe. */
+const NIVELES = new Set<number>([...NIVELES_CON_PREMIOS, 98]);
+
+/** Si `nivel` es uno de los del juego. */
+export const existeNivel = (nivel: number) => esEnteroEntre(nivel, MAX_NIVEL) && NIVELES.has(nivel);
+/** El tiempo más corto que se acepta en `nivel`, en pasos. */
+export const tiempoMinimo = (nivel: number) => Math.max(TIEMPO_MINIMO, MINIMO_POR_NIVEL[nivel] ?? 0);
+/** Cuántas parejas se cuentan, como mucho, para dar el puesto de la propia fuera de la tabla. */
+export const CONTAR_HASTA = 1000;
+
 /** Más de dos horas no es una carrera. */
 export const TIEMPO_MAXIMO = 2 * 60 * 60 * PASOS_POR_SEGUNDO;
 /** Cuántas parejas muestra la tabla. */
@@ -29,6 +49,8 @@ export interface FilaDeTabla {
   tiempo: number;
   /** Si es la pareja de quien pregunta. */
   propia: boolean;
+  /** El puesto es «más de» `puesto - 1`: hay demasiadas parejas adelante para contarlas. */
+  masDe?: boolean;
 }
 
 async function nombresDe(ctx: QueryCtx, parejaId: Id<"parejas">): Promise<[string, string]> {
@@ -41,7 +63,7 @@ async function nombresDe(ctx: QueryCtx, parejaId: Id<"parejas">): Promise<[strin
 export const ganarNivel = mutation({
   args: { parejaId: v.id("parejas"), nivel: v.number() },
   handler: async (ctx, { parejaId, nivel }): Promise<void> => {
-    if (!esEnteroEntre(nivel, MAX_NIVEL)) throw new ConvexError("Ese nivel no existe");
+    if (!existeNivel(nivel)) throw new ConvexError("Ese nivel no existe");
     const yo = await yoObligatorio(ctx);
     if (!(await parejaMia(ctx, yo, parejaId))) throw new ConvexError("Esa pareja no es tuya");
     const guardado = await avanceDe(ctx, parejaId, nivel);
@@ -57,8 +79,8 @@ export const ganarNivel = mutation({
 export const registrarTiempo = mutation({
   args: { parejaId: v.id("parejas"), nivel: v.number(), tiempo: v.number() },
   handler: async (ctx, { parejaId, nivel, tiempo }): Promise<{ mejor: number; mejoro: boolean }> => {
-    if (!esEnteroEntre(nivel, MAX_NIVEL)) throw new ConvexError("Ese nivel no existe");
-    if (!Number.isInteger(tiempo) || tiempo < TIEMPO_MINIMO || tiempo > TIEMPO_MAXIMO) {
+    if (!existeNivel(nivel)) throw new ConvexError("Ese nivel no existe");
+    if (!Number.isInteger(tiempo) || tiempo < tiempoMinimo(nivel) || tiempo > TIEMPO_MAXIMO) {
       throw new ConvexError("Ese tiempo no es posible");
     }
     const yo = await yoObligatorio(ctx);
@@ -110,12 +132,19 @@ export const tabla = query({
         .withIndex("por_pareja", (q) => q.eq("parejaId", mia).eq("nivel", nivel))
         .unique();
       if (fila) {
-        // El puesto es uno más que las parejas con mejor tiempo. Se cuentan todas: alcanza mientras sean miles.
+        // El puesto es uno más que las parejas con mejor tiempo. Se cuentan hasta CONTAR_HASTA, para que la consulta
+        // (que se vuelve a correr con cada tiempo nuevo del nivel) no lea la tabla entera: más allá, «más de 1000»
         const antes = await ctx.db
           .query("tiempos")
           .withIndex("por_nivel", (q) => q.eq("nivel", nivel).lt("tiempo", fila.tiempo))
-          .collect();
-        propia = { puesto: antes.length + 1, nombres: await nombresDe(ctx, mia), tiempo: fila.tiempo, propia: true };
+          .take(CONTAR_HASTA);
+        propia = {
+          puesto: antes.length + 1,
+          ...(antes.length >= CONTAR_HASTA ? { masDe: true } : {}),
+          nombres: await nombresDe(ctx, mia),
+          tiempo: fila.tiempo,
+          propia: true,
+        };
       }
     }
     return { filas, propia };

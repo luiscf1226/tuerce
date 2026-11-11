@@ -58,6 +58,18 @@ describe("retomar el avance", () => {
     expect(irA).toHaveBeenCalledExactlyOnceWith(3);
   });
 
+  it("si lo guardado ya es la meta, vuelve a guardar que ganaron (un avance de antes del contrarreloj)", async () => {
+    const ganar = vi.fn(async () => {});
+    const { avance } = nivelDeMentira(99);
+    const { guardado } = guardadoDeMentira({ 99: 3 });
+    expect(await retomarAvance(avance, { ...guardado, ganar })).toBe(3);
+    expect(ganar).toHaveBeenCalledExactlyOnceWith(99);
+    // A mitad de camino, no
+    const otro = nivelDeMentira(99);
+    await retomarAvance(otro.avance, { ...guardadoDeMentira({ 99: 2 }).guardado, ganar });
+    expect(ganar).toHaveBeenCalledOnce();
+  });
+
   it("sin nada guardado (o algo que no es un punto de control) se queda en la salida", async () => {
     for (const leido of [0, -2, 1.5, Number.NaN]) {
       const { avance, irA } = nivelDeMentira();

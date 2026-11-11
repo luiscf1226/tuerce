@@ -141,6 +141,24 @@ describe("ropero", () => {
     expect(await t.run((ctx) => ctx.db.query("logros").collect())).toHaveLength(2);
   });
 
+  it("quien ya tiene el logro no se lo tapa a su pareja nueva", async () => {
+    const { beto, carla, parejaId, deBetoYCarla } = await parejaDeAnaYBeto();
+    await beto.mutation(api.ropero.lograr, { parejaId, nivel: 99 });
+    // Con Carla el logro todavía no está: el guion puede volver a darlo y le llega a ella
+    expect(await beto.query(api.ropero.premiosDeNivel, { parejaId: deBetoYCarla, nivel: 99 })).toEqual({
+      secreto: false,
+      logro: false,
+    });
+    expect(await beto.mutation(api.ropero.lograr, { parejaId: deBetoYCarla, nivel: 99 })).toEqual({
+      logro: "mudanza",
+      nuevo: false,
+    });
+    expect((await carla.query(api.ropero.miRopero, {}))?.logros).toEqual(["mudanza"]);
+    expect(await beto.query(api.ropero.premiosDeNivel, { parejaId: deBetoYCarla, nivel: 99 })).toMatchObject({
+      logro: true,
+    });
+  });
+
   it("alguien de afuera no gana nada por la pareja ni ve lo que tienen puesto", async () => {
     const { t, ana, carla, parejaId } = await parejaDeAnaYBeto();
     await expect(carla.mutation(api.ropero.encontrarSecreto, { parejaId, nivel: 0 })).rejects.toThrow(/no es tuya/);

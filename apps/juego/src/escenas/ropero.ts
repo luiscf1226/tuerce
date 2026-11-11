@@ -161,11 +161,18 @@ function montarPanel(parametros: URLSearchParams, mallas: readonly [MallaMuneco,
           vestuario: mallas[0].vestuario,
           tiene: (c, p) => esInicial(c, p) || tiene.has(`${c}:${p}`),
           alElegir(vestuario) {
+            const antes = mallas[0].vestuario;
             mallas[0].vestir(vestuario);
             panel.mostrar(deLaCuenta(nombre, ganadas, logros, guardar));
             guardar(vestuario).catch((error: unknown) => {
               console.error(error);
-              panel.pie.textContent = "No se pudo guardar en Convex. Probá de nuevo.";
+              // Vuelve a lo que estaba guardado, y el aviso va en su propio párrafo: el pie tiene la cuenta de Clerk
+              mallas[0].vestir(antes);
+              panel.mostrar(deLaCuenta(nombre, ganadas, logros, guardar));
+              const aviso = panel.pie.querySelector("p.ropero-error") ?? document.createElement("p");
+              aviso.className = "ropero-nota ropero-error";
+              aviso.textContent = "No se pudo guardar en Convex. Probá de nuevo.";
+              panel.pie.prepend(aviso);
             });
           },
         },

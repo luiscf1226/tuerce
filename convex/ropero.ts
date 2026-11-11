@@ -158,21 +158,26 @@ export const lograr = mutation({
   },
 });
 
-/** Si la pareja ya encontró el secreto de `nivel` y si yo ya tengo su logro. Para avisar en línea al que no simula. */
+/**
+ * Si la pareja ya encontró el secreto de `nivel` y si los dos ya tienen su logro. Para avisar en línea al que no simula.
+ * El logro cuenta solo si lo tienen los dos: si uno lo ganó con otra pareja, el guion tiene que poder darlo de nuevo.
+ */
 export const premiosDeNivel = query({
   args: { parejaId: v.id("parejas"), nivel: v.number() },
   handler: async (ctx, { parejaId, nivel }) => {
     const premios = Number.isInteger(nivel) ? PREMIOS[nivel] : undefined;
     const yo = await yoSiHay(ctx);
-    if (!premios || !yo || !(await parejaMia(ctx, yo, parejaId))) return { secreto: false, logro: false };
+    const pareja = yo && premios ? await parejaMia(ctx, yo, parejaId) : null;
+    if (!premios || !pareja) return { secreto: false, logro: false };
     const avance = await ctx.db
       .query("avance")
       .withIndex("por_pareja_nivel", (q) => q.eq("parejaId", parejaId).eq("nivel", nivel))
       .unique();
-    const logro = await ctx.db
-      .query("logros")
-      .withIndex("por_usuario", (q) => q.eq("usuarioId", yo._id).eq("logroId", premios.logro.id))
-      .first();
-    return { secreto: avance?.secreto ?? false, logro: logro !== null };
+    const tiene = async (usuarioId: Id<"usuarios">) =>
+      (await ctx.db
+        .query("logros")
+        .withIndex("por_usuario", (q) => q.eq("usuarioId", usuarioId).eq("logroId", premios.logro.id))
+        .first()) !== null;
+    return { secreto: avance?.secreto ?? false, logro: (await tiene(pareja.a)) && (await tiene(pareja.b)) };
   },
 });

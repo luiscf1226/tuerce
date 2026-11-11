@@ -270,9 +270,10 @@ function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPl
         apoyo: leerEntre(extras, "apoyo", donde, 0.5, 0.05, 0.95),
       };
     case "bejuco": {
-      // Por omisión, un segmento cada 30 cm
+      // Por omisión, un segmento cada 30 cm (entre 2 y 40: un bejuco muy largo tiene segmentos más largos)
       const largo = base.caja.medio.y * 2;
-      const segmentos = leerEntre(extras, "segmentos", donde, Math.round(largo / 0.3), 2, 40);
+      const porOmision = Math.min(40, Math.max(2, Math.round(largo / 0.3)));
+      const segmentos = leerEntre(extras, "segmentos", donde, porOmision, 2, 40);
       if (!Number.isInteger(segmentos)) throw new ErrorDeNivel(`«${donde}»: \`segmentos\` tiene que ser entero`);
       return { ...base, cual, masa: leerEntre(extras, "masa", donde, 4, 0.2, 100), segmentos };
     }

@@ -8,6 +8,8 @@ import "./contrarreloj.css";
 /** Una fila de la tabla de un nivel (la misma forma que devuelve convex/contrarreloj.ts). */
 export interface FilaTabla {
   readonly puesto: number;
+  /** Hay más de `puesto - 1` parejas adelante (no se cuentan todas). */
+  readonly masDe?: boolean;
   readonly nombres: readonly [string, string];
   /** En pasos de físicas. */
   readonly tiempo: number;
@@ -68,7 +70,7 @@ export function crearTabla(datos: DatosTabla): HTMLElement {
   const lista = elemento("ol", "contrarreloj-tabla");
   const fila = (f: FilaTabla) => {
     const li = lista.appendChild(elemento("li", f.propia ? "propia" : ""));
-    li.appendChild(elemento("span", "puesto", String(f.puesto)));
+    li.appendChild(elemento("span", "puesto", f.masDe ? `${f.puesto - 1}+` : String(f.puesto)));
     const nombres = li.appendChild(elemento("span", "nombres", `${f.nombres[0]} y ${f.nombres[1]}`));
     if (f.propia) {
       nombres.prepend(elemento("i", "rojo"), elemento("i", "turquesa"));

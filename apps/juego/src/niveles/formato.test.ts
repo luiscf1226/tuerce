@@ -99,6 +99,15 @@ describe("formato de nivel", () => {
     expect(() => leerPlano(escenaMinima(mala))).toThrow(/«masa-rara».*masa/);
   });
 
+  it("un bejuco largo sin `segmentos` no hace fallar el nivel: se queda en 40", () => {
+    const bejuco = new THREE.Mesh(new THREE.BoxGeometry(0.3, 15, 0.3));
+    bejuco.name = "bejuco-largo";
+    bejuco.position.y = 8;
+    bejuco.userData = { tipo: "pieza", pieza: "bejuco" };
+    const pieza = leerPlano(escenaMinima(bejuco)).piezas[0];
+    expect(pieza?.cual === "bejuco" && pieza.segmentos).toBe(40);
+  });
+
   it("lo que no tiene `tipo` es solo imagen", () => {
     const plano = leerPlano(escenaMinima(new THREE.Mesh(new THREE.BoxGeometry())));
     expect(plano.solidos).toHaveLength(1);

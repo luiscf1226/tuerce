@@ -229,13 +229,19 @@ interface Carrera {
 /** Al llegar a la meta: el panel con el tiempo y la tabla. El anfitrión registra el tiempo y arranca otra carrera. */
 function mostrarCarrera(pasos: number, rol: Rol, carrera: Carrera): void {
   const anfitrion = rol === "anfitrion";
+  // Recargar corta la mutación: «Otra carrera» espera a que el tiempo se guarde (o falle)
+  let guardando = anfitrion;
   const llegada = mostrarLlegada({
     titulo: "Llegaron a la meta",
     pasos,
     nota: anfitrion ? "Guardando el tiempo…" : "",
     acciones: [
       anfitrion
-        ? { texto: "Otra carrera", fuerte: true, alApretar: () => location.reload() }
+        ? {
+            texto: "Otra carrera",
+            fuerte: true,
+            alApretar: () => (guardando ? llegada.nota("Esperá: guardando el tiempo…") : location.reload()),
+          }
         : {
             texto: "Otra carrera",
             fuerte: true,
@@ -254,6 +260,9 @@ function mostrarCarrera(pasos: number, rol: Rol, carrera: Carrera): void {
     .catch((error: unknown) => {
       console.warn("Tuerce · contrarreloj: no se pudo registrar el tiempo", error);
       llegada.nota("No se pudo guardar este tiempo.");
+    })
+    .finally(() => {
+      guardando = false;
     });
 }
 

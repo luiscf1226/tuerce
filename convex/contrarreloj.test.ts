@@ -54,6 +54,15 @@ describe("contrarreloj", () => {
     expect(await carla.query(api.contrarreloj.nivelesGanados, { parejaId })).toEqual([]);
   });
 
+  it("solo se ganan los niveles del juego", async () => {
+    const { t, ana, parejaId } = await parejaDeAnaYBeto();
+    for (const nivel of [17, 97, 500, 999, -1, 1.5]) {
+      await expect(ana.mutation(api.contrarreloj.ganarNivel, { parejaId, nivel })).rejects.toThrow(/no existe/);
+    }
+    expect(await t.run((ctx) => ctx.db.query("avance").collect())).toHaveLength(0);
+    await ana.mutation(api.contrarreloj.ganarNivel, { parejaId, nivel: 98 });
+  });
+
   it("solo se registra el tiempo de un nivel ganado, y queda el mejor", async () => {
     const { t, ana, beto, parejaId } = await parejaDeAnaYBeto();
     await expect(

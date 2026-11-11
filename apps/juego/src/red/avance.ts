@@ -26,6 +26,13 @@ export async function retomarAvance(avance: AvanceDeNivel, guardado: Guardado): 
     console.warn("Tuerce · avance: no se pudo leer el avance guardado; se arranca desde acá", error);
   }
   if (Number.isInteger(leido) && leido > avance.puntoDeControl()) avance.irA(leido);
+  // Ya habían llegado a la meta: se vuelve a guardar que ganaron (no repite nada), por si aquella vez no se pudo o el
+  // avance es de antes del contrarreloj. Si no, ese nivel nunca abriría su contrarreloj.
+  if (guardado.ganar && avance.meta > 0 && avance.puntoDeControl() >= avance.meta) {
+    guardado.ganar(avance.nivel).catch((error: unknown) => {
+      console.warn("Tuerce · avance: no se pudo guardar que ganaron el nivel", error);
+    });
+  }
   return avance.puntoDeControl();
 }
 
