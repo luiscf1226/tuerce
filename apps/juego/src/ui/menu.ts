@@ -5,6 +5,7 @@
 // palanca, A para apretar, B para volver. La pausa (Esc, P o Start) la pide cualquiera de los dos.
 import { DESCRIPCION_CONTROLES } from "../entrada/ayuda";
 import type { Controles } from "../entrada/mandos";
+import { enEscritorio, salirDelJuego } from "./escritorio";
 import type { Juego } from "./juego";
 import "./menu.css";
 
@@ -111,6 +112,7 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
           pintar();
         }),
       );
+      if (enEscritorio) hijos.push(boton("Salir", salirDelJuego));
     } else {
       hijos.push(elemento("h2", "menu-titulo", "Pausa"), elemento("hr", "costura"));
       hijos.push(boton("Seguir", () => juego.seguir(), "boton boton-fuerte"));

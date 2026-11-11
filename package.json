@@ -18,7 +18,10 @@
     "capturas": "node scripts/capturas.mjs",
     "convex:dev": "convex dev",
     "sala:dev": "pnpm --filter tuerce-sala dev",
-    "sala:test": "pnpm --filter tuerce-sala test"
+    "sala:test": "pnpm --filter tuerce-sala test",
+    "escritorio:dev": "pnpm --filter tuerce-escritorio dev",
+    "escritorio:empacar": "pnpm --filter tuerce-escritorio empacar",
+    "escritorio:steam": "pnpm --filter tuerce-escritorio steam"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.6",

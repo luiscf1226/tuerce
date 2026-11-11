@@ -1,0 +1,16 @@
+// La build de Tuerce para Steam. `node scripts/armar-steam.mjs --appid N` copia esto a steam/listo/ con la AppID y
+// los depósitos puestos; steamcmd lee la copia: +run_app_build <ruta absoluta a steam/listo/app_build.vdf>.
+// Las rutas son relativas a steam/listo/.
+"AppBuild"
+{
+	"AppID" "@APPID@"
+	"Desc" "@DESCRIPCION@"
+	"BuildOutput" "../salida"
+	"ContentRoot" "../contenido"
+	"SetLive" ""
+	"Preview" "0"
+	"Depots"
+	{
+@DEPOTS@
+	}
+}

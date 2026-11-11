@@ -1,0 +1,28 @@
+[package]
+name = "tuerce"
+version = "0.1.0"
+description = "Tuerce para escritorio: el juego web empacado con Tauri"
+authors = ["Luis Carlos Flores Meza"]
+edition = "2021"
+publish = false
+
+[lib]
+name = "tuerce_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+# En Linux el webview (WebKitGTK) trae WebRTC y el micrófono apagados: se prenden a mano (ver src/lib.rs).
+[target.'cfg(target_os = "linux")'.dependencies]
+webkit2gtk = { version = "2", features = ["v2_38"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

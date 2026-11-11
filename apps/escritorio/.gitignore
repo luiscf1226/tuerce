@@ -1,0 +1,7 @@
+# lo que arma Rust y Tauri
+src-tauri/target/
+src-tauri/gen/
+# las carpetas que se suben a Steam y lo que deja steamcmd
+steam/contenido/
+steam/salida/
+steam/listo/

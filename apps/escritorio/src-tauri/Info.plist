@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Tauri lo junta con el Info.plist que arma solo. La voz en línea (src/red/voz.ts) usa el micrófono. -->
+<plist version="1.0">
+<dict>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Tuerce usa el micrófono para que hables con tu pareja cuando juegan en línea.</string>
+</dict>
+</plist>
