@@ -21,6 +21,15 @@ export interface NivelEnJuego {
   readonly puntoDeControl: number;
   /** El sólido con ese nombre (el del nodo en Blender). Si no existe, es un error del nivel. */
   pieza(nombre: string): Pieza;
+  /** Si la pareja ya encontró el secreto del nivel (TU-29). */
+  readonly secreto: boolean;
+  /** Si la pareja ya ganó el logro del nivel. */
+  readonly logro: boolean;
+  /** La pareja encontró el secreto. Lo llama sola una zona `secreto` del .glb; el guion, si el secreto es otra cosa
+   * (tocar la campana, abrir un cofre). Si ya lo tenían, no hace nada. */
+  encontrarSecreto(): void;
+  /** La pareja ganó el logro del nivel. Lo decide el guion (llegar a la meta sin caer, no botar la escalera…). */
+  lograr(): void;
 }
 
 export interface GuionDeNivel {

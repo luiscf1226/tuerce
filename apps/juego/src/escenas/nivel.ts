@@ -10,6 +10,9 @@
 //                    y se para en la meta. Sin red, el tiempo queda en este navegador (en línea lo guarda Convex,
 //                    ver en-linea.ts). `&punto` solo vale en el mismo lugar, para probar.
 //
+// El secreto y el logro del nivel (TU-29) se avisan arriba al centro (src/ropero/aviso.ts); en línea, además, se
+// guardan en Convex.
+//
 // En línea (`?escena=en-linea`) se juega esta misma escena: `enRed` decide las entradas de cada paso, como en `dos`.
 // El invitado no simula: no corre el guion, ni los puntos de control, ni las caídas; los cuerpos (también la
 // compuerta) llegan en la foto del anfitrión.
@@ -26,13 +29,15 @@ import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
 import { armarNivel, cargarNivel, crearNivel, type GuionDeNivel, type Nivel, type PlanoDeNivel } from "../niveles";
 import { anotarTiempoAqui, crearReloj, formatearTiempo, marcarGanadoAqui, seMueve } from "../niveles/contrarreloj";
 import { NIVEL_INICIAL, NIVELES } from "../niveles/lista";
+import { avisarPremios } from "../ropero/aviso";
+import { vestuarioDe } from "../ropero/vestuario";
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
 import { crearInterfaz } from "../ui/menu";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
-import type { AvanceDeNivel } from "./tipos";
+import type { AvanceDeNivel, Vestir } from "./tipos";
 
 /** La cámara: hacia dónde queda de lo que mira, un poco más alta que en `dos` para ver los huecos. */
 const DIRECCION_CAMARA = new THREE.Vector3(0.35, 0.42, 1);
@@ -43,6 +48,7 @@ export type EscenaNivel = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
   readonly nivel: Nivel;
   readonly camaraDeDos: CamaraDeDos;
+  readonly vestir: Vestir;
 };
 
 /** Baja el .glb del nivel que pide la dirección (`&nivel=`) y devuelve cómo armar su escena. */
@@ -84,11 +90,15 @@ export function armarEscenaNivel(
   const vestir = (indice: 0 | 1, panuelo: Panuelo) => {
     const { posicion, rumbo } = salida.lugares[indice];
     const muneco = crearMuneco(rapier, mundo, { posicion, rumbo, indice });
-    const malla = crearMallaMuneco(muneco, {
-      cuerpo: materialTela(COLORES.silueta, { repetir: 1, relieve: 2.5 }),
-      panuelo: materialPanuelo(panuelo, { repetir: 2 }),
-      ojos: materialOjo(),
-    });
+    const malla = crearMallaMuneco(
+      muneco,
+      {
+        cuerpo: materialTela(COLORES.silueta, { repetir: 1, relieve: 2.5 }),
+        panuelo: materialPanuelo(panuelo, { repetir: 2 }),
+        ojos: materialOjo(),
+      },
+      vestuarioDe(parametros, indice),
+    );
     escena.add(malla.grupo);
     return { muneco, malla };
   };
@@ -103,6 +113,7 @@ export function armarEscenaNivel(
   }
   const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
   const interfaz = conPantalla ? crearInterfaz(juego, controles) : undefined;
+  if (conPantalla) avisarPremios(nivel.premios);
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
 
@@ -184,6 +195,8 @@ export function armarEscenaNivel(
     nivel,
     avance,
     ...(reloj ? { reloj } : {}),
+    premios: nivel.premios,
+    vestir: (jugador, vestuario) => jugadores[jugador].malla.vestir(vestuario),
     pasar() {
       const leidas = juego.atienden ? controles.leer() : quietas;
       const entradas = enRed ? enRed(leidas) : leidas;

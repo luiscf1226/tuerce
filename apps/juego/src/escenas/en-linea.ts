@@ -20,11 +20,18 @@
 //      tiempo y los dos ven la tabla de parejas, que se actualiza sola. «Otra carrera» la arranca el anfitrión: su
 //      página vuelve a empezar, no acepta el mundo de la carrera terminada, y el invitado, al ver que el reloj volvió
 //      a cero, también vuelve a empezar.
+//   6. Ropero, secretos y logros (TU-29). Cada muñeco lleva lo que su dueño eligió en el ropero (Convex, por la
+//      pareja). Si la escena es un nivel, el anfitrión guarda el secreto y el logro cuando la pareja los gana, y los
+//      dos miran lo guardado para avisarlo (src/red/premios.ts).
 //
 // Para probar sin Convex (solo en desarrollo): `?escena=en-linea&sala=<url de la sala>&pase=<pase>`, como la
 // pantalla `red` (ver scripts/prueba-red.mjs). También valen `forzar=repetidor` y `espera=<ms>`, y las entradas
 // fijas `&j1=` de la escena `dos` para manejar el muñeco propio.
 import type RAPIER from "@dimforge/rapier3d-compat";
+import type { ConvexClient } from "convex/browser";
+import type { api as Api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
+import { VESTUARIO_INICIAL } from "../../../../convex/premios";
 import { juntarEntradas } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import type { Rapier } from "../motor/fisica";
@@ -32,18 +39,20 @@ import type { Muneco } from "../muneco";
 import { formatearTiempo } from "../niveles/contrarreloj";
 import { type Conexion, conectar, type EstadoRed, type Rol } from "../red";
 import { type Guardado, guardarAvance, retomarAvance } from "../red/avance";
+import { sincronizarPremios } from "../red/premios";
 import { crearSincronia, type Medidas, type OrigenMundo, type Sincronia } from "../red/sincronia";
 import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
+import { completar } from "../ropero/vestuario";
 import { type DatosTabla, mostrarLlegada } from "../ui/contrarreloj";
 import type { Juego } from "../ui/juego";
 import { crearEscenaDos, type PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
 import { bajarNivel } from "./nivel";
-import type { AvanceDeNivel } from "./tipos";
+import type { AvanceDeNivel, PremiosDeNivel, Vestir } from "./tipos";
 import "./en-linea.css";
 
 /** Lo que en línea necesita de la escena de base: los dos muñecos (rojo y turquesa) y, si es un nivel, su avance. */
-export type EscenaDeDos = EscenaDeJuego & { readonly munecos: readonly [Muneco, Muneco] };
+export type EscenaDeDos = EscenaDeJuego & { readonly munecos: readonly [Muneco, Muneco]; readonly vestir?: Vestir };
 /** Arma una escena de dos jugadores; `enRed` decide las entradas de cada paso (o que no se simule). */
 export type CrearEscenaDeDos = (
   rapier: Rapier,
@@ -153,7 +162,7 @@ export function crearEscenaEnLinea(
     void obtenerConexion(parametros, ui, avance, reloj !== undefined)
       .then((entrada) => {
         if (!entrada) return;
-        const { conexion, guardado, carrera } = entrada;
+        const { conexion, guardado, carrera, cuenta } = entrada;
         const meta = avance?.meta ?? 0;
         sincronia = crearSincronia({
           rol: conexion.rol,
@@ -171,6 +180,7 @@ export function crearEscenaEnLinea(
             mostrarCarrera(pasos, conexion.rol, carrera);
           });
         }
+        if (cuenta) usarCuenta(cuenta, conexion.rol, dos.vestir, dos.premios);
         prueba.rol = conexion.rol;
         prueba.medidas = sincronia.medidas;
         const mostrar = (estado: EstadoRed) => {
@@ -324,6 +334,45 @@ function crearInterfaz(): Interfaz {
   };
 }
 
+/** Lo que hace falta de la cuenta para el ropero y los premios de la pareja. */
+interface Cuenta {
+  convex: ConvexClient;
+  api: typeof Api;
+  parejaId: Id<"parejas">;
+}
+
+/** Viste a cada muñeco con lo que eligió su dueño y guarda los premios del nivel (TU-29). */
+function usarCuenta(
+  { convex, api, parejaId }: Cuenta,
+  rol: Rol,
+  vestir: Vestir | undefined,
+  premios: PremiosDeNivel | undefined,
+): void {
+  // El anfitrión es el rojo (jugador 1) y el invitado el turquesa
+  const mio = rol === "anfitrion" ? 0 : 1;
+  const otro = mio === 0 ? 1 : 0;
+  if (vestir) {
+    convex.onUpdate(api.ropero.vestuariosDePareja, { parejaId }, (vestuarios) => {
+      if (!vestuarios) return;
+      vestir(mio, completar(vestuarios.mio, VESTUARIO_INICIAL[mio]));
+      vestir(otro, completar(vestuarios.companero, VESTUARIO_INICIAL[otro]));
+    });
+  }
+  if (premios) {
+    sincronizarPremios(
+      premios,
+      {
+        mirar: (nivel, aviso) => convex.onUpdate(api.ropero.premiosDeNivel, { parejaId, nivel }, aviso),
+        guardar: (nivel, premio) =>
+          premio === "secreto"
+            ? convex.mutation(api.ropero.encontrarSecreto, { parejaId, nivel })
+            : convex.mutation(api.ropero.lograr, { parejaId, nivel }),
+      },
+      rol,
+    );
+  }
+}
+
 /**
  * El pase y la sala: de la dirección (solo en desarrollo, sin avance guardado) o de Convex, con la pareja más
  * reciente. Con Convex, antes de entrar a la sala se retoma el avance guardado de la pareja (si la escena lo tiene):
@@ -334,7 +383,7 @@ async function obtenerConexion(
   ui: Interfaz,
   avance: AvanceDeNivel | undefined,
   contrarreloj = false,
-): Promise<{ conexion: Conexion; guardado?: Guardado; carrera?: Carrera } | undefined> {
+): Promise<{ conexion: Conexion; guardado?: Guardado; carrera?: Carrera; cuenta?: Cuenta } | undefined> {
   const pase = parametros.get("pase");
   const sala = parametros.get("sala");
   const numero = (nombre: string) => {
@@ -412,7 +461,8 @@ async function obtenerConexion(
             pase: primero.pase,
             pedirPase: async () => (await pedir()).pase,
           });
-          resolver(carrera ? { conexion, carrera } : { conexion, guardado });
+          const cuenta: Cuenta = { convex, api, parejaId };
+          resolver(carrera ? { conexion, carrera, cuenta } : { conexion, guardado, cuenta });
         })().catch(rechazar);
         return undefined;
       },

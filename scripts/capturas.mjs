@@ -66,6 +66,18 @@ const TOMAS = [
   { archivo: "contrarreloj-corriendo", ruta: "/?escena=nivel&contrarreloj&j1=andar:1&j2=andar:1&congelar=150" },
   { archivo: "contrarreloj-llegada", ruta: "/?escena=nivel&contrarreloj&punto=2&j1=andar:1&j2=andar:1&congelar=215" },
   { archivo: "contrarreloj-tabla", ruta: "/?escena=tabla&nivel=prueba&ejemplo" },
+  // TU-29: el ropero. Los dos con lo del principio (el rojo con su sombrero, el turquesa con sus trenzas) y el panel
+  // para elegir; una cuenta de ejemplo con lo ganado y los logros; las dos vitrinas con todas las prendas; los dos
+  // con prendas ganadas en el nivel; y el turquesa que encuentra el secreto del nivel de prueba detrás de la meta
+  { archivo: "ropero", ruta: "/?escena=ropero&congelar=60" },
+  { archivo: "ropero-cuenta", ruta: "/?escena=ropero&ejemplo&congelar=60" },
+  { archivo: "ropero-vitrina-1", ruta: "/?escena=ropero&vitrina=1&congelar=60" },
+  { archivo: "ropero-vitrina-2", ruta: "/?escena=ropero&vitrina=2&congelar=60" },
+  {
+    archivo: "nivel-con-prendas",
+    ruta: "/?escena=nivel&j1=&j2=&ropa1=sombrero:puntudo,mascara:diablito,panuelo:capa&ropa2=peinado:colitas,mascara:guacamaya,panuelo:lazo&congelar=60",
+  },
+  { archivo: "nivel-secreto", ruta: "/?escena=nivel&punto=2&j1=andar:0.5&j2=andar:1,girar:0.06&congelar=252" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
@@ -112,7 +124,14 @@ async function esperarListo(pagina) {
     .textContent({ timeout: 100 })
     .catch(() => null);
   if (error) throw new Error(`el juego mostró un error: ${error}`);
-  // Las letras del menú (Fraunces y Karla) llegan de Google Fonts: se esperan para que la imagen salga con ellas
+  // Las letras del menú (Fraunces y Karla) llegan de Google Fonts: se esperan para que la imagen salga con ellas.
+  // Primero la hoja de estilos (si la escena la pidió), así `fonts.ready` ya sabe qué letras tiene que bajar
+  await pagina
+    .waitForFunction(() => [...document.querySelectorAll("link[data-fuentes]")].every((l) => l.sheet), null, {
+      timeout: 10_000,
+    })
+    .catch(() => {});
+  await pagina.evaluate(() => new Promise((listo) => requestAnimationFrame(() => listo())));
   await pagina.evaluate(() => document.fonts.ready);
 }
 

@@ -1,9 +1,14 @@
 // El guion del nivel de prueba (TU-11). La compuerta corta el paso después del tablón: cuando la pareja alcanza el
 // punto de control 1 se hunde en el suelo en un segundo y medio, y el huacal que se cae al vacío vuelve al patio.
+//
+// El logro (TU-29), «Mudanza», lo decide el guion: subir el huacal hasta arriba del escalón. El secreto no necesita
+// guion: es la zona `secreto` del .glb, detrás de la meta.
 import type { GuionDeNivel, NivelEnJuego } from "../../apps/juego/src/niveles/guion";
 
 /** Cuánto se hunde la compuerta (su alto, 2 m, y un poco más) y en cuántos pasos. */
 const HUNDIR = { metros: 2.05, pasos: 90 };
+/** Arriba del escalón: el huacal más alto que esto (su centro) está arriba, y más allá de esta x, sobre el escalón. */
+const ARRIBA_DEL_ESCALON = { y: 1.6, x: 15.6 };
 
 export function crearGuion(): GuionDeNivel {
   let arriba = 0;
@@ -34,7 +39,9 @@ export function crearGuion(): GuionDeNivel {
       const t = Math.min(1, Math.max(0, (nivel.pasos - desde) / HUNDIR.pasos));
       if (t > 0) ponerCompuerta(nivel, HUNDIR.metros * (t * t * (3 - 2 * t)));
       const cuerpo = nivel.pieza("huacal").cuerpo;
-      if (cuerpo && cuerpo.translation().y < nivel.plano.vacio) {
+      const p = cuerpo?.translation();
+      if (p && !nivel.logro && p.y > ARRIBA_DEL_ESCALON.y && p.x > ARRIBA_DEL_ESCALON.x) nivel.lograr();
+      if (cuerpo && p && p.y < nivel.plano.vacio) {
         cuerpo.setTranslation(huacal, true);
         cuerpo.setLinvel({ x: 0, y: 0, z: 0 }, true);
         cuerpo.setAngvel({ x: 0, y: 0, z: 0 }, true);

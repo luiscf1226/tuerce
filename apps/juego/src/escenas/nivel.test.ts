@@ -77,4 +77,18 @@ describe("escena nivel", () => {
     expect(separacion).toBeLessThan(1);
     expect(turquesa.estado).toBe("de pie");
   });
+
+  it("la toma de las capturas: el turquesa encuentra el secreto detrás de la meta", async () => {
+    const e = await escenaDePrueba("punto=2&j1=andar:0.5&j2=andar:1,girar:0.06");
+    for (let i = 0; i < 252; i++) e.pasar();
+    expect(e.premios?.tiene("secreto")).toBe(true);
+  });
+
+  it("viste a cada uno con `&ropa1=`/`&ropa2=` o como en el arte, y cambia la ropa en el juego", async () => {
+    const e = await escenaDePrueba("j1=&j2=&ropa2=mascara:diablito");
+    expect(e.munecos).toHaveLength(2);
+    e.vestir(0, { panuelo: "capa", sombrero: "puntudo", peinado: "ninguno", mascara: "jade" });
+    for (let i = 0; i < 3; i++) e.pasar();
+    e.dibujar(1);
+  });
 });

@@ -117,6 +117,8 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
       linea.append(elemento("span", "menu-nota", "Jugar en línea"), enlace("Invitar", "?escena=invitar"));
       linea.append(enlace("Buscar", "?escena=buscar"));
       hijos.push(linea, lineaContrarreloj(), elemento("hr", "costura"));
+      // El ropero (TU-29): sombreros, peinados, máscaras y pañuelos, lo ganado y los logros
+      hijos.push(enlace("Ropero", "?escena=ropero"));
       hijos.push(
         boton("Controles", () => {
           viendoControles = true;

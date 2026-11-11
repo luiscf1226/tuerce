@@ -1,0 +1,223 @@
+/* El ropero y los avisos de premios (TU-29): paneles de niebla clara como el menú (src/ui/menu.css). Solo modo
+   claro; el único color son los dos pañuelos. */
+.ropero,
+.premios {
+  --niebla-clara: #f0f0ed;
+  --tinta: #232321;
+  --tinta-suave: #5a5a56;
+  --honda: #1a1a1a;
+  --raya: rgb(35 35 33 / 0.2);
+  --rojo: #d2463a;
+  --turquesa: #2bb1ad;
+  --display: "Fraunces", "Georgia", serif;
+  --cuerpo: "Karla", "Segoe UI", system-ui, sans-serif;
+  color: var(--tinta);
+  font: 400 14px / 1.4 var(--cuerpo);
+}
+
+.ropero {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  width: min(400px, calc(100vw - 32px));
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: rgb(240 240 237 / 0.88);
+  box-shadow: 0 26px 46px -30px rgb(0 0 0 / 0.55);
+}
+.ropero-contenido {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 22px 8px;
+}
+.ropero-pie {
+  padding: 8px 22px 16px;
+  border-top: 1px dashed var(--raya);
+}
+.ropero-pie:empty {
+  display: none;
+}
+.ropero-titulo {
+  margin: 0;
+  font: 800 32px / 1 var(--display);
+  color: var(--honda);
+}
+.ropero-nota {
+  margin: 6px 0 10px;
+  color: var(--tinta-suave);
+  font-size: 13px;
+}
+.ropero h2 {
+  margin: 14px 0 6px;
+  font: 600 16px / 1.2 var(--display);
+}
+.ropero-pestanas {
+  display: flex;
+  gap: 6px;
+}
+.ropero-pestana {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid var(--raya);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--tinta);
+  font: 600 13px / 1.2 var(--cuerpo);
+  cursor: pointer;
+}
+.ropero-pestana::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 8px;
+  margin-right: 6px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.ropero-pestana.rojo::before {
+  background: var(--rojo);
+}
+.ropero-pestana.turquesa::before {
+  background: var(--turquesa);
+}
+.ropero-pestana[aria-selected="true"] {
+  border-color: var(--honda);
+  background: rgb(255 255 255 / 0.55);
+}
+.ropero-opciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 6px;
+}
+.ropero-prenda {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 9px;
+  border: 1px solid var(--raya);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.4);
+  color: var(--tinta);
+  font: 600 13px / 1.2 var(--cuerpo);
+  text-align: left;
+  cursor: pointer;
+}
+.ropero-prenda small {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--tinta-suave);
+}
+.ropero-prenda.puesta {
+  border-color: var(--honda);
+  background: var(--honda);
+  color: var(--niebla-clara);
+}
+.ropero-prenda.falta {
+  border-style: dashed;
+  background: transparent;
+  color: var(--tinta-suave);
+  cursor: default;
+}
+.ropero-prenda:focus-visible,
+.ropero-pestana:focus-visible {
+  outline: 2px solid var(--honda);
+  outline-offset: 2px;
+}
+.ropero-logros ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+.ropero-logros li {
+  padding: 3px 0;
+  color: var(--tinta-suave);
+  opacity: 0.75;
+}
+.ropero-logros li::before {
+  content: "○ ";
+}
+.ropero-logros li.ganado {
+  color: var(--tinta);
+  opacity: 1;
+}
+.ropero-logros li.ganado::before {
+  content: "● ";
+}
+.ropero-boton {
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--honda);
+  color: var(--niebla-clara);
+  font: 600 14px / 1.2 var(--cuerpo);
+  cursor: pointer;
+}
+.ropero-volver {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--tinta);
+  font-size: 13px;
+}
+
+.premios {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(460px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.premio {
+  padding: 10px 16px 10px 40px;
+  border-radius: 8px;
+  background: rgb(240 240 237 / 0.92);
+  box-shadow: 0 20px 36px -26px rgb(0 0 0 / 0.6);
+  background-image: linear-gradient(var(--honda), var(--honda));
+  background-size: 14px 2px;
+  background-position: 16px 50%;
+  background-repeat: no-repeat;
+  animation: premio-entra 0.35s ease-out;
+}
+.premio-secreto {
+  background-image: none;
+  position: relative;
+}
+.premio-secreto::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 16px;
+  height: 12px;
+  margin-top: -6px;
+  background: var(--honda);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.premio strong {
+  display: block;
+  font: 600 17px / 1.2 var(--display);
+}
+.premio p {
+  margin: 2px 0 0;
+  color: var(--tinta-suave);
+}
+@keyframes premio-entra {
+  from {
+    transform: translateY(-10px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .premio {
+    animation: none;
+  }
+}
