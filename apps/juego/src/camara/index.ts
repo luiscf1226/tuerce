@@ -1,5 +1,6 @@
 // La cámara de los dos (TU-09): encuadra a los dos jugadores y parte la pantalla si se separan.
 export { type CamaraDeDos, crearCamaraDeDos, type OpcionesCamaraDeDos, type Punto } from "./camara";
+export { despejadoEnElMundo } from "./despejado";
 export {
   decidirPartida,
   distanciaDeEncuadre,

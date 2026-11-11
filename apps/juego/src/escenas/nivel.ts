@@ -18,7 +18,7 @@
 // compuerta) llegan en la foto del anfitrión.
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
-import { type CamaraDeDos, crearCamaraDeDos, ENCUADRE } from "../camara";
+import { type CamaraDeDos, crearCamaraDeDos, despejadoEnElMundo, ENCUADRE } from "../camara";
 import { crearAyuda } from "../entrada/ayuda";
 import { crearControles, entradaQuieta } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
@@ -117,7 +117,7 @@ export function armarEscenaNivel(
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
 
-  const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA });
+  const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA, despejado: despejadoEnElMundo(rapier, mundo) });
   const vistaTodo = parametros.get("vista") === "todo";
   const camara = vistaTodo ? new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 200) : camaraDeDos.camara;
   if (vistaTodo) {
