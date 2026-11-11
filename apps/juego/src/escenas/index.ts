@@ -8,6 +8,7 @@ import { crearEscenaDos } from "./dos";
 import { crearEscenaEnLinea } from "./en-linea";
 import { crearEscenaMano } from "./mano";
 import { crearEscenaMuneco } from "./muneco";
+import { crearEscenaNivel } from "./nivel";
 import { crearEscenaPinar } from "./pinar";
 import { crearEscenaPrueba } from "./prueba";
 import type { Escena } from "./tipos";
@@ -21,17 +22,21 @@ export type EscenaDeJuego = Escena & {
   readonly interfaz?: Interfaz;
 };
 
-// Cada escena se abre con `?escena=<nombre>`. Las capturas automáticas recorren esta lista.
-export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => EscenaDeJuego> = {
-  prueba: crearEscenaPrueba,
-  muneco: crearEscenaMuneco,
-  pinar: crearEscenaPinar,
-  agarre: crearEscenaAgarre,
-  dos: crearEscenaDos,
-  mano: crearEscenaMano,
-  // En línea (TU-21): la escena `dos` con el otro jugador en su casa.
-  "en-linea": crearEscenaEnLinea,
-};
+// Cada escena se abre con `?escena=<nombre>`. Las capturas automáticas recorren esta lista. Las que bajan algo antes
+// de armarse (los niveles, que bajan su .glb) devuelven una promesa.
+export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => EscenaDeJuego | Promise<EscenaDeJuego>> =
+  {
+    prueba: crearEscenaPrueba,
+    muneco: crearEscenaMuneco,
+    pinar: crearEscenaPinar,
+    agarre: crearEscenaAgarre,
+    dos: crearEscenaDos,
+    mano: crearEscenaMano,
+    // En línea (TU-21): la escena `dos` con el otro jugador en su casa.
+    "en-linea": crearEscenaEnLinea,
+    // Un nivel con el formato nuevo (TU-11): escena glTF, guion y puntos de control. `&nivel=prueba` por ahora.
+    nivel: crearEscenaNivel,
+  };
 export const ESCENA_INICIAL = "dos";
 
 // Pantallas de la cuenta y de depuración: no son escenas de físicas y se cargan aparte, para no meter Clerk ni Convex en el juego.
