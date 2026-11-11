@@ -33,7 +33,20 @@ export interface EntradaMuneco {
   brazoIzquierdo?: boolean;
   /** Lo mismo para el brazo derecho. */
   brazoDerecho?: boolean;
+  /** Pose de los brazos sueltos (señalar y gestos, TU-15): el brazo va hacia esa dirección sin agarrar nada. El
+   * botón de agarrar le gana a la pose. */
+  pose?: PoseBrazos;
 }
+
+/** Hacia dónde apunta la mano, en el marco del muñeco: `afuera` hacia el costado de ese brazo, `arriba` y
+ * `adelante` hacia donde mira. No hace falta que mida 1. */
+export interface PoseBrazo {
+  afuera: number;
+  arriba: number;
+  adelante: number;
+}
+
+export type PoseBrazos = Partial<Record<NombreBrazo, PoseBrazo>>;
 
 /** En qué anda el muñeco: parado (o caminando), en el aire, tirado como un trapo o levantándose. */
 export type EstadoMuneco = "de pie" | "en el aire" | "caido" | "levantandose";
@@ -103,6 +116,7 @@ export interface Muneco {
 const ARRIBA = new THREE.Vector3(0, 1, 0);
 const EJE_X = new THREE.Vector3(1, 0, 0);
 const EJE_Z = new THREE.Vector3(0, 0, 1);
+const ABAJO = new THREE.Vector3(0, -1, 0);
 
 export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: OpcionesMuneco = {}): Muneco {
   const origen = new THREE.Vector3(opciones.posicion?.x ?? 0, opciones.posicion?.y ?? 0, opciones.posicion?.z ?? 0);
@@ -260,6 +274,7 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
   const qObjetivo = new THREE.Quaternion();
   const qRumbo = new THREE.Quaternion();
   const qInclinar = new THREE.Quaternion();
+  const haciaPose = new THREE.Vector3();
   const qAux = new THREE.Quaternion();
   const error = new THREE.Vector3();
   const w = new THREE.Vector3();
@@ -537,12 +552,19 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     const b = AJUSTES.brazos;
     for (const brazo of brazos) {
       const { cuerpo: c, lado } = brazo;
+      const pose = entrada.pose?.[brazo.nombre];
       if (entrada[brazo.nombre] === true) {
         // La mano apunta hacia adelante y arriba: el brazo (su -y) rota hacia +z del rumbo y sube `elevacion`
         qInclinar.setFromAxisAngle(EJE_X, -(Math.PI / 2 + b.alzar.elevacion));
         qObjetivo.copy(qRumbo).multiply(qInclinar);
         girarHacia(c, qObjetivo, b.alzar.frecuencia, b.alzar.amortiguacion, torso);
         if (!brazo.junta && estado !== "caido") agarrar(brazo);
+      } else if (pose) {
+        // Con pose (señalar, gestos): el brazo (su -y) va hacia esa dirección, con el PD fuerte de alzar
+        if (brazo.junta) soltar(brazo);
+        haciaPose.set(lado * pose.afuera, pose.arriba, pose.adelante).normalize();
+        qObjetivo.setFromUnitVectors(ABAJO, haciaPose).premultiply(qRumbo);
+        girarHacia(c, qObjetivo, b.alzar.frecuencia, b.alzar.amortiguacion, torso);
       } else {
         if (brazo.junta) soltar(brazo);
         qInclinar.setFromAxisAngle(EJE_X, lado * b.balanceo * amplitud * seno);

@@ -7,11 +7,15 @@
 //   &j1=andar:1,girar:0.2   entrada fija del jugador 1 (también vale `&andar=`/`&girar=`)
 //   &j2=andar:0.8           entrada fija del jugador 2
 //   &ayuda                  deja la ayuda de los controles a la vista (con entrada fija no aparece)
+//   &menu                   muestra el menú de inicio aunque la entrada sea fija (si no, con entrada fija no aparece)
+//   &j1=senalar             el rojo señala; `&j2=gesto:saludar` el turquesa saluda (también llamar, festejar, encoger)
+//
+// Encima, el menú de inicio, la pausa, señalar y los gestos (TU-15, src/ui).
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
 import { type CamaraDeDos, crearCamaraDeDos, ENCUADRE } from "../camara";
 import { crearAyuda } from "../entrada/ayuda";
-import { crearControles } from "../entrada/mandos";
+import { crearControles, entradaQuieta } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import {
   crearAbeto,
@@ -32,6 +36,8 @@ import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
+import { crearJuego, crearSenas } from "../ui";
+import { crearInterfaz } from "../ui/menu";
 import { crearCajas } from "./cajas";
 import { COLORES } from "./colores";
 import type { EscenaDeJuego } from "./index";
@@ -93,6 +99,11 @@ export function crearEscenaDos(
   if (typeof document !== "undefined" && (!controles.fija || parametros.has("ayuda"))) {
     crearAyuda(controles, { siempre: parametros.has("ayuda") });
   }
+  // Menú y pausa: el menú arranca sobre la escena viva, salvo con entrada fija (capturas) sin `&menu`
+  const conPantalla = typeof document !== "undefined";
+  const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
+  const interfaz = conPantalla ? crearInterfaz(juego, controles) : undefined;
+  const quietas = [entradaQuieta(), entradaQuieta()] as const;
 
   // Huacales para agarrar: uno grande adelante, entre los dos, sobre un tocón a la altura de las manos alzadas
   // (los dos lo agarran con el brazo de adentro: el izquierdo del rojo y el derecho del turquesa), y dos chicos
@@ -187,6 +198,7 @@ export function crearEscenaDos(
     camaraDeDos.seguir(rojo.muneco.partes.pelvis.translation(), turquesa.muneco.partes.pelvis.translation());
   seguirConLaCamara();
 
+  const senas = crearSenas(rapier, mundo, escena, [rojo.muneco, turquesa.muneco]);
   const inclinacion = matas.map((m) => m.rotation.z);
   let pasos = 0;
 
@@ -196,13 +208,17 @@ export function crearEscenaDos(
     camara,
     vistas: camaraDeDos.vistas,
     camaraDeDos,
+    juego,
+    ...(interfaz ? { interfaz } : {}),
     munecos: [rojo.muneco, turquesa.muneco],
     pasar() {
-      const [uno, dos] = controles.leer();
-      rojo.muneco.pasar(uno);
-      turquesa.muneco.pasar(dos);
+      // En el menú la escena sigue viva, pero los muñecos no escuchan a nadie
+      const [uno, dos] = juego.atienden ? controles.leer() : quietas;
+      rojo.muneco.pasar(senas.entrada(0, uno));
+      turquesa.muneco.pasar(senas.entrada(1, dos));
       cajas.guardar();
       mundo.step();
+      senas.apuntar();
       rojo.malla.guardar();
       turquesa.malla.guardar();
       seguirConLaCamara();
@@ -219,6 +235,7 @@ export function crearEscenaDos(
       }
       const segundos = (pasos - 1 + alfa) * PASO;
       niebla.mover(segundos);
+      senas.dibujar(segundos);
       matas.forEach((m, i) => {
         m.rotation.z = (inclinacion[i] ?? 0) + 0.025 * Math.sin(segundos * 1.1 + i * 1.7);
       });

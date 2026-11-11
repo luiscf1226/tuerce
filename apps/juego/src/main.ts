@@ -57,7 +57,10 @@ async function arrancar() {
 
   let anterior = performance.now();
   pintor.setAnimationLoop((ahora: number) => {
-    pasosEsteSegundo += bucle.avanzar((ahora - anterior) / 1000);
+    // Pausa (TU-15): el bucle no avanza y el tiempo pausado no se acumula, así al seguir no hay que ponerse al día.
+    // El dibujo sigue con el mismo `alfa`, así que la imagen queda quieta (solo el grano se mueve).
+    escena.interfaz?.cuadro();
+    if (escena.juego?.corren ?? true) pasosEsteSegundo += bucle.avanzar((ahora - anterior) / 1000);
     anterior = ahora;
     escena.dibujar(bucle.alfa);
     imagen.dibujar();

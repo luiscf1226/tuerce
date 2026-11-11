@@ -17,19 +17,51 @@ const TECLADO = [
   ["A D", "girar"],
   ["Espacio", "saltar"],
   ["Q E", "brazos"],
+  ["Z", "señalar"],
+  ["X + dirección", "gesto"],
 ] as const;
 const TECLADO_2 = [
   ["↑ ↓", "caminar"],
   ["← →", "girar"],
   ["Enter", "saltar"],
   [", .", "brazos"],
+  ["/", "señalar"],
+  ["Shift der. + dirección", "gesto"],
 ] as const;
 const MANDO = [
   ["palanca", "caminar y girar"],
   ["A", "saltar"],
   ["LB RB", "brazos"],
+  ["Y", "señalar"],
+  ["X + dirección", "gesto"],
   ["Back", "cambiar de jugador"],
 ] as const;
+
+/** Todos los controles, para la pantalla de controles del menú (TU-15). */
+export const DESCRIPCION_CONTROLES: readonly {
+  nombre: string;
+  clase: string;
+  filas: readonly (readonly [string, string])[];
+}[] = [
+  { nombre: "Jugador 1 · teclado", clase: "j1", filas: TECLADO },
+  { nombre: "Jugador 2 · teclado", clase: "j2", filas: TECLADO_2 },
+  {
+    nombre: "Con mando",
+    clase: "mando",
+    filas: [...MANDO, ["Start", "pausa"]],
+  },
+  {
+    nombre: "Gestos y pausa",
+    clase: "gestos",
+    filas: [
+      ["adelante", "festejar"],
+      ["atrás", "encogerse de hombros"],
+      ["izquierda", "saludar"],
+      ["derecha", "llamar"],
+      ["Esc o P", "pausa"],
+    ],
+  },
+];
 
 /** Con qué juega cada jugador, en palabras. */
 export function dispositivoDe(asignacion: Asignacion, jugador: Jugador): string {
