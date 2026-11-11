@@ -1,0 +1,136 @@
+{
+  "base": "http://127.0.0.1:4173",
+  "tomas": [
+    {
+      "archivo": "prueba-inicio",
+      "ruta": "/?escena=prueba&congelar=1",
+      "imagen": "prueba-inicio.png"
+    },
+    {
+      "archivo": "prueba-cajas-en-el-suelo",
+      "ruta": "/?escena=prueba&congelar=240",
+      "imagen": "prueba-cajas-en-el-suelo.png"
+    },
+    {
+      "archivo": "muneco-de-pie",
+      "ruta": "/?escena=muneco&congelar=240",
+      "imagen": "muneco-de-pie.png"
+    },
+    {
+      "archivo": "muneco-caminando",
+      "ruta": "/?escena=muneco&andar=1&congelar=110",
+      "imagen": "muneco-caminando.png"
+    },
+    {
+      "archivo": "muneco-girando",
+      "ruta": "/?escena=muneco&andar=0.7&girar=0.6&congelar=200",
+      "imagen": "muneco-girando.png"
+    },
+    {
+      "archivo": "pinar",
+      "ruta": "/?escena=pinar&congelar=1",
+      "imagen": "pinar.png"
+    },
+    {
+      "archivo": "pinar-caminando",
+      "ruta": "/?escena=pinar&andar=1&congelar=150",
+      "imagen": "pinar-caminando.png"
+    },
+    {
+      "archivo": "pinar-niebla-corrida",
+      "ruta": "/?escena=pinar&congelar=600",
+      "imagen": "pinar-niebla-corrida.png"
+    },
+    {
+      "archivo": "agarre-salto",
+      "ruta": "/?escena=agarre&salida=claro&saltar=30&congelar=48",
+      "imagen": "agarre-salto.png"
+    },
+    {
+      "archivo": "agarre-caido",
+      "ruta": "/?escena=agarre&salida=borde&andar=1&saltar=22&congelar=240",
+      "imagen": "agarre-caido.png"
+    },
+    {
+      "archivo": "agarre-caja",
+      "ruta": "/?escena=agarre&brazos=d&andar=-1&esperar=40&congelar=110",
+      "imagen": "agarre-caja.png"
+    },
+    {
+      "archivo": "agarre-colgado",
+      "ruta": "/?escena=agarre&salida=rama&brazos=id&saltar=40&congelar=150",
+      "imagen": "agarre-colgado.png"
+    },
+    {
+      "archivo": "agarre-trepando",
+      "ruta": "/?escena=agarre&salida=pared&brazos=id&saltar=20&andar=1&esperar=50&congelar=62",
+      "imagen": "agarre-trepando.png"
+    },
+    {
+      "archivo": "agarre-arriba",
+      "ruta": "/?escena=agarre&salida=pared&brazos=id&saltar=20&andar=1&esperar=50&congelar=112",
+      "imagen": "agarre-arriba.png"
+    },
+    {
+      "archivo": "dos-de-pie",
+      "ruta": "/?escena=dos&j1=&j2=&ayuda&congelar=60",
+      "imagen": "dos-de-pie.png"
+    },
+    {
+      "archivo": "dos-caminando",
+      "ruta": "/?escena=dos&j1=andar:1&j2=andar:0.8&congelar=150",
+      "imagen": "dos-caminando.png"
+    },
+    {
+      "archivo": "dos-saltando",
+      "ruta": "/?escena=dos&j1=saltar@30&j2=saltar@36&congelar=48",
+      "imagen": "dos-saltando.png"
+    },
+    {
+      "archivo": "dos-agarrando",
+      "ruta": "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=150",
+      "imagen": "dos-agarrando.png"
+    },
+    {
+      "archivo": "dos-cargando",
+      "ruta": "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=210",
+      "imagen": "dos-cargando.png"
+    },
+    {
+      "archivo": "mano-llevando",
+      "ruta": "/?escena=mano&llevar&congelar=150",
+      "imagen": "mano-llevando.png"
+    },
+    {
+      "archivo": "dos-separandose",
+      "ruta": "/?escena=dos&j1=andar:1,girar:-0.1&j2=andar:1,girar:0.1&congelar=240",
+      "imagen": "dos-separandose.png"
+    },
+    {
+      "archivo": "dos-pantalla-partida",
+      "ruta": "/?escena=dos&j1=andar:1,girar:-0.3&j2=andar:-1,girar:-0.3&congelar=300",
+      "imagen": "dos-pantalla-partida.png"
+    },
+    {
+      "archivo": "dos-menu",
+      "ruta": "/?escena=dos&j1=&j2=&menu&congelar=60",
+      "imagen": "dos-menu.png"
+    },
+    {
+      "archivo": "dos-senalando",
+      "ruta": "/?escena=dos&j1=senalar,girar:-0.3&j2=senalar,girar:0.3&congelar=90",
+      "imagen": "dos-senalando.png"
+    },
+    {
+      "archivo": "dos-festejando",
+      "ruta": "/?escena=dos&j1=gesto:encoger&j2=gesto:festejar&congelar=80",
+      "imagen": "dos-festejando.png"
+    }
+  ],
+  "video": {
+    "archivo": "dos.webm",
+    "ruta": "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar",
+    "segundos": 5,
+    "pasosPorSegundo": 33
+  }
+}
