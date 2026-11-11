@@ -1,9 +1,16 @@
 // La entrada de los dos jugadores en el mismo lugar: teclado compartido, dos mandos, o teclado y un mando.
 //
 //   Jugador 1 (pañuelo rojo)      W/S camina · A/D gira · Espacio salta · Q/E brazo izquierdo/derecho
+//                                 Z señala · X + dirección hace un gesto
 //   Jugador 2 (pañuelo turquesa)  ↑/↓ camina · ←/→ gira · Enter salta · ,/. (o 1/3 del teclado numérico) brazos
+//                                 / (o 7 del numérico) señala · Shift derecho (o 9 del numérico) + dirección: gesto
+//   Los dos                       Esc o P pausa
 //   Mando (mapeo estándar)        palanca izquierda o cruceta camina y gira · A/Cruz salta · LB/LT brazo
-//                                 izquierdo · RB/RT brazo derecho · Back/Select cambia de jugador
+//                                 izquierdo · RB/RT brazo derecho · Back/Select cambia de jugador · Y/Triángulo
+//                                 señala · X/Cuadrado + dirección: gesto · Start/Options pausa
+//
+// Gestos (TU-15): con la tecla de gesto apretada, la dirección elige el gesto en lugar de caminar: adelante festeja,
+// atrás se encoge de hombros, izquierda saluda y derecha llama («vení»).
 //
 // Las teclas se leen por `KeyboardEvent.code` (la tecla física), así que dan lo mismo en un teclado en español,
 // latinoamericano o inglés. El Control derecho no se usa para saltar: con el jugador 1 apretando W, Ctrl+W cierra
@@ -18,7 +25,8 @@
 //
 // Parámetros de la dirección para capturas que salen siempre igual (con `congelar=N`); fijan la entrada de los dos
 // jugadores y apagan teclado y mandos:
-//   &j1=andar:1,girar:0.2,saltar:1   entrada fija del jugador 1 (claves: andar, girar, saltar, izq, der)
+//   &j1=andar:1,girar:0.2,saltar:1   entrada fija del jugador 1 (claves: andar, girar, saltar, izq, der, senalar,
+//                                    pausa y gesto:saludar|llamar|festejar|encoger)
 //   &j1=saltar@30,der@60             un botón con `@N` se aprieta recién desde el paso N (el salto pide apretar,
 //                                    no mantener: apretado desde el paso 0 no salta nunca)
 //   &j2=andar:0.8                    entrada fija del jugador 2
@@ -36,13 +44,40 @@ export interface EntradaJugador {
   /** Levantar el brazo izquierdo (para agarrar). */
   brazoIzquierdo: boolean;
   brazoDerecho: boolean;
+  /** Pausa (TU-15): Esc, P o Start. Cualquiera de los dos la pide. */
+  pausa: boolean;
+  /** Señalar hacia adelante (TU-15). */
+  senalar: boolean;
+  /** El gesto que pide (tecla de gesto + dirección), o `null`. Mientras hay gesto, los ejes quedan en 0. */
+  gesto: Gesto | null;
+}
+
+/** Los gestos rápidos para entenderse sin hablar (TU-15). */
+export type Gesto = "saludar" | "llamar" | "festejar" | "encoger";
+export const GESTOS: readonly Gesto[] = ["saludar", "llamar", "festejar", "encoger"];
+
+/** Qué gesto elige una dirección: adelante festeja, atrás se encoge, izquierda saluda y derecha llama. Sin
+ * dirección, ninguno. */
+export function gestoDeDireccion(avanzar: number, girar: number): Gesto | null {
+  if (Math.max(Math.abs(avanzar), Math.abs(girar)) < 0.5) return null;
+  if (Math.abs(avanzar) >= Math.abs(girar)) return avanzar > 0 ? "festejar" : "encoger";
+  return girar > 0 ? "saludar" : "llamar";
 }
 
 export type Jugador = 0 | 1;
 export const JUGADORES: readonly Jugador[] = [0, 1];
 
 export function entradaQuieta(): EntradaJugador {
-  return { avanzar: 0, girar: 0, saltar: false, brazoIzquierdo: false, brazoDerecho: false };
+  return {
+    avanzar: 0,
+    girar: 0,
+    saltar: false,
+    brazoIzquierdo: false,
+    brazoDerecho: false,
+    pausa: false,
+    senalar: false,
+    gesto: null,
+  };
 }
 
 // ── Teclado ────────────────────────────────────────────────────────────────────────────────────────────────
@@ -75,16 +110,45 @@ export const TECLAS: readonly [Readonly<Record<string, Accion>>, Readonly<Record
   },
 ];
 
+/** Señalar y gestos de cada jugador (TU-15), aparte de `TECLAS` para no cambiar su contrato. */
+export type Sena = "senalar" | "gesto";
+export const TECLAS_SENAS: readonly [Readonly<Record<string, Sena>>, Readonly<Record<string, Sena>>] = [
+  { KeyZ: "senalar", KeyX: "gesto" },
+  { Slash: "senalar", ShiftRight: "gesto", Numpad7: "senalar", Numpad9: "gesto" },
+];
+/** Las teclas de pausa: valen para los dos. */
+export const TECLAS_PAUSA: readonly string[] = ["Escape", "KeyP"];
+
 /** Si la tecla es de algún jugador (las demás no se tocan, así el navegador sigue andando). */
 export function esTeclaDelJuego(codigo: string): boolean {
-  return codigo in TECLAS[0] || codigo in TECLAS[1];
+  return (
+    codigo in TECLAS[0] ||
+    codigo in TECLAS[1] ||
+    codigo in TECLAS_SENAS[0] ||
+    codigo in TECLAS_SENAS[1] ||
+    TECLAS_PAUSA.includes(codigo)
+  );
+}
+
+/** Con la tecla de gesto apretada, la dirección elige el gesto y el muñeco no camina. */
+function aplicarGesto(entrada: EntradaJugador, conGesto: boolean): EntradaJugador {
+  if (!conGesto) return entrada;
+  entrada.gesto = gestoDeDireccion(entrada.avanzar, entrada.girar);
+  entrada.avanzar = 0;
+  entrada.girar = 0;
+  return entrada;
 }
 
 /** Lo que piden las teclas apretadas para un jugador, cada eje entre -1 y 1. */
 export function leerTeclasDe(jugador: Jugador, apretadas: Iterable<string>): EntradaJugador {
   const mapa = TECLAS[jugador];
+  const senas = TECLAS_SENAS[jugador];
   const entrada = entradaQuieta();
+  let conGesto = false;
   for (const codigo of apretadas) {
+    if (TECLAS_PAUSA.includes(codigo)) entrada.pausa = true;
+    if (senas[codigo] === "senalar") entrada.senalar = true;
+    if (senas[codigo] === "gesto") conGesto = true;
     switch (mapa[codigo]) {
       case "adelante":
         entrada.avanzar += 1;
@@ -109,7 +173,7 @@ export function leerTeclasDe(jugador: Jugador, apretadas: Iterable<string>): Ent
         break;
     }
   }
-  return limitarEjes(entrada);
+  return aplicarGesto(limitarEjes(entrada), conGesto);
 }
 
 // ── Mandos ─────────────────────────────────────────────────────────────────────────────────────────────────
@@ -130,11 +194,14 @@ const GATILLO = 0.3;
 /** Botones del mapeo estándar (https://w3c.github.io/gamepad/#remapping). */
 export const BOTON = {
   a: 0,
+  x: 2,
+  y: 3,
   lb: 4,
   rb: 5,
   lt: 6,
   rt: 7,
   back: 8,
+  start: 9,
   arriba: 12,
   abajo: 13,
   izquierda: 14,
@@ -163,13 +230,17 @@ export function aplicarZonaMuerta(x: number, y: number, zona = ZONA_MUERTA): [nu
 export function leerMando(mando: MandoLeido, zona = ZONA_MUERTA): EntradaJugador {
   const [x, y] = aplicarZonaMuerta(mando.axes[0] ?? 0, mando.axes[1] ?? 0, zona);
   const cruceta = (mas: number, menos: number) => (apretado(mando, mas) ? 1 : 0) - (apretado(mando, menos) ? 1 : 0);
-  return limitarEjes({
+  const entrada = limitarEjes({
     avanzar: -y + cruceta(BOTON.arriba, BOTON.abajo),
     girar: -x + cruceta(BOTON.izquierda, BOTON.derecha),
     saltar: apretado(mando, BOTON.a),
     brazoIzquierdo: apretado(mando, BOTON.lb) || apretado(mando, BOTON.lt),
     brazoDerecho: apretado(mando, BOTON.rb) || apretado(mando, BOTON.rt),
+    pausa: apretado(mando, BOTON.start),
+    senalar: apretado(mando, BOTON.y),
+    gesto: null,
   });
+  return aplicarGesto(entrada, apretado(mando, BOTON.x));
 }
 
 /** Junta dos entradas del mismo jugador (teclado y mando): los ejes se suman y los botones valen si alguno está. */
@@ -180,6 +251,9 @@ export function juntarEntradas(a: EntradaJugador, b: EntradaJugador): EntradaJug
     saltar: a.saltar || b.saltar,
     brazoIzquierdo: a.brazoIzquierdo || b.brazoIzquierdo,
     brazoDerecho: a.brazoDerecho || b.brazoDerecho,
+    pausa: a.pausa || b.pausa,
+    senalar: a.senalar || b.senalar,
+    gesto: a.gesto ?? b.gesto,
   });
 }
 
@@ -224,9 +298,13 @@ const CLAVES: Record<string, keyof EntradaJugador> = {
   brazoIzquierdo: "brazoIzquierdo",
   der: "brazoDerecho",
   brazoDerecho: "brazoDerecho",
+  senalar: "senalar",
+  pausa: "pausa",
+  gesto: "gesto",
 };
 
-type Boton = "saltar" | "brazoIzquierdo" | "brazoDerecho";
+type Boton = "saltar" | "brazoIzquierdo" | "brazoDerecho" | "senalar";
+const BOTONES_CON_INICIO: readonly string[] = ["saltar", "brazoIzquierdo", "brazoDerecho", "senalar"];
 
 /** Desde qué paso se aprieta cada botón de una entrada fija (`saltar@30`); los que no tienen `@N`, desde el 0. */
 export function pasosDeInicio(texto: string): Partial<Record<Boton, number>> {
@@ -234,8 +312,7 @@ export function pasosDeInicio(texto: string): Partial<Record<Boton, number>> {
   for (const parte of texto.split(",")) {
     const [clave = "", paso = ""] = parte.trim().split("@");
     const campo = CLAVES[clave.split(":")[0] ?? ""];
-    if (paso && (campo === "saltar" || campo === "brazoIzquierdo" || campo === "brazoDerecho"))
-      desde[campo] = Number(paso) || 0;
+    if (paso && campo && BOTONES_CON_INICIO.includes(campo)) desde[campo as Boton] = Number(paso) || 0;
   }
   return desde;
 }
@@ -257,6 +334,7 @@ export function leerEntradaFija(texto: string): EntradaJugador {
     const campo = CLAVES[clave];
     const numero = Number(valor) || 0;
     if (campo === "avanzar" || campo === "girar") entrada[campo] = numero;
+    else if (campo === "gesto") entrada.gesto = GESTOS.find((g) => g === valor) ?? null;
     else if (campo) entrada[campo] = numero !== 0;
   }
   return limitarEjes(entrada);
@@ -289,6 +367,9 @@ export interface Controles {
   readonly fija: boolean;
   /** Avisa cuando un mando se suma, se va o cambia de jugador. */
   alCambiar(aviso: (asignacion: Asignacion) => void): void;
+  /** Si alguno de los dos apretó pausa (Esc, P o Start de cualquier mando) desde la última vez que se preguntó.
+   * Se pregunta en cada cuadro, aunque las físicas estén paradas (TU-15). */
+  pedirPausa(): boolean;
 }
 
 export interface OpcionesControles {
@@ -314,6 +395,9 @@ export function crearControles(opciones: OpcionesControles = {}): Controles {
   let asignacion: Asignacion = SIN_MANDOS;
   /** Si Back estaba apretado en el paso anterior, por mando: cambia de jugador al apretarlo, no mientras se tiene. */
   const backAntes = new Map<number, boolean>();
+  /** Lo mismo con Start, para la pausa; y las veces que se apretó una tecla de pausa sin preguntar todavía. */
+  const startAntes = new Map<number, boolean>();
+  let pausasPedidas = 0;
 
   const apretadas = new Set<string>();
   const teclado = opciones.teclado ?? (typeof window === "undefined" ? undefined : window);
@@ -321,6 +405,7 @@ export function crearControles(opciones: OpcionesControles = {}): Controles {
     teclado.addEventListener("keydown", (e) => {
       if (!esTeclaDelJuego(e.code)) return;
       e.preventDefault();
+      if (TECLAS_PAUSA.includes(e.code) && !e.repeat) pausasPedidas++;
       apretadas.add(e.code);
     });
     teclado.addEventListener("keyup", (e) => {
@@ -342,6 +427,18 @@ export function crearControles(opciones: OpcionesControles = {}): Controles {
     fija: fijas !== undefined,
     alCambiar(aviso) {
       avisos.push(aviso);
+    },
+    pedirPausa() {
+      let pedida = pausasPedidas > 0;
+      pausasPedidas = 0;
+      if (fijas) return pedida;
+      for (const m of obtenerMandos()) {
+        if (!m?.connected) continue;
+        const start = apretado(m, BOTON.start);
+        if (start && !startAntes.get(m.index)) pedida = true;
+        startAntes.set(m.index, start);
+      }
+      return pedida;
     },
     leer() {
       if (fijas) {

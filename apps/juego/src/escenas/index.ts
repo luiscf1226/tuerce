@@ -1,5 +1,8 @@
 import type RAPIER from "@dimforge/rapier3d-compat";
+import type { VistasPartidas } from "../imagen";
 import type { Rapier } from "../motor/fisica";
+import type { Juego } from "../ui";
+import type { Interfaz } from "../ui/menu";
 import { crearEscenaAgarre } from "./agarre";
 import { crearEscenaDos } from "./dos";
 import { crearEscenaMano } from "./mano";
@@ -8,8 +11,17 @@ import { crearEscenaPinar } from "./pinar";
 import { crearEscenaPrueba } from "./prueba";
 import type { Escena } from "./tipos";
 
+/** Lo que una escena puede sumar a `Escena`: la pantalla partida de la cámara de los dos (TU-09), y el menú y la
+ * pausa (TU-15): `main.ts` llama a `interfaz.cuadro()` en cada cuadro y no avanza las físicas si `juego.corren` es
+ * falso. */
+export type EscenaDeJuego = Escena & {
+  readonly vistas?: VistasPartidas;
+  readonly juego?: Juego;
+  readonly interfaz?: Interfaz;
+};
+
 // Cada escena se abre con `?escena=<nombre>`. Las capturas automáticas recorren esta lista.
-export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Escena> = {
+export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => EscenaDeJuego> = {
   prueba: crearEscenaPrueba,
   muneco: crearEscenaMuneco,
   pinar: crearEscenaPinar,

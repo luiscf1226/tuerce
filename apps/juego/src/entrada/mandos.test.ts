@@ -9,6 +9,8 @@ import {
   type EntradaJugador,
   entradaQuieta,
   entradasFijas,
+  esTeclaDelJuego,
+  gestoDeDireccion,
   leerMando,
   leerTeclasDe,
   type MandoLeido,
@@ -16,6 +18,8 @@ import {
   SIN_MANDOS,
   sumarMando,
   TECLAS,
+  TECLAS_PAUSA,
+  TECLAS_SENAS,
 } from "./mandos";
 
 /** Un `Gamepad` de mentira con mapeo estándar: 4 ejes y 17 botones sueltos. */
@@ -252,5 +256,79 @@ describe("entrada fija por la dirección", () => {
     expect(pasos.map(([uno]) => uno.saltar)).toEqual([false, false, false, true, true]);
     expect(pasos.map(([uno]) => uno.avanzar)).toEqual([1, 1, 1, 1, 1]);
     expect(pasos.map(([, dos]) => dos.brazoDerecho)).toEqual([false, true, true, true, true]);
+  });
+});
+
+describe("pausa, señalar y gestos (TU-15)", () => {
+  it("las teclas nuevas no pisan las de caminar ni son de los dos jugadores", () => {
+    const viejas = [...Object.keys(TECLAS[0]), ...Object.keys(TECLAS[1])];
+    const nuevas = [...Object.keys(TECLAS_SENAS[0]), ...Object.keys(TECLAS_SENAS[1]), ...TECLAS_PAUSA];
+    expect(nuevas.filter((t) => viejas.includes(t))).toEqual([]);
+    expect(Object.keys(TECLAS_SENAS[0]).filter((t) => t in TECLAS_SENAS[1])).toEqual([]);
+    for (const t of nuevas) expect(esTeclaDelJuego(t)).toBe(true);
+  });
+
+  it("Z señala el 1, la barra el 2; Esc y P pausan para los dos", () => {
+    expect(leerTeclasDe(0, ["KeyZ"])).toEqual(quieta({ senalar: true }));
+    expect(leerTeclasDe(1, ["Slash"])).toEqual(quieta({ senalar: true }));
+    expect(leerTeclasDe(1, ["KeyZ"])).toEqual(entradaQuieta());
+    for (const j of [0, 1] as const) {
+      expect(leerTeclasDe(j, ["Escape"]).pausa).toBe(true);
+      expect(leerTeclasDe(j, ["KeyP"]).pausa).toBe(true);
+    }
+  });
+
+  it("tecla de gesto + dirección: elige el gesto y no camina", () => {
+    expect(leerTeclasDe(0, ["KeyX", "KeyW"])).toEqual(quieta({ gesto: "festejar" }));
+    expect(leerTeclasDe(0, ["KeyX", "KeyS"])).toEqual(quieta({ gesto: "encoger" }));
+    expect(leerTeclasDe(0, ["KeyX", "KeyA"])).toEqual(quieta({ gesto: "saludar" }));
+    expect(leerTeclasDe(1, ["ShiftRight", "ArrowRight"])).toEqual(quieta({ gesto: "llamar" }));
+    // sin dirección no hay gesto, pero tampoco camina
+    expect(leerTeclasDe(0, ["KeyX"])).toEqual(entradaQuieta());
+    expect(gestoDeDireccion(0.2, 0.1)).toBeNull();
+  });
+
+  it("mando: Y señala, Start pausa, X + palanca hace el gesto", () => {
+    expect(leerMando(mando(0, { botones: { [BOTON.y]: 1 } }))).toEqual(quieta({ senalar: true }));
+    expect(leerMando(mando(0, { botones: { [BOTON.start]: 1 } }))).toEqual(quieta({ pausa: true }));
+    expect(leerMando(mando(0, { ejes: [-1, 0], botones: { [BOTON.x]: 1 } }))).toEqual(quieta({ gesto: "saludar" }));
+    expect(leerMando(mando(0, { botones: { [BOTON.x]: 1, [BOTON.arriba]: 1 } }))).toEqual(
+      quieta({ gesto: "festejar" }),
+    );
+  });
+
+  it("entrada fija: senalar con @N y gesto por nombre", () => {
+    const fijas = entradasFijas(new URLSearchParams("j1=senalar&j2=gesto:llamar"));
+    expect(fijas?.[0]).toEqual(quieta({ senalar: true }));
+    expect(fijas?.[1]).toEqual(quieta({ gesto: "llamar" }));
+    const controles = crearControles({ parametros: new URLSearchParams("j1=senalar@2") });
+    expect(controles.leer()[0].senalar).toBe(false);
+    controles.leer();
+    expect(controles.leer()[0].senalar).toBe(true);
+  });
+
+  it("pedirPausa avisa una vez por apretada, de teclado o de Start", () => {
+    const oyentes = new Map<string, (e: { code: string; repeat: boolean; preventDefault(): void }) => void>();
+    const teclado = {
+      addEventListener: (
+        tipo: string,
+        oyente: (e: { code: string; repeat: boolean; preventDefault(): void }) => void,
+      ) => oyentes.set(tipo, oyente),
+    } as unknown as Pick<Window, "addEventListener">;
+    let conectados: MandoLeido[] = [];
+    const controles = crearControles({ parametros: new URLSearchParams(), mandos: () => conectados, teclado });
+    const bajar = (code: string, repeat = false) => oyentes.get("keydown")?.({ code, repeat, preventDefault() {} });
+    expect(controles.pedirPausa()).toBe(false);
+    bajar("Escape");
+    bajar("Escape", true); // la tecla mantenida se repite: no cuenta
+    expect(controles.pedirPausa()).toBe(true);
+    expect(controles.pedirPausa()).toBe(false);
+    conectados = [mando(2, { botones: { [BOTON.start]: 1 } })];
+    expect(controles.pedirPausa()).toBe(true);
+    expect(controles.pedirPausa()).toBe(false); // sigue apretado: no vuelve a avisar
+    conectados = [mando(2)];
+    controles.pedirPausa();
+    conectados = [mando(2, { botones: { [BOTON.start]: 1 } })];
+    expect(controles.pedirPausa()).toBe(true);
   });
 });

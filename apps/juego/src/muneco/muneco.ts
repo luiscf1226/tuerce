@@ -45,7 +45,20 @@ export interface EntradaMuneco {
   brazoIzquierdo?: boolean;
   /** Lo mismo para el brazo derecho. */
   brazoDerecho?: boolean;
+  /** Pose de los brazos sueltos (señalar y gestos, TU-15): el brazo va hacia esa dirección sin agarrar nada. El
+   * botón de agarrar le gana a la pose. */
+  pose?: PoseBrazos;
 }
+
+/** Hacia dónde apunta la mano, en el marco del muñeco: `afuera` hacia el costado de ese brazo, `arriba` y
+ * `adelante` hacia donde mira. No hace falta que mida 1. */
+export interface PoseBrazo {
+  afuera: number;
+  arriba: number;
+  adelante: number;
+}
+
+export type PoseBrazos = Partial<Record<NombreBrazo, PoseBrazo>>;
 
 /** En qué anda el muñeco: parado (o caminando), en el aire (o colgado), trepando, tirado como un trapo o
  * levantándose. */
@@ -132,6 +145,7 @@ const VECINOS = new WeakMap<RAPIER.World, Vecino[]>();
 const ARRIBA = new THREE.Vector3(0, 1, 0);
 const EJE_X = new THREE.Vector3(1, 0, 0);
 const EJE_Z = new THREE.Vector3(0, 0, 1);
+const ABAJO = new THREE.Vector3(0, -1, 0);
 
 export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: OpcionesMuneco = {}): Muneco {
   const origen = new THREE.Vector3(opciones.posicion?.x ?? 0, opciones.posicion?.y ?? 0, opciones.posicion?.z ?? 0);
@@ -299,6 +313,7 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
   const qObjetivo = new THREE.Quaternion();
   const qRumbo = new THREE.Quaternion();
   const qInclinar = new THREE.Quaternion();
+  const haciaPose = new THREE.Vector3();
   const qAux = new THREE.Quaternion();
   const error = new THREE.Vector3();
   const w = new THREE.Vector3();
@@ -820,6 +835,7 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     for (const brazo of brazos) if (entrada[brazo.nombre] === true) cargaTotal += cargaDe(brazo);
     for (const brazo of brazos) {
       const { cuerpo: c, lado } = brazo;
+      const pose = entrada.pose?.[brazo.nombre];
       const alzado = entrada[brazo.nombre] === true;
       if (!alzado) brazo.esperar = false;
       if (alzado && trepando && brazo.junta) {
@@ -836,6 +852,12 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
         if (kilos > 0 && brazo.otro)
           sostener(brazo.otro, anclaDe(brazo, ancla), kilos * Math.min(1, AJUSTES.cargar.kilos / cargaTotal));
         if (!brazo.junta && !brazo.esperar && estado !== "caido" && !trepando) agarrar(brazo);
+      } else if (pose && !alzado) {
+        // Con pose (señalar, gestos): el brazo (su -y) va hacia esa dirección, con el PD fuerte de alzar
+        if (brazo.junta) soltar(brazo);
+        haciaPose.set(lado * pose.afuera, pose.arriba, pose.adelante).normalize();
+        qObjetivo.setFromUnitVectors(ABAJO, haciaPose).premultiply(qRumbo);
+        girarHacia(c, qObjetivo, b.alzar.frecuencia, b.alzar.amortiguacion, torso);
       } else {
         if (brazo.junta && !alzado) {
           if (estado === "en el aire" && desdeSalto < AJUSTES.lanzar.ventana) lanzar(brazo);
