@@ -51,6 +51,8 @@ export interface Conexion {
   /** Devuelve con qué dejar de escuchar. */
   alRecibir(oyente: (datos: Datos, via: Via) => void): () => void;
   alCambiarEstado(oyente: (estado: EstadoRed) => void): () => void;
+  /** Los servidores ICE de la sala (STUN y TURN), para abrir otra conexión directa entre los dos (la voz). */
+  servidoresIce(): Promise<RTCIceServer[]>;
   /** Para pruebas y depuración: corta lo directo como si se hubiera caído la red. */
   cortarDirecta(): void;
   cerrar(): void;
@@ -437,6 +439,7 @@ export function conectar(op: OpcionesConexion, deps: Dependencias = DEPENDENCIAS
         oyentesEstado.add(oyente);
         return () => oyentesEstado.delete(oyente);
       },
+      servidoresIce,
       cortarDirecta() {
         if (directa) caida(true);
       },

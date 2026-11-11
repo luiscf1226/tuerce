@@ -15,7 +15,7 @@ import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
 import { type CamaraDeDos, crearCamaraDeDos, ENCUADRE } from "../camara";
 import { crearAyuda } from "../entrada/ayuda";
-import { crearControles, entradaQuieta } from "../entrada/mandos";
+import { crearControles, type EntradaJugador, entradaQuieta } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import {
   crearAbeto,
@@ -53,10 +53,17 @@ const DIRECCION_CAMARA = new THREE.Vector3(0.45, 0.32, 1);
  * ella para que se sigan leyendo. */
 const NIEBLA = { cerca: 3, lejos: 24 };
 
+/** Para jugar en línea (TU-21, ver en-linea.ts): con lo que leyeron los controles devuelve las entradas de los dos
+ * muñecos, o `null` si este paso no se simula (el invitado ya puso los cuerpos donde dice el anfitrión). */
+export type PasoEnRed = (
+  locales: readonly [EntradaJugador, EntradaJugador],
+) => readonly [EntradaJugador, EntradaJugador] | null;
+
 export function crearEscenaDos(
   rapier: Rapier,
   mundo: RAPIER.World,
   parametros: URLSearchParams = parametrosDeLaDireccion(),
+  enRed?: PasoEnRed,
 ): EscenaDeJuego & { readonly munecos: readonly [Muneco, Muneco]; readonly camaraDeDos: CamaraDeDos } {
   const escena = new THREE.Scene();
   vestirDeDia(escena, { cerca: NIEBLA.cerca, lejos: NIEBLA.lejos });
@@ -213,11 +220,14 @@ export function crearEscenaDos(
     munecos: [rojo.muneco, turquesa.muneco],
     pasar() {
       // En el menú la escena sigue viva, pero los muñecos no escuchan a nadie
-      const [uno, dos] = juego.atienden ? controles.leer() : quietas;
-      rojo.muneco.pasar(senas.entrada(0, uno));
-      turquesa.muneco.pasar(senas.entrada(1, dos));
       cajas.guardar();
-      mundo.step();
+      const leidas = juego.atienden ? controles.leer() : quietas;
+      const entradas = enRed ? enRed(leidas) : leidas;
+      if (entradas) {
+        rojo.muneco.pasar(senas.entrada(0, entradas[0]));
+        turquesa.muneco.pasar(senas.entrada(1, entradas[1]));
+        mundo.step();
+      }
       senas.apuntar();
       rojo.malla.guardar();
       turquesa.malla.guardar();

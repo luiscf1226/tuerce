@@ -5,6 +5,7 @@ import type { Juego } from "../ui";
 import type { Interfaz } from "../ui/menu";
 import { crearEscenaAgarre } from "./agarre";
 import { crearEscenaDos } from "./dos";
+import { crearEscenaEnLinea } from "./en-linea";
 import { crearEscenaMano } from "./mano";
 import { crearEscenaMuneco } from "./muneco";
 import { crearEscenaPinar } from "./pinar";
@@ -28,6 +29,8 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
   agarre: crearEscenaAgarre,
   dos: crearEscenaDos,
   mano: crearEscenaMano,
+  // En línea (TU-21): la escena `dos` con el otro jugador en su casa.
+  "en-linea": crearEscenaEnLinea,
 };
 export const ESCENA_INICIAL = "dos";
 
