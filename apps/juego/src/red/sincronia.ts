@@ -136,13 +136,16 @@ function crearAnfitrion({ enlace, mundo, munecos, origen }: OpcionesSincronia): 
     const nueva = entradas?.[entradas.length - 1];
     if (!entradas || !nueva) return;
     medidas.entradas++;
-    // El invitado volvió a empezar (recargó la página): se sigue desde lo que manda ahora
-    if (nueva.seq + HISTORIAL < aplicada) {
+    // El invitado volvió a empezar (recargó la página) o saltó muy adelante (una pausa larga, o un paquete armado
+    // a mano con una secuencia enorme): se sigue desde lo que manda ahora. Así la cola nunca guarda más de
+    // HISTORIAL entradas ni `mayor` se aleja de `aplicada` más que eso.
+    if (nueva.seq + HISTORIAL < aplicada || nueva.seq > aplicada + HISTORIAL) {
       cola.clear();
       aplicada = mayor = Math.max(0, nueva.seq - entradas.length);
     }
-    for (const { seq, entrada } of entradas) if (seq > aplicada && !cola.has(seq)) cola.set(seq, entrada);
-    mayor = Math.max(mayor, nueva.seq);
+    for (const { seq, entrada } of entradas)
+      if (seq > aplicada && seq <= aplicada + HISTORIAL && !cola.has(seq)) cola.set(seq, entrada);
+    mayor = Math.min(Math.max(mayor, nueva.seq), aplicada + HISTORIAL);
   });
 
   const juntarBotones = (a: EntradaJugador, b: EntradaJugador) => {
@@ -163,7 +166,10 @@ function crearAnfitrion({ enlace, mundo, munecos, origen }: OpcionesSincronia): 
     sinNoticias = 0;
     // Primero la que sigue; si se perdió (aun con las copias), la más vieja que haya
     let seq = aplicada + 1;
-    if (!cola.has(seq)) seq = Math.min(...cola.keys());
+    if (!cola.has(seq)) {
+      seq = Number.POSITIVE_INFINITY;
+      for (const clave of cola.keys()) if (clave < seq) seq = clave;
+    }
     const elegida = { ...(cola.get(seq) ?? remota) };
     cola.delete(seq);
     aplicada = seq;

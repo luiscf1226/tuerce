@@ -132,8 +132,12 @@ export function crearVoz(conexion: ConexionVoz, op: OpcionesVoz = {}): Voz {
 
   const abrir = (): Promise<RTCPeerConnection> => {
     if (pc) return Promise.resolve(pc);
-    abriendo ??= (async () => {
+    if (abriendo) return abriendo;
+    let esta: Promise<RTCPeerConnection> | undefined;
+    esta = (async () => {
       const iceServers = (await conexion.servidoresIce?.().catch(() => [])) ?? [];
+      // Si mientras tanto se cerró (la conexión pasó al repetidor), esta apertura ya no vale
+      if (abriendo !== esta) throw new Error("la voz se cerró mientras se abría");
       const nueva = crearConexion({ iceServers });
       nueva.onicecandidate = (e) => {
         if (e.candidate) mandar({ candidato: e.candidate.toJSON() });
@@ -166,7 +170,8 @@ export function crearVoz(conexion: ConexionVoz, op: OpcionesVoz = {}): Voz {
       pc = nueva;
       return nueva;
     })();
-    return abriendo;
+    abriendo = esta;
+    return esta;
   };
 
   const atender = async (senal: SenalVoz) => {

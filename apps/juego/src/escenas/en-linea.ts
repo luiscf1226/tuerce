@@ -19,6 +19,7 @@ import type { Muneco } from "../muneco";
 import { type Conexion, conectar, type EstadoRed, type Rol } from "../red";
 import { crearSincronia, type Medidas, type Sincronia } from "../red/sincronia";
 import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
+import type { Juego } from "../ui/juego";
 import { crearEscenaDos } from "./dos";
 import type { EscenaDeJuego } from "./index";
 import "./en-linea.css";
@@ -72,8 +73,11 @@ export function crearEscenaEnLinea(
     // Todos los controles de esta máquina (teclado de los dos lados y mandos) manejan el muñeco propio
     return sincronia.paso(juntarEntradas(locales[0], locales[1]));
   });
-  // En línea no hay menú de inicio («jugar aquí de a dos»): se entra jugando. La pausa es de cada pantalla.
+  // En línea no hay menú de inicio («jugar aquí de a dos»): se entra jugando. La pausa es de cada pantalla: tapa
+  // la propia y deja de mandar botones, pero las físicas siguen, porque si el anfitrión las parara al otro se le
+  // congelaría el juego sin explicación.
   dos.juego?.jugar();
+  const juego: Juego | undefined = dos.juego && Object.create(dos.juego, { corren: { get: () => true } });
 
   const prueba: EstadoEnLinea = {
     estado: "sin_conexion",
@@ -116,7 +120,7 @@ export function crearEscenaEnLinea(
     camara: dos.camara,
     munecos: dos.munecos,
     ...(dos.vistas ? { vistas: dos.vistas } : {}),
-    ...(dos.juego ? { juego: dos.juego } : {}),
+    ...(juego ? { juego } : {}),
     ...(dos.interfaz ? { interfaz: dos.interfaz } : {}),
     pasar() {
       dos.pasar();
@@ -178,7 +182,7 @@ function crearInterfaz(): Interfaz {
       voz.alCambiar(pintar);
       microfono.onclick = () => {
         if (voz.estado === "encendida") voz.apagar();
-        else void voz.prender();
+        else voz.prender().catch((error: unknown) => console.warn("Tuerce · voz: no se pudo prender", error));
         // Que las teclas sigan yendo al juego y Espacio no vuelva a apretar el botón
         microfono.blur();
       };

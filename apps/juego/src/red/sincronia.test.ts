@@ -9,7 +9,7 @@ import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import { crearMundo } from "../motor/fisica";
 import type { Datos } from "./marco";
-import { REDUNDANCIA } from "./paquetes";
+import { escribirEntradas, REDUNDANCIA } from "./paquetes";
 import { crearSincronia, cuerposMoviles, type Enlace, type Sincronia } from "./sincronia";
 
 interface Red {
@@ -247,5 +247,33 @@ describe("sincronía con 75 ms de ida, temblor y 2 % de pérdida", () => {
     expect(recorrido).toBeGreaterThan(2);
     expect(diferencia).toBeLessThan(0.3);
     expect(Math.abs(escenaA.munecos[1].rumbo - referencia.munecos[1].rumbo)).toBeLessThan(0.15);
+  });
+});
+
+describe("el anfitrión no confía en lo que manda el invitado", () => {
+  it("una secuencia enorme no lo congela ni le llena la cola", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const escena = crearEscenaDos(rapier, mundo, new URLSearchParams(), () => null);
+    let oyente: ((datos: Datos) => void) | undefined;
+    const enlace: Enlace = {
+      enviar() {},
+      alRecibir(o) {
+        oyente = o;
+        return () => {};
+      },
+    };
+    const anfitrion = crearSincronia({ rol: "anfitrion", enlace, mundo, munecos: escena.munecos });
+    const andar = { ...entradaQuieta(), avanzar: 1 };
+    const mandar = (seq: number) => oyente?.(escribirEntradas([{ seq, entrada: andar }]));
+    mandar(10);
+    anfitrion.paso(entradaQuieta());
+    const inicio = performance.now();
+    mandar(0xffffffff);
+    for (let i = 0; i < 5; i++) anfitrion.paso(entradaQuieta());
+    // Una avalancha de secuencias distintas tampoco
+    for (let seq = 1; seq < 50_000; seq += 7) mandar(seq * 97);
+    for (let i = 0; i < 5; i++) anfitrion.paso(entradaQuieta());
+    expect(performance.now() - inicio).toBeLessThan(1000);
+    expect(anfitrion.medidas.esperando).toBeLessThanOrEqual(240);
   });
 });

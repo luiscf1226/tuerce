@@ -215,15 +215,20 @@ try {
   revisar((await e.evaluate(() => window.__enLinea?.rol)) === "anfitrion", "en línea: el primero no es el anfitrión");
   const munecos = (pagina) => pagina.evaluate(() => window.__enLinea?.munecos());
   const antes = await Promise.all([munecos(e), munecos(f)]);
-  await dormir(2500);
-  const despues = await Promise.all([munecos(e), munecos(f)]);
-  const movidas = [0, 1].map((pagina) =>
-    [0, 1].map((m) => {
-      const a = antes[pagina]?.[m];
-      const d = despues[pagina]?.[m];
-      return a && d ? Math.hypot(d.x - a.x, d.z - a.z) : 0;
-    }),
-  );
+  // Se espera a que se muevan, no un tiempo fijo: sin GPU (en la revisión) la escena da menos pasos por segundo
+  let movidas = [];
+  for (const limite = Date.now() + 20_000; ; ) {
+    await dormir(500);
+    const despues = await Promise.all([munecos(e), munecos(f)]);
+    movidas = [0, 1].map((pagina) =>
+      [0, 1].map((m) => {
+        const a = antes[pagina]?.[m];
+        const d = despues[pagina]?.[m];
+        return a && d ? Math.hypot(d.x - a.x, d.z - a.z) : 0;
+      }),
+    );
+    if (movidas.every((m) => m.every((d) => d > 0.8)) || Date.now() > limite) break;
+  }
   revisar(
     movidas.every((m) => m.every((d) => d > 0.8)),
     `en línea: no se movieron los dos muñecos en las dos páginas (metros: ${JSON.stringify(movidas)})`,
