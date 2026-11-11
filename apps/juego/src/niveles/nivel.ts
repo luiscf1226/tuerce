@@ -158,6 +158,13 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
       }
       guion.alRetomar?.(punto, nivel);
     },
+    retomar(nuevo) {
+      const n = Math.max(0, Math.min(ultimo, Math.floor(nuevo)));
+      if (!(n > punto)) return;
+      punto = n;
+      guion.alRetomar?.(punto, nivel);
+      for (const aviso of avisos) aviso(punto);
+    },
   };
 
   const nivel: Nivel = {

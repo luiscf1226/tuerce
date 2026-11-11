@@ -27,6 +27,7 @@ import { crearInterfaz } from "../ui/menu";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
+import type { AvanceDeNivel } from "./tipos";
 
 /** La cámara: hacia dónde queda de lo que mira, un poco más alta que en `dos` para ver los huecos. */
 const DIRECCION_CAMARA = new THREE.Vector3(0.35, 0.42, 1);
@@ -120,12 +121,25 @@ export function armarEscenaNivel(
     jugadores[jugador].malla.guardar();
     jugadores[jugador].malla.guardar();
   };
-  const punto = Number(parametros.get("punto"));
-  if (parametros.has("punto") && Number.isFinite(punto)) {
-    nivel.avance.irA(punto);
+  // El avance de la escena: el del nivel, pero las mallas saltan al lugar nuevo (al retomar un avance guardado o el
+  // mundo que devolvió el invitado) en vez de dibujarse un cuadro a mitad de camino
+  const saltarMallas = () => {
     saltarMalla(0);
     saltarMalla(1);
-  }
+  };
+  const avance: AvanceDeNivel = {
+    ...nivel.avance,
+    irA(n) {
+      nivel.avance.irA(n);
+      saltarMallas();
+    },
+    retomar(n) {
+      nivel.avance.retomar(n);
+      saltarMallas();
+    },
+  };
+  const punto = Number(parametros.get("punto"));
+  if (parametros.has("punto") && Number.isFinite(punto)) avance.irA(punto);
   seguirConLaCamara();
 
   let pasos = 0;
@@ -139,7 +153,7 @@ export function armarEscenaNivel(
     ...(interfaz ? { interfaz } : {}),
     munecos,
     nivel,
-    avance: nivel.avance,
+    avance,
     pasar() {
       const leidas = juego.atienden ? controles.leer() : quietas;
       const entradas = enRed ? enRed(leidas) : leidas;

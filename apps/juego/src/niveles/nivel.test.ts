@@ -100,6 +100,35 @@ describe("puntos de control", () => {
     nivel.avance.irA(40);
     expect(nivel.avance.puntoDeControl()).toBe(3);
   });
+
+  it("`retomar` fija el punto sin mover a nadie, avisa, solo avanza, y la compuerta no se vuelve a hundir", async () => {
+    const { nivel, munecos, plano, correr, pelvis } = await armar();
+    const avisos: number[] = [];
+    nivel.avance.alCambiar((p) => avisos.push(p));
+    correr(10);
+    const antes = pelvis(0);
+    nivel.avance.retomar(1);
+    nivel.avance.retomar(0);
+    nivel.avance.retomar(Number.NaN);
+    correr(120);
+    expect(nivel.avance.puntoDeControl()).toBe(1);
+    expect(avisos).toEqual([1]);
+    expect(pelvis(0).distanceTo(antes)).toBeLessThan(0.3);
+    const compuerta = nivel.pieza("compuerta").cuerpo;
+    const abajo = compuerta?.translation().y ?? 0;
+    expect(abajo).toBeLessThan(0);
+    // Al llegar después al punto 2, el guion no repite lo del punto 1 (la compuerta no sube a hundirse otra vez)
+    const dos = plano.puntos[2]?.lugares[0];
+    if (!dos) throw new Error("sin punto 2");
+    munecos[0].reaparecer(dos.posicion, dos.rumbo);
+    let masAlta = abajo;
+    for (let i = 0; i < 90; i++) {
+      correr(1);
+      masAlta = Math.max(masAlta, compuerta?.translation().y ?? 0);
+    }
+    expect(nivel.avance.puntoDeControl()).toBe(2);
+    expect(masAlta - abajo).toBeLessThan(0.01);
+  });
 });
 
 describe("reaparición", () => {

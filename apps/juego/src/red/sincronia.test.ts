@@ -21,7 +21,15 @@ import {
   TIPO_SIN_MUNDO,
   tipoDe,
 } from "./paquetes";
-import { crearSincronia, cuerposMoviles, type Enlace, ESPERA_MUNDO, REPEDIR_MUNDO, type Sincronia } from "./sincronia";
+import {
+  crearSincronia,
+  cuerposMoviles,
+  type Enlace,
+  ESPERA_MUNDO,
+  type OpcionesSincronia,
+  REPEDIR_MUNDO,
+  type Sincronia,
+} from "./sincronia";
 
 interface Red {
   anfitrion: Enlace;
@@ -169,7 +177,7 @@ describe("sincronía con 75 ms de ida, temblor y 2 % de pérdida", () => {
         `perdidos ${red.perdidos}/${red.enviados}; repetidas ${anfitrion.medidas.repetidas}, saltadas ${anfitrion.medidas.saltadas}, ` +
         `invitado esperando ${invitado.medidas.esperando} pasos`,
     );
-    expect(anfitrion.medidas.bytesFoto).toBe(238);
+    expect(anfitrion.medidas.bytesFoto).toBe(239);
     expect(red.perdidos).toBeGreaterThan(0);
 
     /** El estado del anfitrión en un paso con fracción. */
@@ -304,14 +312,18 @@ describe("el anfitrión no confía en lo que manda el invitado", () => {
 
 /** Una partida en Node: anfitrión e invitado con la escena `dos`, sobre la red de mentira (sin pérdida). */
 async function partida(red: Red) {
-  const crearLado = async (rol: "anfitrion" | "invitado", entrada: () => EntradaJugador) => {
+  const crearLado = async (
+    rol: "anfitrion" | "invitado",
+    entrada: () => EntradaJugador,
+    avance?: OpcionesSincronia["avance"],
+  ) => {
     const { rapier, mundo } = await crearMundo();
     const lado: { sincronia?: Sincronia } = {};
     const escena = crearEscenaDos(rapier, mundo, new URLSearchParams(), () =>
       lado.sincronia ? lado.sincronia.paso(entrada()) : null,
     );
     const enlace = rol === "anfitrion" ? red.anfitrion : red.invitado;
-    const sincronia = crearSincronia({ rol, enlace, mundo, munecos: escena.munecos });
+    const sincronia = crearSincronia({ rol, enlace, mundo, munecos: escena.munecos, ...(avance ? { avance } : {}) });
     lado.sincronia = sincronia;
     return { escena, sincronia, mundo, cuerpos: cuerposMoviles(mundo) };
   };
@@ -386,6 +398,51 @@ describe("reconexión (TU-22)", () => {
     expect(lejos(pelvis(anfitrion2.escena, 1), despues[1])).toBeGreaterThan(0.5);
   });
 
+  it("el punto de control viaja en las fotos y vuelve con el mundo, aunque el anfitrión arranque en 0", async () => {
+    /** Un avance de mentira: `retomar` solo avanza, como el de un nivel. */
+    const avanceDeMentira = (inicial: number) => {
+      const a = {
+        punto: inicial,
+        retomados: [] as number[],
+        puntoDeControl: () => a.punto,
+        retomar(p: number) {
+          a.retomados.push(p);
+          a.punto = Math.max(a.punto, p);
+        },
+      };
+      return a;
+    };
+    const red = crearRed({ perdida: 0 });
+    const { crearLado } = await partida(red);
+    const delAnfitrion = avanceDeMentira(0);
+    const delInvitado = avanceDeMentira(0);
+    const anfitrion1 = await crearLado("anfitrion", entradaQuieta, delAnfitrion);
+    const invitado = await crearLado("invitado", entradaQuieta, delInvitado);
+    const paso = (a: typeof anfitrion1) => {
+      red.avanzar(1000 / 60);
+      a.escena.pasar();
+      a.sincronia.despues();
+      invitado.escena.pasar();
+    };
+    for (let i = 0; i < 30; i++) paso(anfitrion1);
+    delAnfitrion.punto = 2; // la pareja alcanzó el punto 2
+    for (let i = 0; i < 30; i++) paso(anfitrion1);
+    expect(delInvitado.punto).toBe(2);
+
+    // El anfitrión recarga y Convex no llegó a guardar el 2: arranca en 0, pero el mundo devuelto trae el 2
+    anfitrion1.sincronia.cerrar();
+    red.avanzar(500);
+    const delAnfitrion2 = avanceDeMentira(0);
+    const anfitrion2 = await crearLado("anfitrion", entradaQuieta, delAnfitrion2);
+    for (let i = 0; anfitrion2.sincronia.mundo === "esperando"; i++) {
+      expect(i).toBeLessThan(30);
+      paso(anfitrion2);
+    }
+    expect(anfitrion2.sincronia.mundo).toBe("devuelto");
+    expect(delAnfitrion2.retomados).toEqual([2]);
+    expect(delAnfitrion2.punto).toBe(2);
+  });
+
   it("si el invitado tampoco tiene mundo, el anfitrión juega con el suyo", async () => {
     const red = crearRed({ perdida: 0 });
     const { crearLado } = await partida(red);
@@ -431,6 +488,7 @@ describe("reconexión (TU-22)", () => {
       ack: 0,
       estados: ["de pie", "de pie"] as const,
       agarres: 0,
+      punto: 0,
       rumbos: [0, 0] as [number, number],
       velocidades: [
         { x: 0, y: 0, z: 0 },
@@ -470,6 +528,7 @@ describe("reconexión (TU-22)", () => {
       ack: 3,
       estados: ["de pie", "caido"] as ["de pie", "caido"],
       agarres: 0,
+      punto: 0,
       rumbos: [0.5, -1] as [number, number],
       velocidades: [
         { x: 0, y: 0, z: 0 },

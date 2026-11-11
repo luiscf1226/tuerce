@@ -25,6 +25,9 @@
 //     los pasos desde esa foto (así el colchón del invitado no se entera) y retoma. Si el invitado contesta que
 //     no tiene nada (TIPO_SIN_MUNDO: él también acaba de abrir la página) o no contesta en ESPERA_MUNDO pasos,
 //     se juega con el mundo propio, que ya arrancó en el último punto de control guardado (ver en-linea.ts).
+//   · La foto también lleva el punto de control de la pareja (si la escena es un nivel): el invitado lo anota en su
+//     avance y lo devuelve con el mundo, así el anfitrión que retoma sigue desde ahí aunque Convex no lo sepa todavía
+//     (y el guion no repite lo de un punto ya alcanzado, como hundir otra vez la compuerta).
 //   · Una vez decidido no se pregunta más: si al anfitrión solo se le cortó la red, su mundo es el bueno.
 //   · Lo que no vuelve: los agarres (las manos se sueltan) y las velocidades (todo retoma quieto).
 //
@@ -33,6 +36,7 @@
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
 import { type EntradaJugador, entradaQuieta } from "../entrada/mandos";
+import type { AvanceDeNivel } from "../escenas/tipos";
 import type { Muneco } from "../muneco";
 import { crearBufferFotos, type Muestra, RETRASO_PASOS } from "./interpolar";
 import type { Datos, Rol } from "./marco";
@@ -128,6 +132,8 @@ export interface OpcionesSincronia {
   munecos: readonly [Muneco, Muneco];
   /** Desde dónde se miden las posiciones de la foto (el centro del nivel). */
   origen?: Vector;
+  /** El avance de la escena, si es un nivel: su punto de control viaja en las fotos y vuelve con el mundo. */
+  avance?: Pick<AvanceDeNivel, "puntoDeControl" | "retomar">;
   /** El colchón del invitado en pasos (6 = 100 ms). */
   retraso?: number;
   /** El invitado predice su muñeco (true por omisión). */
@@ -154,7 +160,7 @@ function medidasNuevas(): Medidas {
 
 const SIN_DESVIO: Desvio = { x: 0, z: 0, rumbo: 0 };
 
-function crearAnfitrion({ enlace, mundo, munecos, origen }: OpcionesSincronia): Sincronia {
+function crearAnfitrion({ enlace, mundo, munecos, origen, avance }: OpcionesSincronia): Sincronia {
   const cuerpos = cuerposMoviles(mundo);
   const medidas = medidasNuevas();
   const cola = new Map<number, EntradaJugador>();
@@ -182,6 +188,7 @@ function crearAnfitrion({ enlace, mundo, munecos, origen }: OpcionesSincronia): 
     const [rojo, turquesa] = munecos;
     rojo.orientar(foto.rumbos[0]);
     turquesa.orientar(foto.rumbos[1]);
+    avance?.retomar(foto.punto);
     // Los pasos y las entradas siguen contando desde la foto: el invitado no ve un salto en la numeración
     pasos = foto.paso;
     cola.clear();
@@ -298,6 +305,7 @@ function crearAnfitrion({ enlace, mundo, munecos, origen }: OpcionesSincronia): 
         agarres: agarres(),
         rumbos: [rojo.rumbo, turquesa.rumbo],
         velocidades: [rojo.partes.pelvis.linvel(), turquesa.partes.pelvis.linvel()],
+        punto: avance?.puntoDeControl() ?? 0,
         posiciones,
         rotaciones,
       };
@@ -322,6 +330,7 @@ function crearInvitado({
   mundo,
   munecos,
   origen,
+  avance,
   retraso = RETRASO_PASOS,
   ...op
 }: OpcionesSincronia): Sincronia {
@@ -357,6 +366,7 @@ function crearInvitado({
     const foto = leerFoto(datos, origen);
     if (!foto || foto.posiciones.length !== cuerpos.length * 3) return;
     if (!ultima || foto.paso > ultima.paso || foto.paso + REINICIO < ultima.paso) ultima = foto;
+    if (avance && foto.punto > avance.puntoDeControl()) avance.retomar(foto.punto);
     medidas.fotos++;
     medidas.bytesFoto = datos.byteLength;
     colchon.recibir(foto, pasoLocal);

@@ -137,7 +137,13 @@ export function crearEscenaEnLinea(
       .then((entrada) => {
         if (!entrada) return;
         const { conexion, guardado } = entrada;
-        sincronia = crearSincronia({ rol: conexion.rol, enlace: conexion, mundo, munecos: dos.munecos });
+        sincronia = crearSincronia({
+          rol: conexion.rol,
+          enlace: conexion,
+          mundo,
+          munecos: dos.munecos,
+          ...(avance ? { avance } : {}),
+        });
         if (avance && guardado) guardarAvance(avance, guardado, conexion.rol);
         prueba.rol = conexion.rol;
         prueba.medidas = sincronia.medidas;

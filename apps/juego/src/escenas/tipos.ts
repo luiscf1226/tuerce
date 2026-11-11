@@ -10,6 +10,11 @@ export interface AvanceDeNivel {
   alCambiar(aviso: (puntoDeControl: number) => void): () => void;
   /** Pone a los dos muñecos en ese punto de control (al retomar un avance guardado). */
   irA(puntoDeControl: number): void;
+  /**
+   * Fija el punto de control sin mover a los muñecos, si es más adelante que el actual: el anfitrión, al retomar el
+   * mundo que le devolvió el invitado; el invitado, con el punto que viene en las fotos. Avisa como un punto nuevo.
+   */
+  retomar(puntoDeControl: number): void;
 }
 
 export interface Escena {

@@ -126,6 +126,8 @@ export const DEPENDENCIAS_NAVEGADOR: Dependencias = {
   },
   abrirDirecta: abrirDirectaWebRTC,
   async pedirIce(url) {
+    // Sin WebRTC (el escritorio en Linux) no hay directa: no se gasta una credencial TURN, que cuenta para el tope
+    if (typeof RTCPeerConnection === "undefined") return [];
     const respuesta = await fetch(url);
     if (!respuesta.ok) throw new Error(`/turn respondió ${respuesta.status}`);
     const { iceServers } = (await respuesta.json()) as { iceServers?: RTCIceServer[] };

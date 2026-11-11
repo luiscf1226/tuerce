@@ -13,6 +13,7 @@ function fotoEn(paso: number): Foto {
     ack: paso,
     estados: ["de pie", "de pie"],
     agarres: 0,
+    punto: 0,
     rumbos: [angulo, 0],
     velocidades: [
       { x: 0.6, y: 0, z: 0 },

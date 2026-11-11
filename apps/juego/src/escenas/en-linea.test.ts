@@ -32,7 +32,13 @@ describe("en línea", () => {
 
   it("usa la escena de base que se le pase y deja ver su avance; sin avance funciona igual", async () => {
     const { rapier, mundo } = await crearMundo();
-    const avance: AvanceDeNivel = { nivel: 99, puntoDeControl: () => 2, alCambiar: () => () => {}, irA: vi.fn() };
+    const avance: AvanceDeNivel = {
+      nivel: 99,
+      puntoDeControl: () => 2,
+      alCambiar: () => () => {},
+      irA: vi.fn(),
+      retomar: vi.fn(),
+    };
     let enRed: Parameters<CrearEscenaDeDos>[3] | undefined;
     const conAvance: CrearEscenaDeDos = (r, m, p, red) => {
       enRed = red;

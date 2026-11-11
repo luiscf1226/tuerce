@@ -18,6 +18,9 @@ function nivelDeMentira(nivel = 99) {
       return () => avisos.delete(aviso);
     },
     irA,
+    retomar: (p) => {
+      punto = Math.max(punto, p);
+    },
   };
   const alcanzar = (p: number) => {
     punto = p;
