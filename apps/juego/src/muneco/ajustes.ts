@@ -78,6 +78,43 @@ export const AJUSTES = {
   agarre: {
     /** Cuánto más allá de la mano todavía cuenta como tocar (m). */
     margen: 0.03,
+    /** La mano agarra recién cuando llega a esta distancia por debajo del hombro: mientras sube, no (m). */
+    bajoElHombro: 0.1,
+  },
+
+  /** Trepar (TU-06): colgado de un borde con las dos manos, `avanzar` lo sube. Es una fuerza en el tronco (un
+   * resorte hacia un punto, que además aguanta el peso), como la de andar, y las piernas patalean. */
+  trepar: {
+    /** Para saber si lo agarrado es un borde: dos rayos hacia abajo, a `tanteo` más adelante del agarre, que
+     * arrancan `sobreElAgarre` más arriba y llegan hasta `bajoElAgarre` más abajo; tienen que encontrar arriba un
+     * piso parejo (no más de `desnivel` entre los dos). Si la mano agarró la cara de la pared, el borde puede quedar
+     * hasta `sobreElAgarre` más arriba: igual sube (m). */
+    tanteo: [0.15, 0.35],
+    desnivel: 0.1,
+    sobreElAgarre: 0.8,
+    bajoElAgarre: 0.3,
+    /** El resorte que lleva la pelvis: frecuencia (rad/s), amortiguación (1 = crítica) y tope (m/s²). */
+    frecuencia: 7,
+    amortiguacion: 1,
+    aceleracionMaxima: 22,
+    /** Izarse: la pelvis va a quedar `bajoElAgarre` por debajo de las manos y `atras` de ellas; cuando llega a
+     * `soltar` por debajo de las manos, las suelta y se encarama (m). */
+    izarse: { bajoElAgarre: 0.1, atras: 0.25, soltar: 0.35 },
+    /** Encaramarse: la pelvis sube a `sobreElBorde` por encima del borde, pegada a la pared (`atras` del agarre);
+     * pasado `pasar` por encima del borde, avanza hasta `adelante` del agarre (m). */
+    encaramarse: { sobreElBorde: 0.6, atras: 0.1, pasar: 0.1, adelante: 0.5 },
+    /** Con la pelvis tanto por encima del borde, tanto más adentro que el agarre y suelo bajo los pies, ya está
+     * arriba de pie (m). */
+    arriba: 0.3,
+    adentro: 0.3,
+    /** Si en este tiempo no llegó arriba, se larga (s). */
+    plazo: 3,
+    /** Al trepar el torso se inclina hacia adelante, sobre el borde (rad). */
+    inclinar: 0.4,
+    /** Las patadas contra la pared: ciclos por segundo y ángulos de cadera y rodilla (rad). */
+    patada: { ritmo: 2.2, cadera: 0.7, rodilla: 1.2 },
+    /** Colgado de las manos: los brazos apuntan casi derecho arriba y las piernas cuelgan apenas dobladas (rad). */
+    colgado: { elevacion: 1.35, cadera: -0.2, rodilla: 0.3 },
   },
 
   /** Andar: fuerza horizontal en la pelvis hacia la velocidad deseada (solo con los pies en el suelo). */

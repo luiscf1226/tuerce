@@ -14,6 +14,10 @@
 // mano toca algo, lo agarra con otra rótula entre la mano y eso (una caja, el mundo quieto, el otro muñeco) hasta que
 // se suelta el botón (TU-05).
 //
+// Trepar (TU-06): colgado de un borde quieto con las dos manos, `avanzar` lo hace subir (estado «trepando»). Primero
+// se iza hasta tener los hombros a la altura de las manos y después suelta el borde y se encarama, pataleando, hasta
+// quedar con la pelvis arriba; ahí vuelve a estar «de pie». Es una fuerza en el tronco, como la de andar.
+//
 // Uso: en cada paso de físicas llamá `muneco.pasar(entrada)` y después `mundo.step()`.
 import type RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
@@ -35,8 +39,9 @@ export interface EntradaMuneco {
   brazoDerecho?: boolean;
 }
 
-/** En qué anda el muñeco: parado (o caminando), en el aire, tirado como un trapo o levantándose. */
-export type EstadoMuneco = "de pie" | "en el aire" | "caido" | "levantandose";
+/** En qué anda el muñeco: parado (o caminando), en el aire (o colgado), trepando, tirado como un trapo o
+ * levantándose. */
+export type EstadoMuneco = "de pie" | "en el aire" | "trepando" | "caido" | "levantandose";
 
 export const QUIETO: EntradaMuneco = { avanzar: 0, girar: 0 };
 
@@ -94,6 +99,8 @@ export interface Muneco {
   readonly masa: number;
   /** Lo que tiene agarrado esa mano (el colisionador que tocó), o `null` si no agarra nada. */
   agarrado(brazo: NombreBrazo): RAPIER.Collider | null;
+  /** Si cuelga (o se apoya) con las dos manos de algo quieto que le queda más arriba del torso: un borde, una rama. */
+  readonly colgado: boolean;
   /** Ángulo entre el eje del torso y la vertical, en radianes. */
   inclinacion(): number;
   /** Hacia dónde mira de verdad el torso, en radianes alrededor de +y. */
@@ -251,6 +258,11 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
   /** Lo que falta para poder volver a saltar (s). */
   let espera = 0;
   let saltarAntes = false;
+  /** Si cuelga con las dos manos de algo quieto, y el punto medio entre las dos manos (TU-06). */
+  let colgado = false;
+  const agarre = new THREE.Vector3();
+  /** La trepada en curso: la altura de arriba del borde, dónde lo agarró y si ya lo soltó para encaramarse. */
+  const trepada = { borde: 0, ancla: new THREE.Vector3(), encaramado: false, fase: 0 };
   /** Velocidad del centro de masa en este paso y en el anterior: su diferencia mide los golpes. */
   const centro = new THREE.Vector3();
   const centroAntes = new THREE.Vector3();
@@ -269,6 +281,9 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
   const eje = new THREE.Vector3();
   const mano = new THREE.Vector3();
   const rayo = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
+  const rayoBorde = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
+  const qAncla = new THREE.Quaternion();
+  const ancla = new THREE.Vector3();
 
   // Agarrar (TU-05). Cada brazo guarda su rótula con lo agarrado. Lo que no tiene cuerpo (el suelo, un borde
   // quieto) se agarra con un cuerpo fijo propio, que se crea la primera vez que hace falta.
@@ -283,11 +298,17 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     lado,
     junta: null as RAPIER.ImpulseJoint | null,
     agarrado: null as RAPIER.Collider | null,
+    /** El cuerpo agarrado (o el cuerpo fijo propio, si lo agarrado no tiene cuerpo) y el punto, en su marco. */
+    otro: null as RAPIER.RigidBody | null,
+    ancla: new THREE.Vector3(),
+    /** Soltó solo (al terminar de trepar): no vuelve a agarrar hasta que se suelte el botón. */
+    esperar: false,
   }));
   let fijo: RAPIER.RigidBody | undefined;
   const esferaMano = new rapier.Ball(mb.mano + AJUSTES.agarre.margen);
   const SIN_GIRO = { x: 0, y: 0, z: 0, w: 1 };
   const MANO = { x: 0, y: -mb.largo / 2, z: 0 };
+  const HOMBRO_SOBRE_TORSO = mb.hombroY - mt.y;
   let tocado: RAPIER.Collider | null = null;
   const alTocar = (c: RAPIER.Collider) => {
     tocado = c;
@@ -297,6 +318,8 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
   /** Si la mano toca algo (que no sea el mismo muñeco), lo agarra donde está, sin tironear. */
   const agarrar = (brazo: (typeof brazos)[number]) => {
     mano.set(MANO.x, MANO.y, MANO.z).applyQuaternion(q.copy(brazo.cuerpo.rotation())).add(brazo.cuerpo.translation());
+    // Mientras el brazo sube todavía no agarra: así no se queda pegado a una pared a la altura de la cadera
+    if (mano.y < torso.translation().y + HOMBRO_SOBRE_TORSO - AJUSTES.agarre.bajoElHombro) return;
     tocado = null;
     mundo.intersectionsWithShape(
       mano,
@@ -322,12 +345,83 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
       true,
     );
     brazo.agarrado = c;
+    brazo.otro = otro;
+    brazo.ancla.copy(mano);
   };
 
   const soltar = (brazo: (typeof brazos)[number]) => {
     if (brazo.junta) mundo.removeImpulseJoint(brazo.junta, true);
     brazo.junta = null;
     brazo.agarrado = null;
+    brazo.otro = null;
+  };
+
+  /** Dónde está ahora, en el mundo, el punto que agarra esa mano. */
+  const anclaDe = (brazo: (typeof brazos)[number], salida: THREE.Vector3) => {
+    if (!brazo.otro) return salida.copy(brazo.cuerpo.translation());
+    return salida.copy(brazo.ancla).applyQuaternion(qAncla.copy(brazo.otro.rotation())).add(brazo.otro.translation());
+  };
+
+  /** Si las dos manos agarran algo quieto por encima del torso; deja en `agarre` el punto medio entre las dos. */
+  const colgadoDe = () => {
+    agarre.set(0, 0, 0);
+    for (const brazo of brazos) {
+      if (!brazo.otro || brazo.otro.isDynamic()) return false;
+      agarre.addScaledVector(anclaDe(brazo, ancla), 0.5);
+      if (ancla.y < torso.translation().y) return false;
+    }
+    return true;
+  };
+
+  /** La altura de arriba del borde que agarran las manos: mira desde arriba en dos puntos, uno apenas más adelante
+   * del agarre y otro más adentro, y los dos tienen que dar la misma altura. Si no hay nada (una rama fina), arriba
+   * sigue la pared (un muro más alto) o es algo suelto, no se puede trepar: `null`. */
+  const alturaEn = (adentro: number) => {
+    const t = AJUSTES.trepar;
+    const o = {
+      x: agarre.x + Math.sin(rumbo) * adentro,
+      y: agarre.y + t.sobreElAgarre,
+      z: agarre.z + Math.cos(rumbo) * adentro,
+    };
+    rayoBorde.origin = o;
+    const g = mundo.castRay(rayoBorde, t.sobreElAgarre + t.bajoElAgarre, true, undefined, gruposRayo);
+    if (!g || g.timeOfImpact <= 0 || g.collider.parent()?.isDynamic()) return null;
+    return o.y - g.timeOfImpact;
+  };
+  const buscarBorde = () => {
+    const t = AJUSTES.trepar;
+    const cerca = alturaEn(t.tanteo[0]);
+    const lejos = alturaEn(t.tanteo[1]);
+    if (cerca === null || lejos === null || Math.abs(cerca - lejos) > t.desnivel) return null;
+    return Math.max(cerca, lejos);
+  };
+
+  /** Empuja el tronco con una aceleración (m/s²), repartida según la masa: la pelvis lleva también brazos y piernas. */
+  const empujarTronco = (ax: number, ay: number, az: number) => {
+    const mTronco = masa - torso.mass() - cabeza.mass();
+    for (const [c, m] of [
+      [pelvis, mTronco],
+      [torso, torso.mass()],
+      [cabeza, cabeza.mass()],
+    ] as const) {
+      c.applyImpulse({ x: ax * m * PASO * tension, y: ay * m * PASO * tension, z: az * m * PASO * tension }, true);
+    }
+  };
+
+  /** Trepar (TU-06): lleva la pelvis hacia `objetivo` con un resorte que además aguanta el peso. */
+  const izarHacia = (objetivo: THREE.Vector3) => {
+    const t = AJUSTES.trepar;
+    const p = pelvis.translation();
+    const v = pelvis.linvel();
+    const w0 = t.frecuencia;
+    const kd = 2 * t.amortiguacion * w0;
+    error.set(
+      w0 * w0 * (objetivo.x - p.x) - kd * v.x,
+      w0 * w0 * (objetivo.y - p.y) - kd * v.y,
+      w0 * w0 * (objetivo.z - p.z) - kd * v.z,
+    );
+    if (error.length() > t.aceleracionMaxima) error.setLength(t.aceleracionMaxima);
+    empujarTronco(error.x, error.y - GRAVEDAD, error.z);
   };
 
   /** Torque PD que gira `cuerpo` hacia `objetivo` (en el mundo). Si hay `padre`, la velocidad es relativa a él y el
@@ -391,6 +485,24 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     tiempoSinSuelo = enElSuelo ? 0 : tiempoSinSuelo + PASO;
     espera = Math.max(0, espera - PASO);
     const l = AJUSTES.levantarse;
+    const t = AJUSTES.trepar;
+    /** Ya pasó: la pelvis quedó por encima del borde y bien adentro, no en la orilla. */
+    const arribaDelBorde = () => {
+      const p = pelvis.translation();
+      const adentro = (p.x - trepada.ancla.x) * Math.sin(rumbo) + (p.z - trepada.ancla.z) * Math.cos(rumbo);
+      return p.y > trepada.borde + t.arriba && adentro > t.adentro;
+    };
+    /** Colgado de un borde y apretando hacia adelante: empieza a trepar. */
+    const empezarATrepar = () => {
+      if (!colgado || entrada.avanzar <= 0) return false;
+      const borde = buscarBorde();
+      if (borde === null) return false;
+      trepada.borde = borde;
+      trepada.ancla.copy(agarre);
+      trepada.encaramado = false;
+      pasarA("trepando");
+      return true;
+    };
 
     switch (estado) {
       case "de pie":
@@ -401,11 +513,13 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
           // El salto mismo no cuenta como golpe en el paso siguiente
           centro.y += v;
           pasarA("en el aire");
-        } else if (tiempoSinSuelo > AJUSTES.saltar.sinSuelo) pasarA("en el aire");
+        } else if (empezarATrepar()) break;
+        else if (tiempoSinSuelo > AJUSTES.saltar.sinSuelo) pasarA("en el aire");
         break;
       case "en el aire":
         if (golpe || torcido) pasarA("caido");
-        else if (enElSuelo && centro.y <= 0 && tiempoEnEstado > 0.1) {
+        else if (empezarATrepar()) break;
+        else if (!colgado && enElSuelo && centro.y <= 0 && tiempoEnEstado > 0.1) {
           // Tocó el suelo: si venía muy rápido es una caída de lo alto
           if (centro.y < -AJUSTES.caer.aterrizaje) pasarA("caido");
           else {
@@ -413,6 +527,14 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
             espera = AJUSTES.saltar.espera;
           }
         }
+        break;
+      case "trepando":
+        // Mientras se iza, soltar una mano o dejar de apretar adelante lo deja colgando (o cayendo)
+        if (!trepada.encaramado && (!colgado || entrada.avanzar <= 0)) pasarA("en el aire");
+        else if (trepada.encaramado && enElSuelo && arribaDelBorde()) {
+          pasarA("de pie");
+          espera = AJUSTES.saltar.espera;
+        } else if (tiempoEnEstado > t.plazo) pasarA("en el aire");
         break;
       case "caido":
         tiempoQuieto = centro.length() < l.velocidadQuieto ? tiempoQuieto + PASO : 0;
@@ -446,7 +568,11 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
       gruposRayo,
     );
     enElSuelo = golpe !== null;
+    colgado = colgadoDe();
     decidir(entrada);
+    const trepando = estado === "trepando";
+    /** Colgado en el aire o trepando, el suelo de abajo no lo sostiene: lo sostienen las manos. */
+    const deLasManos = trepando || (colgado && estado === "en el aire");
 
     // Solo de pie se camina; en el aire todavía se puede girar. Caído o levantándose no manda el jugador.
     const avanzar = estado === "de pie" ? limitar(entrada.avanzar, -1, 1) : 0;
@@ -462,7 +588,7 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
 
     // 1. Suspensión (al subir en un salto la fuerza da cero: no empuja hacia abajo, así que no lo frena)
     const altura = MEDIDAS.pelvis.y + s.subirAlCaminar * amplitud;
-    if (golpe && golpe.timeOfImpact <= altura + s.alcanceExtra) {
+    if (golpe && golpe.timeOfImpact <= altura + s.alcanceExtra && !deLasManos) {
       const w0 = s.frecuencia;
       const aceleracion = -GRAVEDAD + w0 * w0 * (altura - golpe.timeOfImpact) - 2 * s.amortiguacion * w0 * v.y;
       const empuje = limitar(masa * aceleracion, 0, s.fuerzaMaxima * peso) * tension * PASO;
@@ -479,14 +605,18 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     girarHacia(pelvis, qRumbo, e.pelvis.frecuencia, e.pelvis.amortiguacion);
     qInclinar.setFromAxisAngle(
       EJE_X,
-      estado === "de pie" ? e.inclinacionAlCaminar * limitar(velocidadAdelante / AJUSTES.andar.velocidad, -1, 1) : 0,
+      trepando
+        ? AJUSTES.trepar.inclinar
+        : estado === "de pie"
+          ? e.inclinacionAlCaminar * limitar(velocidadAdelante / AJUSTES.andar.velocidad, -1, 1)
+          : 0,
     );
     girarHacia(torso, qObjetivo.copy(qRumbo).multiply(qInclinar), e.torso.frecuencia, e.torso.amortiguacion);
     girarHacia(cabeza, qRumbo, e.cabeza.frecuencia, e.cabeza.amortiguacion);
 
     // 3. Andar: fuerza horizontal hacia la velocidad deseada, repartida en el tronco según la masa. Al levantarse
     // la velocidad deseada es cero: lo frena para que se pare en el lugar.
-    if (enElSuelo && estado !== "en el aire") {
+    if (enElSuelo && estado !== "en el aire" && !trepando) {
       const a = AJUSTES.andar;
       const deseada = avanzar * a.velocidad;
       let ax = a.respuesta * (adelante.x * deseada - v.x);
@@ -496,13 +626,32 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
         ax *= a.aceleracionMaxima / largo;
         az *= a.aceleracionMaxima / largo;
       }
-      const mTronco = masa - torso.mass() - cabeza.mass();
-      for (const [c, m] of [
-        [pelvis, mTronco],
-        [torso, torso.mass()],
-        [cabeza, cabeza.mass()],
-      ] as const) {
-        c.applyImpulse({ x: ax * m * PASO * tension, y: 0, z: az * m * PASO * tension }, true);
+      empujarTronco(ax, 0, az);
+    }
+
+    // 3b. Trepar (TU-06): primero se iza colgado de las manos hasta tener los hombros a la altura del agarre; ahí
+    // suelta el borde y se encarama: sube por encima y avanza sobre él hasta que el rayo encuentra arriba el suelo.
+    if (trepando) {
+      const t = AJUSTES.trepar;
+      if (!trepada.encaramado) {
+        trepada.ancla.copy(agarre);
+        mano.copy(agarre).addScaledVector(adelante, -t.izarse.atras);
+        mano.y = agarre.y - t.izarse.bajoElAgarre;
+        izarHacia(mano);
+        if (pelvis.translation().y > agarre.y - t.izarse.soltar) {
+          for (const brazo of brazos) {
+            soltar(brazo);
+            brazo.esperar = true;
+          }
+          trepada.encaramado = true;
+        }
+      }
+      if (trepada.encaramado) {
+        // Mientras no pasa la pelvis por encima del borde, sube pegado a la pared; después avanza sobre él
+        const arriba = pelvis.translation().y > trepada.borde + t.encaramarse.pasar;
+        mano.copy(trepada.ancla).addScaledVector(adelante, arriba ? t.encaramarse.adelante : -t.encaramarse.atras);
+        mano.y = trepada.borde + t.encaramarse.sobreElBorde;
+        izarHacia(mano);
       }
     }
 
@@ -515,36 +664,56 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     const coseno = Math.cos(fase);
     const rigidez = pa.rigidez * tension;
     const amortiguacion = pa.amortiguacionMotor * tension;
-    const encoger = estado === "en el aire";
     const sa = AJUSTES.saltar;
-    const caderaPaso = pa.cadera * amplitud * seno;
-    caderaIzquierda.configureMotorPosition(encoger ? sa.cadera : -caderaPaso, rigidez, amortiguacion);
-    caderaDerecha.configureMotorPosition(encoger ? sa.cadera : caderaPaso, rigidez, amortiguacion);
-    const rodillaPaso = pa.rodilla * amplitud;
-    rodillaIzquierda.configureMotorPosition(
-      encoger ? sa.rodilla : rodillaPaso * Math.max(0, coseno),
-      rigidez,
-      amortiguacion,
-    );
-    rodillaDerecha.configureMotorPosition(
-      encoger ? sa.rodilla : rodillaPaso * Math.max(0, -coseno),
-      rigidez,
-      amortiguacion,
-    );
+    if (trepando) {
+      // Patalea contra la pared: las piernas van y vienen a su ritmo, al revés una de la otra
+      const pt = AJUSTES.trepar.patada;
+      trepada.fase = (trepada.fase + 2 * Math.PI * pt.ritmo * PASO) % (2 * Math.PI);
+      const ida = Math.sin(trepada.fase);
+      caderaIzquierda.configureMotorPosition(pt.cadera * (ida - 0.6), rigidez, amortiguacion);
+      caderaDerecha.configureMotorPosition(pt.cadera * (-ida - 0.6), rigidez, amortiguacion);
+      rodillaIzquierda.configureMotorPosition(pt.rodilla * (0.5 + 0.5 * ida), rigidez, amortiguacion);
+      rodillaDerecha.configureMotorPosition(pt.rodilla * (0.5 - 0.5 * ida), rigidez, amortiguacion);
+    } else {
+      // En el aire encoge las piernas; colgado de las manos las deja caer, apenas dobladas
+      const encoger = estado === "en el aire";
+      const cadera = deLasManos ? AJUSTES.trepar.colgado.cadera : sa.cadera;
+      const rodilla = deLasManos ? AJUSTES.trepar.colgado.rodilla : sa.rodilla;
+      const caderaPaso = pa.cadera * amplitud * seno;
+      caderaIzquierda.configureMotorPosition(encoger ? cadera : -caderaPaso, rigidez, amortiguacion);
+      caderaDerecha.configureMotorPosition(encoger ? cadera : caderaPaso, rigidez, amortiguacion);
+      const rodillaPaso = pa.rodilla * amplitud;
+      rodillaIzquierda.configureMotorPosition(
+        encoger ? rodilla : rodillaPaso * Math.max(0, coseno),
+        rigidez,
+        amortiguacion,
+      );
+      rodillaDerecha.configureMotorPosition(
+        encoger ? rodilla : rodillaPaso * Math.max(0, -coseno),
+        rigidez,
+        amortiguacion,
+      );
+    }
 
     // Brazos: con su botón suben hacia adelante y agarran lo que tocan; sueltos, cuelgan algo abiertos y se
     // balancean al revés que la pierna del mismo lado
     const b = AJUSTES.brazos;
     for (const brazo of brazos) {
       const { cuerpo: c, lado } = brazo;
-      if (entrada[brazo.nombre] === true) {
-        // La mano apunta hacia adelante y arriba: el brazo (su -y) rota hacia +z del rumbo y sube `elevacion`
-        qInclinar.setFromAxisAngle(EJE_X, -(Math.PI / 2 + b.alzar.elevacion));
+      const alzado = entrada[brazo.nombre] === true;
+      if (!alzado) brazo.esperar = false;
+      if (alzado && trepando && brazo.junta) {
+        // Izándose el brazo va suelto: lo tira la rótula del agarre, no hace fuerza contra el torso
+      } else if (alzado && !(trepando && trepada.encaramado)) {
+        // La mano apunta hacia adelante y arriba: el brazo (su -y) rota hacia +z del rumbo y sube `elevacion`.
+        // Colgado apunta más arriba, hacia el agarre, para que el cuerpo quede debajo de las manos.
+        const elevacion = deLasManos ? AJUSTES.trepar.colgado.elevacion : b.alzar.elevacion;
+        qInclinar.setFromAxisAngle(EJE_X, -(Math.PI / 2 + elevacion));
         qObjetivo.copy(qRumbo).multiply(qInclinar);
         girarHacia(c, qObjetivo, b.alzar.frecuencia, b.alzar.amortiguacion, torso);
-        if (!brazo.junta && estado !== "caido") agarrar(brazo);
+        if (!brazo.junta && !brazo.esperar && estado !== "caido" && !trepando) agarrar(brazo);
       } else {
-        if (brazo.junta) soltar(brazo);
+        if (brazo.junta && !alzado) soltar(brazo);
         qInclinar.setFromAxisAngle(EJE_X, lado * b.balanceo * amplitud * seno);
         qObjetivo
           .setFromAxisAngle(EJE_Z, lado * b.abrir)
@@ -580,6 +749,9 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     },
     agarrado(nombre) {
       return brazos.find((b) => b.nombre === nombre)?.agarrado ?? null;
+    },
+    get colgado() {
+      return colgado;
     },
     inclinacion,
     rumboReal() {
