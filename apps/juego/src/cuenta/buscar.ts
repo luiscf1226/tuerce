@@ -66,6 +66,11 @@ export function montarBuscar(convex: ConvexClient, padre: HTMLElement, estado: {
 
   const listos = elemento(seccion, "p", "listos");
   listos.hidden = true;
+  // Ya juntos, a jugar: la escena en línea toma la pareja más reciente y le pide a Convex el pase de su sala
+  const jugar = elemento(seccion, "a", "jugar");
+  jugar.href = "?escena=en-linea";
+  jugar.textContent = "Jugar en línea";
+  jugar.hidden = true;
   const otraVez = elemento(seccion, "button");
   otraVez.type = "button";
   otraVez.textContent = "Buscar otra vez";
@@ -105,6 +110,7 @@ export function montarBuscar(convex: ConvexClient, padre: HTMLElement, estado: {
     pista.hidden = actual !== null;
     esperando.hidden = actual?.estado !== "esperando";
     listos.hidden = actual?.estado !== "emparejados";
+    jugar.hidden = listos.hidden;
     otraVez.hidden = actual?.estado !== "emparejados";
     if (actual?.estado === "esperando") {
       selector.value = actual.region;
