@@ -95,6 +95,29 @@ const TOMAS = [
   },
   { archivo: "piezas-balancin", ruta: "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=170" },
   { archivo: "piezas-balancin-volcado", ruta: "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=230" },
+  // TU-13: el nivel 0, El patio (niveles/00-patio). Entero desde lejos; despiertan tirados en el montón de trapos y
+  // se levantan; el rojo empuja la aldaba y el turquesa pasa el portón; los dos cargan la escalera y se apoya en el
+  // muro (logro «A la de tres»); suben el techo de lámina; el rojo cae al camión que maniobra (la meta); y el
+  // turquesa encuentra la piñata en el palo de mango (el secreto)
+  { archivo: "patio-entero", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "patio-1-despiertan", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=100" },
+  { archivo: "patio-1-levantados", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=260" },
+  {
+    archivo: "patio-2-porton",
+    ruta: "/?escena=nivel&nivel=patio&punto=1&j1=andar:0.8,izq@15,der@15&j2=andar:1&congelar=115",
+  },
+  {
+    archivo: "patio-3-escalera",
+    ruta: "/?escena=nivel&nivel=patio&punto=2&j1=andar:0.6,izq@15,der@15&j2=andar:0.6,izq@15,der@15&congelar=200",
+  },
+  {
+    archivo: "patio-3-apoyada",
+    ruta: "/?escena=nivel&nivel=patio&punto=2&j1=andar:0.6,izq@15,der@15&j2=andar:0.6,izq@15,der@15&congelar=440",
+  },
+  { archivo: "patio-4-lamina", ruta: "/?escena=nivel&nivel=patio&punto=3&j1=andar:1&j2=andar:1&congelar=170" },
+  { archivo: "patio-5-camion", ruta: "/?escena=nivel&nivel=patio&punto=4&j1=andar:1&j2=&congelar=95" },
+  { archivo: "patio-5-meta", ruta: "/?escena=nivel&nivel=patio&punto=4&j1=andar:1&j2=&congelar=170" },
+  { archivo: "patio-secreto", ruta: "/?escena=nivel&nivel=patio&punto=2&j1=&j2=andar:1,girar:0.1&congelar=150" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
