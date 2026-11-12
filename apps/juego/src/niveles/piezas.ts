@@ -23,6 +23,18 @@ import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
 import {
+  type Alfombra,
+  armarAlfombra,
+  armarCampana,
+  armarCarreta,
+  armarEngranaje,
+  armarPesa,
+  type Campana,
+  type Carreta,
+  type Engranaje,
+  type Pesa,
+} from "./piezas-calle";
+import {
   armarHueso,
   armarLampara,
   armarTranca,
@@ -32,6 +44,7 @@ import {
   type Tranca,
   type Tronco,
 } from "./piezas-pinar";
+import { armarSinBueyes, type SinBueyes } from "./sin-bueyes";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si
@@ -146,6 +159,13 @@ export interface PiezaPorTipo {
   hueso: Hueso;
   lampara: Lampara;
   cadejo: Cadejo;
+  // Las de La calle empedrada (TU-25): piezas-calle.ts y sin-bueyes.ts
+  carreta: Carreta;
+  "sin-bueyes": SinBueyes;
+  pesa: Pesa;
+  engranaje: Engranaje;
+  campana: Campana;
+  alfombra: Alfombra;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -681,6 +701,24 @@ export function armarPiezas(
         break;
       case "cadejo":
         lista.push(armarCadejo(herramientas, p));
+        break;
+      case "carreta":
+        lista.push(armarCarreta(herramientas, p));
+        break;
+      case "sin-bueyes":
+        lista.push(armarSinBueyes(herramientas, p));
+        break;
+      case "pesa":
+        lista.push(armarPesa(herramientas, p));
+        break;
+      case "engranaje":
+        lista.push(armarEngranaje(herramientas, p));
+        break;
+      case "campana":
+        lista.push(armarCampana(herramientas, p));
+        break;
+      case "alfombra":
+        lista.push(armarAlfombra(herramientas, p));
         break;
     }
   }

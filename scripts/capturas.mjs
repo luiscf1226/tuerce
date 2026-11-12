@@ -154,6 +154,27 @@ const TOMAS = [
   { archivo: "noche-niebla", ruta: "/?escena=nivel&noche=3&trampa=niebla&j1=andar:1&j2=andar:1&congelar=120" },
   { archivo: "noche-luna", ruta: "/?escena=nivel&noche=1&trampa=luna&j1=saltar@30&j2=saltar@36&congelar=75" },
   { archivo: "noche-menu", ruta: "/?escena=nivel&noche=5&j1=&j2=&menu&congelar=60" },
+  // TU-25: el nivel 3, La calle empedrada (niveles/03-calle), entero, en la salida y una toma por misión: 1. los dos
+  // empujan la carreta por el callejón de la cuesta, y arriba queda trabada; 2. la Carreta sin bueyes en su calle
+  // (con el freno a la entrada) y el rojo que entra y lo saca; 3. la torre del reloj con las pesas y, ya pasado el
+  // punto 3, las agujas en las doce y la puerta arriba; 4. el corredor alto con las enredaderas sobre las alfombras,
+  // y las pisadas del que pasa por la calle; 5. las dos campanas y la reja; 6. los dos suben a la carreta del mirador,
+  // bajando y ya en la plaza. Y el pilón del secreto, arriba de la vitrina del carrito
+  { archivo: "calle-entero", ruta: "/?escena=nivel&nivel=calle&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "calle-salida", ruta: "/?escena=nivel&nivel=calle&j1=&j2=&congelar=60" },
+  { archivo: "calle-1-cuesta", ruta: "/?escena=nivel&nivel=calle&j1=andar:1&j2=andar:1&congelar=700" },
+  { archivo: "calle-1-arriba", ruta: "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-29,3.2,0&congelar=30" },
+  { archivo: "calle-2-sin-bueyes", ruta: "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-15.5,2.6,0&congelar=150" },
+  { archivo: "calle-2-sacado", ruta: "/?escena=nivel&nivel=calle&punto=1&j1=andar:1&j2=&congelar=468" },
+  { archivo: "calle-3-reloj", ruta: "/?escena=nivel&nivel=calle&punto=2&j1=&j2=&vista=3.4,5.4,2.4&congelar=30" },
+  { archivo: "calle-3-abierta", ruta: "/?escena=nivel&nivel=calle&punto=3&j1=&j2=&vista=3.4,5.4,2.4&congelar=90" },
+  { archivo: "calle-4-corredor", ruta: "/?escena=nivel&nivel=calle&punto=3&j1=&j2=&vista=19,4,-0.5&congelar=30" },
+  { archivo: "calle-4-pisadas", ruta: "/?escena=nivel&nivel=calle&punto=3&j1=andar:1&j2=andar:1&congelar=420" },
+  { archivo: "calle-5-campanas", ruta: "/?escena=nivel&nivel=calle&punto=4&j1=&j2=&vista=32.5,9.5,-2.5&congelar=30" },
+  { archivo: "calle-6-subiendo", ruta: "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=150" },
+  { archivo: "calle-6-bajando", ruta: "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=262" },
+  { archivo: "calle-6-plaza", ruta: "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=420" },
+  { archivo: "calle-secreto", ruta: "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-20.6,4,-2.4&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

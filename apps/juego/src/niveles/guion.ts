@@ -8,7 +8,9 @@ import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
 import type { PlanoDeNivel } from "./formato";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
+import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
+import type { SinBueyes } from "./sin-bueyes";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -45,6 +47,13 @@ export interface NivelEnJuego {
   hueso(nombre: string): Hueso;
   lampara(nombre: string): Lampara;
   cadejo(nombre: string): Cadejo;
+  /** Las que estrena La calle empedrada (TU-25, ver piezas-calle.ts y sin-bueyes.ts). */
+  carreta(nombre: string): Carreta;
+  sinBueyes(nombre: string): SinBueyes;
+  pesa(nombre: string): Pesa;
+  engranaje(nombre: string): Engranaje;
+  campana(nombre: string): Campana;
+  alfombra(nombre: string): Alfombra;
 }
 
 export interface GuionDeNivel {

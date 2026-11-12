@@ -342,6 +342,8 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
   const rayoBorde = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
   const qAncla = new THREE.Quaternion();
   const ancla = new THREE.Vector3();
+  /** La velocidad de lo que pisa (cero si es fijo). */
+  const vSuelo = new THREE.Vector3();
 
   // Agarrar (TU-05). Cada brazo guarda su rótula con lo agarrado. Lo que no tiene cuerpo (el suelo, un borde
   // quieto) se agarra con un cuerpo fijo propio, que se crea la primera vez que hace falta.
@@ -698,6 +700,11 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
       gruposRayo,
     );
     enElSuelo = golpe !== null;
+    // Lo que pisa, si se mueve (una carreta que baja, un camión): respecto de eso anda, se sostiene y da los pasos
+    const debajoMovil = golpe?.collider.parent();
+    if (golpe && debajoMovil && !debajoMovil.isFixed())
+      vSuelo.copy(debajoMovil.velocityAtPoint({ x: p.x, y: p.y - golpe.timeOfImpact, z: p.z }));
+    else vSuelo.set(0, 0, 0);
     colgado = colgadoDe();
     deLaMano = colgadoDelCompanero();
     decidir(entrada);
@@ -712,7 +719,7 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     rumbo += girar * AJUSTES.andar.giro * PASO * tension;
     qRumbo.setFromAxisAngle(ARRIBA, rumbo);
     adelante.copy(EJE_Z).applyQuaternion(qRumbo);
-    const velocidadAdelante = v.x * adelante.x + v.z * adelante.z;
+    const velocidadAdelante = (v.x - vSuelo.x) * adelante.x + (v.z - vSuelo.z) * adelante.z;
     const amplitud =
       estado === "de pie"
         ? limitar(Math.abs(velocidadAdelante) / AJUSTES.paso.velocidadPlena + Math.abs(girar) * 0.6, 0, 1)
@@ -722,7 +729,8 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     const altura = MEDIDAS.pelvis.y + s.subirAlCaminar * amplitud;
     if (golpe && golpe.timeOfImpact <= altura + s.alcanceExtra && !deLasManos) {
       const w0 = s.frecuencia;
-      const aceleracion = -GRAVEDAD + w0 * w0 * (altura - golpe.timeOfImpact) - 2 * s.amortiguacion * w0 * v.y;
+      const aceleracion =
+        -GRAVEDAD + w0 * w0 * (altura - golpe.timeOfImpact) - 2 * s.amortiguacion * w0 * (v.y - vSuelo.y);
       const empuje = limitar(masa * aceleracion, 0, s.fuerzaMaxima * peso) * tension * PASO;
       pelvis.applyImpulse({ x: 0, y: empuje, z: 0 }, true);
       // Lo que el muñeco pisa recibe su peso (una caja, el otro muñeco)
@@ -759,6 +767,10 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
         const vg = guia.pelvis.linvel();
         vx = vg.x;
         vz = vg.z;
+      } else {
+        // Parado en algo que se mueve (una carreta que baja, un camión), anda respecto de eso: quieto, va con él
+        vx += vSuelo.x;
+        vz += vSuelo.z;
       }
       let ax = a.respuesta * (vx - v.x);
       let az = a.respuesta * (vz - v.z);

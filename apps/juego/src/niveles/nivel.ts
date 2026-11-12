@@ -232,6 +232,12 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     hueso: (nombre) => deJuego("hueso", nombre),
     lampara: (nombre) => deJuego("lampara", nombre),
     cadejo: (nombre) => deJuego("cadejo", nombre),
+    carreta: (nombre) => deJuego("carreta", nombre),
+    sinBueyes: (nombre) => deJuego("sin-bueyes", nombre),
+    pesa: (nombre) => deJuego("pesa", nombre),
+    engranaje: (nombre) => deJuego("engranaje", nombre),
+    campana: (nombre) => deJuego("campana", nombre),
+    alfombra: (nombre) => deJuego("alfombra", nombre),
     avance,
     premios,
     antes(entradas) {
