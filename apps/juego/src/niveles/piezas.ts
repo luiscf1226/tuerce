@@ -32,6 +32,18 @@ import {
   type Tranca,
   type Tronco,
 } from "./piezas-pinar";
+// La poza (TU-24)
+import {
+  armarBalsa,
+  armarBatea,
+  armarPiedra,
+  armarTendedero,
+  type Balsa,
+  type Batea,
+  type Piedra,
+  type Tendedero,
+} from "./piezas-poza";
+import { armarSucia, type Sucia } from "./sucia";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si
@@ -146,6 +158,12 @@ export interface PiezaPorTipo {
   hueso: Hueso;
   lampara: Lampara;
   cadejo: Cadejo;
+  // Las de la poza (TU-24): piezas-poza.ts y sucia.ts
+  balsa: Balsa;
+  tendedero: Tendedero;
+  batea: Batea;
+  piedra: Piedra;
+  sucia: Sucia;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -681,6 +699,21 @@ export function armarPiezas(
         break;
       case "cadejo":
         lista.push(armarCadejo(herramientas, p));
+        break;
+      case "balsa":
+        lista.push(armarBalsa(herramientas, p));
+        break;
+      case "tendedero":
+        lista.push(armarTendedero(herramientas, p));
+        break;
+      case "batea":
+        lista.push(armarBatea(herramientas, p));
+        break;
+      case "piedra":
+        lista.push(armarPiedra(herramientas, p));
+        break;
+      case "sucia":
+        lista.push(armarSucia(herramientas, p));
         break;
     }
   }

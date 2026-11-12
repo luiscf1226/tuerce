@@ -16,6 +16,8 @@ import {
   vestirDeDia,
 } from "../imagen";
 import type { Rapier } from "../motor/fisica";
+// El agua (TU-24)
+import { type Aguas, armarAguas } from "./agua";
 import { type Adorno, cajaLocal, type Material, type PlanoDeNivel, rumboDe, type Solido } from "./formato";
 import { armarPiezas, type PiezasDeJuego } from "./piezas";
 
@@ -36,6 +38,8 @@ export interface NivelArmado {
   readonly piezasDeJuego: PiezasDeJuego;
   /** La pieza con ese nombre (el del nodo en Blender), o `undefined`. */
   pieza(nombre: string): Pieza | undefined;
+  /** Las zonas de agua (TU-24, ver agua.ts). */
+  readonly aguas: Aguas;
   /** Anota dónde quedó cada pieza que se mueve. Va después de cada `mundo.step()`. */
   guardar(): void;
   /** Mueve las piezas entre el paso anterior y el actual (`alfa` de 0 a 1) y corre la niebla. */
@@ -200,6 +204,8 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
   // Las piezas de juego, después de los sólidos: sus cuerpos van siempre en el mismo orden (la red los reconoce así)
   const piezasDeJuego = armarPiezas(rapier, mundo, escena, plano.piezas);
   piezas.push(...piezasDeJuego.solidas);
+  // El agua, después de las piezas de juego: sus marcadores (los que llevan el nivel en la foto) van al final
+  const aguas = armarAguas(rapier, mundo, escena, plano.aguas);
 
   for (const a of plano.adornos) {
     const adorno = crearAdorno(a);
@@ -230,6 +236,7 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
     piezas,
     niebla,
     piezasDeJuego,
+    aguas,
     pieza: (nombre) => piezas.find((p) => p.nombre === nombre),
     guardar() {
       for (const q of moviles) {
@@ -240,6 +247,7 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
         q.ahoraQ.copy(q.pieza.cuerpo.rotation());
       }
       piezasDeJuego.guardar();
+      aguas.guardar();
     },
     dibujar(alfa, segundos) {
       for (const q of moviles) {
@@ -247,6 +255,7 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
         q.pieza.objeto.quaternion.slerpQuaternions(q.antesQ, q.ahoraQ, alfa);
       }
       piezasDeJuego.dibujar(alfa);
+      aguas.dibujar(alfa, segundos);
       niebla.mover(segundos);
     },
   };

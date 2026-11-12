@@ -4,11 +4,15 @@ import type RAPIER from "@dimforge/rapier3d-compat";
 import type * as THREE from "three";
 import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
+// La poza (TU-24)
+import type { Agua, Aguas } from "./agua";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
 import type { PlanoDeNivel } from "./formato";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
+import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+import type { Sucia } from "./sucia";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -45,6 +49,15 @@ export interface NivelEnJuego {
   hueso(nombre: string): Hueso;
   lampara(nombre: string): Lampara;
   cadejo(nombre: string): Cadejo;
+  /** El agua (TU-24, ver agua.ts): la zona con ese nombre, y todas (para `alMojar`, `densidad`…). */
+  agua(nombre: string): Agua;
+  readonly aguas: Aguas;
+  /** Las piezas que estrena La poza (TU-24, ver piezas-poza.ts y sucia.ts). */
+  balsa(nombre: string): Balsa;
+  tendedero(nombre: string): Tendedero;
+  batea(nombre: string): Batea;
+  piedra(nombre: string): Piedra;
+  sucia(nombre: string): Sucia;
 }
 
 export interface GuionDeNivel {

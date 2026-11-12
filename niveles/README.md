@@ -25,16 +25,17 @@ se usa: el juego pone los suyos, siluetas oscuras sobre niebla clara (`src/escen
 
 ### Los objetos
 
-| `tipo`    | Qué es                                                                                                                                                        | Propiedades                                                                                                                                                                                                                                                                                                                                                                                         |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `solido`  | Algo que choca: suelo, paredes, troncos, cajas. Una malla.                                                                                                    | `forma`: `caja` (la caja de la malla, la más barata), `cilindro` (de pie, sobre su eje Y) o `malla` (los triángulos tal cual) · `cuerpo`: `fijo`, `cinematico` (lo mueve el guion) o `dinamico` (se empuja y se agarra) · `masa` en kilos (dinámicos, 10) · `rozamiento` (0.8) · `material`: `suelo`, `tela`, `corteza`, `honda` (casi negro) o `lejana` · `invisible`: 1 para que choque sin verse |
-| `salida`  | Dónde arranca cada jugador (los pies). Un vacío (Empty); mira hacia su −Y de Blender (ver abajo).                                                             | `jugador`: 1 (el rojo) o 2 (el turquesa). Tiene que haber una de cada una.                                                                                                                                                                                                                                                                                                                          |
-| `control` | Un punto de control: la zona que hay que cruzar. Un vacío cubo (Empty › Cube), escalado al tamaño de la zona.                                                 | `orden`: 1, 2, 3… sin saltearse ninguno. La pareja reaparece sobre la **base** de la zona, que tiene que apoyar en el suelo, lado a lado y mirando hacia donde mira la zona.                                                                                                                                                                                                                        |
-| `vacio`   | Una zona que cuenta como caída aunque esté más arriba que `vacio` (el fondo de un pozo, un río).                                                              | Un vacío cubo escalado, o una malla (cuenta su caja).                                                                                                                                                                                                                                                                                                                                               |
-| `adorno`  | Una forma del juego armada en ese lugar (no choca).                                                                                                           | `forma`: `pino`, `abeto`, `roca`, `mata` o `tronco` (acostado sobre su X) · `alto` (el largo, para el tronco) · `radio` · `semilla` (cambia las ramas y abolladuras)                                                                                                                                                                                                                                |
-| `niebla`  | Un jirón de niebla que se corre despacio. Un vacío cubo: su escala X e Y es la mitad del ancho y del alto.                                                    | `opacidad` (0.5) · `velocidad` (0.15; negativa va para el otro lado)                                                                                                                                                                                                                                                                                                                                |
-| `secreto` | Dónde está escondido el secreto del nivel: el primero de los dos que entra lo encuentra para la pareja. Un vacío cubo escalado, o una malla (cuenta su caja). | Ninguna. Si el secreto es otra cosa (tocar una campana, abrir un cofre), no hace falta la zona: lo dice el guion.                                                                                                                                                                                                                                                                                   |
-| `pieza`   | Una pieza de juego: huacal, palanca, plancha, balancín, bejuco y las del pinar (ver abajo). Una malla: su caja dice dónde va.                                 | `pieza`: `huacal`, `palanca`, `plancha`, `balancin`, `bejuco`, `tronco`, `tranca`, `hueso`, `lampara` o `cadejo`, y las propiedades de cada una                                                                                                                                                                                                                                                     |
+| `tipo`    | Qué es                                                                                                                                                                                                                          | Propiedades                                                                                                                                                                                                                                                                                                                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `solido`  | Algo que choca: suelo, paredes, troncos, cajas. Una malla.                                                                                                                                                                      | `forma`: `caja` (la caja de la malla, la más barata), `cilindro` (de pie, sobre su eje Y) o `malla` (los triángulos tal cual) · `cuerpo`: `fijo`, `cinematico` (lo mueve el guion) o `dinamico` (se empuja y se agarra) · `masa` en kilos (dinámicos, 10) · `rozamiento` (0.8) · `material`: `suelo`, `tela`, `corteza`, `honda` (casi negro) o `lejana` · `invisible`: 1 para que choque sin verse |
+| `salida`  | Dónde arranca cada jugador (los pies). Un vacío (Empty); mira hacia su −Y de Blender (ver abajo).                                                                                                                               | `jugador`: 1 (el rojo) o 2 (el turquesa). Tiene que haber una de cada una.                                                                                                                                                                                                                                                                                                                          |
+| `control` | Un punto de control: la zona que hay que cruzar. Un vacío cubo (Empty › Cube), escalado al tamaño de la zona.                                                                                                                   | `orden`: 1, 2, 3… sin saltearse ninguno. La pareja reaparece sobre la **base** de la zona, que tiene que apoyar en el suelo, lado a lado y mirando hacia donde mira la zona.                                                                                                                                                                                                                        |
+| `vacio`   | Una zona que cuenta como caída aunque esté más arriba que `vacio` (el fondo de un pozo, un río).                                                                                                                                | Un vacío cubo escalado, o una malla (cuenta su caja).                                                                                                                                                                                                                                                                                                                                               |
+| `adorno`  | Una forma del juego armada en ese lugar (no choca).                                                                                                                                                                             | `forma`: `pino`, `abeto`, `roca`, `mata` o `tronco` (acostado sobre su X) · `alto` (el largo, para el tronco) · `radio` · `semilla` (cambia las ramas y abolladuras)                                                                                                                                                                                                                                |
+| `niebla`  | Un jirón de niebla que se corre despacio. Un vacío cubo: su escala X e Y es la mitad del ancho y del alto.                                                                                                                      | `opacidad` (0.5) · `velocidad` (0.15; negativa va para el otro lado)                                                                                                                                                                                                                                                                                                                                |
+| `secreto` | Dónde está escondido el secreto del nivel: el primero de los dos que entra lo encuentra para la pareja. Un vacío cubo escalado, o una malla (cuenta su caja).                                                                   | Ninguna. Si el secreto es otra cosa (tocar una campana, abrir un cofre), no hace falta la zona: lo dice el guion.                                                                                                                                                                                                                                                                                   |
+| `pieza`   | Una pieza de juego: huacal, palanca, plancha, balancín, bejuco y las del pinar (ver abajo). Una malla: su caja dice dónde va.                                                                                                   | `pieza`: `huacal`, `palanca`, `plancha`, `balancin`, `bejuco`, `tronco`, `tranca`, `hueso`, `lampara` o `cadejo`, y las propiedades de cada una                                                                                                                                                                                                                                                     |
+| `agua`    | Una zona de agua (TU-24): arriba de su caja, la superficie; abajo, el fondo. Flota lo liviano, se hunde lo pesado, corre si tiene corriente. Un vacío cubo escalado, o una malla (cuenta su caja); gira solo alrededor de su Y. | `corriente` (0 m/s, hacia su frente, el −Y de Blender) · `arrastre` (2: qué tan rápido lo mojado toma la velocidad del agua, 1/s) · `caer`: `vacio` (el muñeco que cae se lo lleva el agua: reaparece) o `nadar` (flota y chapotea) · `imagen`: `superficie`, `chorro` (una cortina que cae, a lo ancho de su X) o `nada` (ver abajo)                                                               |
 
 Hacia dónde mira algo (salidas y puntos de control): su adelante de glTF, el +Z del objeto. Blender, al exportar con
 +Y Up, convierte su −Y en ese +Z: en la vista de arriba de Blender, el objeto mira hacia su eje Y negativo.
@@ -101,6 +102,67 @@ En línea el anfitrión decide todo (a quién persigue el Cadejo, la lámpara en
 el cuerpo del Cadejo (lo anima con lo que anduvo) y el de cada pieza. La lámpara del invitado se enciende cuando la
 pareja pasa el punto que la sigue (el guion la enciende en `alRetomar`).
 
+## El agua (TU-24)
+
+Un objeto con `tipo: agua` es una zona de agua: su caja, con la superficie arriba y el fondo abajo (el fondo de
+verdad, lo que se pisa, es un sólido aparte). La arma `apps/juego/src/niveles/agua.ts` (su lectura, en
+`formato-agua.ts`); estrena en La poza y la reusa el Río Plátano. Lo que hace en cada paso:
+
+- **Flotar.** Cada cuerpo dinámico empuja hacia arriba lo que pesa el agua que desaloja: se mide en puntos repartidos
+  por sus colisionadores (cajas, bolas, cápsulas, cilindros y cascos), cada uno con su parte del volumen, así lo que se
+  hunde de un lado se endereza. Flota lo que pesa menos que el agua que ocupa: un huacal de tablas o un tronco flotan
+  altos. Para que algo se hunda aunque su caja sea grande (una piedra), se dice su densidad en el `userData` de su
+  cuerpo (`{ densidad: 2600 }`, kg/m³) o con `nivel.aguas.densidad(cuerpo, 2600)`. Los muñecos son de trapo: flotan
+  con la cabeza afuera (750 kg/m³).
+- **Arrastre y corriente.** Lo mojado toma de a poco la velocidad del agua (`arrastre`, 1/s): en el agua quieta se
+  frena y se aquieta; con `corriente` se va río abajo, hacia el frente de la zona.
+- **El nivel.** El guion sube o baja la superficie: `irA(altura, velocidad)` (la poza que se seca, el chorro que se
+  corta). Con la superficie en el fondo, no queda agua.
+- **Caer al agua.** Un muñeco con la pelvis bajo la superficie cayó al agua: se avisa (`alMojar`, para logros como
+  «Secos») y salpica. Con `caer: vacio` (lo de siempre: un río, una poza honda, un chorro) cuenta como caída y
+  reaparece junto al compañero o en el punto de control; nunca reaparece en el agua. Con `caer: nadar`, flota y
+  `avanzar` lo lleva despacio hacia donde mira, hasta que hace pie. Lo que no es un muñeco no se ahoga: flota o se
+  hunde (las piezas que vuelven solas, vuelven al caer al `vacio` de siempre).
+
+Desde el guion:
+
+```ts
+const poza = nivel.agua("poza"); // .nivel (la altura de la superficie ahora), .lleno, .fondo, .caer
+poza.irA(poza.fondo, 0.4); // la seca a 40 cm por segundo (sin velocidad: de una vez); .quieta cuando llegó
+poza.corriente = 0; // m/s hacia su frente
+poza.hondura({ x, y, z }); // cuánto está ese punto bajo la superficie (m), o null si está fuera de la zona
+nivel.aguas.alMojar((jugador, agua) => {}); // y .caidas ([rojo, turquesa]), .en(punto), .densidad(cuerpo, kg)
+```
+
+En línea, el nivel de cada zona y su corriente viajan en la foto: cada zona tiene un cuerpo cinemático sin
+colisionadores (su marcador) a la altura de su superficie y corrido en x lo que vale su corriente. El invitado no
+simula: dibuja el agua donde dice el marcador, y las salpicadas donde ve caer las cosas.
+
+## Las piezas de la poza (TU-24)
+
+Las que estrena el nivel 2 (`apps/juego/src/niveles/piezas-poza.ts` y `sucia.ts`; su lectura, en `formato-poza.ts`).
+Como las otras, su malla no se dibuja.
+
+| `pieza`     | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Propiedades                                                                                                      |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `balsa`     | Donde flota la balsa amarrada y cuánto mide; avanza hacia el + de su lado más largo. Sus troncos son piezas `tronco` llamadas `<nombre>-1`, `-2`…, largas a lo largo de su X. Se amarran solos cuando están flotando cerca de su caja (`astillero`), o cuando el guion llama `amarrar(false, dónde)`: ahí se juntan y la balsa baja sola al agua hasta su caja. Amarrada flota entera y tiene dos remos: rema el que va a bordo, de pie junto a su remo, con los brazos alzados. Cada remo empuja de su lado: uno solo la hace girar; los dos, derecho. Al que va a bordo, quieto, la balsa lo lleva. | `troncos` (3) · `remo` (30 N, lo que empuja cada uno) · `astillero` (1.6 m; 0: solo la amarra el guion)          |
+| `tendedero` | Una cuerda en bajada, de la punta de arriba del lado −X de la caja a la de abajo del lado +X, con postes y una polea. El que agarra la manija con las dos manos (que cuelgue `manija` debajo de la cuerda, 1.2 m sobre el piso desde donde se agarra) baja como en tirolesa, frena al final y suelta. Sin nadie, la polea vuelve sola arriba.                                                                                                                                                                                                                                                         | `velocidad` (3.5 m/s) · `manija` (0.35 m) · `ropa` (5 prendas, en un hilo al lado) · `hilo` (0.35 m, a lo ancho) |
+| `batea`     | Una batea de madera del tamaño de la caja, llena de pepitas, con el peso abajo: agarrada de las puntas (cada uno de un lado, con la mano de adentro) cuelga derecha. Pesa más de lo que levanta un muñeco solo. Ladeada más que `derrame`, se bota: las pepitas saltan y a los 2 s vuelve llena a su lugar (también si la dejan tirada lejos). Los muñecos la atraviesan, como al tronco.                                                                                                                                                                                                             | `masa` (9 kg) · `pepitas` (12) · `derrame` (30°)                                                                 |
+| `piedra`    | Una piedra redonda (una bola del tamaño de la caja): se empuja caminando contra ella, rueda y en el agua se hunde.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `masa` (30 kg) · `densidad` (2600 kg/m³, para el agua)                                                           |
+| `sucia`     | La Sucia, la lavandera gruñona. Su caja es su lavadero: lava al fondo, mirando hacia el frente. Al terminar de lavar, si hay alguien en la caja se voltea hacia el más cercano, alza el guacal (`apuntar`: lo que tienen para salirse) y le tira el agua: un guacalazo que lo tumba hacia afuera (no hay derrota; el que cargaba algo, lo bota). Cinemática, sin choques y sin azar.                                                                                                                                                                                                                  | `lavar` (2.5 s) · `apuntar` (0.8 s) · `empujon` (2.6 m/s: con más de 3.2 lo tumba)                               |
+
+```ts
+nivel.balsa("balsa").estado; // "suelta", "amarrando" o "amarrada"; .remeros, .aBordo, .donde(), .casa, .volver()
+nivel.tendedero("tendedero-rojo").recorrido; // de 0 (arriba) a 1 (abajo); .colgados, .polea, .volver()
+nivel.batea("batea").llena; // y .ladeo, .cargadores, .botadas, .alBotar(() => {}), .volver()
+nivel.piedra("piedra-1").cuerpo; // y .volver()
+nivel.sucia("sucia").estado; // "lavando", "apuntando" o "tirando"; .apunta, .salpicadas, .falta, .alSalpicar(j => {})
+```
+
+En línea viajan en la foto los troncos, la polea, la batea, las piedras, La Sucia y su guacal: el invitado ve las
+amarras cuando los troncos están uno al lado del otro, mueve los remos si la balsa avanza, dibuja los brazos de La
+Sucia hacia el guacal y el agua que sale cuando lo tira, y bota las pepitas cuando ve la batea ladeada.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -122,12 +184,13 @@ Lo que se mueve y no es una pieza de juego lo arma el guion en `alEmpezar` con l
 propiedades nuevas: `apps/juego/src/niveles/mecanismos/`. Cada uno recibe el nivel y los nombres de sus sólidos, y el
 guion llama a su `pasar()` en `cadaPaso`.
 
-| Mecanismo  | Con qué sólidos                                                                       | Qué hace                                                                                                                                                                                                                                                                  |
-| ---------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `porton`   | Una hoja `dinamico` derecha y una `palanca` (la aldaba)                               | Le pone a la hoja una bisagra vertical donde se le diga. Cerrada y sin nadie en la aldaba, no gira; abierta del todo una vez, ya no se traba. `abrir()` la deja abierta (al retomar).                                                                                     |
-| `escalera` | Un sólido `dinamico` de caja, largo a lo largo de su x                                | Cargada por los dos (cada uno la agarra), se mantiene derecha; al llegar al pie de la pared apuntando hacia ella, se apoya sola como rampa hasta arriba (queda trabada). Dice si se `botó` (tocó el suelo con una punta) y, tirada sin nadie, vuelve sola a donde empezó. |
-| `lamina`   | Un sólido fijo (un techo)                                                             | El que está parado encima (y no agarra nada) se resbala hacia `bajada`: caminando se sube más despacio; quieto, se va para abajo.                                                                                                                                         |
-| `camion`   | Un sólido `cinematico` (mejor `forma: malla`, para que choque con su forma de verdad) | Al `arrancar()` maniobra de atrás para adelante a lo largo de un eje; `frenar()` lo para. Puede llevar encima un punto de control: su zona y sus lugares viajan con él.                                                                                                   |
+| Mecanismo   | Con qué sólidos                                                                       | Qué hace                                                                                                                                                                                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `porton`    | Una hoja `dinamico` derecha y una `palanca` (la aldaba)                               | Le pone a la hoja una bisagra vertical donde se le diga. Cerrada y sin nadie en la aldaba, no gira; abierta del todo una vez, ya no se traba. `abrir()` la deja abierta (al retomar).                                                                                     |
+| `escalera`  | Un sólido `dinamico` de caja, largo a lo largo de su x                                | Cargada por los dos (cada uno la agarra), se mantiene derecha; al llegar al pie de la pared apuntando hacia ella, se apoya sola como rampa hasta arriba (queda trabada). Dice si se `botó` (tocó el suelo con una punta) y, tirada sin nadie, vuelve sola a donde empezó. |
+| `lamina`    | Un sólido fijo (un techo)                                                             | El que está parado encima (y no agarra nada) se resbala hacia `bajada`: caminando se sube más despacio; quieto, se va para abajo.                                                                                                                                         |
+| `camion`    | Un sólido `cinematico` (mejor `forma: malla`, para que choque con su forma de verdad) | Al `arrancar()` maniobra de atrás para adelante a lo largo de un eje; `frenar()` lo para. Puede llevar encima un punto de control: su zona y sus lugares viajan con él.                                                                                                   |
+| `compuerta` | Una hoja `cinematico` y una `palanca` con `vuelve` (TU-24)                            | Sube mientras alguien sostiene la palanca y baja sola al soltarla, más rápido. Abierta desvía el agua: vacía las zonas de agua que `corta` (un chorro que cae sobre el camino) y llena las que `larga` (lo que sale por ella). `abrir()` la deja abierta.                 |
 
 ## Secreto y logro
 
@@ -217,3 +280,37 @@ El patio (salida y un huacal de 8 kg) → un hueco de 2.5 m con un tablón angos
 punto 1 → una compuerta que el guion hunde al llegar al punto 1 → un escalón de 1.5 m para trepar colgándose (o de la
 mano del compañero) → punto 2 arriba → punto 3, la meta. El secreto está detrás de la meta, en la mata del rincón (da
 el peinado «Cresta»), y el logro, «Mudanza», es subir el huacal hasta arriba del escalón.
+
+### `02-poza` (`?escena=nivel&nivel=poza`)
+
+El nivel 2 (TU-24): el río Guayape, Honduras. Un río de piedras redondas, tendederos de ropa y una represa de
+madera; lava ahí La Sucia. Estrena el agua, la balsa y la compuerta. Lo arma `scripts/niveles/poza.mjs` (`pnpm
+niveles`). Va de oeste a este, río arriba; cada misión termina en un punto de control (`&punto=N` empieza en la
+misión N + 1):
+
+1. **Amarrar la balsa**, de a dos. Tres troncos (9 kg) sobre caballetes, uno en cada carril: se los lleva en fila con
+   la mano derecha, derecho, hasta el astillero (otros caballetes junto al agua). Uno solo los arrastra, pero no los
+   sube. Con los tres en el astillero se amarran, la balsa baja sola al remanso y queda junto al muelle → punto 1,
+   que va en la balsa (el que se cae al río reaparece a bordo). Los troncos tirados o caídos al agua vuelven solos.
+2. **Remar**, de a dos. El río baja a 0.85 m/s; cada uno rema de su lado (de pie junto a su remo, con los brazos
+   alzados). Con los dos la balsa sube derecho; con uno solo da vueltas y la corriente no la deja pasar. Al pie de la
+   represa el agua está quieta: ahí llega sola al embarcadero → punto 2.
+3. **La compuerta**, de a dos. El chorro de la represa cae sobre el escalón (1.4 m) y sobre la cara de la represa
+   (otros 1.4 m) y se lleva al que trepa. Uno empuja la palanca del embarcadero: la compuerta sube, el agua sale por
+   abajo y el chorro se corta mientras la sostiene; el otro trepa → punto 3, en la corona, y la compuerta queda
+   abierta. Solo, al soltar la palanca el chorro vuelve antes de llegar.
+4. **El tendedero**: dos cuerdas sobre la poza, de la corona a la isla, una para cada uno; se baja colgado de la
+   polea como en tirolesa → punto 4, en la isla. El que se suelta antes cae a la poza.
+5. **Desviar el agua**: la quebrada que llena la poza entra por la boca, entre la isla y un peñón. Empujando las dos
+   piedras redondas de la isla adentro de la boca, el agua se va por la acequia, la quebrada de abajo y la poza se
+   secan, y se baja caminando por el fondo en rampa → punto 5, en lo hondo.
+6. **La batea**, de a dos: llena de pepitas (9 kg), sobre una piedra en lo hondo. Se la agarra de las puntas, cada
+   uno con la mano de adentro, y se la sube por la rampa hasta la mesa de la orilla, junto al lavadero de La Sucia,
+   sin ladearla más de 30°. Dejarla llena en la mesa hace aparecer la meta → punto 6. Uno solo no la levanta: se ladea
+   y se bota. La Sucia le tira agua al que se queda en su lavadero cuando termina de lavar (cada 3.5 s): hay que
+   entrar recién cuando empieza.
+
+El secreto, «una pepita de oro en el fondo de la poza», está en un hoyo en lo más hondo, junto a la represa (la zona
+`secreto`): se llega con la poza seca. El logro, «Secos», es llegar a la meta sin que ninguno haya caído al agua (el
+río, la poza, la quebrada o el chorro). De noche no va la trampa del mecate: en la represa uno sostiene la palanca
+lejos del otro.
