@@ -12,10 +12,12 @@ import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
 import type { Murcielagos } from "./murcielagos";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
+import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
 import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
+import type { SinBueyes } from "./sin-bueyes";
 import type { Sucia } from "./sucia";
 
 /** Lo que el guion ve del nivel en juego. */
@@ -78,6 +80,13 @@ export interface NivelEnJuego {
   racimo(nombre: string): Racimo;
   sombrero(nombre: string): Sombrero;
   duende(nombre: string): Duende;
+  /** Las que estrena La calle empedrada (TU-25, ver piezas-calle.ts y sin-bueyes.ts). */
+  carreta(nombre: string): Carreta;
+  sinBueyes(nombre: string): SinBueyes;
+  pesa(nombre: string): Pesa;
+  engranaje(nombre: string): Engranaje;
+  campana(nombre: string): Campana;
+  alfombra(nombre: string): Alfombra;
 }
 
 export interface GuionDeNivel {

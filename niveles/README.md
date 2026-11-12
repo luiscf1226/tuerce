@@ -123,6 +123,20 @@ verdad, lo que se pisa, es un sólido aparte). La arma `apps/juego/src/niveles/a
   reaparece junto al compañero o en el punto de control; nunca reaparece en el agua. Con `caer: nadar`, flota y
   `avanzar` lo lleva despacio hacia donde mira, hasta que hace pie. Lo que no es un muñeco no se ahoga: flota o se
   hunde (las piezas que vuelven solas, vuelven al caer al `vacio` de siempre).
+## Las piezas de la calle (TU-25)
+
+Las que estrena el nivel 3 (`apps/juego/src/niveles/piezas-calle.ts` y `sin-bueyes.ts`; su lectura, en
+`formato-calle.ts`). Como las otras, su malla no se dibuja. Las pesas, los engranajes, las campanas y la Carreta sin
+bueyes son cinemáticos (los mueve la pieza, a paso fijo y sin azar); la carreta es dinámica.
+
+| `pieza`      | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                 | Propiedades                                                                                                                                                                                                                                                                  |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `carreta`    | Una carreta de dos ruedas; la caja va de abajo de las ruedas a arriba de las barandas y mira hacia su +x. Corre por un riel a lo largo de su x (inclinado `pendiente`): sola no frena, la cuesta la lleva. Se empuja caminando contra ella (90 kg en 12°: uno solo no la mueve) y se monta (el muñeco anda respecto de lo que pisa). Con `empina`, la caja gira sobre el eje y se empina si el peso queda detrás. | `masa` (90 kg) · `adelante` y `atras` (5 y 0 m de riel desde donde empieza) · `pendiente` (0°) · `rozamiento` (40 N·s/m) · `eje` (0.5) · `empina` (0°: fija al eje) · `cabecea` (4°) · `contrapeso` (12 kg en las varas) · `llegada` (0 m: en los últimos metros frena sola) |
+| `sin-bueyes` | La Carreta sin bueyes: rueda sola a lo largo de la x de su caja, hasta `recorrido` y de vuelta, sin frenar nunca. Mientras anda no choca con nada, pero al muñeco que alcanza lo saca hacia donde empieza el recorrido (un empujón que lo tira). Solo la para el guion (`frenar`): se detiene donde está y choca como madera.                                                                                     | `recorrido` (8 m) · `velocidad` (3.5 m/s) · `espera` (0.6 s en cada punta) · `empujon` (4.5 m/s) · `frenada` (6 m/s²)                                                                                                                                                        |
+| `pesa`       | Una pesa del reloj colgada de su cadena, con una manija a lo ancho (la x de la caja) abajo, a 1.75 m del suelo (se salta para colgarse). El que se cuelga la baja `recorrido`; abajo del todo se traba.                                                                                                                                                                                                           | `recorrido` (0.4 m) · `bajada` (0.35 m/s) · `subida` (0.15 m/s) · `cadena` (2 m, desde arriba de la caja)                                                                                                                                                                    |
+| `engranaje`  | Una rueda dentada, o con `aguja: 1` una aguja del reloj (de largo, el radio de la caja), que gira sobre la z de su caja con la pesa `pesa-N`: da `vueltas` cuando la pesa baja todo. No vuelve atrás.                                                                                                                                                                                                             | `pesa` (1) · `vueltas` (1; positivo como el reloj, visto desde su +z) · `desde` (0°: hacia arriba) · `dientes` (12) · `aguja` (0)                                                                                                                                            |
+| `campana`    | Una campana colgada (su caja), que se columpia sobre su yugo, con su soga hasta una manija a lo ancho. Colgarse de la manija la baja `recorrido` y la campana suena (y queda `sonando` un rato); para volver a sonar, la manija tiene que subir.                                                                                                                                                                  | `soga` (3 m, desde abajo de la campana) · `adelante` (0 m: la soga cuelga hacia el +z de la caja) · `recorrido` (0.35 m) · `sonar` (1 s)                                                                                                                                     |
+| `alfombra`   | Una alfombra de aserrín del tamaño de la caja, sobre el suelo. Cualquier parte de un muñeco que la toque la deja marcada (una pisada cada 35 cm). Se busca en el mundo con los cuerpos como quedaron, así el invitado ve las mismas pisadas.                                                                                                                                                                      | `semilla` (el dibujo)                                                                                                                                                                                                                                                        |
 
 Desde el guion:
 
@@ -193,6 +207,15 @@ Lo que da hacia la cámara puede ser bajo y aun así no dejar pasar: un sólido 
 `-baranda` lo vuelve el guion de Xibalbá una baranda (`soloParaMunecos`), que choca solo con los muñecos; la cámara
 y lo suelto no la ven. Un muro de 90 cm, en cambio, se trepa.
 
+nivel.carreta("carreta").avance; // y .velocidad, .empinada, .encima, .frenar(si), .trabar(), .ponerEn(m), .volver()
+nivel.sinBueyes("carreta-sin-bueyes").frenar(true); // y .estado, .avance, .sacados, .alSacar((jugador) => {}), .volver()
+nivel.pesa("pesa-1").llego; // y .bajada, .colgados, .bajar()
+nivel.engranaje("minutero").angulo; // radianes desde arriba, como las agujas
+nivel.campana("campana-1").sonando; // y .campanadas, .alSonar(() => {})
+nivel.alfombra("alfombra-1").intacta; // y .pisadas, .alPisar(() => {})
+
+````
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -245,9 +268,9 @@ nunca se vuelve atrás. El que cae al vacío (por debajo de `vacio`, dentro de u
 sólido) reaparece de pie **junto a su compañero**, si este está de pie en terreno firme y hay piso al lado; si no, en
 el último punto de control alcanzado. El punto de control se guarda en Convex para retomar (TU-22).
 
-## Los niveles sin Blender: `00-patio`, `01-pinar`, `99-prueba` y `98-piezas`
+## Los niveles sin Blender: `00-patio`, `01-pinar`, `03-calle`, `99-prueba` y `98-piezas`
 
-Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `pinar.mjs`,
+Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `pinar.mjs`, `calle.mjs`,
 `prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
 `comun.mjs`). Si los cambiás, volvé a correrlo y subí los `.glb`.
 
@@ -322,6 +345,32 @@ un punto de control (`&punto=N` empieza en la misión N + 1):
 El secreto, «la guacamaya dorada en lo alto del templo», está arriba del muro del túnel: se sube por tres escalones de
 1.5 m junto a la boca del túnel, colgándose (da la máscara «Guacamaya»). El dorado, el jade y el fuego no tienen color:
 se leen por la forma, lo claro y el brillo.
+### `03-calle` (`?escena=nivel&nivel=calle`)
+
+El nivel 3 (TU-25): Comayagua, Honduras. Calles coloniales en subida, el corredor alto de las casas, las alfombras de
+aserrín, la torre del reloj y el campanario; la ronda la Carreta sin bueyes. Va de oeste a este; hacia +z (la cámara)
+solo hay tapias bajas y delgadas, que no se trepan. Cada misión termina en un punto de control:
+
+1. **La cuesta**, de a dos: un callejón de 12° justo del ancho de la carreta (90 kg). Uno solo no la mueve; los dos
+   la suben hasta donde la cuesta se abre, ahí se traba (una cuña) y pasan por al lado → punto 1 en la plazuela.
+2. **La Carreta sin bueyes**, de a dos: rueda sola de la plazuela al fondo de su calle y de vuelta, a 3.5 m/s, y al que
+   encuentra lo saca de la calle. Uno empuja el freno (una palanca a la entrada) mientras la carreta espera en la
+   plazuela, y el otro cruza la calle y empuja los dos huacales que tapan el zaguán → punto 2. Pasado el punto 2 queda
+   frenada. Solo no se puede: la calle mide 9 m y la carreta pasa antes.
+3. **La torre del reloj**: colgado de cada pesa (se salta a la manija), la pesa baja y su aguja llega a las doce; con
+   las dos, la puerta del arco sube → punto 3.
+4. **Las alfombras**: se sube por la escalinata al corredor alto, se cruza el callejón columpiándose en la enredadera
+   (una para cada uno) y se baja por la otra escalinata → punto 4. Por la calle también se llega, pisando las
+   alfombras. Llegar al punto 4 con las tres intactas da el logro, «Ni una pisada».
+5. **Las campanas**, de a dos: cada una con su soga, a 7 m una de otra; si suenan juntas (cada una cuenta un segundo),
+   la reja del mirador sube → punto 5.
+6. **La bajada**: la carreta del mirador espera frenada hasta que suben los dos y no está empinada; entonces baja sola
+   por el riel, sobre la barranca, y frena al llegar a la plaza (punto 6, la meta). Si en la bajada los dos se van
+   para atrás, se empina y vuelca: caen a la barranca y la carreta vuelve arriba.
+
+El secreto, «el pilón escondido en el carrito del parque», está arriba de la vitrina del carrito de la plazuela: se
+trepa al mostrador (1 m) y de ahí a la vitrina (otro metro); la zona `secreto` está encima (da el sombrero bombín).
+Con la Noche de tuerce no sale el mecate: uno sostiene el freno lejos del otro, y las campanas están a 7 m.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 
@@ -393,7 +442,7 @@ nivel.dresina("dresina").seguir(via, () => cambio.activa); // .avance, .velocida
 nivel.grua("grua").mandar(palanca.activa); // .estado, .racimo, .alEnganchar(), .alSoltar(), .volver()
 nivel.racimo("racimo").colgado; // .agarrado, .colgarDe(cuerpo, punto), .descolgar(), .volver()
 nivel.duende("duende").cuidar(nivel.palanca("cambio"), { x, y, z }); // .contento, .cambios, .ponerSombrero()
-```
+````
 
 Y los mecanismos del nivel (`mecanismos/via.ts` y `mecanismos/tren.ts`): `crearVia(puntos, { desde, puntos })` (una vía
 de tramos rectos con un cambio y su desvío), `crearTren` (la locomotora y sus vagones salen de una estación y llegan a

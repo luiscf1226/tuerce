@@ -6,6 +6,8 @@ import escenaPinar from "../../../../niveles/01-pinar/escena.glb?url";
 import { crearGuion as guionPinar } from "../../../../niveles/01-pinar/guion";
 import escenaPoza from "../../../../niveles/02-poza/escena.glb?url";
 import { crearGuion as guionPoza } from "../../../../niveles/02-poza/guion";
+import escenaCalle from "../../../../niveles/03-calle/escena.glb?url";
+import { crearGuion as guionCalle } from "../../../../niveles/03-calle/guion";
 import escenaXibalba from "../../../../niveles/04-xibalba/escena.glb?url";
 import { crearGuion as guionXibalba } from "../../../../niveles/04-xibalba/guion";
 import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
@@ -59,6 +61,12 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     crearGuion: guionTren,
     // Amarrados no: el que cuida el cambio se queda en la loma mientras el otro baja con la dresina, y la palanca de
     // la grúa y las del portón final quedan lejos del racimo y del portón
+  // Nivel 3 (TU-25): Comayagua, Honduras. Seis misiones y la Carreta sin bueyes
+  calle: {
+    carpeta: "03-calle",
+    escena: escenaCalle,
+    crearGuion: guionCalle,
+    // Amarrados no: uno sostiene el freno mientras el otro cruza la calle (9 m), y las campanas están a 7 m
     sinTrampas: ["mecate"],
   },
 };
