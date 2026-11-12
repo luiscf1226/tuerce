@@ -1,8 +1,8 @@
 # niveles
 
-Una carpeta por nivel (`00-el-patio`, `01-el-pinar`, …, y `99-prueba`) con su escena `escena.glb` y su guion
+Una carpeta por nivel (`00-patio`, `01-el-pinar`, …, y `99-prueba`) con su escena `escena.glb` y su guion
 `guion.ts`. La lista completa está en `docs/plan.html`; la que usa el juego, en `apps/juego/src/niveles/lista.ts`.
-Se abren con `?escena=nivel&nivel=<nombre>` (por ahora, `prueba` y `piezas`).
+Se abren con `?escena=nivel&nivel=<nombre>` (por ahora, `patio`, `prueba` y `piezas`).
 
 ## La escena: un `.glb` hecho en Blender
 
@@ -85,6 +85,19 @@ estos momentos, todos opcionales:
 las piezas de juego por nombre (`palanca`, `plancha`, `balancin`, `bejuco` y `huacal`, ver arriba). Para el secreto y
 el logro (ver abajo) trae también `secreto` y `logro` (si ya los tienen), `encontrarSecreto()` y `lograr()`.
 
+## Mecanismos: lo que arma el guion (TU-13)
+
+Lo que se mueve y no es una pieza de juego lo arma el guion en `alEmpezar` con los sólidos del `.glb`, sin
+propiedades nuevas: `apps/juego/src/niveles/mecanismos/`. Cada uno recibe el nivel y los nombres de sus sólidos, y el
+guion llama a su `pasar()` en `cadaPaso`.
+
+| Mecanismo  | Con qué sólidos                                                                       | Qué hace                                                                                                                                                                                                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `porton`   | Una hoja `dinamico` derecha y una `palanca` (la aldaba)                               | Le pone a la hoja una bisagra vertical donde se le diga. Cerrada y sin nadie en la aldaba, no gira; abierta del todo una vez, ya no se traba. `abrir()` la deja abierta (al retomar).                                                                                     |
+| `escalera` | Un sólido `dinamico` de caja, largo a lo largo de su x                                | Cargada por los dos (cada uno la agarra), se mantiene derecha; al llegar al pie de la pared apuntando hacia ella, se apoya sola como rampa hasta arriba (queda trabada). Dice si se `botó` (tocó el suelo con una punta) y, tirada sin nadie, vuelve sola a donde empezó. |
+| `lamina`   | Un sólido fijo (un techo)                                                             | El que está parado encima (y no agarra nada) se resbala hacia `bajada`: caminando se sube más despacio; quieto, se va para abajo.                                                                                                                                         |
+| `camion`   | Un sólido `cinematico` (mejor `forma: malla`, para que choque con su forma de verdad) | Al `arrancar()` maniobra de atrás para adelante a lo largo de un eje; `frenar()` lo para. Puede llevar encima un punto de control: su zona y sus lugares viajan con él.                                                                                                   |
+
 ## Secreto y logro
 
 Cada nivel tiene un secreto y un logro (RF-17). Qué son y qué dan está en `convex/premios.ts` (`PREMIOS`, por número
@@ -108,11 +121,29 @@ nunca se vuelve atrás. El que cae al vacío (por debajo de `vacio`, dentro de u
 sólido) reaparece de pie **junto a su compañero**, si este está de pie en terreno firme y hay piso al lado; si no, en
 el último punto de control alcanzado. El punto de control se guarda en Convex para retomar (TU-22).
 
-## Los niveles sin Blender: `99-prueba` y `98-piezas`
+## Los niveles sin Blender: `00-patio`, `99-prueba` y `98-piezas`
 
-Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/prueba.mjs` y `piezas.mjs`, con el
-exportador de three y las mismas propiedades que pondría Blender; lo común está en `comun.mjs`). Si los cambiás,
-volvé a correrlo y subí los `.glb`.
+Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `prueba.mjs` y
+`piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en `comun.mjs`).
+Si los cambiás, volvé a correrlo y subí los `.glb`.
+
+### `00-patio` (`?escena=nivel&nivel=patio`), el nivel 0
+
+Tegucigalpa, el 31 de diciembre por la mañana. Cada misión termina en un punto de control, así que `&punto=N` empieza
+después de la misión N (`&punto=4`, en la losa, listos para saltar al camión):
+
+1. Despiertan tirados de espaldas en el montón de trapos (el guion les quita la firmeza) y se levantan solos → punto
+   1 frente al portón. Hay trapos sueltos para probar cada brazo.
+2. De a dos: el portón de tablas está trabado mientras nadie empuje la aldaba, una palanca a su lado → punto 2 en el
+   solar.
+3. De a dos: la escalera, sobre dos barriles, pesa 9 kg (cada uno levanta 5); se la carga con la escalera entre los
+   dos y los brazos arriba hasta el muro de la casa del vecino (2.2 m: solo se trepa hasta 1.9), donde se apoya sola
+   → punto 3 en la repisa. El logro, «A la de tres», es no botarla.
+4. El techo de lámina resbala (6 m/s² hacia el solar) → punto 4 en la losa.
+5. Desde la losa, el camión de la mudanza maniobra en la calle (que cuenta como caída); la meta va en su palangana y
+   frena cuando sube el primero → punto 5.
+
+El secreto, la piñata olvidada en el palo de mango, es una zona `secreto` en el rincón, debajo de la piñata.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 

@@ -3,7 +3,7 @@
 // prueba (niveles/99-prueba) y el de las piezas de juego (niveles/98-piezas).
 //
 // Parámetros (además de los de `dos`: `&j1=`, `&j2=`, `&ayuda`, `&menu`):
-//   &nivel=prueba    qué nivel abrir: `prueba` o `piezas` (ver src/niveles/lista.ts)
+//   &nivel=prueba    qué nivel abrir: `patio`, `prueba` o `piezas` (ver src/niveles/lista.ts)
 //   &punto=N         empieza en ese punto de control, como al retomar un avance guardado
 //   &vista=todo      la cámara quieta, lejos, mirando el nivel entero (para las capturas)
 //   &contrarreloj    una carrera (TU-32): desde la salida y con el reloj arriba, que arranca cuando alguno se mueve
