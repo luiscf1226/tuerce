@@ -175,6 +175,7 @@ después de la misión N (`&punto=4`, en la losa, listos para saltar al camión)
    frena cuando sube el primero → punto 5.
 
 El secreto, la piñata olvidada en el palo de mango, es una zona `secreto` en el rincón, debajo de la piñata.
+
 ### `01-pinar` (`?escena=nivel&nivel=pinar`)
 
 El nivel 1 (TU-14): La Esperanza, Honduras. Un bosque de pinos con neblina clara, cercos de madera y una pulpería al

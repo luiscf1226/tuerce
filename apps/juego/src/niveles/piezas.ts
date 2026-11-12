@@ -367,11 +367,11 @@ export function armarPiezas(
       brazo,
     );
     const datos = rapier.JointData.revolute({ x: 0, y: 0, z: 0 }, { x: 0, y: -largo / 2, z: 0 }, EJE_X);
-    datos.limitsEnabled = true;
-    datos.limits = [-p.angulo, p.angulo];
     const junta = mundo.createImpulseJoint(datos, ancla, brazo, true);
     junta.setContactsEnabled(false);
     if (junta instanceof rapier.RevoluteImpulseJoint) {
+      // En una bisagra, Rapier ignora los topes de JointData: van después de crearla
+      junta.setLimits(-p.angulo, p.angulo);
       junta.configureMotorModel(rapier.MotorModel.ForceBased);
       if (p.vuelve) {
         // El resorte lleva el brazo al reposo: del todo al otro lado hace falta `fuerza` en la manija, más lo que
@@ -510,11 +510,11 @@ export function armarPiezas(
       tabla,
     );
     const datos = rapier.JointData.revolute({ x: 0, y: 0, z: 0 }, vector(apoyo), ejeGiro);
-    datos.limitsEnabled = true;
-    datos.limits = [-p.angulo, p.angulo];
     const junta = mundo.createImpulseJoint(datos, ancla, tabla, true);
     junta.setContactsEnabled(false);
     if (junta instanceof rapier.RevoluteImpulseJoint) {
+      // En una bisagra, Rapier ignora los topes de JointData: van después de crearla
+      junta.setLimits(-p.angulo, p.angulo);
       junta.configureMotorModel(rapier.MotorModel.ForceBased);
       junta.configureMotorVelocity(0, a.rozamiento);
     }
