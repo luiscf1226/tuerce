@@ -9,8 +9,8 @@ import * as THREE from "three";
 import { type AguaDelPlano, leerAgua } from "./formato-agua";
 import { leerPiezaDelPinar, PIEZAS_DEL_PINAR, type PiezaDelPinarEnPlano } from "./formato-pinar";
 import { leerPiezaDeLaPoza, PIEZAS_DE_LA_POZA, type PiezaDeLaPozaEnPlano } from "./formato-poza";
-import { leerPiezaDeXibalba, PIEZAS_DE_XIBALBA, type PiezaDeXibalbaEnPlano } from "./formato-xibalba";
 import { leerPiezaDelTren, PIEZAS_DEL_TREN, type PiezaDelTrenEnPlano } from "./formato-tren";
+import { leerPiezaDeXibalba, PIEZAS_DE_XIBALBA, type PiezaDeXibalbaEnPlano } from "./formato-xibalba";
 
 export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza", "agua"] as const;
 export type Tipo = (typeof TIPOS)[number];

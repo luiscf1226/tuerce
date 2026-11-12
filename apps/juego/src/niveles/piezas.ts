@@ -45,7 +45,18 @@ import {
   type Piedra,
   type Tendedero,
 } from "./piezas-poza";
-import { armarSucia, type Sucia } from "./sucia";
+import {
+  armarDresina,
+  armarGrua,
+  armarRacimo,
+  armarSombrero,
+  armarVagon,
+  type Dresina,
+  type Grua,
+  type Racimo,
+  type Sombrero,
+  type Vagon,
+} from "./piezas-tren";
 import {
   type Antorcha,
   armarAntorcha,
@@ -62,18 +73,7 @@ import {
   type Llave,
   type Pelota,
 } from "./piezas-xibalba";
-import {
-  armarDresina,
-  armarGrua,
-  armarRacimo,
-  armarSombrero,
-  armarVagon,
-  type Dresina,
-  type Grua,
-  type Racimo,
-  type Sombrero,
-  type Vagon,
-} from "./piezas-tren";
+import { armarSucia, type Sucia } from "./sucia";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si

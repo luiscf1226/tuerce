@@ -15,6 +15,6 @@ export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel"
 export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
-export type { Sucia } from "./sucia";
-export type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
 export type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
+export type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
+export type { Sucia } from "./sucia";

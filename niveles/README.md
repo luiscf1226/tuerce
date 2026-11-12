@@ -162,6 +162,7 @@ nivel.sucia("sucia").estado; // "lavando", "apuntando" o "tirando"; .apunta, .sa
 En línea viajan en la foto los troncos, la polea, la batea, las piedras, La Sucia y su guacal: el invitado ve las
 amarras cuando los troncos están uno al lado del otro, mueve los remos si la balsa avanza, dibuja los brazos de La
 Sucia hacia el guacal y el agua que sale cuando lo tira, y bota las pepitas cuando ve la batea ladeada.
+
 ## Las piezas de Xibalbá (TU-26)
 
 Las que estrena el nivel 4 (`apps/juego/src/niveles/piezas-xibalba.ts` y `murcielagos.ts`; su lectura, en
@@ -370,6 +371,7 @@ El secreto, «una pepita de oro en el fondo de la poza», está en un hoyo en lo
 `secreto`): se llega con la poza seca. El logro, «Secos», es llegar a la meta sin que ninguno haya caído al agua (el
 río, la poza, la quebrada o el chorro). De noche no va la trampa del mecate: en la represa uno sostiene la palanca
 lejos del otro.
+
 ## Las piezas del tren bananero (TU-27)
 
 Las que estrena el nivel 5 (`apps/juego/src/niveles/piezas-tren.ts` y `duende.ts`; su lectura, en `formato-tren.ts`).

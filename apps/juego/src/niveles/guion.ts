@@ -14,9 +14,9 @@ import type { Murcielagos } from "./murcielagos";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
-import type { Sucia } from "./sucia";
-import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
 import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
+import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
+import type { Sucia } from "./sucia";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
