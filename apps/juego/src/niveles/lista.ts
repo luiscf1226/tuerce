@@ -8,6 +8,8 @@ import escenaPoza from "../../../../niveles/02-poza/escena.glb?url";
 import { crearGuion as guionPoza } from "../../../../niveles/02-poza/guion";
 import escenaXibalba from "../../../../niveles/04-xibalba/escena.glb?url";
 import { crearGuion as guionXibalba } from "../../../../niveles/04-xibalba/guion";
+import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
+import { crearGuion as guionTren } from "../../../../niveles/05-tren/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -50,5 +52,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
   },
   // Nivel 4 (TU-26): Copán, Honduras. Seis misiones y los murciélagos de Xibalbá
   xibalba: { carpeta: "04-xibalba", escena: escenaXibalba, crearGuion: guionXibalba },
+  // Nivel 5 (TU-27): El Progreso, Honduras. Vagones, dresina, cambio de vía, grúa y el Duende
+  tren: {
+    carpeta: "05-tren",
+    escena: escenaTren,
+    crearGuion: guionTren,
+    // Amarrados no: el que cuida el cambio se queda en la loma mientras el otro baja con la dresina, y la palanca de
+    // la grúa y las del portón final quedan lejos del racimo y del portón
+    sinTrampas: ["mecate"],
+  },
 };
 export const NIVEL_INICIAL = "prueba";

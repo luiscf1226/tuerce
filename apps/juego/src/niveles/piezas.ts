@@ -21,6 +21,7 @@ import { GRAVEDAD, type Rapier } from "../motor/fisica";
 import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
+import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
 import {
@@ -61,6 +62,18 @@ import {
   type Llave,
   type Pelota,
 } from "./piezas-xibalba";
+import {
+  armarDresina,
+  armarGrua,
+  armarRacimo,
+  armarSombrero,
+  armarVagon,
+  type Dresina,
+  type Grua,
+  type Racimo,
+  type Sombrero,
+  type Vagon,
+} from "./piezas-tren";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si
@@ -190,6 +203,13 @@ export interface PiezaPorTipo {
   llave: Llave;
   murcielagos: Murcielagos;
   guacamayas: Guacamayas;
+  // Las del tren bananero (TU-27): piezas-tren.ts y duende.ts
+  vagon: Vagon;
+  dresina: Dresina;
+  grua: Grua;
+  racimo: Racimo;
+  sombrero: Sombrero;
+  duende: Duende;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -764,6 +784,24 @@ export function armarPiezas(
         break;
       case "guacamayas":
         lista.push(armarGuacamayas(herramientas, p));
+        break;
+      case "vagon":
+        lista.push(armarVagon(herramientas, p));
+        break;
+      case "dresina":
+        lista.push(armarDresina(herramientas, p));
+        break;
+      case "grua":
+        lista.push(armarGrua(herramientas, p));
+        break;
+      case "racimo":
+        lista.push(armarRacimo(herramientas, p));
+        break;
+      case "sombrero":
+        lista.push(armarSombrero(herramientas, p));
+        break;
+      case "duende":
+        lista.push(armarDuende(herramientas, p));
         break;
     }
   }

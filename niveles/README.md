@@ -2,7 +2,7 @@
 
 Una carpeta por nivel (`00-patio`, `01-pinar`, …, y `99-prueba`) con su escena `escena.glb` y su guion
 `guion.ts`. La lista completa está en `docs/plan.html`; la que usa el juego, en `apps/juego/src/niveles/lista.ts`.
-Se abren con `?escena=nivel&nivel=<nombre>` (por ahora, `patio`, `pinar`, `prueba` y `piezas`).
+Se abren con `?escena=nivel&nivel=<nombre>` (por ahora, `patio`, `pinar`, `prueba`, `piezas` y `tren`).
 
 ## La escena: un `.glb` hecho en Blender
 
@@ -370,3 +370,58 @@ El secreto, «una pepita de oro en el fondo de la poza», está en un hoyo en lo
 `secreto`): se llega con la poza seca. El logro, «Secos», es llegar a la meta sin que ninguno haya caído al agua (el
 río, la poza, la quebrada o el chorro). De noche no va la trampa del mecate: en la represa uno sostiene la palanca
 lejos del otro.
+## Las piezas del tren bananero (TU-27)
+
+Las que estrena el nivel 5 (`apps/juego/src/niveles/piezas-tren.ts` y `duende.ts`; su lectura, en `formato-tren.ts`).
+Como las otras, su malla no se dibuja. El racimo, el sombrero y la bomba de la dresina los atraviesan los muñecos
+pero los agarran igual.
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                    | Propiedades                                                                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vagon`    | Un vagón sobre rieles del tamaño de la caja: más alto que 1.5 m es un furgón, si no una plataforma con barandas. Rueda empujado a lo largo de su lado más largo (su frente es su +x) y se **engancha** al vagón que toca con su punta de adelante. Las ruedas (los 35 cm de abajo) son solo imagen.                                                                                                                                  | `masa` (30 kg) · `adelante` y `atras` (0 m: cuánto rueda hacia cada lado; con los dos en 0 no se mueve) · `roce` (40 N por m/s)                                                 |
+| `dresina`  | Una plataforma del tamaño de la caja con una bomba de balancín a lo largo, sobre un poste. Cinemática: va por su vía (el guion se la da, `seguir`; si no, derecho hacia su +x). Cada vez que la bomba pasa de un lado al otro la apura; la cuesta la frena (o la apura de bajada) y los rieles de a poco. El que agarra su manija se cuelga y la baja: se bombea de a dos, uno arriba y otro abajo. Lo que va encima viaja con ella. | `impulso` (0.55 m/s por bombeo) · `roce` (0.2 por s) · `angulo` (10°) · `bomba` (1.15 m: el eje sobre la plataforma) · `velocidad` (2.2 m/s) · `recorrido` (10 m, sin otra vía) |
+| `grua`     | Su caja es el mástil. Arriba, un brazo de `brazo` que mira hacia el frente de la caja (donde recoge) y un gancho que cuelga de su punta. Mientras el guion la manda (`mandar(true)`, con una palanca), el gancho baja a `bajo`; el racimo que alguien le acerca agarrado se engancha. Al soltar la palanca lo sube a `alto`, gira `giro` a la izquierda, lo suelta y vuelve.                                                         | `brazo` (3.2 m) · `giro` (90°) · `bajo` (1.7 m) · `alto` (3.6 m), sobre la base del mástil                                                                                      |
+| `racimo`   | Un racimo de guineos que cuelga de su tallo, del tamaño de la caja. Empieza quieto en su lugar hasta que lo agarran; tirado en el suelo vuelve solo a los 3 s (las manos no llegan al suelo).                                                                                                                                                                                                                                        | `masa` (4 kg: uno solo lo carga; con más de 5, no)                                                                                                                              |
+| `sombrero` | El sombrero del Duende. Quieto en su lugar hasta que lo agarran.                                                                                                                                                                                                                                                                                                                                                                     | `masa` (0.4 kg)                                                                                                                                                                 |
+| `duende`   | El Duende: su caja es su casa (se para en el centro de la base, mirando al frente). Cinemático, sin choques ni azar. Cuida las palancas que le encarga el guion (`cuidar(palanca, agujero)`): la que quedó movida, sin nadie que la agarre ni nadie a menos de `vista`, la vuelve a su lugar saliendo por el agujero de al lado. Con el sombrero suelto a su alcance se lo pone y las deja en paz.                                   | `vista` (3.5 m) · `viaje` (0.4 s: lo que tarda bajo tierra de un agujero a otro)                                                                                                |
+
+```ts
+nivel.vagon("vagon-1").enganchados; // .corrido, .puntas(), .alEnganchar((otro) => {}), .llevar(posicion, giro)
+nivel.dresina("dresina").seguir(via, () => cambio.activa); // .avance, .velocidad, .bombeos, .porElDesvio, .frenar()
+nivel.grua("grua").mandar(palanca.activa); // .estado, .racimo, .alEnganchar(), .alSoltar(), .volver()
+nivel.racimo("racimo").colgado; // .agarrado, .colgarDe(cuerpo, punto), .descolgar(), .volver()
+nivel.duende("duende").cuidar(nivel.palanca("cambio"), { x, y, z }); // .contento, .cambios, .ponerSombrero()
+```
+
+Y los mecanismos del nivel (`mecanismos/via.ts` y `mecanismos/tren.ts`): `crearVia(puntos, { desde, puntos })` (una vía
+de tramos rectos con un cambio y su desvío), `crearTren` (la locomotora y sus vagones salen de una estación y llegan a
+otra a la hora, con un pito de vapor), `crearLevadizo` (un puente que gira sobre su punta de +x) y `crearRomana` (los
+racimos que se sueltan bajo una plancha alta se cuelgan de sus ganchos y pesan).
+
+### `05-tren` (`?escena=nivel&nivel=tren`)
+
+El nivel 5 (TU-27): El Progreso, Honduras. Una estación vieja de la bananera, rieles entre bananales, una grúa y el
+Duende, que cambia las palancas cuando nadie lo ve. Va de oeste a este; cada misión termina en un punto de control
+(`&punto=N` empieza en la misión N + 1):
+
+1. **Los vagones.** El tren (la locomotora y un furgón) tapa el paso a nivel del cerco del andén (delgado: no se
+   trepa). Se empuja la plataforma suelta por la vía hasta el furgón: se enganchan, el tren sale y se pasa → punto 1.
+2. **La dresina**, de a dos: sube 80 cm por un puente de caballetes. Cada uno se para en una punta mirando la bomba y,
+   cuando su manija está arriba, la agarra y la baja. Solo, entre bombeo y bombeo hay que cruzar la plataforma y la
+   cuesta lo devuelve → punto 2 en la loma, donde se frena.
+3. **El cambio de vía**, de a dos: uno empuja la palanca del cambio y se queda cerca (si nadie la ve, el Duende la
+   vuelve); el otro bombea un par de veces, la dresina baja sola y por el desvío llega al bananal → punto 3. Derecho, se
+   acaba en el puente roto; sola ahí, vuelve a la loma.
+4. **La grúa**, de a dos: uno empuja la palanca de la caseta y el gancho baja; el otro agarra el racimo grande (9 kg)
+   de su horca y se engancha. Al soltar la palanca la grúa lo lleva a la tolva (2.5 m, no se trepa) y el portón de la
+   empacadora baja → punto 4.
+5. **La romana:** los tres racimos de 4 kg del colgadero, soltados bajo la romana, quedan colgados de sus ganchos;
+   con los tres (con dos no alcanza) el puente levadizo baja sobre el canal → punto 5.
+6. **El Duende:** el portón final baja mientras sus dos palancas están movidas, pero quedan lejos del portón y el
+   Duende vuelve la que nadie ve. Hay que llevarle el sombrero (en el perchero de la garita) y dejárselo delante: se lo
+   pone, se queda contento y deja las palancas en paz → punto 6, la meta.
+
+El secreto, «el racimo de mínimos dorados», cuelga en el rellano del puente roto: se llega yendo derecho en el cambio
+(da el peinado «Copete»). El logro, «Puntual», es llegar a la meta antes de que pite el tren: sale al enganchar los
+vagones y llega a la estación de llegada seis minutos después. Retomando un avance guardado no se gana (el tren ya
+llegó). En la noche de tuerce no sale el mecate: la pareja se separa en el cambio, en la grúa y en el portón.

@@ -205,6 +205,22 @@ const TOMAS = [
     archivo: "xibalba-secreto",
     ruta: "/?escena=nivel&nivel=xibalba&punto=4&j1=&j2=&vista=48.9,9.0,-2.1&congelar=30",
   },
+  // TU-27: el nivel 5, El tren bananero (niveles/05-tren), entero, en la salida y una toma por misión (`vista=x,y,z`:
+  // la cámara quieta mirando ese punto): 1. el tren tapa el paso a nivel, con la plataforma suelta detrás; 2. la
+  // dresina en su zanja, con la bomba de balancín; 3. la palanca del cambio, su señal y el agujero del Duende, y el
+  // racimo de mínimos dorados en el rellano del puente roto (el secreto); 4. la grúa, su tolva y el racimo grande;
+  // 5. la romana con sus ganchos y los racimos en el colgadero; 6. el Duende en su casa, y en la meta el tren que
+  // llegó y el Duende contento con su sombrero
+  { archivo: "tren-entero", ruta: "/?escena=nivel&nivel=tren&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "tren-salida", ruta: "/?escena=nivel&nivel=tren&j1=&j2=&congelar=60" },
+  { archivo: "tren-1-tren", ruta: "/?escena=nivel&nivel=tren&j1=&j2=&vista=-18,1.4,0&congelar=30" },
+  { archivo: "tren-2-dresina", ruta: "/?escena=nivel&nivel=tren&punto=1&j1=&j2=&vista=-13.4,1.2,-4&congelar=30" },
+  { archivo: "tren-3-cambio", ruta: "/?escena=nivel&nivel=tren&punto=2&j1=&j2=&vista=9,1.8,-2.6&congelar=30" },
+  { archivo: "tren-3-secreto", ruta: "/?escena=nivel&nivel=tren&punto=2&j1=&j2=&vista=24.4,1.3,-3.5&congelar=30" },
+  { archivo: "tren-4-grua", ruta: "/?escena=nivel&nivel=tren&punto=3&j1=&j2=&vista=32.5,2.4,-11.5&congelar=30" },
+  { archivo: "tren-5-romana", ruta: "/?escena=nivel&nivel=tren&punto=4&j1=&j2=&vista=45,1.6,-9.5&congelar=30" },
+  { archivo: "tren-6-duende", ruta: "/?escena=nivel&nivel=tren&punto=5&j1=&j2=&vista=53.5,1,-11&congelar=30" },
+  { archivo: "tren-6-meta", ruta: "/?escena=nivel&nivel=tren&punto=6&j1=&j2=&vista=56,1.2,-7&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

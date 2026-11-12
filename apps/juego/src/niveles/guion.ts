@@ -8,6 +8,7 @@ import type { Muneco } from "../muneco";
 import type { Agua, Aguas } from "./agua";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
+import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
 import type { Murcielagos } from "./murcielagos";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
@@ -15,6 +16,7 @@ import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 import type { Sucia } from "./sucia";
 import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
+import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -69,6 +71,13 @@ export interface NivelEnJuego {
   llave(nombre: string): Llave;
   murcielagos(nombre: string): Murcielagos;
   guacamayas(nombre: string): Guacamayas;
+  /** Las que estrena El tren bananero (TU-27, ver piezas-tren.ts y duende.ts). */
+  vagon(nombre: string): Vagon;
+  dresina(nombre: string): Dresina;
+  grua(nombre: string): Grua;
+  racimo(nombre: string): Racimo;
+  sombrero(nombre: string): Sombrero;
+  duende(nombre: string): Duende;
 }
 
 export interface GuionDeNivel {
