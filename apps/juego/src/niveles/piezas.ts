@@ -22,6 +22,7 @@ import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
+import { armarMurcielagos, type Murcielagos } from "./murcielagos";
 import {
   armarHueso,
   armarLampara,
@@ -44,6 +45,22 @@ import {
   type Tendedero,
 } from "./piezas-poza";
 import { armarSucia, type Sucia } from "./sucia";
+import {
+  type Antorcha,
+  armarAntorcha,
+  armarBloque,
+  armarDoble,
+  armarEstela,
+  armarGuacamayas,
+  armarLlave,
+  armarPelota,
+  type Bloque,
+  type Doble,
+  type Estela,
+  type Guacamayas,
+  type Llave,
+  type Pelota,
+} from "./piezas-xibalba";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si
@@ -164,6 +181,15 @@ export interface PiezaPorTipo {
   batea: Batea;
   piedra: Piedra;
   sucia: Sucia;
+  // Las de Xibalbá (TU-26): piezas-xibalba.ts y murcielagos.ts
+  bloque: Bloque;
+  doble: Doble;
+  estela: Estela;
+  pelota: Pelota;
+  antorcha: Antorcha;
+  llave: Llave;
+  murcielagos: Murcielagos;
+  guacamayas: Guacamayas;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -714,6 +740,30 @@ export function armarPiezas(
         break;
       case "sucia":
         lista.push(armarSucia(herramientas, p));
+        break;
+      case "bloque":
+        lista.push(armarBloque(herramientas, p));
+        break;
+      case "doble":
+        lista.push(armarDoble(herramientas, p));
+        break;
+      case "estela":
+        lista.push(armarEstela(herramientas, p));
+        break;
+      case "pelota":
+        lista.push(armarPelota(herramientas, p));
+        break;
+      case "antorcha":
+        lista.push(armarAntorcha(herramientas, p));
+        break;
+      case "llave":
+        lista.push(armarLlave(herramientas, p));
+        break;
+      case "murcielagos":
+        lista.push(armarMurcielagos(herramientas, p));
+        break;
+      case "guacamayas":
+        lista.push(armarGuacamayas(herramientas, p));
         break;
     }
   }

@@ -9,10 +9,12 @@ import type { Agua, Aguas } from "./agua";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
 import type { PlanoDeNivel } from "./formato";
+import type { Murcielagos } from "./murcielagos";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 import type { Sucia } from "./sucia";
+import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -58,6 +60,15 @@ export interface NivelEnJuego {
   batea(nombre: string): Batea;
   piedra(nombre: string): Piedra;
   sucia(nombre: string): Sucia;
+  /** Las que estrena Xibalbá (TU-26, ver piezas-xibalba.ts y murcielagos.ts). */
+  bloque(nombre: string): Bloque;
+  doble(nombre: string): Doble;
+  estela(nombre: string): Estela;
+  pelota(nombre: string): Pelota;
+  antorcha(nombre: string): Antorcha;
+  llave(nombre: string): Llave;
+  murcielagos(nombre: string): Murcielagos;
+  guacamayas(nombre: string): Guacamayas;
 }
 
 export interface GuionDeNivel {

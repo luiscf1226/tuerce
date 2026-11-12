@@ -6,6 +6,8 @@ import escenaPinar from "../../../../niveles/01-pinar/escena.glb?url";
 import { crearGuion as guionPinar } from "../../../../niveles/01-pinar/guion";
 import escenaPoza from "../../../../niveles/02-poza/escena.glb?url";
 import { crearGuion as guionPoza } from "../../../../niveles/02-poza/guion";
+import escenaXibalba from "../../../../niveles/04-xibalba/escena.glb?url";
+import { crearGuion as guionXibalba } from "../../../../niveles/04-xibalba/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -46,5 +48,7 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     // Amarrados no: en la represa uno sostiene la palanca y el otro trepa lejos; en el tendedero baja uno solo
     sinTrampas: ["mecate"],
   },
+  // Nivel 4 (TU-26): Copán, Honduras. Seis misiones y los murciélagos de Xibalbá
+  xibalba: { carpeta: "04-xibalba", escena: escenaXibalba, crearGuion: guionXibalba },
 };
 export const NIVEL_INICIAL = "prueba";

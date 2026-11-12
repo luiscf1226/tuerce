@@ -170,6 +170,41 @@ const TOMAS = [
   { archivo: "poza-6-batea", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&congelar=60" },
   { archivo: "poza-6-sucia", ruta: "/?escena=nivel&nivel=poza&punto=6&j1=&j2=&vista=42.6,2.6,-1.4&congelar=268" },
   { archivo: "poza-secreto", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&vista=28.1,0,2.3&congelar=30" },
+  // TU-26: el nivel 4, Xibalbá de juguete (niveles/04-xibalba), entero, en la salida y una toma por misión: 1. los dos
+  // en la plancha doble y la entrada ya hundida; 2. la estela con sus varas y, alineada, con la reja abierta; 3. el aro
+  // y la pelota en su soporte; 4. los dos suben el bloque por la escalinata y lo dejan contra el templo; 5. el túnel
+  // con los murciélagos colgados, la antorcha, el brasero y la llave de jade, y los murciélagos que se le tiran al
+  // rojo, que entró a oscuras; 6. la tumba con el plato del contrapeso, las piedras y la losa; la meta; y la
+  // guacamaya dorada del secreto, en lo alto del templo
+  { archivo: "xibalba-entero", ruta: "/?escena=nivel&nivel=xibalba&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "xibalba-salida", ruta: "/?escena=nivel&nivel=xibalba&j1=&j2=&congelar=60" },
+  { archivo: "xibalba-1-planchas", ruta: "/?escena=nivel&nivel=xibalba&j1=andar:1&j2=andar:1&congelar=330" },
+  {
+    archivo: "xibalba-1-abierta",
+    ruta: "/?escena=nivel&nivel=xibalba&j1=andar:1&j2=andar:1&vista=8,1.2,0&congelar=430",
+  },
+  { archivo: "xibalba-2-estela", ruta: "/?escena=nivel&nivel=xibalba&punto=1&j1=&j2=&vista=11.5,1.6,0&congelar=60" },
+  {
+    archivo: "xibalba-2-alineada",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=2&j1=&j2=&vista=13.5,1.6,0&congelar=60",
+  },
+  { archivo: "xibalba-3-aro", ruta: "/?escena=nivel&nivel=xibalba&punto=2&j1=&j2=&vista=23,1.4,0&congelar=60" },
+  {
+    archivo: "xibalba-4-bloque",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=3&j1=andar:0.7,izq@15,der@15&j2=andar:0.7,izq@15,der@15&congelar=420",
+  },
+  {
+    archivo: "xibalba-4-arriba",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=3&j1=andar:0.7,izq@15,der@15&j2=andar:0.7,izq@15,der@15&vista=40.6,2.4,0&congelar=900",
+  },
+  { archivo: "xibalba-5-tunel", ruta: "/?escena=nivel&nivel=xibalba&punto=4&j1=&j2=&vista=48.5,5.6,0&congelar=60" },
+  { archivo: "xibalba-5-murcielagos", ruta: "/?escena=nivel&nivel=xibalba&punto=4&j1=andar:1&j2=&congelar=200" },
+  { archivo: "xibalba-6-tumba", ruta: "/?escena=nivel&nivel=xibalba&punto=5&j1=&j2=&vista=58.5,5.3,0.5&congelar=60" },
+  { archivo: "xibalba-meta", ruta: "/?escena=nivel&nivel=xibalba&punto=6&j1=&j2=&congelar=60" },
+  {
+    archivo: "xibalba-secreto",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=4&j1=&j2=&vista=48.9,9.0,-2.1&congelar=30",
+  },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
