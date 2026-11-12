@@ -5,9 +5,12 @@
 // Este archivo no carga nada ni toca Rapier: recibe el árbol de three que dejó GLTFLoader y devuelve el plano del
 // nivel. Así se prueba en Node leyendo el .glb del disco.
 import * as THREE from "three";
+// El agua (TU-24, La poza)
+import { type AguaDelPlano, leerAgua } from "./formato-agua";
 import { leerPiezaDelPinar, PIEZAS_DEL_PINAR, type PiezaDelPinarEnPlano } from "./formato-pinar";
+import { leerPiezaDeLaPoza, PIEZAS_DE_LA_POZA, type PiezaDeLaPozaEnPlano } from "./formato-poza";
 
-export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza"] as const;
+export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza", "agua"] as const;
 export type Tipo = (typeof TIPOS)[number];
 export const FORMAS = ["caja", "cilindro", "malla"] as const;
 export type Forma = (typeof FORMAS)[number];
@@ -20,7 +23,15 @@ export const ADORNOS = ["pino", "abeto", "roca", "mata", "tronco"] as const;
 export type FormaDeAdorno = (typeof ADORNOS)[number];
 /** Las piezas de juego (TU-12): cosas que se mueven con físicas y que el guion puede mirar. Las que estrena El pinar
  * (TU-14) están en formato-pinar.ts. */
-export const PIEZAS = ["huacal", "palanca", "plancha", "balancin", "bejuco", ...PIEZAS_DEL_PINAR] as const;
+export const PIEZAS = [
+  "huacal",
+  "palanca",
+  "plancha",
+  "balancin",
+  "bejuco",
+  ...PIEZAS_DEL_PINAR,
+  ...PIEZAS_DE_LA_POZA,
+] as const;
 export type TipoDePieza = (typeof PIEZAS)[number];
 
 /** Una caja girada en el mundo: zona de un punto de control o del vacío. */
@@ -112,7 +123,8 @@ export type PiezaDelPlano =
       readonly apoyo: number;
     })
   | (BaseDePieza & { readonly cual: "bejuco"; readonly masa: number; readonly segmentos: number })
-  | PiezaDelPinarEnPlano;
+  | PiezaDelPinarEnPlano
+  | PiezaDeLaPozaEnPlano;
 
 export interface PlanoDeNivel {
   /** Número del nivel (99 para el de prueba). */
@@ -135,6 +147,8 @@ export interface PlanoDeNivel {
   readonly piezas: readonly PiezaDelPlano[];
   /** La raíz de la escena del glTF, tal como la dejó el cargador. */
   readonly raiz: THREE.Object3D;
+  /** Las zonas de agua (TU-24, ver formato-agua.ts y agua.ts). */
+  readonly aguas: readonly AguaDelPlano[];
 }
 
 /** Separación entre los dos muñecos al reaparecer en un punto de control (metros). */
@@ -288,6 +302,14 @@ function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPl
       return leerPiezaDelPinar(cual, base, (clave, porDefecto, min, max) =>
         leerEntre(extras, clave, donde, porDefecto, min, max),
       );
+    case "balsa":
+    case "tendedero":
+    case "batea":
+    case "piedra":
+    case "sucia":
+      return leerPiezaDeLaPoza(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
   }
 }
 
@@ -307,6 +329,7 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
   const nieblas: CapaDeNieblaDelNivel[] = [];
   const secretos: Volumen[] = [];
   const piezas: PiezaDelPlano[] = [];
+  const aguas: AguaDelPlano[] = [];
 
   raiz.traverse((o) => {
     if (o === raiz) return;
@@ -375,6 +398,14 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
       case "pieza":
         piezas.push(leerPieza(o, extras, donde));
         break;
+      case "agua":
+        aguas.push(
+          leerAgua(o.name, o, volumenDe(o), {
+            numero: (clave, porDefecto, min, max) => leerEntre(extras, clave, donde, porDefecto, min, max),
+            opcion: (clave, opciones, porDefecto) => leerOpcion(extras, clave, opciones, donde, porDefecto),
+          }),
+        );
+        break;
     }
   });
 
@@ -414,5 +445,6 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
     secretos,
     piezas,
     raiz,
+    aguas,
   };
 }

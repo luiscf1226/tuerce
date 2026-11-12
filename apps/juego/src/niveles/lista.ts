@@ -4,6 +4,8 @@ import escenaPatio from "../../../../niveles/00-patio/escena.glb?url";
 import { crearGuion as guionPatio } from "../../../../niveles/00-patio/guion";
 import escenaPinar from "../../../../niveles/01-pinar/escena.glb?url";
 import { crearGuion as guionPinar } from "../../../../niveles/01-pinar/guion";
+import escenaPoza from "../../../../niveles/02-poza/escena.glb?url";
+import { crearGuion as guionPoza } from "../../../../niveles/02-poza/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -34,6 +36,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaPinar,
     crearGuion: guionPinar,
     // Amarrados no: en el balancín uno hace contrapeso en tierra y el otro baja en la otra orilla, a más de 8 m
+    sinTrampas: ["mecate"],
+  },
+  // Nivel 2 (TU-24): el río Guayape, Honduras. El agua, la balsa, la compuerta y La Sucia
+  poza: {
+    carpeta: "02-poza",
+    escena: escenaPoza,
+    crearGuion: guionPoza,
+    // Amarrados no: en la represa uno sostiene la palanca y el otro trepa lejos; en el tendedero baja uno solo
     sinTrampas: ["mecate"],
   },
 };

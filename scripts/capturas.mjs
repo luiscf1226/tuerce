@@ -154,6 +154,22 @@ const TOMAS = [
   { archivo: "noche-niebla", ruta: "/?escena=nivel&noche=3&trampa=niebla&j1=andar:1&j2=andar:1&congelar=120" },
   { archivo: "noche-luna", ruta: "/?escena=nivel&noche=1&trampa=luna&j1=saltar@30&j2=saltar@36&congelar=75" },
   { archivo: "noche-menu", ruta: "/?escena=nivel&noche=5&j1=&j2=&menu&congelar=60" },
+  // TU-24: el nivel 2, La poza (niveles/02-poza), entero y en la salida (los troncos en sus caballetes); 1. la balsa
+  // amarrada junto al muelle, con los dos a bordo; 2. remando río arriba; 3. el chorro de la represa y, abierta la
+  // compuerta, cortado; 4. los dos bajando por el tendedero; 5. las piedras de la isla y la boca, y la poza seca;
+  // 6. la batea en lo hondo y La Sucia tirándole agua al que se quedó en su lavadero. Y la pepita del secreto
+  { archivo: "poza-entero", ruta: "/?escena=nivel&nivel=poza&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "poza-salida", ruta: "/?escena=nivel&nivel=poza&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "poza-1-balsa", ruta: "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&vista=5.6,0.8,-1.5&congelar=60" },
+  { archivo: "poza-2-remando", ruta: "/?escena=nivel&nivel=poza&punto=1&j1=izq,der&j2=izq,der&congelar=600" },
+  { archivo: "poza-3-chorro", ruta: "/?escena=nivel&nivel=poza&punto=2&j1=&j2=&vista=24.2,1.6,0.6&congelar=60" },
+  { archivo: "poza-3-compuerta", ruta: "/?escena=nivel&nivel=poza&punto=3&j1=&j2=&vista=24.2,1.6,0.6&congelar=60" },
+  { archivo: "poza-4-tendedero", ruta: "/?escena=nivel&nivel=poza&punto=3&j1=izq,der&j2=izq@40,der@40&congelar=230" },
+  { archivo: "poza-5-boca", ruta: "/?escena=nivel&nivel=poza&punto=4&j1=&j2=&vista=39,2.2,0.6&congelar=60" },
+  { archivo: "poza-5-seca", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&vista=31,0.8,0&congelar=60" },
+  { archivo: "poza-6-batea", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&congelar=60" },
+  { archivo: "poza-6-sucia", ruta: "/?escena=nivel&nivel=poza&punto=6&j1=&j2=&vista=42.6,2.6,-1.4&congelar=268" },
+  { archivo: "poza-secreto", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&vista=28.1,0,2.3&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
