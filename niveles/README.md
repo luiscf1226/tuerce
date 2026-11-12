@@ -101,6 +101,36 @@ En línea el anfitrión decide todo (a quién persigue el Cadejo, la lámpara en
 el cuerpo del Cadejo (lo anima con lo que anduvo) y el de cada pieza. La lámpara del invitado se enciende cuando la
 pareja pasa el punto que la sigue (el guion la enciende en `alRetomar`).
 
+## Las piezas de Xibalbá (TU-26)
+
+Las que estrena el nivel 4 (`apps/juego/src/niveles/piezas-xibalba.ts` y `murcielagos.ts`; su lectura, en
+`formato-xibalba.ts`). Como las otras, su malla no se dibuja: solo dice dónde va la pieza y cuánto mide.
+
+| `pieza`       | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Propiedades                                                                                                                          |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `bloque`      | Un bloque de piedra labrada del tamaño de la caja. Si pesa más de lo que levanta un muñeco solo (5 kg), mientras no lo agarren los dos no se mueve de costado (ni empujándolo ni arrastrándolo): solo cae, derecho. Entre dos se carga y se sube caminando por gradas de 30 cm. Los muñecos chocan con él: sirve de escalón. Si cae al vacío vuelve solo a donde empezó.                                                                                                                                         | `masa` (9 kg) · `rozamiento` (1)                                                                                                     |
+| `doble`       | La plancha doble: dos placas de piedra, una en cada punta del lado más largo de la caja (cuadradas, del ancho del lado corto). Queda **pisada** solo con las dos hundidas a la vez.                                                                                                                                                                                                                                                                                                                              | `peso` (15 kg por placa: solo un muñeco) · `hundir` (0.06 m)                                                                         |
+| `estela`      | Una estela labrada (la caja) que gira sobre su eje de pie, con dos varas a lo largo de su x, a `altura` de la base y hasta `brazo` del eje. **Trabada** mientras no la agarren los dos; girándola `angulo` (su frente hacia su +x) queda **alineada** y ya no se mueve.                                                                                                                                                                                                                                          | `angulo` (90°) · `brazo` (1.5 m) · `altura` (1 m) · `masa` (40 kg)                                                                   |
+| `pelota`      | Una pelota de hule (una esfera dentro de la caja) que rebota. Se agarra con las dos manos; saltando y soltándola en el aire, vuela. Tirada en el suelo vuelve sola a su lugar.                                                                                                                                                                                                                                                                                                                                   | `masa` (1.5 kg) · `rebote` (0.6) · `vuelve` (5 s)                                                                                    |
+| `antorcha`    | Una antorcha grande: el palo a lo alto de la caja y un travesaño a lo ancho, a un tercio de abajo (que quede a la altura de las manos: en un poste). Empieza **encendida**. Llevada con las dos manos va derecha (**bien llevada**). Tirada vuelve sola a su lugar, encendida. El fuego viaja en la foto de la red: el invitado lo ve prendido o apagado.                                                                                                                                                        | `masa` (1.2 kg) · `vuelve` (4 s)                                                                                                     |
+| `llave`       | La llave de jade: una placa clara labrada. Se lleva con una mano o con las dos; el guion la **encaja** en su cerradura (y ya no choca con nada). Tirada vuelve sola a su lugar.                                                                                                                                                                                                                                                                                                                                  | `masa` (0.8 kg) · `vuelve` (4 s)                                                                                                     |
+| `murcielagos` | Los murciélagos de Xibalbá. Su caja es el túnel: cuelgan de `perchas` en el techo (repartidas a lo largo, alternando de lado). Una antorcha encendida alumbra hasta `radio`. Si una antorcha encendida queda desatendida en el túnel (nadie la lleva con las dos manos) o pasa por debajo de una percha (a menos de `despertar`), vuelan y la **apagan**. Al que anda a oscuras en el túnel lo **espantan**: un aletazo que lo tira hacia el −x de la caja (la entrada). Cinemáticos y sin azar, como el Cadejo. | `cuantos` (9) · `radio` (3 m) · `velocidad` (4.5 m/s) · `empujon` (4 m/s) · `descanso` (1.5 s) · `perchas` (3) · `despertar` (0.9 m) |
+| `guacamayas`  | Guacamayas que vuelan en círculos dentro de su caja. Solo imagen: no tienen cuerpo.                                                                                                                                                                                                                                                                                                                                                                                                                              | `cuantas` (6)                                                                                                                        |
+
+```ts
+nivel.bloque("bloque").cargadores; // y .libre, .volver(), .ponerEn(posicion)
+nivel.doble("planchas").pisada; // y .hundidas, .alCambiar((pisada) => {})
+nivel.estela("estela").alineada; // y .angulo, .girando, .alAlinear(() => {}), .alinear()
+nivel.pelota("pelota").agarrada; // y .enSuLugar, .volver()
+nivel.antorcha("antorcha").encendida; // y .bienLlevada, .llevador, .llama(), .encender(), .apagar(), .alApagar()
+nivel.llave("llave").encajada; // y .encajar(posicion), .volver()
+nivel.murcielagos("murcielagos").apagadas; // y .espantados, .estado, .alApagar(), .alEspantar((jugador) => {})
+```
+
+Lo que da hacia la cámara puede ser bajo y aun así no dejar pasar: un sólido `invisible` cuyo nombre termina en
+`-baranda` lo vuelve el guion de Xibalbá una baranda (`soloParaMunecos`), que choca solo con los muñecos; la cámara
+y lo suelto no la ven. Un muro de 90 cm, en cambio, se trepa.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -202,6 +232,33 @@ misión N + 1):
 
 El secreto, «el nido en el pino más alto», está arriba de tres escalones de leña (de 1.5 m) al pie del pino, junto a
 la pulpería: se trepan colgándose y la zona `secreto` está en el nido (da el peinado «Greñas de nido»).
+
+### `04-xibalba` (`?escena=nivel&nivel=xibalba`)
+
+El nivel 4 (TU-26): Xibalbá de juguete, en Copán, Honduras. Pirámides y ceibas entre la niebla, estelas y túneles de
+piedra clara, guacamayas por todas partes, y los murciélagos de Xibalbá. Va de oeste a este; cada misión termina en
+un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **La plancha doble**, de a dos: una placa a cada lado de la entrada de la muralla, a 2 m una de otra. Con los dos
+   encima a la vez la entrada se hunde y queda abierta → punto 1.
+2. **La estela**, de a dos: se la gira entre los dos empujando sus varas (trabada si la agarra uno solo) hasta que el
+   glifo del sol mira la reja; la reja se hunde → punto 2.
+3. **El juego de pelota**: la pelota de hule en su soporte, frente al aro. Agarrarla, retroceder un paso, saltar y
+   soltarla en el aire la mete por el aro; se hunde el portón → punto 3. Soltada parado no llega.
+4. **La escalinata**, de a dos: el bloque de 9 kg en su altar (uno solo no lo saca de ahí); lo suben los dos grada por
+   grada (30 cm) hasta el pie del templo (2.3 m, más de lo que se trepa), lo dejan contra la pared y desde el bloque
+   se trepa → punto 4. Tirado sin servir, a los 3 s vuelve a su altar.
+5. **El túnel de los murciélagos**, de a dos: uno lleva la antorcha con las dos manos y el otro la llave de jade, juntos
+   (a oscuras los espantan), sin pasar la llama por debajo de las perchas. La llave encaja en la cerradura de la
+   puerta del fondo y la puerta se hunde → punto 5. Solo no se puede: con la antorcha bien llevada no quedan manos
+   para la llave, y con una sola mano los murciélagos la apagan. Apagada, se prende en el brasero de la entrada. El
+   logro, «Con luz», es llegar al punto 5 sin que la apaguen ni una vez.
+6. **La tumba**: la losa sube con el contrapeso, tanto como se hunde el plato; con las dos piedras de la repisa en el
+   plato (o alguien parado encima) sube del todo → punto 6 adentro, la meta.
+
+El secreto, «la guacamaya dorada en lo alto del templo», está arriba del muro del túnel: se sube por tres escalones de
+1.5 m junto a la boca del túnel, colgándose (da la máscara «Guacamaya»). El dorado, el jade y el fuego no tienen color:
+se leen por la forma, lo claro y el brillo.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 

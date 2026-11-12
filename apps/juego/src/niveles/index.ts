@@ -6,6 +6,8 @@ export type { Cadejo } from "./cadejo";
 export { cargarNivel, parsearGlb } from "./cargar";
 export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from "./formato";
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
+export type { Murcielagos } from "./murcielagos";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
 export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
+export type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
