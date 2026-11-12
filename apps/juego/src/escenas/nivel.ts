@@ -9,6 +9,8 @@
 //   &contrarreloj    una carrera (TU-32): desde la salida y con el reloj arriba, que arranca cuando alguno se mueve
 //                    y se para en la meta. Sin red, el tiempo queda en este navegador (en línea lo guarda Convex,
 //                    ver en-linea.ts). `&punto` solo vale en el mismo lugar, para probar.
+//   &noche[=semilla] Noche de tuerce (TU-33): de noche y con una trampa sorpresa; `&trampa=<nombre>` la fuerza
+//                    (ver src/niveles/noche.ts). En línea la elige el anfitrión y el invitado la recibe en las fotos.
 //
 // El secreto y el logro del nivel (TU-29) se avisan arriba al centro (src/ropero/aviso.ts); en línea, además, se
 // guardan en Convex.
@@ -29,11 +31,13 @@ import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
 import { armarNivel, cargarNivel, crearNivel, type GuionDeNivel, type Nivel, type PlanoDeNivel } from "../niveles";
 import { anotarTiempoAqui, crearReloj, formatearTiempo, marcarGanadoAqui, seMueve } from "../niveles/contrarreloj";
 import { NIVEL_INICIAL, NIVELES } from "../niveles/lista";
+import { crearNoche, leerNoche, type Noche } from "../niveles/noche";
 import { avisarPremios } from "../ropero/aviso";
 import { vestuarioDe } from "../ropero/vestuario";
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
 import { crearInterfaz } from "../ui/menu";
+import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
@@ -49,6 +53,8 @@ export type EscenaNivel = EscenaDeJuego & {
   readonly nivel: Nivel;
   readonly camaraDeDos: CamaraDeDos;
   readonly vestir: Vestir;
+  /** La Noche de tuerce (TU-33): de día mientras no tenga trampa. */
+  readonly noche: Noche;
 };
 
 /** Baja el .glb del nivel que pide la dirección (`&nivel=`) y devuelve cómo armar su escena. */
@@ -116,6 +122,10 @@ export function armarEscenaNivel(
   if (conPantalla) avisarPremios(nivel.premios);
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
+  const noche = crearNoche(
+    { rapier, mundo, escena, munecos, jirones: armado.niebla.grupo, ...(conPantalla ? { cartel: mostrarCartel } : {}) },
+    leerNoche(parametros),
+  );
 
   const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA, despejado: despejadoEnElMundo(rapier, mundo) });
   const vistaTodo = parametros.get("vista") === "todo";
@@ -197,8 +207,9 @@ export function armarEscenaNivel(
     ...(reloj ? { reloj } : {}),
     premios: nivel.premios,
     vestir: (jugador, vestuario) => jugadores[jugador].malla.vestir(vestuario),
+    noche,
     pasar() {
-      const leidas = juego.atienden ? controles.leer() : quietas;
+      const leidas = noche.entradas(juego.atienden ? controles.leer() : quietas);
       const entradas = enRed ? enRed(leidas) : leidas;
       if (entradas) {
         const rojo = senas.entrada(0, entradas[0]);
@@ -206,6 +217,8 @@ export function armarEscenaNivel(
         nivel.antes([rojo, turquesa]);
         munecos[0].pasar(rojo);
         munecos[1].pasar(turquesa);
+        noche.antes();
+        if (juego.atienden) noche.anunciar();
         mundo.step();
         // El reloj cuenta este paso antes de los puntos de control: el paso que llega a la meta también vale
         if (reloj && (reloj.pasos > 0 || seMueve(entradas[0]) || seMueve(entradas[1]))) reloj.pasar();
@@ -221,6 +234,7 @@ export function armarEscenaNivel(
     dibujar(alfa) {
       jugadores[0].malla.dibujar(alfa);
       jugadores[1].malla.dibujar(alfa);
+      noche.dibujar(alfa);
       const segundos = (pasos - 1 + alfa) * PASO;
       armado.dibujar(alfa, segundos);
       senas.dibujar(segundos);
@@ -228,8 +242,9 @@ export function armarEscenaNivel(
       if (vistaTodo) return;
       camaraDeDos.dibujar(alfa);
       if (escena.fog instanceof THREE.Fog) {
-        escena.fog.near = plano.niebla.cerca + camaraDeDos.distancia - ENCUADRE.cerca;
-        escena.fog.far = plano.niebla.lejos + camaraDeDos.distancia - ENCUADRE.cerca;
+        // La niebla espesa (TU-33) acorta la del nivel, pero no la de la cámara: los dos se siguen viendo
+        escena.fog.near = plano.niebla.cerca * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca;
+        escena.fog.far = plano.niebla.lejos * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca;
       }
     },
   };
