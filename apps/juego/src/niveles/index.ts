@@ -4,8 +4,10 @@
 export { armarNivel, type NivelArmado, type Pieza } from "./armar";
 export type { Cadejo } from "./cadejo";
 export { cargarNivel, parsearGlb } from "./cargar";
+export type { Duende } from "./duende";
 export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from "./formato";
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
 export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
+export type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";

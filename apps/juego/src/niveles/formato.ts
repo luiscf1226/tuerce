@@ -6,6 +6,7 @@
 // nivel. Así se prueba en Node leyendo el .glb del disco.
 import * as THREE from "three";
 import { leerPiezaDelPinar, PIEZAS_DEL_PINAR, type PiezaDelPinarEnPlano } from "./formato-pinar";
+import { leerPiezaDelTren, PIEZAS_DEL_TREN, type PiezaDelTrenEnPlano } from "./formato-tren";
 
 export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza"] as const;
 export type Tipo = (typeof TIPOS)[number];
@@ -20,7 +21,15 @@ export const ADORNOS = ["pino", "abeto", "roca", "mata", "tronco"] as const;
 export type FormaDeAdorno = (typeof ADORNOS)[number];
 /** Las piezas de juego (TU-12): cosas que se mueven con físicas y que el guion puede mirar. Las que estrena El pinar
  * (TU-14) están en formato-pinar.ts. */
-export const PIEZAS = ["huacal", "palanca", "plancha", "balancin", "bejuco", ...PIEZAS_DEL_PINAR] as const;
+export const PIEZAS = [
+  "huacal",
+  "palanca",
+  "plancha",
+  "balancin",
+  "bejuco",
+  ...PIEZAS_DEL_PINAR,
+  ...PIEZAS_DEL_TREN,
+] as const;
 export type TipoDePieza = (typeof PIEZAS)[number];
 
 /** Una caja girada en el mundo: zona de un punto de control o del vacío. */
@@ -112,7 +121,8 @@ export type PiezaDelPlano =
       readonly apoyo: number;
     })
   | (BaseDePieza & { readonly cual: "bejuco"; readonly masa: number; readonly segmentos: number })
-  | PiezaDelPinarEnPlano;
+  | PiezaDelPinarEnPlano
+  | PiezaDelTrenEnPlano;
 
 export interface PlanoDeNivel {
   /** Número del nivel (99 para el de prueba). */
@@ -286,6 +296,15 @@ function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPl
     case "lampara":
     case "cadejo":
       return leerPiezaDelPinar(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    case "vagon":
+    case "dresina":
+    case "grua":
+    case "racimo":
+    case "sombrero":
+    case "duende":
+      return leerPiezaDelTren(cual, base, (clave, porDefecto, min, max) =>
         leerEntre(extras, clave, donde, porDefecto, min, max),
       );
   }

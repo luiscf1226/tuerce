@@ -6,9 +6,11 @@ import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
+import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
+import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -45,6 +47,13 @@ export interface NivelEnJuego {
   hueso(nombre: string): Hueso;
   lampara(nombre: string): Lampara;
   cadejo(nombre: string): Cadejo;
+  /** Las que estrena El tren bananero (TU-27, ver piezas-tren.ts y duende.ts). */
+  vagon(nombre: string): Vagon;
+  dresina(nombre: string): Dresina;
+  grua(nombre: string): Grua;
+  racimo(nombre: string): Racimo;
+  sombrero(nombre: string): Sombrero;
+  duende(nombre: string): Duende;
 }
 
 export interface GuionDeNivel {
