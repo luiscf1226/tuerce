@@ -118,6 +118,28 @@ const TOMAS = [
   { archivo: "patio-5-camion", ruta: "/?escena=nivel&nivel=patio&punto=4&j1=andar:1&j2=&congelar=95" },
   { archivo: "patio-5-meta", ruta: "/?escena=nivel&nivel=patio&punto=4&j1=andar:1&j2=&congelar=170" },
   { archivo: "patio-secreto", ruta: "/?escena=nivel&nivel=patio&punto=2&j1=&j2=andar:1,girar:0.1&congelar=150" },
+  // TU-14: el nivel 1, El pinar (niveles/01-pinar), entero, en la salida y una toma por misión: 1. el rojo empuja el
+  // cajón contra el cerco; 2. el turquesa sube solo por el balancín y, pasado el eje, se le vuelca; 3. el rojo se
+  // columpia en el bejuco sobre el barranco; 4. el rojo agarra el tronco de los caballetes (solo no lo levanta);
+  // 5. el Cadejo echado en su corral, persiguiendo al rojo y recién lamido; 6. el rojo agarra la lámpara, que se
+  // enciende y abre la puerta de la pulpería (y, ya en la meta, la lámpara encendida y la puerta abierta). Y el nido
+  // del secreto, arriba del pino más alto (`vista=x,y,z`: la cámara quieta mirando ese punto)
+  { archivo: "pinar-entero", ruta: "/?escena=nivel&nivel=pinar&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "pinar-salida", ruta: "/?escena=nivel&nivel=pinar&j1=&j2=&congelar=60" },
+  { archivo: "pinar-1-cerco", ruta: "/?escena=nivel&nivel=pinar&j1=andar:1&j2=andar:1&congelar=230" },
+  { archivo: "pinar-2-balancin", ruta: "/?escena=nivel&nivel=pinar&punto=1&j1=&j2=andar:1&congelar=260" },
+  { archivo: "pinar-2-volcado", ruta: "/?escena=nivel&nivel=pinar&punto=1&j1=&j2=andar:1&congelar=395" },
+  {
+    archivo: "pinar-3-bejuco",
+    ruta: "/?escena=nivel&nivel=pinar&punto=2&j1=andar:1,izq@15,der@15&j2=&congelar=250",
+  },
+  { archivo: "pinar-4-tronco", ruta: "/?escena=nivel&nivel=pinar&punto=3&j1=andar:1,der@15&j2=andar:1&congelar=100" },
+  { archivo: "pinar-5-cadejo", ruta: "/?escena=nivel&nivel=pinar&punto=4&j1=&j2=&vista=41.2,3.8,0&congelar=60" },
+  { archivo: "pinar-5-persigue", ruta: "/?escena=nivel&nivel=pinar&punto=4&j1=andar:1&j2=&congelar=118" },
+  { archivo: "pinar-5-lamida", ruta: "/?escena=nivel&nivel=pinar&punto=4&j1=andar:1&j2=&congelar=140" },
+  { archivo: "pinar-6-lampara", ruta: "/?escena=nivel&nivel=pinar&punto=5&j1=andar:1,der@15&j2=&congelar=250" },
+  { archivo: "pinar-6-encendida", ruta: "/?escena=nivel&nivel=pinar&punto=6&j1=&j2=&vista=50.6,4.6,0&congelar=60" },
+  { archivo: "pinar-secreto", ruta: "/?escena=nivel&nivel=pinar&punto=5&j1=&j2=&vista=49.7,7.9,-2.45&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

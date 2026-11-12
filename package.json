@@ -16,7 +16,7 @@
     "prueba:red": "node scripts/prueba-red.mjs",
     "red:local": "node scripts/red-local.mjs",
     "capturas": "node scripts/capturas.mjs",
-    "niveles": "node scripts/niveles/prueba.mjs && node scripts/niveles/piezas.mjs && node scripts/niveles/patio.mjs",
+    "niveles": "node scripts/niveles/prueba.mjs && node scripts/niveles/piezas.mjs && node scripts/niveles/patio.mjs && node scripts/niveles/pinar.mjs",
     "convex:dev": "convex dev",
     "sala:dev": "pnpm --filter tuerce-sala dev",
     "sala:test": "pnpm --filter tuerce-sala test",

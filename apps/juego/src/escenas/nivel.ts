@@ -6,6 +6,7 @@
 //   &nivel=prueba    qué nivel abrir: `patio`, `prueba` o `piezas` (ver src/niveles/lista.ts)
 //   &punto=N         empieza en ese punto de control, como al retomar un avance guardado
 //   &vista=todo      la cámara quieta, lejos, mirando el nivel entero (para las capturas)
+//   &vista=x,y,z     la cámara quieta mirando ese punto desde la dirección de siempre (el nido del secreto)
 //   &contrarreloj    una carrera (TU-32): desde la salida y con el reloj arriba, que arranca cuando alguno se mueve
 //                    y se para en la meta. Sin red, el tiempo queda en este navegador (en línea lo guarda Convex,
 //                    ver en-linea.ts). `&punto` solo vale en el mismo lugar, para probar.
@@ -41,8 +42,11 @@ import type { AvanceDeNivel, Vestir } from "./tipos";
 
 /** La cámara: hacia dónde queda de lo que mira, un poco más alta que en `dos` para ver los huecos. */
 const DIRECCION_CAMARA = new THREE.Vector3(0.35, 0.42, 1);
-/** Con `&vista=todo`: desde dónde y hacia dónde mira la cámara quieta. */
-const VISTA_TODO = { desde: new THREE.Vector3(9, 10, 24), hacia: new THREE.Vector3(9, -0.5, 0) };
+/** Con `&vista=todo`: desde dónde y hacia dónde mira la cámara quieta, para un nivel de hasta `largo` metros (los
+ * más largos, como El pinar, la alejan en proporción y la centran). */
+const VISTA_TODO = { desde: new THREE.Vector3(9, 10, 24), hacia: new THREE.Vector3(9, -0.5, 0), largo: 32 };
+/** Con `&vista=x,y,z`: a cuánto del punto queda la cámara. */
+const VISTA_PUNTO = 7;
 
 export type EscenaNivel = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
@@ -118,15 +122,39 @@ export function armarEscenaNivel(
   const senas = crearSenas(rapier, mundo, escena, munecos);
 
   const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA, despejado: despejadoEnElMundo(rapier, mundo) });
-  const vistaTodo = parametros.get("vista") === "todo";
+  const vista = parametros.get("vista");
+  const punto3 = vista?.split(",").map(Number);
+  const vistaPunto =
+    punto3?.length === 3 && punto3.every(Number.isFinite) ? new THREE.Vector3().fromArray(punto3) : null;
+  const vistaTodo = vista === "todo" || vistaPunto !== null;
   const camara = vistaTodo ? new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 200) : camaraDeDos.camara;
+  if (vistaPunto) {
+    camara.position.copy(DIRECCION_CAMARA).setLength(VISTA_PUNTO).add(vistaPunto);
+    camara.lookAt(vistaPunto);
+  }
+  /** Con `&vista=todo`, cuánto más lejos que lo de siempre queda la cámara (1 para los niveles cortos). */
+  let lejos = 1;
+  if (vistaTodo && !vistaPunto) {
+    const limites = new THREE.Box3();
+    for (const s of plano.solidos) limites.union(new THREE.Box3().setFromObject(s.objeto));
+    const largo = limites.max.x - limites.min.x;
+    if (largo <= VISTA_TODO.largo) {
+      camara.position.copy(VISTA_TODO.desde);
+      camara.lookAt(VISTA_TODO.hacia);
+    } else {
+      lejos = largo / VISTA_TODO.largo;
+      const x = (limites.min.x + limites.max.x) / 2;
+      const y = Math.max(0, (limites.min.y + limites.max.y) / 2);
+      camara.position.set(x, VISTA_TODO.desde.y * lejos + y, VISTA_TODO.desde.z * lejos);
+      camara.lookAt(x, VISTA_TODO.hacia.y + y, 0);
+    }
+  }
   if (vistaTodo) {
-    camara.position.copy(VISTA_TODO.desde);
-    camara.lookAt(VISTA_TODO.hacia);
     // Desde lejos, la niebla se corre para que el nivel entero se lea
     if (escena.fog instanceof THREE.Fog) {
-      escena.fog.near = plano.niebla.cerca + 12;
-      escena.fog.far = plano.niebla.lejos + 22;
+      const atras = VISTA_TODO.desde.z * (lejos - 1);
+      escena.fog.near = plano.niebla.cerca + 12 + atras;
+      escena.fog.far = plano.niebla.lejos + 22 + atras;
     }
   }
   const seguirConLaCamara = () =>
