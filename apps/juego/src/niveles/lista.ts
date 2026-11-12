@@ -9,6 +9,7 @@ import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
 import { crearGuion as guionPrueba } from "../../../../niveles/99-prueba/guion";
 import type { GuionDeNivel } from "./guion";
+import type { NombreTrampa } from "./noche";
 
 export interface DatosDeNivel {
   /** La carpeta en niveles/ (las pruebas leen el .glb de ahí). */
@@ -17,6 +18,8 @@ export interface DatosDeNivel {
   readonly escena: string;
   /** Un guion nuevo para cada partida (guarda su propio estado). */
   readonly crearGuion: () => GuionDeNivel;
+  /** Las trampas de la noche de tuerce (TU-33) que este nivel no admite porque lo harían imposible. */
+  readonly sinTrampas?: readonly NombreTrampa[];
 }
 
 export const NIVELES: Record<string, DatosDeNivel> = {
@@ -26,6 +29,12 @@ export const NIVELES: Record<string, DatosDeNivel> = {
   // Las piezas de juego (TU-12): huacales, plancha, palanca, bejucos y balancín
   piezas: { carpeta: "98-piezas", escena: escenaPiezas, crearGuion: guionPiezas },
   // Nivel 1 (TU-14): La Esperanza, Honduras. Seis misiones y el Cadejo
-  pinar: { carpeta: "01-pinar", escena: escenaPinar, crearGuion: guionPinar },
+  pinar: {
+    carpeta: "01-pinar",
+    escena: escenaPinar,
+    crearGuion: guionPinar,
+    // Amarrados no: en el balancín uno hace contrapeso en tierra y el otro baja en la otra orilla, a más de 8 m
+    sinTrampas: ["mecate"],
+  },
 };
 export const NIVEL_INICIAL = "prueba";

@@ -23,6 +23,10 @@ describe("Noche de tuerce en la escena nivel", () => {
     expect((await escenaDe("prueba", "noche=4&j1=&j2=")).noche.trampa).toBe(una);
   });
 
+  it("con `&contrarreloj` es de día aunque pidan la noche: los tiempos de la tabla son todos de día", async () => {
+    expect((await escenaDe("prueba", "contrarreloj&noche=4&j1=&j2=")).noche.trampa).toBeUndefined();
+  });
+
   for (const t of TRAMPAS) {
     it(`${t.nombre}: en el de prueba, desde el punto 2 llegan a la meta`, async () => {
       const e = await escenaDe("prueba", `noche=1&trampa=${t.nombre}&punto=2&j1=andar:1&j2=andar:1`);

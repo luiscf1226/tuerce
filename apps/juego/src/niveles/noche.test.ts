@@ -8,6 +8,7 @@ import { saturacion } from "../imagen/paleta";
 import { crearMundo } from "../motor/fisica";
 import { crearMuneco, type Muneco } from "../muneco";
 import { escribirFoto, leerFoto } from "../red/paquetes";
+import { NIVELES } from "./lista";
 import {
   COLORES_NOCHE,
   crearNoche,
@@ -69,6 +70,17 @@ describe("la semilla elige la trampa", () => {
     }
     const salieron = new Set(Array.from({ length: 300 }, (_, s) => trampaDeSemilla(s).nombre));
     expect([...salieron].sort()).toEqual(TRAMPAS.map((t) => t.nombre).sort());
+  });
+
+  it("un nivel puede no admitir una trampa: al azar nunca sale, y las demás sí (el pinar no admite el mecate)", () => {
+    const sin = NIVELES.pinar?.sinTrampas ?? [];
+    expect(sin).toContain("mecate");
+    const salieron = new Set(Array.from({ length: 300 }, (_, s) => trampaDeSemilla(s, sin).nombre));
+    expect(salieron.has("mecate")).toBe(false);
+    expect(salieron.size).toBe(TRAMPAS.length - sin.length);
+    expect(leerNoche(new URLSearchParams("noche=5"), undefined, sin)?.trampa.nombre).not.toBe("mecate");
+    // Forzada con `&trampa=` se pone igual, para probar
+    expect(leerNoche(new URLSearchParams("trampa=mecate"), undefined, sin)?.trampa.nombre).toBe("mecate");
   });
 
   it("hay al menos 4 trampas, con nombre, título y cartel, y caben en los 4 bits de la foto", () => {
@@ -259,6 +271,14 @@ describe("cada trampa hace lo que dice", () => {
     munecos[1].reaparecer({ x: 1, y: 0, z: 0 }, 0);
     correr(5);
     expect(nudos()).toBe(conMecate);
+
+    // Apenas más lejos que el mecate (reapareció en el punto de control mientras el otro colgaba): se suelta igual,
+    // sin tirón que junte a los dos de golpe
+    const rojo2 = pelvis(0);
+    munecos[1].reaparecer({ x: rojo2.x + 3.6, y: 0, z: rojo2.z }, 0);
+    correr(5);
+    expect(nudos()).toBe(conMecate - 1);
+    expect(pelvis(0).distanceTo(rojo2)).toBeLessThan(0.1);
   });
 
   it("niebla espesa: la niebla del nivel queda más corta; las otras trampas no la tocan", async () => {

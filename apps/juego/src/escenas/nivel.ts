@@ -128,7 +128,10 @@ export function armarEscenaNivel(
   const senas = crearSenas(rapier, mundo, escena, munecos);
   const noche = crearNoche(
     { rapier, mundo, escena, munecos, jirones: armado.niebla.grupo, ...(conPantalla ? { cartel: mostrarCartel } : {}) },
-    leerNoche(parametros),
+    // De noche no hay contrarreloj: la luna o el viento cambiarían los tiempos de la tabla, que es de día
+    parametros.has("contrarreloj")
+      ? undefined
+      : leerNoche(parametros, undefined, NIVELES[parametros.get("nivel") ?? NIVEL_INICIAL]?.sinTrampas),
   );
 
   const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA, despejado: despejadoEnElMundo(rapier, mundo) });

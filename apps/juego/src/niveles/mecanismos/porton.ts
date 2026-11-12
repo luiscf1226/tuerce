@@ -11,8 +11,9 @@ export const AJUSTES_PORTON = {
   juego: 0.01,
   /** Se traba solo si está cerrada: menos que esto (radianes). */
   cerrada: 0.04,
-  /** Abierta más que esto, queda abierta para siempre (radianes). */
-  abierta: 0.6,
+  /** Abierta más que esto, queda abierta para siempre (radianes). Menos de lo que hace falta para pasar (~0.4):
+   * si no, el primero pasa por la rendija, la hoja se cierra detrás y se vuelve a trabar con uno de cada lado. */
+  abierta: 0.3,
   /** Rozamiento en la bisagra, para que la hoja pese (N·m·s/rad). */
   rozamiento: 12,
 } as const;

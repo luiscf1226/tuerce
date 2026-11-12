@@ -174,7 +174,7 @@ export const LUNA = 0.4;
 /** El mecate entre las dos pelvis (m): corto, pero cabe un bejuco para cada uno. */
 export const MECATE = 2.6;
 /** Si quedan más lejos que esto (uno reapareció en el punto de control), el mecate se suelta hasta que se junten. */
-const DESATAR = MECATE * 2;
+const DESATAR = MECATE + 0.8;
 
 // ── Niebla espesa ───────────────────────────────────────────────────────────────────────────────────────────
 
@@ -284,7 +284,7 @@ function armarMecate({ rapier, mundo, escena, munecos }: ContextoTrampa): Efecto
       a.copy(rojo.partes.pelvis.translation());
       b.copy(turquesa.partes.pelvis.translation());
       const d = a.distanceTo(b);
-      cuerda.visible = d < DESATAR;
+      cuerda.visible = nudo !== undefined;
       if (!cuerda.visible) return;
       medio.addVectors(a, b).multiplyScalar(0.5);
       medio.y -= Math.max(0, MECATE - d) * 0.7;
@@ -303,10 +303,13 @@ function armarMecate({ rapier, mundo, escena, munecos }: ContextoTrampa): Efecto
 
 // ── Semilla y elección ──────────────────────────────────────────────────────────────────────────────────────
 
-/** La trampa de esa semilla: siempre la misma. */
-export function trampaDeSemilla(semilla: number): Trampa {
-  const i = Math.floor(crearAzar(semilla >>> 0)() * TRAMPAS.length);
-  const trampa = TRAMPAS[i] ?? TRAMPAS[0];
+/** La trampa de esa semilla: siempre la misma. `sin` son las que ese nivel no admite (por ejemplo, el mecate
+ * en el pinar, donde el balancín pide que estén a más de 8 m uno del otro). */
+export function trampaDeSemilla(semilla: number, sin: readonly NombreTrampa[] = []): Trampa {
+  const posibles = TRAMPAS.filter((t) => !sin.includes(t.nombre));
+  const lista = posibles.length > 0 ? posibles : TRAMPAS;
+  const i = Math.floor(crearAzar(semilla >>> 0)() * lista.length);
+  const trampa = lista[i] ?? lista[0];
   if (!trampa) throw new Error("no hay trampas");
   return trampa;
 }
@@ -336,14 +339,19 @@ export interface PedidoDeNoche {
   readonly trampa: Trampa;
 }
 
-/** Lo que pide la dirección: `undefined` si no es de noche. Una trampa que no existe es un error. */
-export function leerNoche(parametros: URLSearchParams, azar: () => number = semillaAlAzar): PedidoDeNoche | undefined {
+/** Lo que pide la dirección: `undefined` si no es de noche. Una trampa que no existe es un error. `sin`: las que
+ * el nivel no admite al azar (`&trampa=` las pone igual, para probar). */
+export function leerNoche(
+  parametros: URLSearchParams,
+  azar: () => number = semillaAlAzar,
+  sin: readonly NombreTrampa[] = [],
+): PedidoDeNoche | undefined {
   if (!parametros.has("noche") && !parametros.has("trampa")) return undefined;
   const dada = parametros.get("noche");
   const numero = dada ? Number(dada) : Number.NaN;
   const semilla = Number.isInteger(numero) ? numero >>> 0 : azar() >>> 0;
   const nombre = parametros.get("trampa");
-  if (!nombre) return { semilla, trampa: trampaDeSemilla(semilla) };
+  if (!nombre) return { semilla, trampa: trampaDeSemilla(semilla, sin) };
   const trampa = trampaPorNombre(nombre);
   if (!trampa) throw new Error(`No existe la trampa «${nombre}». Hay: ${TRAMPAS.map((t) => t.nombre).join(", ")}`);
   return { semilla, trampa };
