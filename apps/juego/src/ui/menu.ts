@@ -52,6 +52,18 @@ function lineaContrarreloj(): HTMLElement {
   return linea;
 }
 
+/** Noche de tuerce (TU-33): este nivel (el de siempre si no es un nivel) de noche y con una trampa sorpresa. Cada
+ * vez que se entra sale otra semilla. */
+function lineaNoche(): HTMLElement {
+  const linea = elemento("div", "menu-linea");
+  linea.append(elemento("span", "menu-nota", "Noche de tuerce"));
+  const actual = new URLSearchParams(location.search);
+  const nivel = actual.get("escena") === "nivel" ? actual.get("nivel") : null;
+  const ir = (escena: string) => `?escena=${escena}${nivel ? `&nivel=${encodeURIComponent(nivel)}` : ""}&noche`;
+  linea.append(enlace("Aquí", ir("nivel")), enlace("En línea", ir("en-linea")));
+  return linea;
+}
+
 /** El logo de la portada: TUERCE con la E caída y los dos pañuelos al lado. */
 function logo(): HTMLElement {
   const h = elemento("h1", "menu-logo");
@@ -116,7 +128,7 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
       const linea = elemento("div", "menu-linea");
       linea.append(elemento("span", "menu-nota", "Jugar en línea"), enlace("Invitar", "?escena=invitar"));
       linea.append(enlace("Buscar", "?escena=buscar"));
-      hijos.push(linea, lineaContrarreloj(), elemento("hr", "costura"));
+      hijos.push(linea, lineaContrarreloj(), lineaNoche(), elemento("hr", "costura"));
       // El ropero (TU-29): sombreros, peinados, máscaras y pañuelos, lo ganado y los logros
       hijos.push(enlace("Ropero", "?escena=ropero"));
       hijos.push(

@@ -140,6 +140,20 @@ const TOMAS = [
   { archivo: "pinar-6-lampara", ruta: "/?escena=nivel&nivel=pinar&punto=5&j1=andar:1,der@15&j2=&congelar=250" },
   { archivo: "pinar-6-encendida", ruta: "/?escena=nivel&nivel=pinar&punto=6&j1=&j2=&vista=50.6,4.6,0&congelar=60" },
   { archivo: "pinar-secreto", ruta: "/?escena=nivel&nivel=pinar&punto=5&j1=&j2=&vista=49.7,7.9,-2.45&congelar=30" },
+  // TU-33: Noche de tuerce. El nivel de piezas de noche, entero; con el cartel de la trampa al empezar: amarrados por
+  // un mecate (el turquesa se queda y el rojo lo arrastra), la niebla espesa en el de prueba, los dos saltando con
+  // gravedad de luna, y la línea del menú
+  {
+    archivo: "noche-piezas-entero",
+    ruta: "/?escena=nivel&nivel=piezas&noche=2&trampa=cruzados&j1=&j2=&vista=todo&congelar=60",
+  },
+  {
+    archivo: "noche-amarrados",
+    ruta: "/?escena=nivel&nivel=piezas&noche=7&trampa=mecate&j1=andar:1,girar:-0.15&j2=&congelar=200",
+  },
+  { archivo: "noche-niebla", ruta: "/?escena=nivel&noche=3&trampa=niebla&j1=andar:1&j2=andar:1&congelar=120" },
+  { archivo: "noche-luna", ruta: "/?escena=nivel&noche=1&trampa=luna&j1=saltar@30&j2=saltar@36&congelar=75" },
+  { archivo: "noche-menu", ruta: "/?escena=nivel&noche=5&j1=&j2=&menu&congelar=60" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
