@@ -232,13 +232,14 @@ describe("la calle empedrada (niveles/03-calle)", () => {
       expect(paso).toBeGreaterThan(0);
       expect(sinBueyes.sacados).toBe(0);
       expect(n.nivel.huacal("estorbo-1").cuerpo.translation().x).toBeGreaterThan(-4.9);
-      // Pasado el punto 2 queda frenada: el rojo suelta el freno y pasa también
-      n.entradas[1] = QUIETO;
+      // Pasado el punto 2 queda frenada: el rojo suelta el freno y pasa también (el turquesa sigue un poco, para no
+      // quedarse tapando la salida del zaguán con los huacales que empujó)
       const tambien = hasta(
         n,
         900,
         () => n.pelvis(0).x > -4.4,
         () => {
+          n.entradas[1] = n.pelvis(1).x < -2.8 ? n.haciaDonde(1, -2.5, 0.6) : QUIETO;
           const p = n.pelvis(0);
           n.entradas[0] = p.z < -0.3 && p.x < -14.6 ? n.haciaDonde(0, -14.6, 0) : n.haciaDonde(0, -2.5, 0);
         },

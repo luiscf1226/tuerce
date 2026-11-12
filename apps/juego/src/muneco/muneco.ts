@@ -155,6 +155,9 @@ const EJE_X = new THREE.Vector3(1, 0, 0);
 const EJE_Z = new THREE.Vector3(0, 0, 1);
 const ABAJO = new THREE.Vector3(0, -1, 0);
 
+/** Desde cuántos kg lo que se mueve bajo los pies lleva al muñeco (una carreta sí; un racimo o un bloque, no). */
+const SUELO_QUE_LLEVA = 30;
+
 export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: OpcionesMuneco = {}): Muneco {
   const origen = new THREE.Vector3(opciones.posicion?.x ?? 0, opciones.posicion?.y ?? 0, opciones.posicion?.z ?? 0);
   let rumbo = opciones.rumbo ?? 0;
@@ -700,9 +703,16 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
       gruposRayo,
     );
     enElSuelo = golpe !== null;
-    // Lo que pisa, si se mueve (una carreta que baja, un camión): respecto de eso anda, se sostiene y da los pasos
+    // Lo que pisa, si se mueve (una carreta que baja, un camión): respecto de eso anda, se sostiene y da los pasos.
+    // Solo si es cinemático o pesado: sobre algo suelto y liviano (un racimo, un bloque, el compañero) los pies lo
+    // empujan hacia atrás y, si lo siguiera, andaría en el lugar como en una cinta
     const debajoMovil = golpe?.collider.parent();
-    if (golpe && debajoMovil && !debajoMovil.isFixed())
+    if (
+      golpe &&
+      debajoMovil &&
+      !debajoMovil.isFixed() &&
+      (debajoMovil.isKinematic() || debajoMovil.mass() >= SUELO_QUE_LLEVA)
+    )
       vSuelo.copy(debajoMovil.velocityAtPoint({ x: p.x, y: p.y - golpe.timeOfImpact, z: p.z }));
     else vSuelo.set(0, 0, 0);
     colgado = colgadoDe();

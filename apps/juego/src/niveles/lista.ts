@@ -61,6 +61,8 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     crearGuion: guionTren,
     // Amarrados no: el que cuida el cambio se queda en la loma mientras el otro baja con la dresina, y la palanca de
     // la grúa y las del portón final quedan lejos del racimo y del portón
+    sinTrampas: ["mecate"],
+  },
   // Nivel 3 (TU-25): Comayagua, Honduras. Seis misiones y la Carreta sin bueyes
   calle: {
     carpeta: "03-calle",
