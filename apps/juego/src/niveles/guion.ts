@@ -18,9 +18,12 @@ import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
 import type { Palmera, Pipante, Puente } from "./piezas-rio";
 import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
+// Las trenzas (TU-40)
+import type { Balde, Brasa, Mula, Nudo, Sombrerote } from "./piezas-trenzas";
 import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
 import type { SinBueyes } from "./sin-bueyes";
 import type { Sisimite } from "./sisimite";
+import type { Sombreron } from "./sombreron";
 import type { Sucia } from "./sucia";
 
 /** Lo que el guion ve del nivel en juego. */
@@ -95,6 +98,13 @@ export interface NivelEnJuego {
   puente(nombre: string): Puente;
   palmera(nombre: string): Palmera;
   sisimite(nombre: string): Sisimite;
+  /** Las piezas que estrena Las trenzas (TU-40, ver piezas-trenzas.ts y sombreron.ts). */
+  nudo(nombre: string): Nudo;
+  mula(nombre: string): Mula;
+  balde(nombre: string): Balde;
+  brasa(nombre: string): Brasa;
+  sombreron(nombre: string): Sombreron;
+  sombrerote(nombre: string): Sombrerote;
 }
 
 export interface GuionDeNivel {

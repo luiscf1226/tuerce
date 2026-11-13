@@ -272,6 +272,13 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     puente: (nombre) => deJuego("puente", nombre),
     palmera: (nombre) => deJuego("palmera", nombre),
     sisimite: (nombre) => deJuego("sisimite", nombre),
+    // Las trenzas (TU-40)
+    nudo: (nombre) => deJuego("nudo", nombre),
+    mula: (nombre) => deJuego("mula", nombre),
+    balde: (nombre) => deJuego("balde", nombre),
+    brasa: (nombre) => deJuego("brasa", nombre),
+    sombreron: (nombre) => deJuego("sombreron", nombre),
+    sombrerote: (nombre) => deJuego("sombrerote", nombre),
     avance,
     premios,
     antes(entradas) {

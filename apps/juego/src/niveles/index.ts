@@ -19,7 +19,10 @@ export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
 export type { Palmera, Pipante, Puente } from "./piezas-rio";
 export type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
+// Las trenzas (TU-40)
+export type { Balde, Brasa, Mula, Nudo, Sombrerote } from "./piezas-trenzas";
 export type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
 export type { SinBueyes } from "./sin-bueyes";
 export type { Sisimite } from "./sisimite";
+export type { Sombreron } from "./sombreron";
 export type { Sucia } from "./sucia";

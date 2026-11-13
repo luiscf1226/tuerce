@@ -14,6 +14,9 @@ import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
 import { crearGuion as guionTren } from "../../../../niveles/05-tren/guion";
 import escenaRio from "../../../../niveles/06-rio/escena.glb?url";
 import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
+// Las trenzas (TU-40)
+import escenaTrenzas from "../../../../niveles/07-trenzas/escena.glb?url";
+import { crearGuion as guionTrenzas } from "../../../../niveles/07-trenzas/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -79,6 +82,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaRio,
     crearGuion: guionRio,
     // Amarrados no: la palmera lanza a uno solo al otro lado del barranco, y el otro se queda jalando la soga
+    sinTrampas: ["mecate"],
+  },
+  // Las trenzas (TU-40): Antigua, Guatemala. El nudo, la mula, el balde de agua y el Sombrerón
+  trenzas: {
+    carpeta: "07-trenzas",
+    escena: escenaTrenzas,
+    crearGuion: guionTrenzas,
+    // Amarrados no: los cabos del nudo quedan a 4 m, y en la fuente uno se queda de cada lado del pretil
     sinTrampas: ["mecate"],
   },
 };

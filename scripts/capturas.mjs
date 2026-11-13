@@ -259,6 +259,23 @@ const TOMAS = [
   { archivo: "rio-5-cumbre", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=29,3.6,0&congelar=60" },
   { archivo: "rio-6-palmera", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=44,1.6,0&congelar=60" },
   { archivo: "rio-secreto", ruta: "/?escena=nivel&nivel=rio&punto=6&j1=&j2=&vista=59.5,3.1,-2.4&congelar=30" },
+  // Las trenzas (TU-40): el nivel 7, Antigua (niveles/07-trenzas; va corrido 38 m hacia −x), entero y en la salida;
+  // 1. el nudo y el portón del arco; 2. la mula y sus bultos; 3. las ruinas de la iglesia; 4. la fuente, el pretil y
+  // las piedras calientes; 5. el sombrero al pie de la cuesta, el Sombrerón en su plaza y la meta con el sombrero
+  // puesto. Y el barrilete del secreto, en el campanario
+  { archivo: "trenzas-entero", ruta: "/?escena=nivel&nivel=trenzas&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "trenzas-salida", ruta: "/?escena=nivel&nivel=trenzas&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "trenzas-1-nudo", ruta: "/?escena=nivel&nivel=trenzas&j1=&j2=&vista=-32,1,0&congelar=60" },
+  { archivo: "trenzas-1-abierto", ruta: "/?escena=nivel&nivel=trenzas&punto=1&j1=&j2=&vista=-31,1,0&congelar=60" },
+  { archivo: "trenzas-2-mula", ruta: "/?escena=nivel&nivel=trenzas&punto=1&j1=&j2=&vista=-24.5,0.8,0&congelar=60" },
+  { archivo: "trenzas-2-meson", ruta: "/?escena=nivel&nivel=trenzas&punto=2&j1=&j2=&vista=-12.5,0.8,0&congelar=60" },
+  { archivo: "trenzas-3-ruinas", ruta: "/?escena=nivel&nivel=trenzas&punto=2&j1=&j2=&vista=0.4,0,0&congelar=60" },
+  { archivo: "trenzas-4-balde", ruta: "/?escena=nivel&nivel=trenzas&punto=3&j1=&j2=&vista=12.5,0.8,-0.8&congelar=60" },
+  { archivo: "trenzas-4-brasas", ruta: "/?escena=nivel&nivel=trenzas&punto=3&j1=&j2=&vista=19.9,0.4,0&congelar=60" },
+  { archivo: "trenzas-5-sombrero", ruta: "/?escena=nivel&nivel=trenzas&punto=4&j1=&j2=&vista=28.5,1,-0.5&congelar=60" },
+  { archivo: "trenzas-5-sombreron", ruta: "/?escena=nivel&nivel=trenzas&punto=4&j1=&j2=&vista=38.7,2.3,0&congelar=60" },
+  { archivo: "trenzas-5-meta", ruta: "/?escena=nivel&nivel=trenzas&punto=5&j1=&j2=&vista=38.2,2.5,0.8&congelar=60" },
+  { archivo: "trenzas-secreto", ruta: "/?escena=nivel&nivel=trenzas&punto=5&j1=&j2=&vista=44.8,4.9,-2.1&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
