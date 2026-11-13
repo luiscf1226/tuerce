@@ -399,6 +399,40 @@ corre el guion ni las piezas: el silbido y sus ondas los calcula con los cuerpos
 silba porque lo ve hundido en su escondite; quiénes lo oyen se lo dice el guion en `alEmpezar`, que corre en los dos),
 anima las patas de las reses con lo que anduvieron y dibuja la tela y la cabuya de la hamaca.
 
+<!-- La pampa (TU-48) -->
+
+## Las piezas de La pampa (TU-48)
+
+Las que estrena el nivel 15, La pampa (`apps/juego/src/niveles/piezas-pampa.ts` y `luz-mala.ts`; su lectura, en
+`formato-pampa.ts`). Como las otras, su malla no se dibuja. Las boleadoras, el candil y la manija de la tranquera los
+atraviesan los muñecos, pero los agarran igual.
+
+| `pieza`        | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Propiedades                                                                                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pampero`      | El viento de la pampa: su caja es donde sopla, hacia su frente (el −Y de Blender). Sopla siempre un poco (`calma`) y a ratos en ráfagas, con azar de semilla. Empuja a los muñecos que están adentro, cierra las tranqueras y apura al chambergo. Se ve en unas rayas que corren con el viento.                                                                                                                                                                                                                                                      | `fuerza` (3 m/s² en lo más fuerte de una ráfaga) · `calma` (0.35) · `cada` (6 s) · `dura` (2.5 s) · `semilla` (1)                                              |
+| `tranquera`    | Una tranquera de varas del tamaño de la caja, larga a lo largo de su X, con la bisagra en la punta −x y la manija cerca de la +x, que sobresale por delante. Se abre solo hacia su frente, jalándola de la manija caminando hacia atrás; el viento la cierra de golpe al soltarla. Los muñecos atraviesan la hoja, pero los ataja su sombra (un cuerpo cinemático detrás de la hoja). Al que quedó del lado de adentro cuando se le viene encima (o cuando ya casi cierra) le da un portazo: lo voltea hacia afuera y rebota.                        | `fuerza` (16 N en la manija para sostenerla, más en las ráfagas) · `abrir` (100°) · `masa` (4 kg)                                                              |
+| `boleadoras`   | Tres bolas atadas, colgadas donde está su caja hasta que una mano las descuelga. Se lanzan saltando y soltándolas en el aire (salen a unos 2 m de alto y caen a unos 3.5 m). Tiradas en el suelo, vuelven solas a su gancho.                                                                                                                                                                                                                                                                                                                         | `masa` (1.2 kg) · `vuelve` (2.5 s)                                                                                                                             |
+| `chambergo`    | El sombrero que se llevó el viento: vuela solo por su caja, subiendo y bajando (azar de semilla), más rápido con las ráfagas. No se lo agarra con la mano: lo enredan unas boleadoras que vuelan de verdad (soltadas en el aire, a más de 1 m de donde salieron) y le pasan a menos de `enredar`. Enredado, cae al piso con las boleadoras. Cinemático, sin choques.                                                                                                                                                                                 | `velocidad` (1.3 m/s) · `enredar` (0.75 m) · `semilla` (1)                                                                                                     |
+| `pie-de-amigo` | La escalerita: su caja es donde se para el que la hace (la base en el suelo), mirando hacia su frente. Parado ahí, de pie y con los dos brazos alzados, sus manos son un escalón (un poncho doblado) delante de él, a `alto` del suelo: lo pisa solo el otro. Al bajar los brazos o salirse, desaparece.                                                                                                                                                                                                                                             | `alto` (1.1 m) · `desde` y `hasta` (0.75 y 1.35 m delante del medio de la caja) · `ancho` (1 m)                                                                |
+| `candil`       | Un farol de lata del tamaño de la caja, colgado de su gancho hasta que una mano lo descuelga; se lleva con una mano o con las dos. Con la Luz adentro alumbra. Tirado mucho rato (o caído al vacío), vuelve a su gancho.                                                                                                                                                                                                                                                                                                                             | `masa` (1 kg)                                                                                                                                                  |
+| `luz-mala`     | La Luz Mala, una luciérnaga gigante y despistada, del tamaño de la caja. Guía por el camino que le da el guion (`guiar`): en cada parada espera a que alguno llegue cerca. En los desvíos con señuelo a veces se equivoca (azar de semilla): va titubeando, ladeada, hasta el señuelo, se da cuenta y vuelve. Si alguno se cae o los pierde, vuelve a la parada que les queda más cerca. Después se posa en sus posaderos y se espanta del que se le acerca sin candil; un candil que alguien lleva en la mano la encierra. Cinemática, sin choques. | `velocidad` (2.2 m/s) · `esperar` (1.1 m) · `acierto` (0.6) · `despiste` (2.5 s) · `posarse` (3.5 s) · `espantar` (1.3 m) · `atrapar` (0.55 m) · `semilla` (1) |
+
+```ts
+nivel.pampero("pampero").soplo; // de `calma` a 1; .rafagas, .direccion, .adentro(p), .marcador
+nivel.tranquera("tranquera").angulo; // radianes; .apertura, .abierta, .sostenida, .trabada, .golpes, .portazos, .trabar(ya?), .alGolpe(), .alPortazo(j => {}), .volver()
+nivel.boleadoras("boleadoras").estado; // "en su lugar", "llevadas", "volando", "tiradas" o "enredadas"; .lanzador, .recorrido, .tiros, .volver()
+nivel.chambergo("chambergo").atrapado; // y .estado ("volando", "cayendo" o "en el suelo"), .cazador, .alAtrapar(j => {}), .atrapar()
+nivel.pieDeAmigo("pie-de-amigo").activo; // y .quien (0, 1 o null), .pisado, .escalon
+nivel.candil("candil").encendido; // y .agarrado, .enSuLugar, .encender(), .alEncender(() => {}), .volver()
+nivel.luzMala("luz-mala").estado; // "esperando", "volando", "despistada", "yendose", "posada", "revoloteando" o "encerrada"
+nivel.luzMala("luz-mala").guiar(camino, senuelos); // y .posaderos(lista), .irAPosaderos(ya?), .encerrar(candil), .parada, .extravios, .vueltas, .guio, .alExtraviarse(i => {}), .alEncerrar(j => {})
+```
+
+En línea viajan en la foto el marcador del pampero (corrido en x lo que sopla), la hoja de la tranquera y su sombra,
+las boleadoras, el chambergo, el escalón del pie de amigo (40 m abajo mientras nadie hace pie), el candil y la Luz. El
+invitado no corre `antes` ni el guion: ve las rayas del viento por el marcador, abre las boleadoras que ve volar, ve
+titilar la Luz cuando le llega ladeada y prende el candil cuando ve la Luz adentro.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -823,6 +857,41 @@ misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
 El secreto, «un arpa llanera bajo el samán», está en el conuco de atrás: se trepa la tapia (1.4 m) colgándose y la zona
 `secreto` está al pie del samán (da la vincha). De noche no va la trampa del mecate: el que frena el molino queda lejos
 de las aspas, y la hamaca lanza a uno solo al otro lado del caño.
+
+<!-- La pampa (TU-48) -->
+
+### `15-pampa` (`?escena=nivel&nivel=pampa`)
+
+El nivel 15 (TU-48): La Pampa, Argentina. Llanura hasta el horizonte, alambrados, un ombú enorme, tranqueras y un
+molino (el del llano, girando al fondo del potrero); de noche anda La Luz Mala. Estrena el pampero (el viento), la
+tranquera y las boleadoras, más el chambergo, el pie de amigo, el candil y la Luz. Lo arma `scripts/niveles/pampa.mjs`
+(`pnpm niveles`). Va de oeste a este y va todo corrido 52 m hacia −x (mide 109 m: la foto de la red mide las
+posiciones en int16). Cada misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **Seguir a la Luz** por el bañado: una calzada de tierra que va en zigzag apenas bajo el agua (casi no se ve). La
+   Luz se para en cada vuelta y espera a que alguno llegue; en cuatro vueltas hay un ramal que se corta y a veces
+   (azar de semilla) se equivoca: se va titubeando sobre el agua honda, se da cuenta y vuelve. El que la sigue ahí se
+   cae al agua y reaparece junto al compañero → punto 1, en la otra orilla. Conviene que uno vaya adelante y el otro
+   una parada atrás.
+2. **La tranquera**, de a dos: el pampero la cierra de golpe. Uno la agarra de la manija y la sostiene abierta
+   caminando para atrás; el otro pasa y, del otro lado, corre el pasador (una palanca junto al poste de la bisagra),
+   que la traba abierta; el primero la suelta y pasa → punto 2. Pasar los dos sin que se cierre nunca da el logro,
+   «Contra el viento». Solo no se puede: al soltarla se cierra antes de llegar al hueco, y al que quedó en el medio lo
+   voltea para atrás.
+3. **El chambergo**: el viento le voló el sombrero al puestero y lo pasea por el potrero (de 1.1 a 3.1 m de alto). Se
+   descuelgan las boleadoras de su poste y se las tira saltando cuando el chambergo pasa bajo y cerca; enredado, cae y
+   el portón del puesto se abre → punto 3. Si erran, las boleadoras vuelven solas al poste.
+4. **El ombú**, de a dos: la horqueta está a 2.6 m (no se trepa). Uno se para al pie del tronco con los dos brazos
+   alzados (pie de amigo) y el otro se trepa a sus manos (1.1 m) y de ahí a la horqueta. Arriba empuja la palanca y
+   baja la rama gacha hasta el suelo: el otro sube caminando. Por la rama larga, en bajada, los dos cruzan la cañada
+   (6 m: no se salta) → punto 4. Solo no se puede: sin nadie que haga pie no hay escalón, y el que lo hace no lo pisa.
+5. **Encerrar a la Luz en el candil**: la Luz se posa en los postes del alambrado y salta de uno a otro; se espanta del
+   que se le acerca sin candil. Se descuelga el candil y se lo acerca con los brazos alzados a la Luz posada: queda
+   encerrada, el candil alumbra y aparece la meta → punto 5.
+
+El secreto, «un mate olvidado en el ombú», está en la copa de atrás: desde la horqueta se trepa 1.4 m colgándose y la
+zona `secreto` está arriba, junto al mate (da la boina). De noche no va la trampa del mecate: el que sostiene la
+tranquera queda en la punta de la manija, a más de 3 m del que pasa.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 

@@ -27,6 +27,8 @@ import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
 // Los canales (TU-42)
 import { armarLlorona, type Llorona } from "./llorona";
+// La pampa (TU-48)
+import { armarLuzMala, type LuzMala } from "./luz-mala";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
 // La garrucha (TU-43)
 import { armarPatasola, type Patasola } from "./patasola";
@@ -75,6 +77,21 @@ import {
   type Molino,
   type Saco,
 } from "./piezas-llano";
+// La pampa (TU-48)
+import {
+  armarBoleadoras,
+  armarCandil,
+  armarChambergo,
+  armarPampero,
+  armarPieDeAmigo,
+  armarTranquera,
+  type Boleadoras,
+  type Candil,
+  type Chambergo,
+  type Pampero,
+  type PieDeAmigo,
+  type Tranquera,
+} from "./piezas-pampa";
 import {
   armarHueso,
   armarLampara,
@@ -322,6 +339,14 @@ export interface PiezaPorTipo {
   costal: Costal;
   guineo: Guineo;
   cipitio: Cipitio;
+  // La pampa (TU-48): piezas-pampa.ts y luz-mala.ts
+  pampero: Pampero;
+  tranquera: Tranquera;
+  boleadoras: Boleadoras;
+  chambergo: Chambergo;
+  "pie-de-amigo": PieDeAmigo;
+  candil: Candil;
+  "luz-mala": LuzMala;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -1024,6 +1049,28 @@ export function armarPiezas(
         break;
       case "cipitio":
         lista.push(armarCipitio(herramientas, p));
+        break;
+      // La pampa (TU-48)
+      case "pampero":
+        lista.push(armarPampero(herramientas, p));
+        break;
+      case "tranquera":
+        lista.push(armarTranquera(herramientas, p));
+        break;
+      case "boleadoras":
+        lista.push(armarBoleadoras(herramientas, p));
+        break;
+      case "chambergo":
+        lista.push(armarChambergo(herramientas, p));
+        break;
+      case "pie-de-amigo":
+        lista.push(armarPieDeAmigo(herramientas, p));
+        break;
+      case "candil":
+        lista.push(armarCandil(herramientas, p));
+        break;
+      case "luz-mala":
+        lista.push(armarLuzMala(herramientas, p));
         break;
     }
   }

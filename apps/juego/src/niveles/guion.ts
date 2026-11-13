@@ -14,6 +14,8 @@ import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
 // Los canales (TU-42)
 import type { Llorona } from "./llorona";
+// La pampa (TU-48)
+import type { LuzMala } from "./luz-mala";
 import type { Murcielagos } from "./murcielagos";
 // La garrucha (TU-43)
 import type { Patasola } from "./patasola";
@@ -25,6 +27,8 @@ import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La pampa (TU-48)
+import type { Boleadoras, Candil, Chambergo, Pampero, PieDeAmigo, Tranquera } from "./piezas-pampa";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
@@ -141,6 +145,14 @@ export interface NivelEnJuego {
   costal(nombre: string): Costal;
   guineo(nombre: string): Guineo;
   cipitio(nombre: string): Cipitio;
+  /** Las piezas que estrena La pampa (TU-48, ver piezas-pampa.ts y luz-mala.ts). */
+  pampero(nombre: string): Pampero;
+  tranquera(nombre: string): Tranquera;
+  boleadoras(nombre: string): Boleadoras;
+  chambergo(nombre: string): Chambergo;
+  pieDeAmigo(nombre: string): PieDeAmigo;
+  candil(nombre: string): Candil;
+  luzMala(nombre: string): LuzMala;
 }
 
 export interface GuionDeNivel {

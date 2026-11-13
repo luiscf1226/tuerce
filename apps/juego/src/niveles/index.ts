@@ -14,6 +14,8 @@ export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from 
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
 // Los canales (TU-42)
 export type { Llorona } from "./llorona";
+// La pampa (TU-48)
+export type { LuzMala } from "./luz-mala";
 export type { Murcielagos } from "./murcielagos";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
 // La garrucha (TU-43)
@@ -26,6 +28,8 @@ export type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 export type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La pampa (TU-48)
+export type { Boleadoras, Candil, Chambergo, Pampero, PieDeAmigo, Tranquera } from "./piezas-pampa";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)

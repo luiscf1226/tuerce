@@ -29,6 +29,9 @@ import { crearGuion as guionGarrucha } from "../../../../niveles/10-garrucha/gui
 // El llano (TU-44)
 import escenaLlano from "../../../../niveles/11-llano/escena.glb?url";
 import { crearGuion as guionLlano } from "../../../../niveles/11-llano/guion";
+// La pampa (TU-48)
+import escenaPampa from "../../../../niveles/15-pampa/escena.glb?url";
+import { crearGuion as guionPampa } from "../../../../niveles/15-pampa/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -136,6 +139,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaLlano,
     crearGuion: guionLlano,
     // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
+    sinTrampas: ["mecate"],
+  },
+  // La pampa (TU-48): nivel 15, La Pampa (Argentina). La Luz Mala, la tranquera, las boleadoras, el ombú y el candil
+  pampa: {
+    carpeta: "15-pampa",
+    escena: escenaPampa,
+    crearGuion: guionPampa,
+    // Amarrados no: el que sostiene la tranquera queda en la punta de la manija, a más de 3 m de donde pasa el otro
     sinTrampas: ["mecate"],
   },
 };

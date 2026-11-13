@@ -361,6 +361,25 @@ const TOMAS = [
   { archivo: "cafetal-5-portillo", ruta: "/?escena=nivel&nivel=cafetal&punto=4&j1=&j2=&vista=26,4.2,0&congelar=60" },
   { archivo: "cafetal-5-contento", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=27,5.4,-1&congelar=60" },
   { archivo: "cafetal-secreto", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=35,6.4,-2.4&congelar=30" },
+  // La pampa (TU-48): el nivel 15 (niveles/15-pampa; va corrido 52 m hacia −x), entero y en la salida; 1. el bañado
+  // con la Luz esperando en la primera parada, y ya guiando por la calzada escondida; 2. la tranquera cerrada con el
+  // pampero soplando, y trabada abierta; 3. el chambergo volando sobre el potrero, y ya caído con el portón abierto;
+  // 4. el ombú con el pie de amigo al pie del tronco, y la rama gacha bajada; 5. la Luz posada en un poste y el
+  // candil en su gancho, la Luz encerrada en el candil y la meta. Y el mate del secreto, en la copa del ombú
+  { archivo: "pampa-entero", ruta: "/?escena=nivel&nivel=pampa&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "pampa-salida", ruta: "/?escena=nivel&nivel=pampa&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "pampa-1-banado", ruta: "/?escena=nivel&nivel=pampa&j1=&j2=&vista=-45,1,-0.5&congelar=60" },
+  { archivo: "pampa-1-luz", ruta: "/?escena=nivel&nivel=pampa&j1=andar:0.7&j2=&vista=-43,1,-1&congelar=420" },
+  { archivo: "pampa-2-tranquera", ruta: "/?escena=nivel&nivel=pampa&punto=1&j1=&j2=&vista=-12.5,1,0&congelar=200" },
+  { archivo: "pampa-2-trabada", ruta: "/?escena=nivel&nivel=pampa&punto=2&j1=&j2=&vista=-12.5,1,0&congelar=60" },
+  { archivo: "pampa-3-chambergo", ruta: "/?escena=nivel&nivel=pampa&punto=2&j1=&j2=&vista=3,1.8,0&congelar=200" },
+  { archivo: "pampa-3-porton", ruta: "/?escena=nivel&nivel=pampa&punto=3&j1=&j2=&vista=10,1,0&congelar=120" },
+  { archivo: "pampa-4-ombu", ruta: "/?escena=nivel&nivel=pampa&punto=3&j1=&j2=&vista=20,1.5,-0.5&congelar=60" },
+  { archivo: "pampa-4-rama", ruta: "/?escena=nivel&nivel=pampa&punto=4&j1=&j2=&vista=23,1.8,0&congelar=60" },
+  { archivo: "pampa-5-luz", ruta: "/?escena=nivel&nivel=pampa&punto=4&j1=&j2=&vista=40,1.2,-2&congelar=60" },
+  { archivo: "pampa-5-candil", ruta: "/?escena=nivel&nivel=pampa&punto=5&j1=&j2=&vista=37.5,1.2,-2.3&congelar=60" },
+  { archivo: "pampa-5-meta", ruta: "/?escena=nivel&nivel=pampa&punto=5&j1=&j2=&congelar=60" },
+  { archivo: "pampa-secreto", ruta: "/?escena=nivel&nivel=pampa&punto=4&j1=&j2=&vista=25,4,-1.9&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
