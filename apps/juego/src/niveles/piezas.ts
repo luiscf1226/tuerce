@@ -21,9 +21,24 @@ import { GRAVEDAD, type Rapier } from "../motor/fisica";
 import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
+// El cafetal (TU-41)
+import { armarCipitio, type Cipitio } from "./cipitio";
 import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
+// El cafetal (TU-41)
+import {
+  armarCanasto,
+  armarGuineo,
+  armarPolea,
+  armarSaco,
+  armarZaranda,
+  type Canasto,
+  type Guineo,
+  type Polea,
+  type Saco,
+  type Zaranda,
+} from "./piezas-cafetal";
 import {
   type Alfombra,
   armarAlfombra,
@@ -238,6 +253,13 @@ export interface PiezaPorTipo {
   puente: Puente;
   palmera: Palmera;
   sisimite: Sisimite;
+  // El cafetal (TU-41): piezas-cafetal.ts y cipitio.ts
+  canasto: Canasto;
+  zaranda: Zaranda;
+  polea: Polea;
+  saco: Saco;
+  guineo: Guineo;
+  cipitio: Cipitio;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -860,6 +882,25 @@ export function armarPiezas(
         break;
       case "sisimite":
         lista.push(armarSisimite(herramientas, p));
+        break;
+      // El cafetal (TU-41)
+      case "canasto":
+        lista.push(armarCanasto(herramientas, p));
+        break;
+      case "zaranda":
+        lista.push(armarZaranda(herramientas, p));
+        break;
+      case "polea":
+        lista.push(armarPolea(herramientas, p));
+        break;
+      case "saco":
+        lista.push(armarSaco(herramientas, p));
+        break;
+      case "guineo":
+        lista.push(armarGuineo(herramientas, p));
+        break;
+      case "cipitio":
+        lista.push(armarCipitio(herramientas, p));
         break;
     }
   }

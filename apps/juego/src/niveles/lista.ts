@@ -14,6 +14,9 @@ import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
 import { crearGuion as guionTren } from "../../../../niveles/05-tren/guion";
 import escenaRio from "../../../../niveles/06-rio/escena.glb?url";
 import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
+// El cafetal (TU-41)
+import escenaCafetal from "../../../../niveles/08-cafetal/escena.glb?url";
+import { crearGuion as guionCafetal } from "../../../../niveles/08-cafetal/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -79,6 +82,15 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaRio,
     crearGuion: guionRio,
     // Amarrados no: la palmera lanza a uno solo al otro lado del barranco, y el otro se queda jalando la soga
+    sinTrampas: ["mecate"],
+  },
+  // El cafetal (TU-41)
+  // Nivel 8: Izalco, El Salvador. Los canastos, la zaranda, la polea y El Cipitío
+  cafetal: {
+    carpeta: "08-cafetal",
+    escena: escenaCafetal,
+    crearGuion: guionCafetal,
+    // Amarrados no: el que lanza los canastos y el que los atrapa quedan a más de 3 m, en terrazas distintas
     sinTrampas: ["mecate"],
   },
 };

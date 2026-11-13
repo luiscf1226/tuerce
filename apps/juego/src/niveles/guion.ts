@@ -8,10 +8,14 @@ import type { Muneco } from "../muneco";
 import type { Agua, Aguas } from "./agua";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
+// El cafetal (TU-41)
+import type { Cipitio } from "./cipitio";
 import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
 import type { Murcielagos } from "./murcielagos";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
+// El cafetal (TU-41)
+import type { Canasto, Guineo, Polea, Saco, Zaranda } from "./piezas-cafetal";
 import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
@@ -95,6 +99,13 @@ export interface NivelEnJuego {
   puente(nombre: string): Puente;
   palmera(nombre: string): Palmera;
   sisimite(nombre: string): Sisimite;
+  /** Las piezas que estrena El cafetal (TU-41, ver piezas-cafetal.ts y cipitio.ts). */
+  canasto(nombre: string): Canasto;
+  zaranda(nombre: string): Zaranda;
+  polea(nombre: string): Polea;
+  saco(nombre: string): Saco;
+  guineo(nombre: string): Guineo;
+  cipitio(nombre: string): Cipitio;
 }
 
 export interface GuionDeNivel {
