@@ -6,6 +6,7 @@ import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import type { PlanoDeNivel } from "./formato";
+import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -21,6 +22,21 @@ export interface NivelEnJuego {
   readonly puntoDeControl: number;
   /** El sólido con ese nombre (el del nodo en Blender). Si no existe, es un error del nivel. */
   pieza(nombre: string): Pieza;
+  /** Si la pareja ya encontró el secreto del nivel (TU-29). */
+  readonly secreto: boolean;
+  /** Si la pareja ya ganó el logro del nivel. */
+  readonly logro: boolean;
+  /** La pareja encontró el secreto. Lo llama sola una zona `secreto` del .glb; el guion, si el secreto es otra cosa
+   * (tocar la campana, abrir un cofre). Si ya lo tenían, no hace nada. */
+  encontrarSecreto(): void;
+  /** La pareja ganó el logro del nivel. Lo decide el guion (llegar a la meta sin caer, no botar la escalera…). */
+  lograr(): void;
+  /** Las piezas de juego por nombre (TU-12, ver piezas.ts). Si no existe o es de otra clase, es un error del nivel. */
+  huacal(nombre: string): Huacal;
+  palanca(nombre: string): Palanca;
+  plancha(nombre: string): Plancha;
+  balancin(nombre: string): Balancin;
+  bejuco(nombre: string): Bejuco;
 }
 
 export interface GuionDeNivel {

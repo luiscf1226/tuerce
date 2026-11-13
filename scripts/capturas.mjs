@@ -61,6 +61,40 @@ const TOMAS = [
   { archivo: "nivel-cayendo", ruta: "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=268" },
   { archivo: "nivel-reaparece", ruta: "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=330" },
   { archivo: "nivel-compuerta", ruta: "/?escena=nivel&punto=1&j1=andar:1&j2=andar:1&congelar=150" },
+  // TU-32: el contrarreloj. El reloj corriendo arriba (arranca cuando se mueven: 2,5 s), la llegada a la meta desde
+  // el punto 2 (en el mismo lugar, sin tabla) y la tabla de parejas con datos de mentira (sin cuenta ni red)
+  { archivo: "contrarreloj-corriendo", ruta: "/?escena=nivel&contrarreloj&j1=andar:1&j2=andar:1&congelar=150" },
+  { archivo: "contrarreloj-llegada", ruta: "/?escena=nivel&contrarreloj&punto=2&j1=andar:1&j2=andar:1&congelar=215" },
+  { archivo: "contrarreloj-tabla", ruta: "/?escena=tabla&nivel=prueba&ejemplo" },
+  // TU-29: el ropero. Los dos con lo del principio (el rojo con su sombrero, el turquesa con sus trenzas) y el panel
+  // para elegir; una cuenta de ejemplo con lo ganado y los logros; las dos vitrinas con todas las prendas; los dos
+  // con prendas ganadas en el nivel; y el turquesa que encuentra el secreto del nivel de prueba detrás de la meta
+  { archivo: "ropero", ruta: "/?escena=ropero&congelar=60" },
+  { archivo: "ropero-cuenta", ruta: "/?escena=ropero&ejemplo&congelar=60" },
+  { archivo: "ropero-vitrina-1", ruta: "/?escena=ropero&vitrina=1&congelar=60" },
+  { archivo: "ropero-vitrina-2", ruta: "/?escena=ropero&vitrina=2&congelar=60" },
+  {
+    archivo: "nivel-con-prendas",
+    ruta: "/?escena=nivel&j1=&j2=&ropa1=sombrero:puntudo,mascara:diablito,panuelo:capa&ropa2=peinado:colitas,mascara:guacamaya,panuelo:lazo&congelar=60",
+  },
+  { archivo: "nivel-secreto", ruta: "/?escena=nivel&punto=2&j1=andar:0.5&j2=andar:1,girar:0.06&congelar=252" },
+  // TU-12: las piezas de juego (niveles/98-piezas), entero y en la salida. El rojo pisa la plancha y baja la compuerta;
+  // el turquesa empuja la palanca y el rojo pasa; el rojo se columpia en un bejuco sobre la quebrada (los brazos se
+  // alzan en el paso 15: al reaparecer en un punto no se agarra con el botón ya apretado); el rojo sube al balancín
+  // y después lo vuelca
+  { archivo: "piezas-entero", ruta: "/?escena=nivel&nivel=piezas&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "piezas-salida", ruta: "/?escena=nivel&nivel=piezas&j1=&j2=&congelar=60" },
+  { archivo: "piezas-plancha", ruta: "/?escena=nivel&nivel=piezas&j1=andar:1&j2=&congelar=230" },
+  {
+    archivo: "piezas-palanca",
+    ruta: "/?escena=nivel&nivel=piezas&punto=1&j1=andar:1&j2=andar:1,izq@15,der@15&congelar=175",
+  },
+  {
+    archivo: "piezas-bejuco",
+    ruta: "/?escena=nivel&nivel=piezas&punto=2&j1=andar:1,izq@15,der@15&j2=&congelar=110",
+  },
+  { archivo: "piezas-balancin", ruta: "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=170" },
+  { archivo: "piezas-balancin-volcado", ruta: "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=230" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
@@ -107,7 +141,14 @@ async function esperarListo(pagina) {
     .textContent({ timeout: 100 })
     .catch(() => null);
   if (error) throw new Error(`el juego mostró un error: ${error}`);
-  // Las letras del menú (Fraunces y Karla) llegan de Google Fonts: se esperan para que la imagen salga con ellas
+  // Las letras del menú (Fraunces y Karla) llegan de Google Fonts: se esperan para que la imagen salga con ellas.
+  // Primero la hoja de estilos (si la escena la pidió), así `fonts.ready` ya sabe qué letras tiene que bajar
+  await pagina
+    .waitForFunction(() => [...document.querySelectorAll("link[data-fuentes]")].every((l) => l.sheet), null, {
+      timeout: 10_000,
+    })
+    .catch(() => {});
+  await pagina.evaluate(() => new Promise((listo) => requestAnimationFrame(() => listo())));
   await pagina.evaluate(() => document.fonts.ready);
 }
 

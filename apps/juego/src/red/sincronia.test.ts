@@ -8,6 +8,7 @@ import { crearEscenaDos } from "../escenas/dos";
 import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import { crearMundo } from "../motor/fisica";
+import { crearReloj } from "../niveles/contrarreloj";
 import type { Datos } from "./marco";
 import {
   escribirAviso,
@@ -177,7 +178,7 @@ describe("sincronía con 75 ms de ida, temblor y 2 % de pérdida", () => {
         `perdidos ${red.perdidos}/${red.enviados}; repetidas ${anfitrion.medidas.repetidas}, saltadas ${anfitrion.medidas.saltadas}, ` +
         `invitado esperando ${invitado.medidas.esperando} pasos`,
     );
-    expect(anfitrion.medidas.bytesFoto).toBe(239);
+    expect(anfitrion.medidas.bytesFoto).toBe(243);
     expect(red.perdidos).toBeGreaterThan(0);
 
     /** El estado del anfitrión en un paso con fracción. */
@@ -316,6 +317,7 @@ async function partida(red: Red) {
     rol: "anfitrion" | "invitado",
     entrada: () => EntradaJugador,
     avance?: OpcionesSincronia["avance"],
+    extra: Pick<OpcionesSincronia, "reloj" | "aceptarMundo"> = {},
   ) => {
     const { rapier, mundo } = await crearMundo();
     const lado: { sincronia?: Sincronia } = {};
@@ -323,7 +325,14 @@ async function partida(red: Red) {
       lado.sincronia ? lado.sincronia.paso(entrada()) : null,
     );
     const enlace = rol === "anfitrion" ? red.anfitrion : red.invitado;
-    const sincronia = crearSincronia({ rol, enlace, mundo, munecos: escena.munecos, ...(avance ? { avance } : {}) });
+    const sincronia = crearSincronia({
+      rol,
+      enlace,
+      mundo,
+      munecos: escena.munecos,
+      ...(avance ? { avance } : {}),
+      ...extra,
+    });
     lado.sincronia = sincronia;
     return { escena, sincronia, mundo, cuerpos: cuerposMoviles(mundo) };
   };
@@ -443,6 +452,61 @@ describe("reconexión (TU-22)", () => {
     expect(delAnfitrion2.punto).toBe(2);
   });
 
+  it("contrarreloj: el reloj del anfitrión viaja en las fotos y vuelve con el mundo; una carrera terminada no", async () => {
+    const red = crearRed({ perdida: 0 });
+    const { crearLado } = await partida(red);
+    const relojDelAnfitrion = crearReloj();
+    const relojDelInvitado = crearReloj();
+    const anfitrion1 = await crearLado("anfitrion", entradaQuieta, undefined, { reloj: relojDelAnfitrion });
+    const invitado = await crearLado("invitado", entradaQuieta, undefined, { reloj: relojDelInvitado });
+    const paso = (a: typeof anfitrion1, reloj = relojDelAnfitrion) => {
+      red.avanzar(1000 / 60);
+      a.escena.pasar();
+      reloj.pasar();
+      a.sincronia.despues();
+      invitado.escena.pasar();
+    };
+    for (let i = 0; i < 90; i++) paso(anfitrion1);
+    // El invitado no cuenta: copia lo que dice la foto, que llega 75 ms después
+    expect(relojDelInvitado.pasos).toBeGreaterThan(60);
+    expect(relojDelInvitado.pasos).toBeLessThanOrEqual(relojDelAnfitrion.pasos);
+    for (let i = 0; i < 30; i++) {
+      red.avanzar(1000 / 60);
+      invitado.escena.pasar();
+    }
+    const antes = relojDelInvitado.pasos;
+
+    // El anfitrión recarga a mitad de carrera: el reloj sigue desde donde iba
+    anfitrion1.sincronia.cerrar();
+    red.avanzar(500);
+    const relojNuevo = crearReloj();
+    const anfitrion2 = await crearLado("anfitrion", entradaQuieta, undefined, { reloj: relojNuevo });
+    for (let i = 0; anfitrion2.sincronia.mundo === "esperando"; i++) {
+      expect(i).toBeLessThan(30);
+      paso(anfitrion2, relojNuevo);
+    }
+    expect(anfitrion2.sincronia.mundo).toBe("devuelto");
+    expect(relojNuevo.pasos).toBeGreaterThanOrEqual(antes);
+
+    // Si la escena no acepta el mundo devuelto (una carrera ya terminada), arranca el suyo
+    anfitrion2.sincronia.cerrar();
+    red.avanzar(500);
+    const relojOtraCarrera = crearReloj();
+    const anfitrion3 = await crearLado("anfitrion", entradaQuieta, undefined, {
+      reloj: relojOtraCarrera,
+      aceptarMundo: () => false,
+    });
+    let pasos = 0;
+    for (; anfitrion3.sincronia.mundo === "esperando"; pasos++) {
+      expect(pasos).toBeLessThan(30);
+      paso(anfitrion3, relojOtraCarrera);
+    }
+    expect(anfitrion3.sincronia.mundo).toBe("propio");
+    // Su reloj es solo lo que contó él: no tomó el de la carrera vieja
+    expect(relojOtraCarrera.pasos).toBe(pasos);
+    expect(pasos).toBeLessThan(antes);
+  });
+
   it("si el invitado tampoco tiene mundo, el anfitrión juega con el suyo", async () => {
     const red = crearRed({ perdida: 0 });
     const { crearLado } = await partida(red);
@@ -489,6 +553,7 @@ describe("reconexión (TU-22)", () => {
       estados: ["de pie", "de pie"] as const,
       agarres: 0,
       punto: 0,
+      reloj: 0,
       rumbos: [0, 0] as [number, number],
       velocidades: [
         { x: 0, y: 0, z: 0 },
@@ -529,6 +594,7 @@ describe("reconexión (TU-22)", () => {
       estados: ["de pie", "caido"] as ["de pie", "caido"],
       agarres: 0,
       punto: 0,
+      reloj: 0,
       rumbos: [0.5, -1] as [number, number],
       velocidades: [
         { x: 0, y: 0, z: 0 },

@@ -6,13 +6,14 @@
 //     La pausa no viaja: cada uno pausa su pantalla.
 //     Van las últimas 3: si se pierde un paquete, el siguiente trae lo que faltaba.
 //
-//   · Foto (anfitrión → invitado, canal rápido, cada 2 pasos: 30 por segundo). 29 + 10 bytes por cuerpo:
+//   · Foto (anfitrión → invitado, canal rápido, cada 2 pasos: 30 por segundo). 33 + 10 bytes por cuerpo:
 //       [0x46 «F»] [paso u32] [ack u32: la última entrada del invitado que ya se usó, 0 = ninguna]
 //       [estados u8: 3 bits por muñeco] [agarres u8: 1 bit por mano] [rumbo i16 × 2]
-//       [velocidad de la pelvis i16 × 3 × 2, en mm/s] [punto de control de la pareja u8] [cuántos cuerpos u8]
+//       [velocidad de la pelvis i16 × 3 × 2, en mm/s] [punto de control de la pareja u8]
+//       [reloj del contrarreloj u32, en pasos (TU-32)] [cuántos cuerpos u8]
 //       y por cada cuerpo móvil: [posición i16 × 3, en 1/512 m desde el origen de la escena]
 //                                [rotación u32: cuaternión «los tres más chicos», 2 + 3 × 10 bits]
-//     Con los 18 pedazos de los dos muñecos y 3 huacales son 239 bytes: unos 7 KB por segundo.
+//     Con los 18 pedazos de los dos muñecos y 3 huacales son 243 bytes: unos 7 KB por segundo.
 //
 //   · Reconexión (TU-22, canal fiable, ver sincronia.ts):
 //       [0x50 «P»]                      anfitrión → invitado: «volví sin mundo, ¿tenés el de antes?»
@@ -71,14 +72,19 @@ export interface Foto {
   velocidades: [Vector, Vector];
   /** El punto de control de la pareja (0 si la escena no tiene; ver AvanceDeNivel). */
   punto: number;
+  /** El reloj del contrarreloj en pasos (0 si no es una carrera; ver niveles/contrarreloj.ts). */
+  reloj: number;
   /** x, y, z de cada cuerpo, en orden. */
   posiciones: Float32Array;
   /** x, y, z, w de cada cuerpo, en orden. */
   rotaciones: Float32Array;
 }
 
+/** Los bytes de la foto antes de los cuerpos. */
+const CABECERA_FOTO = 33;
+
 export function bytesDeFoto(cuerpos: number): number {
-  return 29 + 10 * cuerpos;
+  return CABECERA_FOTO + 10 * cuerpos;
 }
 
 const limitar = (x: number, min: number, max: number) => Math.min(max, Math.max(min, x));
@@ -228,6 +234,8 @@ export function escribirFoto(
     }
   }
   vista.setUint8(o++, limitar(Math.floor(foto.punto) || 0, 0, 255));
+  vista.setUint32(o, limitar(Math.floor(foto.reloj) || 0, 0, 0xffffffff));
+  o += 4;
   vista.setUint8(o++, cuerpos);
   const { posiciones: p, rotaciones: r } = foto;
   for (let i = 0; i < cuerpos; i++) {
@@ -246,10 +254,10 @@ export function leerFoto(
   origen: Vector = { x: 0, y: 0, z: 0 },
   tipo: typeof TIPO_FOTO | typeof TIPO_MUNDO = TIPO_FOTO,
 ): Foto | null {
-  if (datos.byteLength < 29) return null;
+  if (datos.byteLength < CABECERA_FOTO) return null;
   const vista = new DataView(datos);
   if (vista.getUint8(0) !== tipo) return null;
-  const cuerpos = vista.getUint8(28);
+  const cuerpos = vista.getUint8(CABECERA_FOTO - 1);
   if (datos.byteLength !== bytesDeFoto(cuerpos)) return null;
   const estados = vista.getUint8(9);
   const velocidad = (o: number): Vector => ({
@@ -259,7 +267,7 @@ export function leerFoto(
   });
   const posiciones = new Float32Array(3 * cuerpos);
   const rotaciones = new Float32Array(4 * cuerpos);
-  let o = 29;
+  let o = CABECERA_FOTO;
   for (let i = 0; i < cuerpos; i++) {
     posiciones[3 * i] = vista.getInt16(o) / ESCALA_POSICION + origen.x;
     posiciones[3 * i + 1] = vista.getInt16(o + 2) / ESCALA_POSICION + origen.y;
@@ -275,6 +283,7 @@ export function leerFoto(
     rumbos: [vista.getInt16(11) / ESCALA_RUMBO, vista.getInt16(13) / ESCALA_RUMBO],
     velocidades: [velocidad(15), velocidad(21)],
     punto: vista.getUint8(27),
+    reloj: vista.getUint32(28),
     posiciones,
     rotaciones,
   };

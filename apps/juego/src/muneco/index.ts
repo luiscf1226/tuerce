@@ -1,6 +1,12 @@
 // El muñeco de trapo: físicas (`crearMuneco`) y dibujo (`crearMallaMuneco`) por separado.
 export { AJUSTES, INERCIA_EXTRA, MASAS, MEDIDAS } from "./ajustes";
-export { crearMallaMuneco, crearMaterialesMuneco, type MallaMuneco, type MaterialesMuneco } from "./malla";
+export {
+  crearMallaMuneco,
+  crearMaterialesMuneco,
+  type MallaMuneco,
+  type MaterialesMuneco,
+  SIN_PRENDAS,
+} from "./malla";
 export {
   crearMuneco,
   type EntradaMuneco,

@@ -12,15 +12,19 @@ export const MAX_NIVEL = 999;
 /** Hasta qué punto de control se acepta en un nivel. */
 export const MAX_PUNTO = 999;
 
-const esEnteroEntre = (n: number, max: number) => Number.isInteger(n) && n >= 0 && n <= max;
+export const esEnteroEntre = (n: number, max: number) => Number.isInteger(n) && n >= 0 && n <= max;
 
 /** La pareja, si quien llama es uno de los dos. */
-async function parejaMia(ctx: QueryCtx, yo: Doc<"usuarios">, parejaId: Id<"parejas">): Promise<Doc<"parejas"> | null> {
+export async function parejaMia(
+  ctx: QueryCtx,
+  yo: Doc<"usuarios">,
+  parejaId: Id<"parejas">,
+): Promise<Doc<"parejas"> | null> {
   const pareja = await ctx.db.get(parejaId);
   return pareja && (pareja.a === yo._id || pareja.b === yo._id) ? pareja : null;
 }
 
-function avanceDe(ctx: QueryCtx, parejaId: Id<"parejas">, nivel: number) {
+export function avanceDe(ctx: QueryCtx, parejaId: Id<"parejas">, nivel: number) {
   return ctx.db
     .query("avance")
     .withIndex("por_pareja_nivel", (q) => q.eq("parejaId", parejaId).eq("nivel", nivel))

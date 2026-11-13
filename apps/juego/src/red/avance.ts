@@ -10,6 +10,8 @@ export interface Guardado {
   leer(nivel: number): Promise<number>;
   /** Guarda que la pareja llegó a ese punto de control. El guardado solo avanza: uno más chico no lo pisa. */
   guardar(nivel: number, puntoDeControl: number): Promise<unknown>;
+  /** Guarda que la pareja llegó a la meta: el nivel quedó ganado y se abre su contrarreloj (TU-32). */
+  ganar?(nivel: number): Promise<unknown>;
 }
 
 /**
@@ -24,16 +26,28 @@ export async function retomarAvance(avance: AvanceDeNivel, guardado: Guardado): 
     console.warn("Tuerce · avance: no se pudo leer el avance guardado; se arranca desde acá", error);
   }
   if (Number.isInteger(leido) && leido > avance.puntoDeControl()) avance.irA(leido);
+  // Ya habían llegado a la meta: se vuelve a guardar que ganaron (no repite nada), por si aquella vez no se pudo o el
+  // avance es de antes del contrarreloj. Si no, ese nivel nunca abriría su contrarreloj.
+  if (guardado.ganar && avance.meta > 0 && avance.puntoDeControl() >= avance.meta) {
+    guardado.ganar(avance.nivel).catch((error: unknown) => {
+      console.warn("Tuerce · avance: no se pudo guardar que ganaron el nivel", error);
+    });
+  }
   return avance.puntoDeControl();
 }
 
-/** Guarda cada punto de control nuevo que alcanza la pareja. Solo el anfitrión: el invitado no simula, así que
- * sus puntos de control son los que ve en las fotos y guardarlos sería repetir. Devuelve cómo dejar de guardar. */
+/** Guarda cada punto de control nuevo que alcanza la pareja, y que ganó el nivel al llegar a la meta. Solo el
+ * anfitrión: el invitado no simula, así que sus puntos de control son los que ve en las fotos y guardarlos sería
+ * repetir. Devuelve cómo dejar de guardar. */
 export function guardarAvance(avance: AvanceDeNivel, guardado: Guardado, rol: Rol): () => void {
   if (rol !== "anfitrion") return () => {};
   return avance.alCambiar((punto) => {
     guardado.guardar(avance.nivel, punto).catch((error: unknown) => {
       console.warn(`Tuerce · avance: no se pudo guardar el punto de control ${punto}`, error);
+    });
+    if (punto < avance.meta || !guardado.ganar) return;
+    guardado.ganar(avance.nivel).catch((error: unknown) => {
+      console.warn("Tuerce · avance: no se pudo guardar que ganaron el nivel", error);
     });
   });
 }

@@ -59,6 +59,10 @@ describe("formato de nivel", () => {
     expect(solidos.patio?.material).toBe("suelo");
     expect(solidos.tablon?.material).toBe("corteza");
     expect(plano.vacios).toHaveLength(1);
+    // El secreto (TU-29): una zona detrás de la meta
+    expect(plano.secretos).toHaveLength(1);
+    expect(plano.secretos[0] && adentro(plano.secretos[0], { x: 23.4, y: 2, z: -2.3 })).toBe(true);
+    expect(plano.secretos[0] && adentro(plano.secretos[0], { x: 22.5, y: 2, z: 0 })).toBe(false);
     expect(plano.adornos.filter((a) => a.forma === "pino")).toHaveLength(10);
     expect(plano.nieblas.length).toBeGreaterThan(0);
   });
@@ -93,6 +97,15 @@ describe("formato de nivel", () => {
     mala.name = "masa-rara";
     mala.userData = { tipo: "solido", cuerpo: "dinamico", masa: "mucha" };
     expect(() => leerPlano(escenaMinima(mala))).toThrow(/«masa-rara».*masa/);
+  });
+
+  it("un bejuco largo sin `segmentos` no hace fallar el nivel: se queda en 40", () => {
+    const bejuco = new THREE.Mesh(new THREE.BoxGeometry(0.3, 15, 0.3));
+    bejuco.name = "bejuco-largo";
+    bejuco.position.y = 8;
+    bejuco.userData = { tipo: "pieza", pieza: "bejuco" };
+    const pieza = leerPlano(escenaMinima(bejuco)).piezas[0];
+    expect(pieza?.cual === "bejuco" && pieza.segmentos).toBe(40);
   });
 
   it("lo que no tiene `tipo` es solo imagen", () => {

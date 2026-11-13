@@ -12,6 +12,7 @@ function nivelDeMentira(nivel = 99) {
   });
   const avance: AvanceDeNivel = {
     nivel,
+    meta: 3,
     puntoDeControl: () => punto,
     alCambiar(aviso) {
       avisos.add(aviso);
@@ -57,6 +58,18 @@ describe("retomar el avance", () => {
     expect(irA).toHaveBeenCalledExactlyOnceWith(3);
   });
 
+  it("si lo guardado ya es la meta, vuelve a guardar que ganaron (un avance de antes del contrarreloj)", async () => {
+    const ganar = vi.fn(async () => {});
+    const { avance } = nivelDeMentira(99);
+    const { guardado } = guardadoDeMentira({ 99: 3 });
+    expect(await retomarAvance(avance, { ...guardado, ganar })).toBe(3);
+    expect(ganar).toHaveBeenCalledExactlyOnceWith(99);
+    // A mitad de camino, no
+    const otro = nivelDeMentira(99);
+    await retomarAvance(otro.avance, { ...guardadoDeMentira({ 99: 2 }).guardado, ganar });
+    expect(ganar).toHaveBeenCalledOnce();
+  });
+
   it("sin nada guardado (o algo que no es un punto de control) se queda en la salida", async () => {
     for (const leido of [0, -2, 1.5, Number.NaN]) {
       const { avance, irA } = nivelDeMentira();
@@ -87,6 +100,22 @@ describe("guardar el avance", () => {
     dejar();
     alcanzar(3);
     expect(guardado.guardar).toHaveBeenCalledTimes(2);
+  });
+
+  it("al llegar a la meta (el último punto) guarda que ganaron el nivel", async () => {
+    const { avance, alcanzar } = nivelDeMentira(99);
+    const { guardado } = guardadoDeMentira();
+    const ganar = vi.fn(async () => {});
+    guardarAvance(avance, { ...guardado, ganar }, "anfitrion");
+    alcanzar(1);
+    alcanzar(2);
+    expect(ganar).not.toHaveBeenCalled();
+    alcanzar(3);
+    expect(ganar).toHaveBeenCalledExactlyOnceWith(99);
+    // Sin `ganar` (un guardado viejo) no pasa nada
+    const otro = nivelDeMentira();
+    guardarAvance(otro.avance, guardadoDeMentira().guardado, "anfitrion");
+    expect(() => otro.alcanzar(3)).not.toThrow();
   });
 
   it("el invitado no guarda", () => {

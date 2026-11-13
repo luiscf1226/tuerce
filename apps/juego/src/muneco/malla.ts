@@ -1,10 +1,20 @@
 // Cómo se ve el muñeco: una malla simple por parte (esferas y cápsulas) que sigue a su cuerpo de Rapier,
 // interpolando entre el paso anterior y el actual. La imagen final (tela, costuras, grano) es de TU-10:
-// para cambiarla basta con pasar otros materiales.
+// para cambiarla basta con pasar otros materiales. Las prendas del ropero (TU-29) están en prendas.ts.
 import * as THREE from "three";
+import type { Vestuario } from "../../../../convex/premios";
 import { COLORES } from "../escenas/colores";
 import { MEDIDAS } from "./ajustes";
 import { type Muneco, NOMBRES_PARTES, type NombreParte } from "./muneco";
+import { ponerPrendas, sacarPrendas } from "./prendas";
+
+/** Sin nada del ropero: el pañuelo de triángulo y la cabeza pelada (las escenas de prueba del cuerpo). */
+export const SIN_PRENDAS: Vestuario = {
+  panuelo: "triangulo",
+  sombrero: "ninguno",
+  peinado: "ninguno",
+  mascara: "ninguna",
+};
 
 export interface MaterialesMuneco {
   /** El trapo oscuro de todo el cuerpo. */
@@ -13,6 +23,8 @@ export interface MaterialesMuneco {
   panuelo: THREE.Material;
   /** Los dos puntitos de los ojos. */
   ojos: THREE.Material;
+  /** Las máscaras del ropero, más negras que el trapo. */
+  honda?: THREE.Material;
 }
 
 export function crearMaterialesMuneco(panuelo: number = COLORES.panueloRojo): MaterialesMuneco {
@@ -20,6 +32,7 @@ export function crearMaterialesMuneco(panuelo: number = COLORES.panueloRojo): Ma
     cuerpo: new THREE.MeshStandardMaterial({ color: COLORES.silueta, roughness: 1 }),
     panuelo: new THREE.MeshStandardMaterial({ color: panuelo, roughness: 0.9, side: THREE.DoubleSide }),
     ojos: new THREE.MeshBasicMaterial({ color: 0xf4f4f0 }),
+    honda: new THREE.MeshStandardMaterial({ color: COLORES.siluetaHonda, roughness: 1 }),
   };
 }
 
@@ -29,11 +42,20 @@ export interface MallaMuneco {
   guardar(): void;
   /** Mueve las mallas interpolando entre el paso anterior y el actual (`alfa` de 0 a 1). */
   dibujar(alfa: number): void;
+  /** Lo que tiene puesto. */
+  readonly vestuario: Vestuario;
+  /** Le cambia la ropa (el color del pañuelo no cambia: es el del jugador). */
+  vestir(vestuario: Vestuario): void;
 }
 
-export function crearMallaMuneco(muneco: Muneco, materiales: MaterialesMuneco = crearMaterialesMuneco()): MallaMuneco {
+export function crearMallaMuneco(
+  muneco: Muneco,
+  materiales: MaterialesMuneco = crearMaterialesMuneco(),
+  vestuarioInicial: Vestuario = SIN_PRENDAS,
+): MallaMuneco {
   const grupo = new THREE.Group();
   const { cuerpo, panuelo, ojos } = materiales;
+  const honda = materiales.honda ?? new THREE.MeshStandardMaterial({ color: COLORES.siluetaHonda, roughness: 1 });
   const { pelvis, torso, cabeza, brazo, muslo, canilla, pie } = MEDIDAS;
 
   const malla = (geometria: THREE.BufferGeometry, material: THREE.Material, padre: THREE.Object3D) => {
@@ -54,20 +76,24 @@ export function crearMallaMuneco(muneco: Muneco, materiales: MaterialesMuneco = 
   malla(esfera(pelvis.radio), cuerpo, nodos.pelvis).scale.set(1.05, 0.9, 0.95);
   malla(capsula(torso.radio, torso.medioAlto * 2), cuerpo, nodos.torso).scale.set(1.05, 1, 0.92);
 
-  // El pañuelo: un anillo en el cuello y un triángulo que cae sobre el pecho
-  const cuello = MEDIDAS.cuello - torso.y;
-  const anillo = malla(new THREE.CylinderGeometry(0.135, 0.17, 0.08, 18, 1, true), panuelo, nodos.torso);
-  anillo.position.y = cuello - 0.02;
-  const triangulo = new THREE.Shape().moveTo(-0.13, 0).lineTo(0.13, 0).lineTo(0, -0.21).closePath();
-  const punta = malla(new THREE.ShapeGeometry(triangulo), panuelo, nodos.torso);
-  punta.position.set(0, cuello - 0.02, torso.radio * 0.98);
-  punta.rotation.x = -0.32;
-
   malla(esfera(cabeza.radio), cuerpo, nodos.cabeza);
-  for (const lado of [1, -1]) {
+  const ojosDeLaCara = [1, -1].map((lado) => {
     const ojo = malla(esfera(0.022), ojos, nodos.cabeza);
     ojo.position.set(lado * 0.075, 0.03, cabeza.radio * 0.93);
-  }
+    return ojo;
+  });
+
+  // El pañuelo y las prendas del ropero cuelgan del cuello y de la cabeza
+  let vestuario = vestuarioInicial;
+  let puestas: THREE.Object3D[] = [];
+  const vestir = (nuevo: Vestuario) => {
+    sacarPrendas(puestas);
+    const { mallas, cara } = ponerPrendas(nodos, nuevo, { tela: cuerpo, panuelo, honda });
+    puestas = mallas;
+    for (const ojo of ojosDeLaCara) ojo.position.z = cabeza.radio * 0.93 + cara.ojos;
+    vestuario = nuevo;
+  };
+  vestir(vestuarioInicial);
 
   for (const n of ["brazoIzquierdo", "brazoDerecho"] as const) {
     malla(capsula(brazo.radio, brazo.largo), cuerpo, nodos[n]);
@@ -92,6 +118,10 @@ export function crearMallaMuneco(muneco: Muneco, materiales: MaterialesMuneco = 
 
   return {
     grupo,
+    get vestuario() {
+      return vestuario;
+    },
+    vestir,
     guardar() {
       for (const e of estados) {
         e.antes.p.copy(e.ahora.p);

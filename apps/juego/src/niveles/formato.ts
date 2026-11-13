@@ -6,7 +6,7 @@
 // nivel. Así se prueba en Node leyendo el .glb del disco.
 import * as THREE from "three";
 
-export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla"] as const;
+export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza"] as const;
 export type Tipo = (typeof TIPOS)[number];
 export const FORMAS = ["caja", "cilindro", "malla"] as const;
 export type Forma = (typeof FORMAS)[number];
@@ -17,6 +17,9 @@ export const MATERIALES = ["suelo", "tela", "corteza", "honda", "lejana"] as con
 export type Material = (typeof MATERIALES)[number];
 export const ADORNOS = ["pino", "abeto", "roca", "mata", "tronco"] as const;
 export type FormaDeAdorno = (typeof ADORNOS)[number];
+/** Las piezas de juego (TU-12): cosas que se mueven con físicas y que el guion puede mirar. */
+export const PIEZAS = ["huacal", "palanca", "plancha", "balancin", "bejuco"] as const;
+export type TipoDePieza = (typeof PIEZAS)[number];
 
 /** Una caja girada en el mundo: zona de un punto de control o del vacío. */
 export interface Volumen {
@@ -70,6 +73,44 @@ export interface CapaDeNieblaDelNivel {
   readonly velocidad: number;
 }
 
+interface BaseDePieza {
+  readonly nombre: string;
+  /** El nodo de la escena: su malla solo dice dónde va la pieza y cuánto mide; la imagen la pone el juego. */
+  readonly objeto: THREE.Object3D;
+  /** La caja de la malla en el mundo. */
+  readonly caja: Volumen;
+}
+
+/** Una pieza de juego tal como la dice la escena, con los valores por omisión ya puestos (ver niveles/README.md). */
+export type PiezaDelPlano =
+  | (BaseDePieza & { readonly cual: "huacal"; readonly masa: number; readonly rozamiento: number })
+  | (BaseDePieza & {
+      readonly cual: "palanca";
+      readonly masa: number;
+      /** Cuánto se inclina hacia cada lado (radianes). */
+      readonly angulo: number;
+      /** Qué parte del recorrido hay que llevarla para que quede activa (de 0 a 1). */
+      readonly umbral: number;
+      /** Si al soltarla vuelve sola a donde estaba. */
+      readonly vuelve: boolean;
+    })
+  | (BaseDePieza & {
+      readonly cual: "plancha";
+      /** Los kilos que la hunden del todo. */
+      readonly peso: number;
+      /** Cuánto se hunde (metros). */
+      readonly hundir: number;
+    })
+  | (BaseDePieza & {
+      readonly cual: "balancin";
+      readonly masa: number;
+      /** Cuánto se inclina hacia cada lado (radianes). */
+      readonly angulo: number;
+      /** Dónde está el eje, a lo largo de la tabla: 0 un extremo, 0.5 el medio, 1 el otro. */
+      readonly apoyo: number;
+    })
+  | (BaseDePieza & { readonly cual: "bejuco"; readonly masa: number; readonly segmentos: number });
+
 export interface PlanoDeNivel {
   /** Número del nivel (99 para el de prueba). */
   readonly numero: number;
@@ -85,6 +126,10 @@ export interface PlanoDeNivel {
   readonly vacios: readonly Volumen[];
   readonly adornos: readonly Adorno[];
   readonly nieblas: readonly CapaDeNieblaDelNivel[];
+  /** Dónde está escondido el secreto del nivel (TU-29): el primero de los dos que entra en una lo encuentra. */
+  readonly secretos: readonly Volumen[];
+  /** Las piezas de juego (TU-12): huacales, palancas, planchas, balancines y bejucos. */
+  readonly piezas: readonly PiezaDelPlano[];
   /** La raíz de la escena del glTF, tal como la dejó el cargador. */
   readonly raiz: THREE.Object3D;
 }
@@ -178,6 +223,63 @@ export function ladoALado(centro: THREE.Vector3, rumbo: number, separacion = SEP
   ];
 }
 
+const GRADOS = Math.PI / 180;
+
+/** Un número entre `min` y `max`, o el error con el nombre del nodo. */
+function leerEntre(extras: Extras, clave: string, donde: string, porDefecto: number, min: number, max: number) {
+  const valor = leerNumero(extras, clave, donde, porDefecto);
+  if (valor < min || valor > max)
+    throw new ErrorDeNivel(`«${donde}»: \`${clave}\` va de ${min} a ${max} y es ${valor}`);
+  return valor;
+}
+
+/** Lee una pieza de juego (TU-12): qué pieza es y sus propiedades. */
+function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPlano {
+  const cual = leerOpcion(extras, "pieza", PIEZAS, donde, "huacal");
+  if (cajaLocal(o).isEmpty()) throw new ErrorDeNivel(`«${donde}»: una pieza necesita una malla (su caja)`);
+  const base = { nombre: o.name, objeto: o, caja: volumenDe(o) };
+  switch (cual) {
+    case "huacal":
+      return {
+        ...base,
+        cual,
+        masa: leerEntre(extras, "masa", donde, 8, 0.1, 500),
+        rozamiento: leerNumero(extras, "rozamiento", donde, 0.7),
+      };
+    case "palanca":
+      return {
+        ...base,
+        cual,
+        masa: leerEntre(extras, "masa", donde, 2, 0.1, 100),
+        angulo: leerEntre(extras, "angulo", donde, 35, 5, 80) * GRADOS,
+        umbral: leerEntre(extras, "umbral", donde, 0.75, 0.1, 1),
+        vuelve: leerNumero(extras, "vuelve", donde, 1) !== 0,
+      };
+    case "plancha": {
+      const hundir = leerEntre(extras, "hundir", donde, 0.06, 0.01, 1);
+      if (hundir >= base.caja.medio.y * 2)
+        throw new ErrorDeNivel(`«${donde}»: \`hundir\` (${hundir}) tiene que ser menos que el alto de su caja`);
+      return { ...base, cual, peso: leerEntre(extras, "peso", donde, 10, 0.5, 500), hundir };
+    }
+    case "balancin":
+      return {
+        ...base,
+        cual,
+        masa: leerEntre(extras, "masa", donde, 25, 1, 1000),
+        angulo: leerEntre(extras, "angulo", donde, 15, 2, 60) * GRADOS,
+        apoyo: leerEntre(extras, "apoyo", donde, 0.5, 0.05, 0.95),
+      };
+    case "bejuco": {
+      // Por omisión, un segmento cada 30 cm (entre 2 y 40: un bejuco muy largo tiene segmentos más largos)
+      const largo = base.caja.medio.y * 2;
+      const porOmision = Math.min(40, Math.max(2, Math.round(largo / 0.3)));
+      const segmentos = leerEntre(extras, "segmentos", donde, porOmision, 2, 40);
+      if (!Number.isInteger(segmentos)) throw new ErrorDeNivel(`«${donde}»: \`segmentos\` tiene que ser entero`);
+      return { ...base, cual, masa: leerEntre(extras, "masa", donde, 4, 0.2, 100), segmentos };
+    }
+  }
+}
+
 /** Lee la escena de un glTF (lo que deja GLTFLoader en `gltf.scene`) y devuelve el plano del nivel. */
 export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
   raiz.updateWorldMatrix(true, true);
@@ -192,6 +294,8 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
   const vacios: Volumen[] = [];
   const adornos: Adorno[] = [];
   const nieblas: CapaDeNieblaDelNivel[] = [];
+  const secretos: Volumen[] = [];
+  const piezas: PiezaDelPlano[] = [];
 
   raiz.traverse((o) => {
     if (o === raiz) return;
@@ -236,6 +340,9 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
       case "vacio":
         vacios.push(volumenDe(o));
         break;
+      case "secreto":
+        secretos.push(volumenDe(o));
+        break;
       case "adorno": {
         const forma = leerOpcion(extras, "forma", ADORNOS, donde, "pino");
         adornos.push({
@@ -253,6 +360,9 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
           opacidad: leerNumero(extras, "opacidad", donde, 0.5),
           velocidad: leerNumero(extras, "velocidad", donde, 0.15),
         });
+        break;
+      case "pieza":
+        piezas.push(leerPieza(o, extras, donde));
         break;
     }
   });
@@ -280,5 +390,18 @@ export function leerPlano(raiz: THREE.Object3D): PlanoDeNivel {
     lejos: leerNumero(extrasEscena, "nieblaLejos", "escena", 24),
   };
 
-  return { numero, nombre, vacio, niebla, puntos: [salida, ...controles], solidos, vacios, adornos, nieblas, raiz };
+  return {
+    numero,
+    nombre,
+    vacio,
+    niebla,
+    puntos: [salida, ...controles],
+    solidos,
+    vacios,
+    adornos,
+    nieblas,
+    secretos,
+    piezas,
+    raiz,
+  };
 }

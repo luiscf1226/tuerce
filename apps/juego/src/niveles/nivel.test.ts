@@ -187,3 +187,44 @@ describe("reaparición", () => {
     expect(await corrida()).toEqual(await corrida());
   });
 });
+
+describe("secreto y logro (TU-29)", () => {
+  it("el primero que entra a la zona del secreto lo encuentra para la pareja, una sola vez", async () => {
+    const { nivel, munecos, correr } = await armar();
+    const avisos: string[] = [];
+    nivel.premios.alGanar((p) => avisos.push(p));
+    correr(10);
+    expect(nivel.secreto).toBe(false);
+    munecos[1].reaparecer({ x: 23.4, y: 1.53, z: -2.3 }, 0);
+    correr(5);
+    expect(nivel.secreto).toBe(true);
+    expect(nivel.premios.tiene("secreto")).toBe(true);
+    munecos[0].reaparecer({ x: 23.4, y: 1.53, z: -2.0 }, 0);
+    correr(5);
+    expect(avisos).toEqual(["secreto"]);
+  });
+
+  it("lo ya guardado se marca sin avisar y la zona no lo vuelve a dar", async () => {
+    const { nivel, munecos, correr } = await armar();
+    const avisos: string[] = [];
+    nivel.premios.alGanar((p) => avisos.push(p));
+    nivel.premios.marcar("secreto");
+    munecos[1].reaparecer({ x: 23.4, y: 1.53, z: -2.3 }, 0);
+    correr(5);
+    expect(nivel.secreto).toBe(true);
+    expect(avisos).toEqual([]);
+  });
+
+  it("el guion da el logro «Mudanza» cuando el huacal llega arriba del escalón", async () => {
+    const { nivel, correr } = await armar();
+    const avisos: string[] = [];
+    nivel.premios.alGanar((p) => avisos.push(p));
+    correr(30);
+    expect(nivel.logro).toBe(false);
+    const huacal = nivel.pieza("huacal").cuerpo;
+    huacal?.setTranslation({ x: 18, y: 1.85, z: 0 }, true);
+    correr(30);
+    expect(nivel.logro).toBe(true);
+    expect(avisos).toEqual(["logro"]);
+  });
+});

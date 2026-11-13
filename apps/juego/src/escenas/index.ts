@@ -11,6 +11,7 @@ import { crearEscenaMuneco } from "./muneco";
 import { crearEscenaNivel } from "./nivel";
 import { crearEscenaPinar } from "./pinar";
 import { crearEscenaPrueba } from "./prueba";
+import { crearEscenaRopero } from "./ropero";
 import type { Escena } from "./tipos";
 
 /** Lo que una escena puede sumar a `Escena`: la pantalla partida de la cámara de los dos (TU-09), y el menú y la
@@ -36,6 +37,8 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
     "en-linea": abrirEscenaEnLinea,
     // Un nivel con el formato nuevo (TU-11): escena glTF, guion y puntos de control. `&nivel=prueba` por ahora.
     nivel: crearEscenaNivel,
+    // El ropero (TU-29): los dos muñecos con sus prendas y el panel para elegir; `&vitrina=1|2` las muestra todas.
+    ropero: crearEscenaRopero,
   };
 export const ESCENA_INICIAL = "dos";
 
@@ -44,6 +47,8 @@ export const PANTALLAS: Record<string, () => Promise<void>> = {
   entrar: async () => (await import("../cuenta/entrar")).abrirEntrar(),
   invitar: async () => (await import("../cuenta/invitar")).abrirInvitar(),
   buscar: async () => (await import("../cuenta/buscar")).abrirBuscar(),
+  // Las tablas del contrarreloj (TU-32): las mejores parejas de cada nivel; `&ejemplo` sin cuenta, para las capturas.
+  tabla: async () => (await import("../cuenta/tabla")).abrirTabla(),
   // Depuración de la red (TU-20): estado de la conexión y ping entre los dos.
   red: async () => (await import("./red")).abrirRed(),
 };
