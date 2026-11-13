@@ -14,6 +14,9 @@ import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
 import { crearGuion as guionTren } from "../../../../niveles/05-tren/guion";
 import escenaRio from "../../../../niveles/06-rio/escena.glb?url";
 import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
+// El llano (TU-44)
+import escenaLlano from "../../../../niveles/11-llano/escena.glb?url";
+import { crearGuion as guionLlano } from "../../../../niveles/11-llano/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -79,6 +82,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaRio,
     crearGuion: guionRio,
     // Amarrados no: la palmera lanza a uno solo al otro lado del barranco, y el otro se queda jalando la soga
+    sinTrampas: ["mecate"],
+  },
+  // El llano (TU-44): Los Llanos, Venezuela. El Silbón, el molino, el ganado, la hamaca y el saco
+  llano: {
+    carpeta: "11-llano",
+    escena: escenaLlano,
+    crearGuion: guionLlano,
+    // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
     sinTrampas: ["mecate"],
   },
 };

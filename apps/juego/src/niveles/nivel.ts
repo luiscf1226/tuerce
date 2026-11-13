@@ -272,6 +272,12 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     puente: (nombre) => deJuego("puente", nombre),
     palmera: (nombre) => deJuego("palmera", nombre),
     sisimite: (nombre) => deJuego("sisimite", nombre),
+    // El llano (TU-44)
+    silbon: (nombre) => deJuego("silbon", nombre),
+    molino: (nombre) => deJuego("molino", nombre),
+    ganado: (nombre) => deJuego("ganado", nombre),
+    hamaca: (nombre) => deJuego("hamaca", nombre),
+    saco: (nombre) => deJuego("saco", nombre),
     avance,
     premios,
     antes(entradas) {

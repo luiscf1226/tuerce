@@ -14,12 +14,15 @@ export type { Murcielagos } from "./murcielagos";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
 export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";
 export type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
+// El llano (TU-44)
+export type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
 export type { Palmera, Pipante, Puente } from "./piezas-rio";
 export type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
 export type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
+export type { Silbon } from "./silbon";
 export type { SinBueyes } from "./sin-bueyes";
 export type { Sisimite } from "./sisimite";
 export type { Sucia } from "./sucia";
