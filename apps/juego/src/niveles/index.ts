@@ -9,6 +9,8 @@ export type { Cadejo } from "./cadejo";
 export { cargarNivel, parsearGlb } from "./cargar";
 // El cafetal (TU-41)
 export type { Cipitio } from "./cipitio";
+// La medianoche (TU-49)
+export type { Curupira } from "./curupira";
 export type { Duende } from "./duende";
 export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from "./formato";
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
@@ -26,6 +28,8 @@ export type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 export type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La medianoche (TU-49)
+export type { Fuegos, Montaria, Nenufar } from "./piezas-medianoche";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)

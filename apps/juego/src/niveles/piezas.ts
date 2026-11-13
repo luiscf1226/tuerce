@@ -23,6 +23,8 @@ import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
 // El cafetal (TU-41)
 import { armarCipitio, type Cipitio } from "./cipitio";
+// La medianoche (TU-49)
+import { armarCurupira, type Curupira } from "./curupira";
 import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
 // Los canales (TU-42)
@@ -75,6 +77,15 @@ import {
   type Molino,
   type Saco,
 } from "./piezas-llano";
+// La medianoche (TU-49)
+import {
+  armarFuegos,
+  armarMontaria,
+  armarNenufar,
+  type Fuegos,
+  type Montaria,
+  type Nenufar,
+} from "./piezas-medianoche";
 import {
   armarHueso,
   armarLampara,
@@ -322,6 +333,11 @@ export interface PiezaPorTipo {
   costal: Costal;
   guineo: Guineo;
   cipitio: Cipitio;
+  // La medianoche (TU-49): piezas-medianoche.ts y curupira.ts
+  nenufar: Nenufar;
+  montaria: Montaria;
+  fuegos: Fuegos;
+  curupira: Curupira;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -1024,6 +1040,19 @@ export function armarPiezas(
         break;
       case "cipitio":
         lista.push(armarCipitio(herramientas, p));
+        break;
+      // La medianoche (TU-49)
+      case "nenufar":
+        lista.push(armarNenufar(herramientas, p));
+        break;
+      case "montaria":
+        lista.push(armarMontaria(herramientas, p));
+        break;
+      case "fuegos":
+        lista.push(armarFuegos(herramientas, p));
+        break;
+      case "curupira":
+        lista.push(armarCurupira(herramientas, p));
         break;
     }
   }

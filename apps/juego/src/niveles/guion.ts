@@ -10,6 +10,8 @@ import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
 // El cafetal (TU-41)
 import type { Cipitio } from "./cipitio";
+// La medianoche (TU-49)
+import type { Curupira } from "./curupira";
 import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
 // Los canales (TU-42)
@@ -25,6 +27,8 @@ import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La medianoche (TU-49)
+import type { Fuegos, Montaria, Nenufar } from "./piezas-medianoche";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
@@ -141,6 +145,11 @@ export interface NivelEnJuego {
   costal(nombre: string): Costal;
   guineo(nombre: string): Guineo;
   cipitio(nombre: string): Cipitio;
+  /** Las piezas que estrena La medianoche (TU-49, ver piezas-medianoche.ts y curupira.ts). */
+  nenufar(nombre: string): Nenufar;
+  montaria(nombre: string): Montaria;
+  fuegos(nombre: string): Fuegos;
+  curupira(nombre: string): Curupira;
 }
 
 export interface GuionDeNivel {

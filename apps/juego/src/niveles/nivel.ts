@@ -302,6 +302,11 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     costal: (nombre) => deJuego("costal", nombre),
     guineo: (nombre) => deJuego("guineo", nombre),
     cipitio: (nombre) => deJuego("cipitio", nombre),
+    // La medianoche (TU-49)
+    nenufar: (nombre) => deJuego("nenufar", nombre),
+    montaria: (nombre) => deJuego("montaria", nombre),
+    fuegos: (nombre) => deJuego("fuegos", nombre),
+    curupira: (nombre) => deJuego("curupira", nombre),
     avance,
     premios,
     antes(entradas) {

@@ -29,6 +29,9 @@ import { crearGuion as guionGarrucha } from "../../../../niveles/10-garrucha/gui
 // El llano (TU-44)
 import escenaLlano from "../../../../niveles/11-llano/escena.glb?url";
 import { crearGuion as guionLlano } from "../../../../niveles/11-llano/guion";
+// La medianoche (TU-49)
+import escenaMedianoche from "../../../../niveles/16-medianoche/escena.glb?url";
+import { crearGuion as guionMedianoche } from "../../../../niveles/16-medianoche/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -136,6 +139,15 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaLlano,
     crearGuion: guionLlano,
     // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
+    sinTrampas: ["mecate"],
+  },
+  // La medianoche (TU-49): nivel 16, la Amazonía (Brasil), el último. Las huellas del Curupira, los nenúfares
+  // gigantes, la montaria, el árbol del Curupira y los fuegos artificiales de Año Nuevo
+  medianoche: {
+    carpeta: "16-medianoche",
+    escena: escenaMedianoche,
+    crearGuion: guionMedianoche,
+    // Amarrados no: los dos chisperos de cada castillo de fuegos quedan a más de 4 m uno del otro
     sinTrampas: ["mecate"],
   },
 };

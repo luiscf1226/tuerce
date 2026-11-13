@@ -361,6 +361,40 @@ const TOMAS = [
   { archivo: "cafetal-5-portillo", ruta: "/?escena=nivel&nivel=cafetal&punto=4&j1=&j2=&vista=26,4.2,0&congelar=60" },
   { archivo: "cafetal-5-contento", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=27,5.4,-1&congelar=60" },
   { archivo: "cafetal-secreto", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=35,6.4,-2.4&congelar=30" },
+  // La medianoche (TU-49): el nivel 16, la Amazonía (niveles/16-medianoche; va corrido 53 m hacia −x), de noche,
+  // entero y en la salida; 1. las huellas al revés en la primera bifurcación, y el Curupira en su tocón; 2. los
+  // nenúfares del igarapé; 3. la montaria en el muelle, con sus remos; 4. el arbolito en su tocón, el hoyo y el
+  // Curupira que lo pide, y ya plantado con el monte abierto; 5. la playa con los tres castillos y sus chisperos, y los
+  // fuegos estallando sobre el río con la pareja mirándolos desde la meta. Y el delfín rosado del secreto, en el recodo
+  { archivo: "medianoche-entero", ruta: "/?escena=nivel&nivel=medianoche&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "medianoche-salida", ruta: "/?escena=nivel&nivel=medianoche&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "medianoche-1-huellas", ruta: "/?escena=nivel&nivel=medianoche&j1=&j2=&vista=-48,0.6,0&congelar=60" },
+  { archivo: "medianoche-1-curupira", ruta: "/?escena=nivel&nivel=medianoche&j1=&j2=&vista=-40.5,1.4,0&congelar=60" },
+  {
+    archivo: "medianoche-2-nenufares",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=1&j1=&j2=&vista=-18.6,0.4,0&congelar=60",
+  },
+  {
+    archivo: "medianoche-3-montaria",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=2&j1=&j2=&vista=-5,0.6,0&congelar=60",
+  },
+  {
+    archivo: "medianoche-4-arbol",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=3&j1=&j2=&vista=27,1,-0.5&congelar=60",
+  },
+  {
+    archivo: "medianoche-4-plantado",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=4&j1=&j2=&vista=30,1.2,-0.5&congelar=60",
+  },
+  {
+    archivo: "medianoche-5-playa",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=4&j1=&j2=&vista=48,1.2,-1&congelar=60",
+  },
+  { archivo: "medianoche-5-fuegos", ruta: "/?escena=nivel&nivel=medianoche&punto=5&j1=&j2=&congelar=330" },
+  {
+    archivo: "medianoche-secreto",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=1&j1=&j2=&vista=-18.4,0.6,-6.6&congelar=300",
+  },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

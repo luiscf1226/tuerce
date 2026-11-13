@@ -399,6 +399,34 @@ corre el guion ni las piezas: el silbido y sus ondas los calcula con los cuerpos
 silba porque lo ve hundido en su escondite; quiénes lo oyen se lo dice el guion en `alEmpezar`, que corre en los dos),
 anima las patas de las reses con lo que anduvieron y dibuja la tela y la cabuya de la hamaca.
 
+<!-- La medianoche (TU-49) -->
+
+## Las piezas de La medianoche (TU-49)
+
+Las que estrena el nivel 16, La medianoche (`apps/juego/src/niveles/piezas-medianoche.ts` y `curupira.ts`; su lectura,
+en `formato-medianoche.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza; el arbolito que pide el
+Curupira es un `bloque` de Xibalbá (9 kg) que el guion viste de plantón.
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Propiedades                                                                                                                                                   |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nenufar`  | Una hoja de vitória-régia, el nenúfar gigante: de radio el mayor de la X y la Z de la caja y de grueso su alto. Flota de verdad (un prisma de 16 lados, para que el agua la mida de cada lado), se hunde y se ladea un poco con el que salta encima y lo lleva. Su tallo la vuelve a su lugar si la corriente o un salto la corren.                                                                                                                                                                                                                                              | `masa` (20 kg) · `tallo` (250 N/m)                                                                                                                            |
+| `montaria` | La canoa amazónica, del tamaño de la caja, con el piso arriba de la caja; avanza hacia el + de su lado más largo. Flota y gira solo alrededor de su Y. Tiene dos puestos: el de la proa rema a la izquierda y el de la popa a la derecha. Cada vez que el que va de pie en su puesto alza los brazos, da una palada (si terminó la anterior). Dos paladas que empiezan con menos de `compas` entre una y otra van al mismo ritmo y empujan con toda su fuerza, derecho; fuera de ritmo (o solo), cada una empuja `fuera` y tuerce la canoa. Al que va a bordo, quieto, lo lleva. | `masa` (50 kg) · `remo` (95 N por palada) · `palada` (0.55 s) · `compas` (0.25 s) · `fuera` (0.15) · `lado` (0.35 m: dónde se clava cada remo)                |
+| `fuegos`   | Los fuegos artificiales: un castillo de morteros en el medio de la caja (choca) y una mecha a cada punta de su lado más largo, con un chispero colgado de una estaca, a `chispero` de la base. Con los dos chisperos agarrados a la vez durante `juntos` se encienden: las mechas arden hasta el castillo y salen los cohetes, uno cada `cada`, que estallan detrás de la caja (sobre el río), en rojo y turquesa. Con uno solo, chispea y nada más.                                                                                                                             | `cohetes` (8) · `cada` (0.8 s) · `mecha` (2 s) · `juntos` (0.4 s) · `altura` (5.5 m) · `fondo` (13 m) · `radio` (3.6 m) · `chispero` (1.05 m) · `semilla` (1) |
+| `curupira` | El Curupira, el guardián del bosque con los pies al revés (sus huellas apuntan para el lado de donde viene), de pie en el medio de la base de su caja, mirando a su frente; mide el alto de la caja. No choca. Lo mueve el guion: se ríe del que se pierde, pide el árbol señalando el hoyo y se alegra (baila) cuando se lo plantan. Cinemático, sin azar.                                                                                                                                                                                                                      | `reir` (2.2 s: cuánto dura una carcajada)                                                                                                                     |
+
+```ts
+nivel.nenufar("nenufar-1").encima; // cuántos muñecos están encima; y .ladeo, .casa, .volver()
+nivel.montaria("montaria").remeros; // [proa, popa]: 0, 1 o null; y .paladas, .aCompas, .remos, .aBordo, .rumbo, .encima(p), .llevar(c), .volver()
+nivel.fuegos("fuegos-1").estado; // "apagados", "chispeando", "mecha", "disparando" o "quemados"; .encendidos, .agarrados, .estallidos, .cielo, .encender(), .quemar(), .alEncender(() => {})
+nivel.curupira("curupira").estado; // "mirando", "riendo", "pidiendo", "contento" o "escondido"; .risas, .reir(), .pedir(p), .alegrar(), .mudarse(p, rumbo), .esconder(), .alReir(() => {})
+```
+
+En línea viajan en la foto los nenúfares, la montaria y sus dos remos (cinemáticos sin choques: los mueve la canoa), los
+chisperos, las chispas de las mechas, cada cohete y el Curupira. El invitado no corre el guion ni las piezas: cada
+cohete le dice con su altura si está guardado y con su giro si ya estalló y cuánto, y así dibuja los mismos estallidos;
+sabe lo que hace el Curupira por cómo lo ve inclinado (para atrás se ríe, para adelante pide, de costado baila). Con
+cohetes en el cielo, la cámara de la escena se aleja y mira hacia arriba (`cielo`, en los dos).
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -459,6 +487,8 @@ Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/nivel
 `comun.mjs`). Si los cambiás, volvé a correrlo y subí los `.glb`.
 
 La garrucha (TU-43): `scripts/niveles/garrucha.mjs` arma `10-garrucha`, también con `pnpm niveles`.
+
+La medianoche (TU-49): `scripts/niveles/medianoche.mjs` arma `16-medianoche`, también con `pnpm niveles`.
 
 ### `00-patio` (`?escena=nivel&nivel=patio`), el nivel 0
 
@@ -823,6 +853,44 @@ misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
 El secreto, «un arpa llanera bajo el samán», está en el conuco de atrás: se trepa la tapia (1.4 m) colgándose y la zona
 `secreto` está al pie del samán (da la vincha). De noche no va la trampa del mecate: el que frena el molino queda lejos
 de las aspas, y la hamaca lanza a uno solo al otro lado del caño.
+
+<!-- La medianoche (TU-49) -->
+
+### `16-medianoche` (`?escena=nivel&nivel=medianoche`)
+
+El nivel 16 (TU-49): La medianoche, en la Amazonía (Brasil), el último del juego. El viaje empezó en el patio de
+Tegucigalpa la mañana del 31 de diciembre y termina acá, a la medianoche: la selva inundada (el igapó), nenúfares
+gigantes, un río ancho y, al final, una playa con fuegos artificiales. Anda por ahí El Curupira, con los pies al revés.
+Es de noche (más oscura que la noche de tuerce). Estrena el nenúfar gigante, la montaria y los fuegos artificiales. Lo
+arma `scripts/niveles/medianoche.mjs` (`pnpm niveles`). Va de oeste a este, y va todo corrido 53 m hacia −x (mide
+120 m: la foto de la red mide las posiciones en int16). Cada misión termina en un punto de control (`&punto=N` empieza
+en la misión N + 1):
+
+1. **Las huellas del Curupira**: la trocha se parte dos veces entre el monte (no se trepa ni se pasa de una a otra). El
+   Curupira tiene los pies al revés: se fue por la trocha donde los dedos de sus huellas apuntan para acá (la de atrás
+   en la primera y la de adelante en la segunda). Las otras acaban en el agua, y el que llega al final se gana una
+   carcajada del Curupira, desde su tocón en el monte → punto 1.
+2. **El igarapé de los nenúfares**: cinco hojas gigantes cruzan el igarapé, con medio metro de agua entre una y otra. Se
+   cruza saltando de hoja en hoja, que flotan, se hunden un poco y se ladean con el que cae encima → punto 2.
+3. **La montaria**, de a dos: río arriba, contra la corriente (0.5 m/s), por un canal entre los árboles. Uno se para en
+   la proa y el otro en la popa, y reman alzando los brazos al mismo tiempo. Al mismo ritmo, la canoa sube derecho;
+   fuera de ritmo o con uno solo, la corriente no la deja avanzar → punto 3, en la tierra firme. La montaria vacía que
+   quedó lejos vuelve sola al muelle.
+4. **El árbol del Curupira**, de a dos: el Curupira espera junto al hoyo de un claro talado y lo señala. El arbolito
+   (un bloque de 9 kg, uno solo no lo mueve de su tocón) se lleva entre los dos, uno de cada lado, y se suelta sobre el
+   hoyo: queda plantado, el Curupira se alegra y baila, y el monte cerrado se hunde → punto 4. El Curupira se va a la
+   playa a ver los fuegos.
+5. **Los fuegos de Año Nuevo**, de a dos: en la playa hay tres castillos, cada uno con sus dos chisperos lejos uno del
+   otro (6 m el grande, 4.4 los otros). Se encienden agarrando los dos chisperos a la vez: las mechas arden hasta el
+   castillo y los cohetes estallan grandes sobre el río, en rojo y turquesa, con la cámara mirando el cielo. Nadie se
+   quema: la pareja los prende desde la punta de las mechas. El castillo grande trae la meta → punto 5, en la playa,
+   mirando los fuegos. Solo no se puede: con un chispero agarrado la mecha chispea y nada más.
+
+El secreto, «un delfín rosado en el recodo del río», está río arriba en el igarapé: desde la tercera hoja salen dos más
+hacia el recodo, hasta una playita donde el delfín sale a respirar (la zona `secreto`; da el pañuelo «capa»). Sin color
+nuevo: el delfín es lo único claro y brillante del agua. El logro, «Feliz año», es encender los tres castillos a la
+medianoche: menos de un minuto entre el primero y el último. Retomando en la meta, el castillo grande se enciende otra
+vez. De noche no va la trampa del mecate: los chisperos de cada castillo quedan a más de 4 m.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 
