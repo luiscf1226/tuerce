@@ -69,6 +69,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     // Amarrados no: en la represa uno sostiene la palanca y el otro trepa lejos; en el tendedero baja uno solo
     sinTrampas: ["mecate"],
   },
+  // Nivel 3 (TU-25): Comayagua, Honduras. Seis misiones y la Carreta sin bueyes
+  calle: {
+    carpeta: "03-calle",
+    escena: escenaCalle,
+    crearGuion: guionCalle,
+    // Amarrados no: uno sostiene el freno mientras el otro cruza la calle (9 m), y las campanas están a 7 m
+    sinTrampas: ["mecate"],
+  },
   // Nivel 4 (TU-26): Copán, Honduras. Seis misiones y los murciélagos de Xibalbá
   xibalba: { carpeta: "04-xibalba", escena: escenaXibalba, crearGuion: guionXibalba },
   // Nivel 5 (TU-27): El Progreso, Honduras. Vagones, dresina, cambio de vía, grúa y el Duende
@@ -80,45 +88,12 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     // la grúa y las del portón final quedan lejos del racimo y del portón
     sinTrampas: ["mecate"],
   },
-  // Nivel 3 (TU-25): Comayagua, Honduras. Seis misiones y la Carreta sin bueyes
-  calle: {
-    carpeta: "03-calle",
-    escena: escenaCalle,
-    crearGuion: guionCalle,
-    // Amarrados no: uno sostiene el freno mientras el otro cruza la calle (9 m), y las campanas están a 7 m
-    sinTrampas: ["mecate"],
-  },
   // Nivel 6 (TU-28): el Río Plátano, La Mosquitia. El pipante, el puente colgante, la palmera y el Sisimite
   rio: {
     carpeta: "06-rio",
     escena: escenaRio,
     crearGuion: guionRio,
     // Amarrados no: la palmera lanza a uno solo al otro lado del barranco, y el otro se queda jalando la soga
-    sinTrampas: ["mecate"],
-  },
-  // Los canales (TU-42): nivel 9, Xochimilco. La trajinera, el agua de La Llorona, las chinampas y la piñata
-  canales: {
-    carpeta: "09-canales",
-    escena: escenaCanales,
-    crearGuion: guionCanales,
-    // Amarrados no: el que jala la soga de la piñata queda a más de 3 m de ella
-    sinTrampas: ["mecate"],
-  },
-  // El llano (TU-44): Los Llanos, Venezuela. El Silbón, el molino, el ganado, la hamaca y el saco
-  llano: {
-    carpeta: "11-llano",
-    escena: escenaLlano,
-    crearGuion: guionLlano,
-    // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
-    sinTrampas: ["mecate"],
-  },
-  // La garrucha (TU-43). Nivel 10: el Eje cafetero, Colombia. La garrucha, la carrera contra La Patasola, la chiva,
-  // la palma de cera y las lianas
-  garrucha: {
-    carpeta: "10-garrucha",
-    escena: escenaGarrucha,
-    crearGuion: guionGarrucha,
-    // Amarrados no: el que jala la manija se queda en la finca mientras el otro cruza el cañón en la canasta (13 m)
     sinTrampas: ["mecate"],
   },
   // Las trenzas (TU-40): Antigua, Guatemala. El nudo, la mula, el balde de agua y el Sombrerón
@@ -136,6 +111,31 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaCafetal,
     crearGuion: guionCafetal,
     // Amarrados no: el que lanza los canastos y el que los atrapa quedan a más de 3 m, en terrazas distintas
+    sinTrampas: ["mecate"],
+  },
+  // Los canales (TU-42): nivel 9, Xochimilco. La trajinera, el agua de La Llorona, las chinampas y la piñata
+  canales: {
+    carpeta: "09-canales",
+    escena: escenaCanales,
+    crearGuion: guionCanales,
+    // Amarrados no: el que jala la soga de la piñata queda a más de 3 m de ella
+    sinTrampas: ["mecate"],
+  },
+  // La garrucha (TU-43). Nivel 10: el Eje cafetero, Colombia. La garrucha, la carrera contra La Patasola, la chiva,
+  // la palma de cera y las lianas
+  garrucha: {
+    carpeta: "10-garrucha",
+    escena: escenaGarrucha,
+    crearGuion: guionGarrucha,
+    // Amarrados no: el que jala la manija se queda en la finca mientras el otro cruza el cañón en la canasta (13 m)
+    sinTrampas: ["mecate"],
+  },
+  // El llano (TU-44): Los Llanos, Venezuela. El Silbón, el molino, el ganado, la hamaca y el saco
+  llano: {
+    carpeta: "11-llano",
+    escena: escenaLlano,
+    crearGuion: guionLlano,
+    // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
     sinTrampas: ["mecate"],
   },
 };
