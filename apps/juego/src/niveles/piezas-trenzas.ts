@@ -30,7 +30,7 @@ import { manosEn } from "./piezas-pinar";
 
 /** El bit de grupo de choque de lo suelto de Las trenzas (los cabos, la rienda, el balde): choca con todo menos con
  * los muñecos (bits 1 y 2). Las manos lo encuentran igual. */
-const BIT_TRENZAS = 1 << 8;
+const BIT_TRENZAS = 1 << 9;
 export const GRUPOS_TRENZAS = ((BIT_TRENZAS << 16) | (0xffff & ~0b110)) >>> 0;
 /** Grupos del resolvedor sin filtro: se lo encuentra (para agarrarlo) pero no empuja ni lo empujan. */
 const SIN_EMPUJAR = (BIT_TRENZAS << 16) >>> 0;

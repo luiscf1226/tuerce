@@ -368,6 +368,37 @@ desatarse), la mula, su rienda y sus bultos, el balde y su marcador (un metro m�
 (hundidas, apagadas), el Sombrerón (agachado mientras hace trenzas) y su sombrero: el invitado dibuja las trenzas del
 nudo, el agua del balde, el brillo de las piedras y al Sombrerón tocando o trenzando con los cuerpos tal como llegan.
 
+<!-- El cafetal (TU-41) -->
+
+## Las piezas del cafetal (TU-41)
+
+Las que estrena el nivel 8, El cafetal (`apps/juego/src/niveles/piezas-cafetal.ts` y `cipitio.ts`; su lectura, en
+`formato-cafetal.ts`). Como las otras, su malla no se dibuja. El canasto, el costal, el guineo, la llave y las piedras del
+Cipitío los atraviesan los muñecos pero los agarran igual (y pisan las piedras: el rayo de la suspensión las ve).
+
+| `pieza`   | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Propiedades                                                                                                                                                            |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `canasto` | Un canasto de corte lleno de café, del tamaño de la caja, quieto en su poste hasta que lo agarran. **Lanzar y atrapar** salen del agarre de siempre, sin ayuda: se lanza saltando y soltándolo en el aire (como la pelota de Xibalbá) y se atrapa con los brazos alzados (la mano que lo toca en el aire lo agarra). Sale a unos 2 m de alto y se atrapa a 3 o 3.5 m, con el que atrapa unos 60 cm más arriba que el que lanza. Suelto, en cuanto toca algo que no sea una mano se vacía y vuelve lleno a su poste: el guion mira dónde cayó.                                                                                                                                                                                                   | `masa` (1.5 kg)                                                                                                                                                        |
+| `zaranda` | La zaranda del café: una bandeja colgada del tamaño de la caja, con una manija a lo ancho en cada punta de su x. **Trabada** mientras no la agarren los dos (uno de cada manija); entre los dos se la mueve a lo largo de su x, `recorrido` hacia cada lado. Cada vez que pasa de una punta a la otra es un zarandeo; con `zarandeos`, la llave (un manojo, escondido entre el café) cae por detrás y queda colgando de un clavo, `llave` detrás de la caja, a la altura de las manos. Al agarrarla se descuelga; tirada, vuelve al clavo. Los muñecos la atraviesan (con los brazos alzados se agarra la bandeja).                                                                                                                             | `masa` (12 kg) · `recorrido` (0.35 m) · `zarandeos` (6) · `umbral` (0.7: qué parte del recorrido es llegar a la punta) · `llave` (0.3 m) · `vuelve` (4 s)              |
+| `polea`   | Una polea con torno: su caja es el armazón. La manija cuelga en la punta −x, a `manija` de la base (se salta para colgarse); el gancho, en la punta +x, a `gancho`. El que se cuelga de la manija la baja `recorrido` y el gancho sube `subir`; sin nadie, vuelven solos. El costal que alguien le acerca al gancho (con el gancho abajo) queda colgado.                                                                                                                                                                                                                                                                                                                                                                                        | `manija` (1.75 m) · `gancho` (1.25 m) · `recorrido` (0.5 m) · `subir` (2.8 m) · `bajada` (0.35 m/s) · `subida` (0.25 m/s)                                              |
+| `costal`  | Un costal de café del tamaño de la caja, quieto en su tarima hasta que lo agarran (4 kg: uno solo lo carga). Se cuelga del gancho de la polea. Tirado en el suelo, vuelve solo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `masa` (4 kg) · `vuelve` (3 s)                                                                                                                                         |
+| `guineo`  | Un guineo maduro colgado de su mata, quieto hasta que lo agarran. Tirado, vuelve solo; El Cipitío se come el que le queda a la mano.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | `masa` (0.3 kg) · `vuelve` (3 s)                                                                                                                                       |
+| `cipitio` | El Cipitío: un cipote barrigón con los pies al revés, sentado en el medio de la base de su caja, mirando hacia su frente. Al muñeco más cercano a menos de `vista` (de costado) que no le traiga un guineo le tira una piedra cada `cada` segundos, adelantándole lo que camina, `corto` antes (nunca más cerca de él que `cerca`), y se ríe. Las piedras (4 kg, 50 cm de alto, no giran) se quedan donde caen: la que cae a los pies de uno lo sube encima, y sirve de escalón. Con `empujon`, la piedra que pasa junto a un muñeco lo tumba. Con el morral vacío recoge la tirada más vieja de las que tiene a la vista. Un guineo suelto a menos de 1 m de su boca, se lo come: desde ahí está contento y no tira más. Cinemático, sin azar. | `vista` (6 m) · `cada` (1.8 s) · `piedras` (4) · `corto` (1 m) · `cerca` (1.2 m) · `empujon` (0 m/s: con más de 3.2 tumba) · `vuelo` (0.9 s: lo que vuela cada piedra) |
+
+```ts
+nivel.canasto("canasto-1").estado; // "en su lugar", "llevado" o "volando"; .lanzador, .atrapadas, .alAtrapar(j => {}), .alCaer((donde, atrapado) => {})
+nivel.zaranda("zaranda").trabada; // y .corrido (−1 a 1), .zarandeos, .llave (.suelta, .colgada, .agarrada, .encajada), .encajar(p), .soltarLlave()
+nivel.polea("polea").subida; // de 0 (abajo) a 1; .colgados, .costal, .descolgar()
+nivel.costal("costal-1").colgado; // y .agarrado, .enSuLugar, .ponerEn(p), .volver()
+nivel.guineo("guineo").comido; // y .agarrado, .enSuLugar, .volver()
+nivel.cipitio("cipitio").estado; // "sentado", "apuntando", "riendo", "comiendo" o "contento"; .tiradas, .pegadas, .riendo, .conPiedra, .mudarse(p, rumbo, punteria), .alComer(() => {})
+```
+
+En línea viajan en la foto los canastos, la bandeja de la zaranda y su llave, la manija y el gancho de la polea, los
+costales, el guineo, El Cipitío y sus piedras (las del morral, escondidas 40 m abajo). El invitado no corre el guion ni
+`antes`: ve al Cipitío reírse porque lo ve echado para atrás, alzar el brazo porque tiene una piedra en la mano y
+comer porque tiene el guineo en la boca, y dibuja las sogas de la zaranda y de la polea con los cuerpos como llegan.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -772,3 +803,39 @@ El patio (salida y un huacal de 8 kg) → un hueco de 2.5 m con un tablón angos
 punto 1 → una compuerta que el guion hunde al llegar al punto 1 → un escalón de 1.5 m para trepar colgándose (o de la
 mano del compañero) → punto 2 arriba → punto 3, la meta. El secreto está detrás de la meta, en la mata del rincón (da
 el peinado «Cresta»), y el logro, «Mudanza», es subir el huacal hasta arriba del escalón.
+
+<!-- El cafetal (TU-41) -->
+
+### `08-cafetal` (`?escena=nivel&nivel=cafetal`)
+
+El nivel 8 (TU-41): Izalco, El Salvador. Cafetales en la falda del volcán, patios de secado, un beneficio y El
+Cipitío, un cipote barrigón que tira piedritas y se ríe. Estrena lanzar y atrapar, el canasto y la zaranda. Lo arma
+`scripts/niveles/cafetal.mjs` (`pnpm niveles`). Va de oeste a este, subiendo por terrazas: el cafetal (y = 0), el patio
+de secado (1.4 m) y la terraza del beneficio (3.5 m). Mide 82 m (de −46 a 36): cabe en la foto de la red sin correrlo.
+Cada misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **Los canastos**, de a dos: uno, en el tapesco del cafetal (80 cm), agarra un canasto de su poste, retrocede un
+   paso, salta y lo suelta en el aire; el otro, parado en el patio a un metro del borde, lo atrapa con los brazos
+   alzados y lo vacía en el recibidero, a más de 6 m del borde (hasta ahí no llega uno tirado). Con tres vaciados
+   baja el portón del patio → punto 1. Solo no se puede: el patio (1.4 m) se trepa colgándose, con las dos manos, así
+   que con un canasto no; y el canasto que nadie atrapa cae en el patio y se riega (vuelve lleno a su poste).
+2. **Las piedras del Cipitío**: el muro de la terraza mide 2.1 m (se trepa hasta 1.65). El Cipitío, en la rama del palo
+   de jocote que sale por encima del muro, le tira piedras a los pies al que se acerca. El que lo espera al pie del muro
+   queda parado sobre la piedra (50 cm), y de ahí trepa → punto 2. El Cipitío se va riendo al portillo; la piedra se
+   queda para el otro.
+3. **La zaranda**, de a dos: colgada de la ramada; cada uno agarra una manija y la mueven para un lado y para el otro
+   (uno tira mientras el otro empuja). A los seis zarandeos la llave cae por detrás y queda colgando de un clavo; se pasa
+   por debajo de la zaranda con los brazos abajo y se la agarra. Llevada al candado, junto a la puerta del beneficio,
+   se encaja y la puerta baja → punto 3. Solo no se puede: con uno solo la zaranda está trabada.
+4. **La polea**: los dos costales (4 kg) en su tarima; se los cuelga del gancho de la polea (abajo, a la altura de las
+   manos) y, colgándose de la manija (se salta), el gancho sube 2.8 m y el costal se descarga en la troja (2.6 m, no se
+   trepa). Con los dos arriba se abre la puerta de atrás del beneficio → punto 4.
+5. **El guineo**: El Cipitío se sentó en el portillo de la tapia (2.4 m) y le tira piedrazos que tumban al que se acerca
+   (a menos de 6 m; le adelanta lo que camina, así que no se lo esquiva). Al que le trae el guineo de la mata de atrás
+   del beneficio no le tira: soltado delante de él, se lo come, se sube contento a la tapia y deja libre el portillo
+   → punto 5, la meta.
+
+El secreto, «el sombrero puntudo del Cipitío», está arriba de la piedra grande de detrás de la meta: dos gradas de
+1.4 m que se trepan colgándose (la zona `secreto`; da el sombrero «puntudo»). El logro, «Buen pulso», es atrapar diez
+canastos seguidos: la racha se corta cuando un canasto lanzado cae sin que nadie lo atrape (el que ya atraparon y
+después se suelta no la corta). De noche no va la trampa del mecate: el que lanza y el que atrapa quedan a más de 3 m.

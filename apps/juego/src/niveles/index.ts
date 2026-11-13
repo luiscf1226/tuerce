@@ -7,6 +7,8 @@ export type { Agua, Aguas } from "./agua";
 export { armarNivel, type NivelArmado, type Pieza } from "./armar";
 export type { Cadejo } from "./cadejo";
 export { cargarNivel, parsearGlb } from "./cargar";
+// El cafetal (TU-41)
+export type { Cipitio } from "./cipitio";
 export type { Duende } from "./duende";
 export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from "./formato";
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
@@ -17,6 +19,8 @@ export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel"
 // La garrucha (TU-43)
 export type { Patasola } from "./patasola";
 export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";
+// El cafetal (TU-41)
+export type { Canasto, Costal, Guineo, Polea, Zaranda } from "./piezas-cafetal";
 export type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 export type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";

@@ -295,6 +295,13 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     brasa: (nombre) => deJuego("brasa", nombre),
     sombreron: (nombre) => deJuego("sombreron", nombre),
     sombrerote: (nombre) => deJuego("sombrerote", nombre),
+    // El cafetal (TU-41)
+    canasto: (nombre) => deJuego("canasto", nombre),
+    zaranda: (nombre) => deJuego("zaranda", nombre),
+    polea: (nombre) => deJuego("polea", nombre),
+    costal: (nombre) => deJuego("costal", nombre),
+    guineo: (nombre) => deJuego("guineo", nombre),
+    cipitio: (nombre) => deJuego("cipitio", nombre),
     avance,
     premios,
     antes(entradas) {

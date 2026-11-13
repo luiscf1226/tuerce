@@ -21,6 +21,8 @@ import { GRAVEDAD, type Rapier } from "../motor/fisica";
 import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
+// El cafetal (TU-41)
+import { armarCipitio, type Cipitio } from "./cipitio";
 import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
 // Los canales (TU-42)
@@ -28,6 +30,19 @@ import { armarLlorona, type Llorona } from "./llorona";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
 // La garrucha (TU-43)
 import { armarPatasola, type Patasola } from "./patasola";
+// El cafetal (TU-41)
+import {
+  armarCanasto,
+  armarCostal,
+  armarGuineo,
+  armarPolea,
+  armarZaranda,
+  type Canasto,
+  type Costal,
+  type Guineo,
+  type Polea,
+  type Zaranda,
+} from "./piezas-cafetal";
 import {
   type Alfombra,
   armarAlfombra,
@@ -300,6 +315,13 @@ export interface PiezaPorTipo {
   brasa: Brasa;
   sombreron: Sombreron;
   sombrerote: Sombrerote;
+  // El cafetal (TU-41): piezas-cafetal.ts y cipitio.ts
+  canasto: Canasto;
+  zaranda: Zaranda;
+  polea: Polea;
+  costal: Costal;
+  guineo: Guineo;
+  cipitio: Cipitio;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -983,6 +1005,25 @@ export function armarPiezas(
         break;
       case "sombrerote":
         lista.push(armarSombrerote(herramientas, p));
+        break;
+      // El cafetal (TU-41)
+      case "canasto":
+        lista.push(armarCanasto(herramientas, p));
+        break;
+      case "zaranda":
+        lista.push(armarZaranda(herramientas, p));
+        break;
+      case "polea":
+        lista.push(armarPolea(herramientas, p));
+        break;
+      case "costal":
+        lista.push(armarCostal(herramientas, p));
+        break;
+      case "guineo":
+        lista.push(armarGuineo(herramientas, p));
+        break;
+      case "cipitio":
+        lista.push(armarCipitio(herramientas, p));
         break;
     }
   }

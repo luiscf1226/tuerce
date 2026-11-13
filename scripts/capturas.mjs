@@ -342,6 +342,25 @@ const TOMAS = [
   { archivo: "trenzas-5-sombreron", ruta: "/?escena=nivel&nivel=trenzas&punto=4&j1=&j2=&vista=38.7,2.3,0&congelar=60" },
   { archivo: "trenzas-5-meta", ruta: "/?escena=nivel&nivel=trenzas&punto=5&j1=&j2=&vista=38.2,2.5,0.8&congelar=60" },
   { archivo: "trenzas-secreto", ruta: "/?escena=nivel&nivel=trenzas&punto=5&j1=&j2=&vista=44.8,4.9,-2.1&congelar=30" },
+  // El cafetal (TU-41): el nivel 8, entero y en la salida; 1. el tapesco con los canastos y el patio de secado con el
+  // recibidero; 2. El Cipitío en la rama del palo de jocote, tirándole a la pareja recién llegada al patio, y la
+  // piedra que queda al pie del muro; 3. la zaranda colgada de la ramada y la puerta del beneficio; 4. la polea, los
+  // costales y la troja; 5. El Cipitío sentado en el portillo de la tapia, y contento arriba de la tapia. Y el sombrero
+  // puntudo del secreto, arriba de la piedra grande
+  { archivo: "cafetal-entero", ruta: "/?escena=nivel&nivel=cafetal&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "cafetal-salida", ruta: "/?escena=nivel&nivel=cafetal&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "cafetal-1-canastos", ruta: "/?escena=nivel&nivel=cafetal&j1=&j2=&vista=-28.5,1.6,-0.6&congelar=60" },
+  { archivo: "cafetal-1-patio", ruta: "/?escena=nivel&nivel=cafetal&j1=&j2=&vista=-22,1.6,-1&congelar=60" },
+  {
+    archivo: "cafetal-2-cipitio",
+    ruta: "/?escena=nivel&nivel=cafetal&punto=1&j1=&j2=&vista=-12.9,4.3,-1.5&congelar=50",
+  },
+  { archivo: "cafetal-2-piedra", ruta: "/?escena=nivel&nivel=cafetal&punto=1&j1=&j2=&vista=-14,2.2,0&congelar=240" },
+  { archivo: "cafetal-3-zaranda", ruta: "/?escena=nivel&nivel=cafetal&punto=2&j1=&j2=&vista=-4.5,4.6,0&congelar=60" },
+  { archivo: "cafetal-4-polea", ruta: "/?escena=nivel&nivel=cafetal&punto=3&j1=&j2=&vista=7,5.2,-0.6&congelar=60" },
+  { archivo: "cafetal-5-portillo", ruta: "/?escena=nivel&nivel=cafetal&punto=4&j1=&j2=&vista=26,4.2,0&congelar=60" },
+  { archivo: "cafetal-5-contento", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=27,5.4,-1&congelar=60" },
+  { archivo: "cafetal-secreto", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=35,6.4,-2.4&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

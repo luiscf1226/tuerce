@@ -17,6 +17,9 @@ import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
 // Las trenzas (TU-40)
 import escenaTrenzas from "../../../../niveles/07-trenzas/escena.glb?url";
 import { crearGuion as guionTrenzas } from "../../../../niveles/07-trenzas/guion";
+// El cafetal (TU-41)
+import escenaCafetal from "../../../../niveles/08-cafetal/escena.glb?url";
+import { crearGuion as guionCafetal } from "../../../../niveles/08-cafetal/guion";
 // Los canales (TU-42)
 import escenaCanales from "../../../../niveles/09-canales/escena.glb?url";
 import { crearGuion as guionCanales } from "../../../../niveles/09-canales/guion";
@@ -124,6 +127,15 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaTrenzas,
     crearGuion: guionTrenzas,
     // Amarrados no: los cabos del nudo quedan a 4 m, y en la fuente uno se queda de cada lado del pretil
+    sinTrampas: ["mecate"],
+  },
+  // El cafetal (TU-41)
+  // Nivel 8: Izalco, El Salvador. Los canastos, la zaranda, la polea y El Cipitío
+  cafetal: {
+    carpeta: "08-cafetal",
+    escena: escenaCafetal,
+    crearGuion: guionCafetal,
+    // Amarrados no: el que lanza los canastos y el que los atrapa quedan a más de 3 m, en terrazas distintas
     sinTrampas: ["mecate"],
   },
 };
