@@ -419,7 +419,10 @@ export function armarCipitio(h: Herramientas, p: Extract<PiezaDelCafetalEnPlano,
   const arribaDelCuerpo = new THREE.Vector3();
   const manoAhora = new THREE.Vector3();
   const bocaAhora = new THREE.Vector3();
+  /** Los pasos que vio pasar, también el invitado (que no corre `antes`): con eso se mueve la boca. */
+  let vistos = 0;
   h.guardar(() => {
+    vistos++;
     const q = cuerpo.rotation();
     arribaDelCuerpo.copy(ARRIBA).applyQuaternion(new THREE.Quaternion(q.x, q.y, q.z, q.w));
     riendo = Math.acos(limitar(arribaDelCuerpo.y, -1, 1)) > a.risaVisible;
@@ -445,7 +448,7 @@ export function armarCipitio(h: Herramientas, p: Extract<PiezaDelCafetalEnPlano,
   let alzado = 0;
   h.dibujar(() => {
     alzado += (brazo - alzado) * 0.25;
-    imagen.posar(alzado, riendo, masticando, pasos * PASO);
+    imagen.posar(alzado, riendo, masticando, vistos * PASO);
   });
 
   const cipitio: Cipitio = {

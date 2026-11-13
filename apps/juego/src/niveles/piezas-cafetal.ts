@@ -42,6 +42,11 @@ const limitar = (x: number, min: number, max: number) => Math.min(max, Math.max(
 
 /** Los números de las piezas del cafetal que no se ponen desde Blender. */
 export const AJUSTES_CAFETAL = {
+  canasto: {
+    /** Para que cuente como atrapado, lo que tiene que haber volado desde que lo soltaron (m): pasarlo de mano en mano
+     * no es atraparlo. Del tapesco al patio vuela más de 2 m. */
+    vueloMinimo: 1.2,
+  },
   zaranda: {
     /** Trabada, el resorte que la tiene donde quedó (N/m) y su amortiguación (N·s/m). Suelta, solo el roce. */
     trabada: { rigidez: 6000, amortiguacion: 600 },
@@ -151,6 +156,9 @@ export function armarCanasto(h: Herramientas, p: Plano<"canasto">): Canasto {
 
   let estado: EstadoCanasto = "en su lugar";
   let lanzador: 0 | 1 | null = null;
+  /** Dónde lo soltaron la última vez. */
+  const soltadoEn = new THREE.Vector3();
+  const a = AJUSTES_CAFETAL.canasto;
   /** Quién lo tenía solo, la última vez que lo tuvo uno solo. */
   let ultimo: 0 | 1 | null = null;
   let atrapadas = 0;
@@ -175,7 +183,10 @@ export function armarCanasto(h: Herramientas, p: Plano<"canasto">): Canasto {
     if (quienes.length > 0) {
       // Atrapado: lo agarra en el aire uno que no es el que lo soltó
       const [solo] = quienes;
-      if (estado === "volando" && solo !== undefined && quienes.length === 1 && solo !== lanzador) {
+      // y que voló de verdad: pasarlo de mano en mano no cuenta
+      const t = cuerpo.translation();
+      const voló = Math.hypot(t.x - soltadoEn.x, t.y - soltadoEn.y, t.z - soltadoEn.z) > a.vueloMinimo;
+      if (estado === "volando" && solo !== undefined && quienes.length === 1 && solo !== lanzador && voló) {
         atrapadas++;
         atrapado = true;
         for (const aviso of avisosAtrapar) aviso(solo);
@@ -187,6 +198,7 @@ export function armarCanasto(h: Herramientas, p: Plano<"canasto">): Canasto {
     if (estado === "llevado") {
       estado = "volando";
       lanzador = ultimo;
+      soltadoEn.copy(cuerpo.translation());
     }
     if (estado !== "volando") return;
     // Suelto: en cuanto toca algo (los muñecos no cuentan: lo atraviesan) se vacía y vuelve

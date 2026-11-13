@@ -274,7 +274,12 @@ export function armarSilbon(h: Herramientas, p: Extract<PiezaDelLlanoEnPlano, { 
   });
   const ondas = crearOndas(h.escena);
   let audio: AudioDelSilbido | null = null;
+  /** Cuántos cuadros seguidos se dibujaron sin un paso nuevo: en pausa el silbido se calla en vez de quedar fijo. */
+  let sinPasos = 0;
+  let pasosDibujados = 0;
   h.dibujar(() => {
+    sinPasos = pasos === pasosDibujados ? sinPasos + 1 : 0;
+    pasosDibujados = pasos;
     const t = pasos * PASO;
     imagen.posar(andado / a.zancada, brio, t);
     const lo = oirAhora();
@@ -285,7 +290,7 @@ export function armarSilbon(h: Herramientas, p: Extract<PiezaDelLlanoEnPlano, { 
     );
     if (oyentes.length > 0) {
       audio ??= crearAudioDelSilbido(oyentes.length);
-      audio.poner(t, lo);
+      audio.poner(t, sinPasos > 12 ? [] : lo);
     }
   });
 

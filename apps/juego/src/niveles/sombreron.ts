@@ -19,6 +19,7 @@ import { PASO } from "../motor/bucle";
 import type { Muneco } from "../muneco";
 import type { PiezaDeLasTrenzasEnPlano } from "./formato-trenzas";
 import type { Herramientas } from "./piezas";
+import { manosEn } from "./piezas-pinar";
 import { puntosDeTrenza, type Sombrerote } from "./piezas-trenzas";
 
 export type EstadoSombreron = "en casa" | "persiguiendo" | "trenzando" | "tocando" | "al sombrero" | "con sombrero";
@@ -147,9 +148,11 @@ export function armarSombreron(
   };
 
   /** Su sombrero, si anda suelto adentro de la plaza. */
-  const sombreroSuelto = (): Sombrerote | null => {
+  const sombreroSuelto = (munecos: readonly Muneco[]): Sombrerote | null => {
     for (const pieza of h.lista) {
       if (pieza.cual !== "sombrerote" || pieza.puesto) continue;
+      // Mientras alguien lo tiene agarrado no se lo pone: el muñeco quedaría colgado de su cabeza
+      if (munecos.some((m) => manosEn(m, pieza.cuerpo) > 0)) continue;
       if (adentro(pieza.cuerpo.translation(), 3)) return pieza;
     }
     return null;
@@ -235,7 +238,7 @@ export function armarSombreron(
       quedarse();
       if (espera <= 0) estado = "en casa";
     } else {
-      const suyo = sombreroSuelto();
+      const suyo = sombreroSuelto(munecos);
       const muneco = suyo ? null : presa(munecos);
       if (suyo) {
         const t = suyo.cuerpo.translation();

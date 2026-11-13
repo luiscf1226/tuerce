@@ -22,6 +22,12 @@ const SUAVE = { volumen: 0.04, nota: 0.025, paneo: 0.1 };
 
 const NADA: AudioDelSilbido = { poner() {}, cerrar() {} };
 
+/** En línea cada máquina oye solo a su jugador (0 el rojo, 1 el turquesa); en el mismo lugar, `null`: los dos. */
+let soloOye: 0 | 1 | null = null;
+export function oirSolo(jugador: 0 | 1 | null): void {
+  soloOye = jugador;
+}
+
 /** El audio del silbido, si hay Web Audio; si no, uno que no hace nada. */
 export function crearAudioDelSilbido(voces = 2): AudioDelSilbido {
   const Contexto = typeof window === "undefined" ? undefined : window.AudioContext;
@@ -62,7 +68,7 @@ export function crearAudioDelSilbido(voces = 2): AudioDelSilbido {
       // Cada nota entra y sale suave, como el aire de un silbido
       const soplo = nota ? Math.sin(Math.PI * Math.min(1, nota.dentro * 1.15)) : 0;
       for (const [i, s] of salidas.entries()) {
-        const v = lista[i];
+        const v = soloOye === null || soloOye === i ? lista[i] : undefined;
         const fuerza = v ? v.volumen * soplo * FUERTE : 0;
         s.volumen.gain.setTargetAtTime(fuerza, ahora, SUAVE.volumen);
         if (nota) s.silbido.frequency.setTargetAtTime(nota.frecuencia, ahora, SUAVE.nota);

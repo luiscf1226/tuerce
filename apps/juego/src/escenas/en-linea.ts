@@ -40,6 +40,7 @@ import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import { formatearTiempo } from "../niveles/contrarreloj";
 import { type Noche, numeroDeTrampa, trampaDeNumero } from "../niveles/noche";
+import { oirSolo } from "../niveles/silbido-audio";
 import { type Conexion, conectar, type EstadoRed, type Rol } from "../red";
 import { type Guardado, guardarAvance, retomarAvance } from "../red/avance";
 import { sincronizarPremios } from "../red/premios";
@@ -172,6 +173,8 @@ export function crearEscenaEnLinea(
       .then((entrada) => {
         if (!entrada) return;
         const { conexion, guardado, carrera, cuenta } = entrada;
+        // El silbido del Silbón (TU-44): cada uno oye solo lo que le toca a su muñeco
+        oirSolo(conexion.rol === "anfitrion" ? 0 : 1);
         const meta = avance?.meta ?? 0;
         sincronia = crearSincronia({
           rol: conexion.rol,

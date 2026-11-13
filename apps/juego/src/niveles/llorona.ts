@@ -122,7 +122,8 @@ export function armarLlorona(h: Herramientas, p: Extract<PiezaDeLosCanalesEnPlan
       const ahora = m.estado;
       const venia = antes[i];
       antes[i] = ahora;
-      if (ahora !== "caido" || venia === "caido" || estado === "tranquila") return;
+      // Ya calmada (o riéndose la última carcajada) no cuenta más risas
+      if (ahora !== "caido" || venia === "caido" || estado === "tranquila" || risas >= p.risas) return;
       const q = m.partes.pelvis.translation();
       const d = new THREE.Vector3(q.x - pie.x, 0, q.z - pie.z);
       if (d.length() > p.publico || d.dot(frente) <= 0) return;

@@ -149,6 +149,7 @@ export function crearGuion(): GuionDeNivel {
         abrir(nivel, "puerta-beneficio", true);
       }
       if (n >= 4) {
+        nivel.polea("polea").descolgar();
         for (const [i, lugar] of TROJA.lugares.entries()) nivel.costal(`costal-${i + 1}`).ponerEn(lugar);
         enLaTroja = TROJA.lugares.length;
         abrir(nivel, "puerta-troja", true);
