@@ -910,3 +910,73 @@ mano del compañero) → punto 2 arriba → punto 3, la meta. El secreto está d
 el peinado «Cresta»), y el logro, «Mudanza», es subir el huacal hasta arriba del escalón.
 
 <!-- El cafetal (TU-41) -->
+
+<!-- La mina (TU-46) -->
+
+## Las piezas de la mina (TU-46)
+
+Las que estrena el nivel 13, La mina (`apps/juego/src/niveles/piezas-mina.ts` y `tio.ts`; su lectura, en
+`formato-mina.ts`; lo que solo se ve, en `decorado-mina.ts`). Como las otras, su malla no se dibuja. La polea es la de
+El cafetal; la vía y su cambio, los del tren (`mecanismos/via.ts`, con una `palanca` de cambio).
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Propiedades                                                                                                                                             |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vagoneta` | Una vagoneta de mina del tamaño de la caja (las ruedas abajo), mirando hacia su +x. Va por su vía (el guion se la da con `seguir`, con su cambio; si no, derecho hacia su +x). Se empuja caminando contra ella: en cada paso la pieza la vuelve a poner sobre los rieles y le deja solo la velocidad a lo largo; la cuesta la apura o la frena, y los rieles la frenan. Choca solo con los muñecos (pasa por el piso y las paredes, que la vía esquiva). Lleva al que va adentro. | `masa` (40 kg) · `roce` (2 por s: con mucho, se para apenas la sueltan) · `velocidad` (2 m/s) · `ruedas` (0.3 m) · `recorrido` (10 m, sin otra vía)     |
+| `espejo`   | Un espejo de dos caras del tamaño de la caja (de ancho su x, de alto su y) sobre un poste que baja `poste` hasta el piso. Gira sobre el poste con un brazo hacia su frente, a `manija` del piso, que se empuja caminando de costado. Un resorte lo vuelve al reposo: queda **orientado** (en su tope, `giro` desde el reposo) solo mientras alguien lo sostiene.                                                                                                                  | `giro` (35°, a la izquierda visto desde arriba) · `umbral` (0.9) · `fuerza` (15 N) · `brazo` (0.9 m) · `manija` (1 m) · `poste` (1.5 m) · `masa` (6 kg) |
+| `grieta`   | La grieta por donde entra el sol: un haz claro que sale del centro de la caja hacia su frente (el −Y de Blender), rebota en los espejos que encuentra y lo para lo fijo y lo cinemático. Sin color nuevo: la luz es blanca, como los ojos.                                                                                                                                                                                                                                        | `largo` (20 m por tramo) · `rebotes` (4)                                                                                                                |
+| `ofrenda`  | La ofrenda para El Tío (un atado de coca, un cigarro y un trago), quieta en su lugar hasta que la agarran; tirada, vuelve sola. Si pasa a menos de su radio de una vela (llevada o tirada) es un susto: ¡pum!, humo, vuelve a su lugar y el que la llevaba aparece frente a ella, para retomar. Nadie explota de verdad.                                                                                                                                                          | `masa` (0.6 kg) · `vuelve` (3 s)                                                                                                                        |
+| `velas`    | Una hilera de velas paradas en la base de la caja, a lo largo de su lado más largo, cada una con su llama y la luz que hace en el suelo (lo que no hay que pisar). Solo imagen: no chocan.                                                                                                                                                                                                                                                                                        | `cuantas` (4) · `radio` (0.45 m)                                                                                                                        |
+| `tio`      | El Tío de la mina, un diablito con cuernos sentado en su altar en el medio de la base de su caja, mirando hacia su frente. Mira al muñeco más cercano y estira la mano. La ofrenda suelta (lo que tiene una mano encima no está suelto) a menos de `alcance` de su mano se la queda: la lleva al regazo y fuma contento. Cinemático y sin azar; choca, pero no empuja.                                                                                                            | `vista` (5 m) · `alcance` (0.9 m)                                                                                                                       |
+
+```ts
+nivel.vagoneta("vagoneta").seguir(via, () => cambio.activa); // .avance, .velocidad, .porElDesvio, .enElTope, .montados, .poner(s), .frenar(si)
+nivel.espejo("espejo-1").orientado; // y .recorrido, de 0 (reposo) a 1 (tope), .alCambiar((orientado) => {})
+nivel.grieta("grieta").alumbra(punto, radio); // y .camino (el haz, tramo a tramo) y .espejos (en los que rebota)
+nivel.ofrenda("ofrenda").alAsustar((llevaban) => {}); // y .sustos, .agarrado, .entregada, .volver()
+nivel.velas("velas-1").cerca(punto); // y .puntos (la base de cada vela)
+nivel.tio("tio").estado; // "esperando", "recibiendo" o "contento"; .contento, .mira, .mano(), .recibir(ofrenda), .alRecibir(() => {})
+```
+
+En línea viajan en la foto las vagonetas, los marcos de los espejos, la ofrenda y El Tío. El invitado no corre el guion
+ni las piezas: el haz lo traza con los espejos tal como llegan (pregunta a cada colisionador, porque las consultas del
+mundo se arman al correr pasos), ve al Tío contento porque ve la ofrenda en su regazo, hace tiritar las velas, hace
+girar las ruedas con lo que anduvo cada vagoneta y echa el humo del susto cuando ve la ofrenda saltar a su lugar.
+
+La mina (TU-46): `scripts/niveles/mina.mjs` arma `13-mina`, también con `pnpm niveles`.
+
+### `13-mina` (`?escena=nivel&nivel=mina`)
+
+El nivel 13 (TU-46): La mina, en Potosí (Bolivia). Túneles con vigas en el Cerro Rico, vagonetas, un pozo con su jaula,
+la galería del Tío (un diablito que quiere su ofrenda) y, al salir, el salar blanco que refleja el cielo. Los túneles
+son oscuros, pero siguen siendo siluetas sobre niebla clara: la única luz es blanca (las lámparas, las velas y el haz
+del sol). Estrena la vagoneta, la polea (la de El cafetal, para la jaula) y los espejos. Lo arma
+`scripts/niveles/mina.mjs` (`pnpm niveles`). Va de oeste a este: la galería de abajo (y = 0), la de arriba (2.2 m) y
+el salar (−3.4), cuesta abajo. Mide 104 m (de −52 a 52): cabe en la foto de la red sin correrlo. Cada misión termina
+en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **La vagoneta**, de a dos: la vía sigue derecho hasta un derrumbe y el cambio la manda por un desvío a la báscula
+   de la reja. Uno empuja la vagoneta caminando detrás de ella; el otro sostiene la palanca del cambio (vuelve sola al
+   soltarla), contra la pared del fondo. La vagoneta que llega a la báscula sube la reja → punto 1. Solo no se puede:
+   la palanca queda a más de 4 m de donde se empuja cuando la vagoneta pasa el cambio, y suelta, la vagoneta se para
+   enseguida. Derecho, se queda en el derrumbe y a los 3 s vuelve sola a su lugar.
+2. **El pozo**: la galería de arriba está a 2.2 m (no se trepa). La jaula sube con el gancho de dos poleas: uno se
+   cuelga de la manija de abajo (se salta) y el otro sube en la jaula → punto 2. Vacía, la jaula baja sola; el de
+   arriba se cuelga de la manija de arriba y sube al otro. Desde la jaula no se alcanza la manija de abajo.
+3. **La ofrenda del Tío**: la ofrenda está en su repisa. Hay que llevársela al Tío entre tres hileras de velas, en
+   zigzag: si pasa por una vela, ¡pum! (un susto: humo, la ofrenda vuelve a la repisa y el que la llevaba aparece
+   frente a ella). El Tío no se queda con la que alguien tiene en la mano: hay que dejársela suelta al alcance; se
+   pone contento, fuma y abre su puerta → punto 3.
+4. **Los espejos del salar**, de a dos: el sol entra por una grieta del fondo. Cada uno empuja el brazo de un espejo
+   hasta su tope y lo sostiene: el primero manda el haz hacia el segundo, y el segundo de vuelta al sol de piedra del
+   fondo, que sube la puerta de luz → punto 4. Solo no se puede: cada espejo vuelve al reposo al soltarlo, y el primero
+   solo no llega nunca al sol (queda al oeste de él).
+5. **La salida**: la vagoneta espera en la boca de la mina, con el freno puesto y el borde a ras del piso. Al meterse
+   los dos (o uno solo, a los 2 s) se suelta el freno y baja la cuesta por un puente de rieles sobre el barranco hasta
+   el salar → punto 5, la meta. Si queda abajo vacía sin que lleguen, vuelve sola a la boca.
+
+El secreto, «una pepita de plata en la galería vieja», está en una repisa de 1.4 m al fondo, entre la reja y el pozo
+(se trepa colgándose; la zona `secreto`, da la máscara del diablito). El logro, «Sin chispas», es salir de la mina sin
+explotar: llegar a la meta sin que la ofrenda pase nunca por las velas. Retomando un avance de después de la ofrenda no
+se gana (no se sabe si explotaron). Los bordes invisibles del lado de la cámara solo atajan a los muñecos, como en La
+garrucha. De noche no va la trampa del mecate: el que sostiene el cambio queda lejos de la vagoneta, uno sube en la
+jaula mientras el otro se cuelga abajo y los espejos están a 6 m.
