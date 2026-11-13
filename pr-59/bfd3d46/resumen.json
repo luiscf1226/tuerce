@@ -1,0 +1,696 @@
+{
+  "base": "http://127.0.0.1:4173",
+  "tomas": [
+    {
+      "archivo": "prueba-inicio",
+      "ruta": "/?escena=prueba&congelar=1",
+      "imagen": "prueba-inicio.png"
+    },
+    {
+      "archivo": "prueba-cajas-en-el-suelo",
+      "ruta": "/?escena=prueba&congelar=240",
+      "imagen": "prueba-cajas-en-el-suelo.png"
+    },
+    {
+      "archivo": "muneco-de-pie",
+      "ruta": "/?escena=muneco&congelar=240",
+      "imagen": "muneco-de-pie.png"
+    },
+    {
+      "archivo": "muneco-caminando",
+      "ruta": "/?escena=muneco&andar=1&congelar=110",
+      "imagen": "muneco-caminando.png"
+    },
+    {
+      "archivo": "muneco-girando",
+      "ruta": "/?escena=muneco&andar=0.7&girar=0.6&congelar=200",
+      "imagen": "muneco-girando.png"
+    },
+    {
+      "archivo": "pinar",
+      "ruta": "/?escena=pinar&congelar=1",
+      "imagen": "pinar.png"
+    },
+    {
+      "archivo": "pinar-caminando",
+      "ruta": "/?escena=pinar&andar=1&congelar=150",
+      "imagen": "pinar-caminando.png"
+    },
+    {
+      "archivo": "pinar-niebla-corrida",
+      "ruta": "/?escena=pinar&congelar=600",
+      "imagen": "pinar-niebla-corrida.png"
+    },
+    {
+      "archivo": "agarre-salto",
+      "ruta": "/?escena=agarre&salida=claro&saltar=30&congelar=48",
+      "imagen": "agarre-salto.png"
+    },
+    {
+      "archivo": "agarre-caido",
+      "ruta": "/?escena=agarre&salida=borde&andar=1&saltar=22&congelar=240",
+      "imagen": "agarre-caido.png"
+    },
+    {
+      "archivo": "agarre-caja",
+      "ruta": "/?escena=agarre&brazos=d&andar=-1&esperar=40&congelar=110",
+      "imagen": "agarre-caja.png"
+    },
+    {
+      "archivo": "agarre-colgado",
+      "ruta": "/?escena=agarre&salida=rama&brazos=id&saltar=40&congelar=150",
+      "imagen": "agarre-colgado.png"
+    },
+    {
+      "archivo": "agarre-trepando",
+      "ruta": "/?escena=agarre&salida=pared&brazos=id&saltar=20&andar=1&esperar=50&congelar=62",
+      "imagen": "agarre-trepando.png"
+    },
+    {
+      "archivo": "agarre-arriba",
+      "ruta": "/?escena=agarre&salida=pared&brazos=id&saltar=20&andar=1&esperar=50&congelar=112",
+      "imagen": "agarre-arriba.png"
+    },
+    {
+      "archivo": "dos-de-pie",
+      "ruta": "/?escena=dos&j1=&j2=&ayuda&congelar=60",
+      "imagen": "dos-de-pie.png"
+    },
+    {
+      "archivo": "dos-caminando",
+      "ruta": "/?escena=dos&j1=andar:1&j2=andar:0.8&congelar=150",
+      "imagen": "dos-caminando.png"
+    },
+    {
+      "archivo": "dos-saltando",
+      "ruta": "/?escena=dos&j1=saltar@30&j2=saltar@36&congelar=48",
+      "imagen": "dos-saltando.png"
+    },
+    {
+      "archivo": "dos-agarrando",
+      "ruta": "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=150",
+      "imagen": "dos-agarrando.png"
+    },
+    {
+      "archivo": "dos-cargando",
+      "ruta": "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=210",
+      "imagen": "dos-cargando.png"
+    },
+    {
+      "archivo": "mano-llevando",
+      "ruta": "/?escena=mano&llevar&congelar=150",
+      "imagen": "mano-llevando.png"
+    },
+    {
+      "archivo": "dos-separandose",
+      "ruta": "/?escena=dos&j1=andar:1,girar:-0.1&j2=andar:1,girar:0.1&congelar=240",
+      "imagen": "dos-separandose.png"
+    },
+    {
+      "archivo": "dos-pantalla-partida",
+      "ruta": "/?escena=dos&j1=andar:1,girar:-0.3&j2=andar:-1,girar:-0.3&congelar=300",
+      "imagen": "dos-pantalla-partida.png"
+    },
+    {
+      "archivo": "dos-menu",
+      "ruta": "/?escena=dos&j1=&j2=&menu&congelar=60",
+      "imagen": "dos-menu.png"
+    },
+    {
+      "archivo": "dos-senalando",
+      "ruta": "/?escena=dos&j1=senalar,girar:-0.3&j2=senalar,girar:0.3&congelar=90",
+      "imagen": "dos-senalando.png"
+    },
+    {
+      "archivo": "dos-festejando",
+      "ruta": "/?escena=dos&j1=gesto:encoger&j2=gesto:festejar&congelar=80",
+      "imagen": "dos-festejando.png"
+    },
+    {
+      "archivo": "nivel-entero",
+      "ruta": "/?escena=nivel&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "nivel-entero.png"
+    },
+    {
+      "archivo": "nivel-salida",
+      "ruta": "/?escena=nivel&j1=&j2=&congelar=60",
+      "imagen": "nivel-salida.png"
+    },
+    {
+      "archivo": "nivel-cayendo",
+      "ruta": "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=268",
+      "imagen": "nivel-cayendo.png"
+    },
+    {
+      "archivo": "nivel-reaparece",
+      "ruta": "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=330",
+      "imagen": "nivel-reaparece.png"
+    },
+    {
+      "archivo": "nivel-compuerta",
+      "ruta": "/?escena=nivel&punto=1&j1=andar:1&j2=andar:1&congelar=150",
+      "imagen": "nivel-compuerta.png"
+    },
+    {
+      "archivo": "contrarreloj-corriendo",
+      "ruta": "/?escena=nivel&contrarreloj&j1=andar:1&j2=andar:1&congelar=150",
+      "imagen": "contrarreloj-corriendo.png"
+    },
+    {
+      "archivo": "contrarreloj-llegada",
+      "ruta": "/?escena=nivel&contrarreloj&punto=2&j1=andar:1&j2=andar:1&congelar=215",
+      "imagen": "contrarreloj-llegada.png"
+    },
+    {
+      "archivo": "contrarreloj-tabla",
+      "ruta": "/?escena=tabla&nivel=prueba&ejemplo",
+      "imagen": "contrarreloj-tabla.png"
+    },
+    {
+      "archivo": "ropero",
+      "ruta": "/?escena=ropero&congelar=60",
+      "imagen": "ropero.png"
+    },
+    {
+      "archivo": "ropero-cuenta",
+      "ruta": "/?escena=ropero&ejemplo&congelar=60",
+      "imagen": "ropero-cuenta.png"
+    },
+    {
+      "archivo": "ropero-vitrina-1",
+      "ruta": "/?escena=ropero&vitrina=1&congelar=60",
+      "imagen": "ropero-vitrina-1.png"
+    },
+    {
+      "archivo": "ropero-vitrina-2",
+      "ruta": "/?escena=ropero&vitrina=2&congelar=60",
+      "imagen": "ropero-vitrina-2.png"
+    },
+    {
+      "archivo": "nivel-con-prendas",
+      "ruta": "/?escena=nivel&j1=&j2=&ropa1=sombrero:puntudo,mascara:diablito,panuelo:capa&ropa2=peinado:colitas,mascara:guacamaya,panuelo:lazo&congelar=60",
+      "imagen": "nivel-con-prendas.png"
+    },
+    {
+      "archivo": "nivel-secreto",
+      "ruta": "/?escena=nivel&punto=2&j1=andar:0.5&j2=andar:1,girar:0.06&congelar=252",
+      "imagen": "nivel-secreto.png"
+    },
+    {
+      "archivo": "piezas-entero",
+      "ruta": "/?escena=nivel&nivel=piezas&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "piezas-entero.png"
+    },
+    {
+      "archivo": "piezas-salida",
+      "ruta": "/?escena=nivel&nivel=piezas&j1=&j2=&congelar=60",
+      "imagen": "piezas-salida.png"
+    },
+    {
+      "archivo": "piezas-plancha",
+      "ruta": "/?escena=nivel&nivel=piezas&j1=andar:1&j2=&congelar=230",
+      "imagen": "piezas-plancha.png"
+    },
+    {
+      "archivo": "piezas-palanca",
+      "ruta": "/?escena=nivel&nivel=piezas&punto=1&j1=andar:1&j2=andar:1,izq@15,der@15&congelar=175",
+      "imagen": "piezas-palanca.png"
+    },
+    {
+      "archivo": "piezas-bejuco",
+      "ruta": "/?escena=nivel&nivel=piezas&punto=2&j1=andar:1,izq@15,der@15&j2=&congelar=110",
+      "imagen": "piezas-bejuco.png"
+    },
+    {
+      "archivo": "piezas-balancin",
+      "ruta": "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=170",
+      "imagen": "piezas-balancin.png"
+    },
+    {
+      "archivo": "piezas-balancin-volcado",
+      "ruta": "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=230",
+      "imagen": "piezas-balancin-volcado.png"
+    },
+    {
+      "archivo": "patio-entero",
+      "ruta": "/?escena=nivel&nivel=patio&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "patio-entero.png"
+    },
+    {
+      "archivo": "patio-1-despiertan",
+      "ruta": "/?escena=nivel&nivel=patio&j1=&j2=&congelar=100",
+      "imagen": "patio-1-despiertan.png"
+    },
+    {
+      "archivo": "patio-1-levantados",
+      "ruta": "/?escena=nivel&nivel=patio&j1=&j2=&congelar=260",
+      "imagen": "patio-1-levantados.png"
+    },
+    {
+      "archivo": "patio-2-porton",
+      "ruta": "/?escena=nivel&nivel=patio&punto=1&j1=andar:0.8,izq@15,der@15&j2=andar:1&congelar=115",
+      "imagen": "patio-2-porton.png"
+    },
+    {
+      "archivo": "patio-3-escalera",
+      "ruta": "/?escena=nivel&nivel=patio&punto=2&j1=andar:0.6,izq@15,der@15&j2=andar:0.6,izq@15,der@15&congelar=200",
+      "imagen": "patio-3-escalera.png"
+    },
+    {
+      "archivo": "patio-3-apoyada",
+      "ruta": "/?escena=nivel&nivel=patio&punto=2&j1=andar:0.6,izq@15,der@15&j2=andar:0.6,izq@15,der@15&congelar=440",
+      "imagen": "patio-3-apoyada.png"
+    },
+    {
+      "archivo": "patio-4-lamina",
+      "ruta": "/?escena=nivel&nivel=patio&punto=3&j1=andar:1&j2=andar:1&congelar=170",
+      "imagen": "patio-4-lamina.png"
+    },
+    {
+      "archivo": "patio-5-camion",
+      "ruta": "/?escena=nivel&nivel=patio&punto=4&j1=andar:1&j2=&congelar=95",
+      "imagen": "patio-5-camion.png"
+    },
+    {
+      "archivo": "patio-5-meta",
+      "ruta": "/?escena=nivel&nivel=patio&punto=4&j1=andar:1&j2=&congelar=170",
+      "imagen": "patio-5-meta.png"
+    },
+    {
+      "archivo": "patio-secreto",
+      "ruta": "/?escena=nivel&nivel=patio&punto=2&j1=&j2=andar:1,girar:0.1&congelar=150",
+      "imagen": "patio-secreto.png"
+    },
+    {
+      "archivo": "pinar-entero",
+      "ruta": "/?escena=nivel&nivel=pinar&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "pinar-entero.png"
+    },
+    {
+      "archivo": "pinar-salida",
+      "ruta": "/?escena=nivel&nivel=pinar&j1=&j2=&congelar=60",
+      "imagen": "pinar-salida.png"
+    },
+    {
+      "archivo": "pinar-1-cerco",
+      "ruta": "/?escena=nivel&nivel=pinar&j1=andar:1&j2=andar:1&congelar=230",
+      "imagen": "pinar-1-cerco.png"
+    },
+    {
+      "archivo": "pinar-2-balancin",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=1&j1=&j2=andar:1&congelar=260",
+      "imagen": "pinar-2-balancin.png"
+    },
+    {
+      "archivo": "pinar-2-volcado",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=1&j1=&j2=andar:1&congelar=395",
+      "imagen": "pinar-2-volcado.png"
+    },
+    {
+      "archivo": "pinar-3-bejuco",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=2&j1=andar:1,izq@15,der@15&j2=&congelar=250",
+      "imagen": "pinar-3-bejuco.png"
+    },
+    {
+      "archivo": "pinar-4-tronco",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=3&j1=andar:1,der@15&j2=andar:1&congelar=100",
+      "imagen": "pinar-4-tronco.png"
+    },
+    {
+      "archivo": "pinar-5-cadejo",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=4&j1=&j2=&vista=41.2,3.8,0&congelar=60",
+      "imagen": "pinar-5-cadejo.png"
+    },
+    {
+      "archivo": "pinar-5-persigue",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=4&j1=andar:1&j2=&congelar=118",
+      "imagen": "pinar-5-persigue.png"
+    },
+    {
+      "archivo": "pinar-5-lamida",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=4&j1=andar:1&j2=&congelar=140",
+      "imagen": "pinar-5-lamida.png"
+    },
+    {
+      "archivo": "pinar-6-lampara",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=5&j1=andar:1,der@15&j2=&congelar=250",
+      "imagen": "pinar-6-lampara.png"
+    },
+    {
+      "archivo": "pinar-6-encendida",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=6&j1=&j2=&vista=50.6,4.6,0&congelar=60",
+      "imagen": "pinar-6-encendida.png"
+    },
+    {
+      "archivo": "pinar-secreto",
+      "ruta": "/?escena=nivel&nivel=pinar&punto=5&j1=&j2=&vista=49.7,7.9,-2.45&congelar=30",
+      "imagen": "pinar-secreto.png"
+    },
+    {
+      "archivo": "noche-piezas-entero",
+      "ruta": "/?escena=nivel&nivel=piezas&noche=2&trampa=cruzados&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "noche-piezas-entero.png"
+    },
+    {
+      "archivo": "noche-amarrados",
+      "ruta": "/?escena=nivel&nivel=piezas&noche=7&trampa=mecate&j1=andar:1,girar:-0.15&j2=&congelar=200",
+      "imagen": "noche-amarrados.png"
+    },
+    {
+      "archivo": "noche-niebla",
+      "ruta": "/?escena=nivel&noche=3&trampa=niebla&j1=andar:1&j2=andar:1&congelar=120",
+      "imagen": "noche-niebla.png"
+    },
+    {
+      "archivo": "noche-luna",
+      "ruta": "/?escena=nivel&noche=1&trampa=luna&j1=saltar@30&j2=saltar@36&congelar=75",
+      "imagen": "noche-luna.png"
+    },
+    {
+      "archivo": "noche-menu",
+      "ruta": "/?escena=nivel&noche=5&j1=&j2=&menu&congelar=60",
+      "imagen": "noche-menu.png"
+    },
+    {
+      "archivo": "poza-entero",
+      "ruta": "/?escena=nivel&nivel=poza&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "poza-entero.png"
+    },
+    {
+      "archivo": "poza-salida",
+      "ruta": "/?escena=nivel&nivel=poza&j1=andar:0.6&j2=andar:0.6&congelar=120",
+      "imagen": "poza-salida.png"
+    },
+    {
+      "archivo": "poza-1-balsa",
+      "ruta": "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&vista=5.6,0.8,-1.5&congelar=60",
+      "imagen": "poza-1-balsa.png"
+    },
+    {
+      "archivo": "poza-2-remando",
+      "ruta": "/?escena=nivel&nivel=poza&punto=1&j1=izq,der&j2=izq,der&congelar=600",
+      "imagen": "poza-2-remando.png"
+    },
+    {
+      "archivo": "poza-3-chorro",
+      "ruta": "/?escena=nivel&nivel=poza&punto=2&j1=&j2=&vista=24.2,1.6,0.6&congelar=60",
+      "imagen": "poza-3-chorro.png"
+    },
+    {
+      "archivo": "poza-3-compuerta",
+      "ruta": "/?escena=nivel&nivel=poza&punto=3&j1=&j2=&vista=24.2,1.6,0.6&congelar=60",
+      "imagen": "poza-3-compuerta.png"
+    },
+    {
+      "archivo": "poza-4-tendedero",
+      "ruta": "/?escena=nivel&nivel=poza&punto=3&j1=izq,der&j2=izq@40,der@40&congelar=230",
+      "imagen": "poza-4-tendedero.png"
+    },
+    {
+      "archivo": "poza-5-boca",
+      "ruta": "/?escena=nivel&nivel=poza&punto=4&j1=&j2=&vista=39,2.2,0.6&congelar=60",
+      "imagen": "poza-5-boca.png"
+    },
+    {
+      "archivo": "poza-5-seca",
+      "ruta": "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&vista=31,0.8,0&congelar=60",
+      "imagen": "poza-5-seca.png"
+    },
+    {
+      "archivo": "poza-6-batea",
+      "ruta": "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&congelar=60",
+      "imagen": "poza-6-batea.png"
+    },
+    {
+      "archivo": "poza-6-sucia",
+      "ruta": "/?escena=nivel&nivel=poza&punto=6&j1=&j2=&vista=42.6,2.6,-1.4&congelar=268",
+      "imagen": "poza-6-sucia.png"
+    },
+    {
+      "archivo": "poza-secreto",
+      "ruta": "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&vista=28.1,0,2.3&congelar=30",
+      "imagen": "poza-secreto.png"
+    },
+    {
+      "archivo": "xibalba-entero",
+      "ruta": "/?escena=nivel&nivel=xibalba&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "xibalba-entero.png"
+    },
+    {
+      "archivo": "xibalba-salida",
+      "ruta": "/?escena=nivel&nivel=xibalba&j1=&j2=&congelar=60",
+      "imagen": "xibalba-salida.png"
+    },
+    {
+      "archivo": "xibalba-1-planchas",
+      "ruta": "/?escena=nivel&nivel=xibalba&j1=andar:1&j2=andar:1&congelar=330",
+      "imagen": "xibalba-1-planchas.png"
+    },
+    {
+      "archivo": "xibalba-1-abierta",
+      "ruta": "/?escena=nivel&nivel=xibalba&j1=andar:1&j2=andar:1&vista=8,1.2,0&congelar=430",
+      "imagen": "xibalba-1-abierta.png"
+    },
+    {
+      "archivo": "xibalba-2-estela",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=1&j1=&j2=&vista=11.5,1.6,0&congelar=60",
+      "imagen": "xibalba-2-estela.png"
+    },
+    {
+      "archivo": "xibalba-2-alineada",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=2&j1=&j2=&vista=13.5,1.6,0&congelar=60",
+      "imagen": "xibalba-2-alineada.png"
+    },
+    {
+      "archivo": "xibalba-3-aro",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=2&j1=&j2=&vista=23,1.4,0&congelar=60",
+      "imagen": "xibalba-3-aro.png"
+    },
+    {
+      "archivo": "xibalba-4-bloque",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=3&j1=andar:0.7,izq@15,der@15&j2=andar:0.7,izq@15,der@15&congelar=420",
+      "imagen": "xibalba-4-bloque.png"
+    },
+    {
+      "archivo": "xibalba-4-arriba",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=3&j1=andar:0.7,izq@15,der@15&j2=andar:0.7,izq@15,der@15&vista=40.6,2.4,0&congelar=900",
+      "imagen": "xibalba-4-arriba.png"
+    },
+    {
+      "archivo": "xibalba-5-tunel",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=4&j1=&j2=&vista=48.5,5.6,0&congelar=60",
+      "imagen": "xibalba-5-tunel.png"
+    },
+    {
+      "archivo": "xibalba-5-murcielagos",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=4&j1=andar:1&j2=&congelar=200",
+      "imagen": "xibalba-5-murcielagos.png"
+    },
+    {
+      "archivo": "xibalba-6-tumba",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=5&j1=&j2=&vista=58.5,5.3,0.5&congelar=60",
+      "imagen": "xibalba-6-tumba.png"
+    },
+    {
+      "archivo": "xibalba-meta",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=6&j1=&j2=&congelar=60",
+      "imagen": "xibalba-meta.png"
+    },
+    {
+      "archivo": "xibalba-secreto",
+      "ruta": "/?escena=nivel&nivel=xibalba&punto=4&j1=&j2=&vista=48.9,9.0,-2.1&congelar=30",
+      "imagen": "xibalba-secreto.png"
+    },
+    {
+      "archivo": "tren-entero",
+      "ruta": "/?escena=nivel&nivel=tren&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "tren-entero.png"
+    },
+    {
+      "archivo": "tren-salida",
+      "ruta": "/?escena=nivel&nivel=tren&j1=&j2=&congelar=60",
+      "imagen": "tren-salida.png"
+    },
+    {
+      "archivo": "tren-1-tren",
+      "ruta": "/?escena=nivel&nivel=tren&j1=&j2=&vista=-18,1.4,0&congelar=30",
+      "imagen": "tren-1-tren.png"
+    },
+    {
+      "archivo": "tren-2-dresina",
+      "ruta": "/?escena=nivel&nivel=tren&punto=1&j1=&j2=&vista=-13.4,1.2,-4&congelar=30",
+      "imagen": "tren-2-dresina.png"
+    },
+    {
+      "archivo": "tren-3-cambio",
+      "ruta": "/?escena=nivel&nivel=tren&punto=2&j1=&j2=&vista=9,1.8,-2.6&congelar=30",
+      "imagen": "tren-3-cambio.png"
+    },
+    {
+      "archivo": "tren-3-secreto",
+      "ruta": "/?escena=nivel&nivel=tren&punto=2&j1=&j2=&vista=24.4,1.3,-3.5&congelar=30",
+      "imagen": "tren-3-secreto.png"
+    },
+    {
+      "archivo": "tren-4-grua",
+      "ruta": "/?escena=nivel&nivel=tren&punto=3&j1=&j2=&vista=32.5,2.4,-11.5&congelar=30",
+      "imagen": "tren-4-grua.png"
+    },
+    {
+      "archivo": "tren-5-romana",
+      "ruta": "/?escena=nivel&nivel=tren&punto=4&j1=&j2=&vista=45,1.6,-9.5&congelar=30",
+      "imagen": "tren-5-romana.png"
+    },
+    {
+      "archivo": "tren-6-duende",
+      "ruta": "/?escena=nivel&nivel=tren&punto=5&j1=&j2=&vista=53.5,1,-11&congelar=30",
+      "imagen": "tren-6-duende.png"
+    },
+    {
+      "archivo": "tren-6-meta",
+      "ruta": "/?escena=nivel&nivel=tren&punto=6&j1=&j2=&vista=56,1.2,-7&congelar=30",
+      "imagen": "tren-6-meta.png"
+    },
+    {
+      "archivo": "calle-entero",
+      "ruta": "/?escena=nivel&nivel=calle&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "calle-entero.png"
+    },
+    {
+      "archivo": "calle-salida",
+      "ruta": "/?escena=nivel&nivel=calle&j1=&j2=&congelar=60",
+      "imagen": "calle-salida.png"
+    },
+    {
+      "archivo": "calle-1-cuesta",
+      "ruta": "/?escena=nivel&nivel=calle&j1=andar:1&j2=andar:1&congelar=700",
+      "imagen": "calle-1-cuesta.png"
+    },
+    {
+      "archivo": "calle-1-arriba",
+      "ruta": "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-29,3.2,0&congelar=30",
+      "imagen": "calle-1-arriba.png"
+    },
+    {
+      "archivo": "calle-2-sin-bueyes",
+      "ruta": "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-15.5,2.6,0&congelar=150",
+      "imagen": "calle-2-sin-bueyes.png"
+    },
+    {
+      "archivo": "calle-2-sacado",
+      "ruta": "/?escena=nivel&nivel=calle&punto=1&j1=andar:1&j2=&congelar=468",
+      "imagen": "calle-2-sacado.png"
+    },
+    {
+      "archivo": "calle-3-reloj",
+      "ruta": "/?escena=nivel&nivel=calle&punto=2&j1=&j2=&vista=3.4,5.4,2.4&congelar=30",
+      "imagen": "calle-3-reloj.png"
+    },
+    {
+      "archivo": "calle-3-abierta",
+      "ruta": "/?escena=nivel&nivel=calle&punto=3&j1=&j2=&vista=3.4,5.4,2.4&congelar=90",
+      "imagen": "calle-3-abierta.png"
+    },
+    {
+      "archivo": "calle-4-corredor",
+      "ruta": "/?escena=nivel&nivel=calle&punto=3&j1=&j2=&vista=19,4,-0.5&congelar=30",
+      "imagen": "calle-4-corredor.png"
+    },
+    {
+      "archivo": "calle-4-pisadas",
+      "ruta": "/?escena=nivel&nivel=calle&punto=3&j1=andar:1&j2=andar:1&congelar=420",
+      "imagen": "calle-4-pisadas.png"
+    },
+    {
+      "archivo": "calle-5-campanas",
+      "ruta": "/?escena=nivel&nivel=calle&punto=4&j1=&j2=&vista=32.5,9.5,-2.5&congelar=30",
+      "imagen": "calle-5-campanas.png"
+    },
+    {
+      "archivo": "calle-6-subiendo",
+      "ruta": "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=150",
+      "imagen": "calle-6-subiendo.png"
+    },
+    {
+      "archivo": "calle-6-bajando",
+      "ruta": "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=262",
+      "imagen": "calle-6-bajando.png"
+    },
+    {
+      "archivo": "calle-6-plaza",
+      "ruta": "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=420",
+      "imagen": "calle-6-plaza.png"
+    },
+    {
+      "archivo": "calle-secreto",
+      "ruta": "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-20.6,4,-2.4&congelar=30",
+      "imagen": "calle-secreto.png"
+    },
+    {
+      "archivo": "rio-entero",
+      "ruta": "/?escena=nivel&nivel=rio&j1=&j2=&vista=todo&congelar=60",
+      "imagen": "rio-entero.png"
+    },
+    {
+      "archivo": "rio-salida",
+      "ruta": "/?escena=nivel&nivel=rio&j1=andar:0.6&j2=andar:0.6&congelar=120",
+      "imagen": "rio-salida.png"
+    },
+    {
+      "archivo": "rio-1-pipante",
+      "ruta": "/?escena=nivel&nivel=rio&j1=&j2=&vista=-48,0.6,-0.8&congelar=60",
+      "imagen": "rio-1-pipante.png"
+    },
+    {
+      "archivo": "rio-1-embarcadero",
+      "ruta": "/?escena=nivel&nivel=rio&punto=1&j1=&j2=&congelar=60",
+      "imagen": "rio-1-embarcadero.png"
+    },
+    {
+      "archivo": "rio-2-rapidos",
+      "ruta": "/?escena=nivel&nivel=rio&punto=1&j1=&j2=&vista=-21,0.6,0&congelar=85",
+      "imagen": "rio-2-rapidos.png"
+    },
+    {
+      "archivo": "rio-3-huellas",
+      "ruta": "/?escena=nivel&nivel=rio&punto=2&j1=&j2=&vista=-10.5,0.4,0&congelar=60",
+      "imagen": "rio-3-huellas.png"
+    },
+    {
+      "archivo": "rio-4-puente",
+      "ruta": "/?escena=nivel&nivel=rio&punto=3&j1=&j2=&vista=13,0.6,0&congelar=60",
+      "imagen": "rio-4-puente.png"
+    },
+    {
+      "archivo": "rio-4-reparado",
+      "ruta": "/?escena=nivel&nivel=rio&punto=4&j1=&j2=&vista=13,0.6,0&congelar=60",
+      "imagen": "rio-4-reparado.png"
+    },
+    {
+      "archivo": "rio-5-sisimite",
+      "ruta": "/?escena=nivel&nivel=rio&punto=4&j1=&j2=&vista=26.5,2.2,3&congelar=60",
+      "imagen": "rio-5-sisimite.png"
+    },
+    {
+      "archivo": "rio-5-cumbre",
+      "ruta": "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=29,3.6,0&congelar=60",
+      "imagen": "rio-5-cumbre.png"
+    },
+    {
+      "archivo": "rio-6-palmera",
+      "ruta": "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=44,1.6,0&congelar=60",
+      "imagen": "rio-6-palmera.png"
+    },
+    {
+      "archivo": "rio-secreto",
+      "ruta": "/?escena=nivel&nivel=rio&punto=6&j1=&j2=&vista=59.5,3.1,-2.4&congelar=30",
+      "imagen": "rio-secreto.png"
+    }
+  ],
+  "video": {
+    "archivo": "dos.webm",
+    "ruta": "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar",
+    "segundos": 5,
+    "pasosPorSegundo": 10
+  }
+}
