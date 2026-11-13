@@ -11,6 +11,7 @@ export {
   crearMuneco,
   type EntradaMuneco,
   type EstadoMuneco,
+  llevaAlQuePisa,
   type Muneco,
   NOMBRES_PARTES,
   type NombreBrazo,

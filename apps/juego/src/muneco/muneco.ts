@@ -155,9 +155,16 @@ const EJE_X = new THREE.Vector3(1, 0, 0);
 const EJE_Z = new THREE.Vector3(0, 0, 1);
 const ABAJO = new THREE.Vector3(0, -1, 0);
 
-/** Desde cuántos kg lo que se mueve bajo los pies lleva al muñeco (la carreta, de 90, sí; un racimo, un bloque o
- * una plataforma, no). La balsa y el pipante (30 kg) llevan ellos al que va a bordo (`llevarABordo`). */
-const SUELO_QUE_LLEVA = 50;
+/** Los cuerpos sueltos que llevan al que va encima (la carreta, los vagones, el pipante, la balsa amarrada). Sobre
+ * lo demás que se mueve suelto (un racimo, un bloque, el compañero) los pies lo empujan hacia atrás y, si el muñeco lo
+ * siguiera, andaría en el lugar como en una cinta. Lo cinemático lleva siempre. */
+const SUELOS_QUE_LLEVAN = new WeakSet<RAPIER.RigidBody>();
+
+/** Que este cuerpo suelto lleve (o deje de llevar) al muñeco parado encima: anda respecto de él y, quieto, va con él. */
+export function llevaAlQuePisa(cuerpo: RAPIER.RigidBody, si = true): void {
+  if (si) SUELOS_QUE_LLEVAN.add(cuerpo);
+  else SUELOS_QUE_LLEVAN.delete(cuerpo);
+}
 
 export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: OpcionesMuneco = {}): Muneco {
   const origen = new THREE.Vector3(opciones.posicion?.x ?? 0, opciones.posicion?.y ?? 0, opciones.posicion?.z ?? 0);
@@ -705,15 +712,9 @@ export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: Opcio
     );
     enElSuelo = golpe !== null;
     // Lo que pisa, si se mueve (una carreta que baja, un camión): respecto de eso anda, se sostiene y da los pasos.
-    // Solo si es cinemático o pesado: sobre algo suelto y liviano (un racimo, un bloque, el compañero) los pies lo
-    // empujan hacia atrás y, si lo siguiera, andaría en el lugar como en una cinta
+    // Solo si es cinemático o lo marcaron con `llevaAlQuePisa`
     const debajoMovil = golpe?.collider.parent();
-    if (
-      golpe &&
-      debajoMovil &&
-      !debajoMovil.isFixed() &&
-      (debajoMovil.isKinematic() || debajoMovil.mass() >= SUELO_QUE_LLEVA)
-    )
+    if (golpe && debajoMovil && (debajoMovil.isKinematic() || SUELOS_QUE_LLEVAN.has(debajoMovil)))
       vSuelo.copy(debajoMovil.velocityAtPoint({ x: p.x, y: p.y - golpe.timeOfImpact, z: p.z }));
     else vSuelo.set(0, 0, 0);
     colgado = colgadoDe();

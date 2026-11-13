@@ -234,12 +234,25 @@ export function armarDuende(h: Herramientas, p: Extract<PiezaDelTrenEnPlano, { c
     ubicar(false);
   });
 
-  // La imagen: se mece un poco; cambiando, empuja con los brazos. Lo mismo en el invitado, con lo que anduvo
+  // La imagen: se mece un poco; cambiando, empuja con los brazos. El invitado no corre `antes` (no sabe el estado):
+  // lo ve con lo que llega en la foto, igual que el anfitrión. Cambiando está quieto afuera, lejos de su casa (bajando
+  // y subiendo se mueve; viajando va bajo tierra), y contento tiene un sombrero en la cabeza
   let segundos = 0;
+  let quieto = 0;
+  let empujando = false;
+  let conSombrero = false;
+  const antes = casa.clone();
+  const cabezaVista = new THREE.Vector3();
   h.guardar(() => {
     segundos += PASO;
+    const t = cuerpo.translation();
+    quieto = Math.hypot(t.x - antes.x, t.y - antes.y, t.z - antes.z) < 1e-4 ? quieto + 1 : 0;
+    antes.copy(t);
+    empujando = quieto > 2 && Math.hypot(t.x - casa.x, t.z - casa.z) > 0.5;
+    cabezaVista.set(t.x, t.y + a.cabeza, t.z);
+    conSombrero = sombreros().some((s) => cabezaVista.distanceTo(s.cuerpo.translation()) < 0.3);
   });
-  h.dibujar(() => imagen.posar(segundos, estado === "cambiando", estado === "contento"));
+  h.dibujar(() => imagen.posar(segundos, empujando, conSombrero));
 
   return {
     cual: "duende",

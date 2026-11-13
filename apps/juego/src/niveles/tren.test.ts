@@ -139,6 +139,16 @@ describe("el tren bananero (niveles/05-tren)", () => {
     }
   });
 
+  it("retomando en el punto 3 la dresina queda al final del desvío, también la primera vez", async () => {
+    const n = await armarTren();
+    const dresina = n.nivel.dresina("dresina");
+    n.nivel.avance.irA(3);
+    const primera = dresina.avance;
+    n.nivel.avance.irA(3);
+    expect(primera).toBeCloseTo(dresina.avance, 3);
+    expect(dresina.porElDesvio).toBe(true);
+  });
+
   describe("misión 1: enganchar los dos vagones", () => {
     it("el tren tapa el paso a nivel; empujando la plataforma hasta el furgón se enganchan, el tren sale y se pasa", async () => {
       const n = await armarTren();

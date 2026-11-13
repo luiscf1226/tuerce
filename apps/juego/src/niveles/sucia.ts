@@ -250,7 +250,8 @@ export function armarSucia(h: Herramientas, p: Extract<PiezaDeLaPozaEnPlano, { c
     }
   });
   h.dibujar((alfa) => {
-    imagen.posar(imagenGuacal.position, (pasos - 1 + alfa) * PASO);
+    // Con `segundos` (que también cuenta el invitado, que no corre `antes`): así restriega en las dos pantallas
+    imagen.posar(imagenGuacal.position, segundos + (alfa - 1) * PASO);
     gotas.mover(segundos);
   });
 

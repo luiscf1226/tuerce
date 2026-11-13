@@ -202,7 +202,32 @@ describe("el Río Plátano (niveles/06-rio)", () => {
       n.poner(1, 4.3, G, -1.55);
       n.correr(30);
       const pasos = navegar(n, { pertiga: 0, timon: 1 }, 2400);
+      console.log(`pipante: llegan en ${pasos} pasos`);
       expect(pasos).toBeGreaterThan(0);
+    });
+
+    it("con el pipante en marcha, el de la proa camina hacia atrás por el piso sin salir disparado", async () => {
+      const n = await armarRio();
+      const pipante = n.nivel.pipante("pipante");
+      n.poner(0, 1.7, G, -1.55);
+      n.poner(1, 4.3, G, -1.55);
+      n.correr(30);
+      navegar(n, { pertiga: 0, timon: 1 }, 800);
+      expect(Math.hypot(pipante.cuerpo.linvel().x, pipante.cuerpo.linvel().z)).toBeGreaterThan(0.7);
+      const adelante = new THREE.Vector3(1, 0, 0).applyQuaternion(pipante.cuerpo.rotation());
+      const sobre = () => {
+        const p = n.munecos[1].partes.pelvis.translation();
+        const c = pipante.cuerpo.translation();
+        return (p.x - c.x) * adelante.x + (p.z - c.z) * adelante.z;
+      };
+      const antes = sobre();
+      // Antes de TU-28 el empujón de la embarcación le ganaba al andar y lo lanzaba hacia la proa
+      n.correr(40, () => {
+        n.entradas[0] = { ...QUIETO, ...AMBOS };
+        n.entradas[1] = { ...QUIETO, avanzar: -1 };
+      });
+      expect(sobre()).toBeLessThan(antes - 0.4);
+      expect(pipante.encima(n.munecos[1].partes.pelvis.translation())).toBe(true);
     });
 
     it("solo con la pértiga el pipante da vueltas y no llega", async () => {
@@ -220,11 +245,11 @@ describe("el Río Plátano (niveles/06-rio)", () => {
         antes = pipante.rumbo;
       });
       expect(giro).toBeGreaterThan(1);
+      expect(pipante.pertiguero).toBe(0);
+      expect(pipante.timonel).toBe(null);
       const pasos = navegar(n, { pertiga: 0 }, 1800);
       expect(pasos).toBe(-1);
       expect(enNivel(pipante.cuerpo.translation()).x).toBeLessThan(18);
-      expect(pipante.pertiguero).toBe(0);
-      expect(pipante.timonel).toBe(null);
     });
 
     it("solo con el rumbo el pipante no avanza: la corriente se lo lleva", async () => {

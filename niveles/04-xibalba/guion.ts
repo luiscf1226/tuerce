@@ -126,14 +126,26 @@ export function crearGuion(): GuionDeNivel {
       const fuego = crearFuego();
       fuego.position.set(BRASERO.x, Y2 + 1.5, BRASERO.z);
       nivel.escena.add(fuego);
+      // Las sogas del contrapeso se tienden al dibujar, con el plato y la losa donde están: así también en el
+      // invitado, que no corre el guion pero recibe los dos cuerpos en la foto
+      const placa = nivel.plancha("plato").placa;
+      const losa = nivel.pieza("losa").cuerpo;
+      const tender = () => {
+        const p = placa.translation();
+        const l = losa?.translation() ?? losaAbajo;
+        sogas[0]?.estirar(POLEA, { x: p.x, y: p.y + 0.05, z: p.z });
+        sogas[1]?.estirar(POLEA, { x: losaAbajo.x, y: l.y + 1.5, z: 0 });
+      };
       for (let i = 0; i < 2; i++) {
         const soga = crearSoga();
         sogas.push(soga);
         nivel.escena.add(soga.objeto);
+        soga.objeto.onBeforeRender = () => {
+          tender();
+          soga.objeto.updateMatrixWorld();
+        };
       }
-      const placa = nivel.plancha("plato").placa.translation();
-      sogas[0]?.estirar(POLEA, { x: placa.x, y: placa.y + 0.05, z: placa.z });
-      sogas[1]?.estirar(POLEA, { x: losaAbajo.x, y: losaAbajo.y + 1.5, z: 0 });
+      tender();
     },
     alAlcanzar(punto, nivel) {
       // Cruzaron el túnel sin que se apagara la antorcha
@@ -199,9 +211,6 @@ export function crearGuion(): GuionDeNivel {
       const sube = LOSA.metros * suave((plato.hundida - LOSA.desde) / (LOSA.hasta - LOSA.desde));
       const arriba = { x: losaAbajo.x, y: losaAbajo.y + sube, z: losaAbajo.z };
       losa?.setNextKinematicTranslation(arriba);
-      const placa = plato.placa.translation();
-      sogas[0]?.estirar(POLEA, { x: placa.x, y: placa.y + 0.05, z: placa.z });
-      sogas[1]?.estirar(POLEA, { x: arriba.x, y: arriba.y + 1.5, z: 0 });
     },
   };
 }

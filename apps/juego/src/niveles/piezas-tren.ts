@@ -21,7 +21,7 @@ import { COLORES } from "../escenas/colores";
 import { juntar, materialOjo, materialTela } from "../imagen";
 import { PASO } from "../motor/bucle";
 import { GRAVEDAD } from "../motor/fisica";
-import type { Muneco } from "../muneco";
+import { llevaAlQuePisa, type Muneco } from "../muneco";
 import type { PiezaDelTrenEnPlano } from "./formato-tren";
 import { crearVia, type Via } from "./mecanismos/via";
 import type { Herramientas } from "./piezas";
@@ -138,6 +138,8 @@ export function armarVagon(h: Herramientas, p: Extract<PiezaDelTrenEnPlano, { cu
   // El cuerpo que choca va arriba de las ruedas; las ruedas son solo imagen
   const ruedas = Math.min(a.ruedas, medio.y);
   const cuerpo = mundo.createRigidBody(h.dinamico(centro, giro).setAngularDamping(1));
+  // Lleva al que va encima, sea plataforma o furgón
+  llevaAlQuePisa(cuerpo);
   const colisionador = mundo.createCollider(
     rapier.ColliderDesc.cuboid(medio.x, medio.y - ruedas / 2, medio.z)
       .setTranslation(0, ruedas / 2, 0)
@@ -537,7 +539,8 @@ export function armarDresina(h: Herramientas, p: Extract<PiezaDelTrenEnPlano, { 
     },
     poner(donde, desvio = false) {
       porElDesvio = desvio;
-      s = limitar(donde, 0, finDeVia());
+      // El tope con la `s` nueva: más allá del cambio, por el desvío, la vía es otra
+      s = limitar(donde, 0, desvio && donde >= via.cambio ? via.largoDesvio : via.largo);
       v = 0;
       mover(null, true);
     },

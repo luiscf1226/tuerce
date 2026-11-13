@@ -18,7 +18,7 @@ import * as THREE from "three";
 import { COLORES } from "../escenas/colores";
 import { juntar, materialCorteza } from "../imagen";
 import { PASO } from "../motor/bucle";
-import type { Muneco } from "../muneco";
+import { llevaAlQuePisa, type Muneco } from "../muneco";
 import type { PiezaDeLaCalleEnPlano } from "./formato-calle";
 import type { Herramientas } from "./piezas";
 import { manosEn } from "./piezas-pinar";
@@ -232,6 +232,8 @@ export function armarCarreta(h: Herramientas, p: Extract<PiezaDeLaCalleEnPlano, 
 
   // La caja: el piso y las barandas. Fija al eje, o aparte, con una bisagra sobre el eje
   const cuerpo = mundo.createRigidBody(h.dinamico(centro, giro).setAngularDamping(empina ? 0.5 : 0));
+  // Lleva al que va montado: anda respecto de la carreta y, quieto, va con ella
+  llevaAlQuePisa(cuerpo);
   let colisionador: RAPIER.Collider | undefined;
   const total = tablas.reduce((s, t) => s + t.medio[0] * t.medio[1] * t.medio[2], 0);
   for (const t of tablas) {

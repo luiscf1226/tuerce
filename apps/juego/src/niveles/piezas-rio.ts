@@ -19,11 +19,10 @@ import * as THREE from "three";
 import { COLORES } from "../escenas/colores";
 import { juntar, materialTela } from "../imagen";
 import { PASO } from "../motor/bucle";
-import type { Muneco } from "../muneco";
+import { llevaAlQuePisa, type Muneco } from "../muneco";
 import type { PiezaDelRioEnPlano } from "./formato-rio";
 import type { Herramientas } from "./piezas";
 import { manosEn, type Tronco } from "./piezas-pinar";
-import { llevarABordo } from "./piezas-poza";
 
 /** El bit de grupo de choque de lo suelto del río (la manija de la palmera): choca con todo menos con los muñecos
  * (bits 1 y 2); grupos del resolvedor sin filtro: se la encuentra para agarrarla, pero no empuja ni la empujan. */
@@ -52,8 +51,6 @@ export const AJUSTES_RIO = {
     punta: 0.35,
     /** Por debajo y por encima del piso, la pelvis de uno que va a bordo (m). */
     bordo: [0.15, 1.2],
-    /** Qué tan rápido el que va quieto a bordo toma la velocidad del pipante (1/s). */
-    agarre: 40,
     /** El giro más fuerte que pone el timonel (N·m). */
     timonMaximo: 140,
     /** El alto de las bordas sobre el piso (m). */
@@ -148,6 +145,8 @@ export function armarPipante(h: Herramientas, p: Extract<PiezaDelRioEnPlano, { c
   const cuerpo = mundo.createRigidBody(
     h.dinamico(centro, giro).enabledRotations(false, true, false).setCanSleep(false).setAngularDamping(0.5),
   );
+  // Lleva al que va a bordo: anda respecto del pipante y, quieto, va con él
+  llevaAlQuePisa(cuerpo);
   const colisionador = mundo.createCollider(
     rapier.ColliderDesc.cuboid(mitad, alto, medioAncho).setMass(p.masa).setFriction(0.9),
     cuerpo,
@@ -182,7 +181,6 @@ export function armarPipante(h: Herramientas, p: Extract<PiezaDelRioEnPlano, { c
   let timonel: 0 | 1 | null = null;
   let aBordo = 0;
   h.antes((munecos, entradas) => {
-    const v = cuerpo.linvel();
     const w = cuerpo.angvel();
     const com = cuerpo.worldCom();
     aBordo = 0;
@@ -192,7 +190,6 @@ export function armarPipante(h: Herramientas, p: Extract<PiezaDelRioEnPlano, { c
       const pelvis = mu.partes.pelvis.translation();
       if (!encima(pelvis)) return;
       aBordo++;
-      llevarABordo(mu, { v, w, com }, entradas?.[i], a.agarre);
       // Con los brazos alzados, de pie: el de la popa empuja y el de la proa lleva el rumbo
       const e = entradas?.[i];
       if (mu.estado !== "de pie" || i > 1 || (!e?.brazoIzquierdo && !e?.brazoDerecho)) return;

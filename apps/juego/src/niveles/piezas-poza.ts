@@ -18,8 +18,7 @@ import { juntar, materialOjo, materialTela } from "../imagen";
 import { crearAzar } from "../imagen/ruido";
 import { PASO } from "../motor/bucle";
 import { GRAVEDAD } from "../motor/fisica";
-import type { EntradaMuneco, Muneco } from "../muneco";
-import { AJUSTES } from "../muneco/ajustes";
+import { llevaAlQuePisa, type Muneco } from "../muneco";
 import { crearGotas } from "./agua";
 import type { PiezaDeLaPozaEnPlano } from "./formato-poza";
 import type { Herramientas } from "./piezas";
@@ -57,8 +56,6 @@ export const AJUSTES_POZA = {
     alcance: 0.9,
     /** Por debajo y por encima de la cubierta, la pelvis de uno que va a bordo (m). */
     bordo: [0.15, 1.2],
-    /** Qué tan rápido el que va quieto a bordo toma la velocidad de la balsa (1/s). */
-    agarre: 40,
   },
   tendedero: {
     /** Lo que frena la polea con alguien colgado, en fracción de lo que la empuja la bajada. */
@@ -91,38 +88,6 @@ function devolver(cuerpo: RAPIER.RigidBody, posicion: THREE.Vector3Like, giro: T
 /** Si el muñeco tiene esa mano alzada (la mano más arriba que el hombro): con eso se rema, también en el invitado. */
 function alzada(m: Muneco, brazo: (typeof BRAZOS)[number]): boolean {
   return m.partes[brazo].translation().y > m.partes.torso.translation().y + 0.12;
-}
-
-/** Lleva al muñeco que va de pie sobre una embarcación (la balsa; el pipante del Río Plátano, TU-28): le suma lo
- * que el andar le quitaría por ir con ella (los muñecos andan respecto del mundo), con la velocidad de la embarcación
- * debajo de su pelvis (`v` y el giro `w` alrededor de su centro de masa `com`). Y el que no camina se queda donde
- * está, como si los pies agarraran las tablas (`agarre`, 1/s). */
-export function llevarABordo(
-  mu: Muneco,
-  { v, w, com }: { v: THREE.Vector3Like; w: THREE.Vector3Like; com: THREE.Vector3Like },
-  entrada: EntradaMuneco | undefined,
-  agarre: number,
-) {
-  if (!mu.enElSuelo || mu.estado === "en el aire" || mu.estado === "trepando") return;
-  const pelvis = mu.partes.pelvis.translation();
-  // La velocidad de la embarcación debajo de la pelvis (con su giro)
-  const r = { x: pelvis.x - com.x, z: pelvis.z - com.z };
-  const vx = v.x + w.y * r.z;
-  const vz = v.z - w.y * r.x;
-  const k = AJUSTES.andar.respuesta * PASO * mu.tension;
-  const quieto = Math.abs(entrada?.avanzar ?? 0) < 0.05;
-  const vp = mu.partes.pelvis.linvel();
-  const pie = quieto ? agarre * PASO * mu.tension : 0;
-  const dx = vx * k + (vx - vp.x) * pie;
-  const dz = vz * k + (vz - vp.z) * pie;
-  const tronco = mu.masa - mu.partes.torso.mass() - mu.partes.cabeza.mass();
-  for (const [c, masa] of [
-    [mu.partes.pelvis, tronco],
-    [mu.partes.torso, mu.partes.torso.mass()],
-    [mu.partes.cabeza, mu.partes.cabeza.mass()],
-  ] as const) {
-    c.applyImpulse({ x: dx * masa, y: 0, z: dz * masa }, true);
-  }
 }
 
 // ── La balsa ────────────────────────────────────────────────────────────────────────────────────────────────
@@ -268,6 +233,8 @@ export function armarBalsa(h: Herramientas, p: Extract<PiezaDeLaPozaEnPlano, { c
       );
       junta.setContactsEnabled(false);
     }
+    // Amarrada lleva al que va encima: anda respecto de ella y, quieto, va con ella
+    for (const v of viaje) llevaAlQuePisa(v.tronco.cuerpo);
     estado = "amarrada";
     for (const aviso of avisos) aviso();
   };
@@ -409,18 +376,15 @@ export function armarBalsa(h: Herramientas, p: Extract<PiezaDeLaPozaEnPlano, { c
     const m = marco();
     const adelante = largo.clone().applyQuaternion(m.giro).setY(0).normalize();
     const aLaDerecha = derecha.clone().applyQuaternion(m.giro).setY(0).normalize();
-    const v = raizCuerpo.linvel();
-    const w = raizCuerpo.angvel();
     const com = raizCuerpo.worldCom();
 
-    // A bordo: la balsa lleva al que va encima (le suma lo que el andar le quitaría por ir con ella)
+    // A bordo (la balsa amarrada lleva al que va encima: `llevaAlQuePisa`, al unirla)
     aBordo = 0;
     const nuevos: [0 | 1 | null, 0 | 1 | null] = [null, null];
     munecos.forEach((mu, i) => {
       const pelvis = mu.partes.pelvis.translation();
       if (!encima(pelvis)) return;
       aBordo++;
-      llevarABordo(mu, { v, w, com }, entradas?.[i], a.agarre);
       // Remar: de pie junto a su remo, con los brazos alzados (con el botón de agarrar)
       if (mu.estado !== "de pie" || i > 1) return;
       const e = entradas?.[i];
