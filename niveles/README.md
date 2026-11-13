@@ -260,6 +260,34 @@ En línea viajan en la foto el pipante, el piso del puente y sus tablas (las cla
 de la palmera y su manija, y el Sisimite: el invitado mueve la pértiga si ve avanzar el pipante, dibuja la soga y le
 abre los ojos al Sisimite cuando lo ve alzado.
 
+## Las piezas de los canales (TU-42)
+
+<!-- Los canales (TU-42) -->
+
+Las que estrena el nivel 9, Los canales de Xochimilco (`apps/juego/src/niveles/piezas-canales.ts` y `llorona.ts`;
+su lectura, en `formato-canales.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza; su nivel lo
+sube y lo baja el guion con `irA` (el llanto de La Llorona).
+
+| `pieza`     | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Propiedades                                                                                                                                                             |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trajinera` | Una lancha plana del tamaño de la caja, con el piso arriba de la caja, un techo y el arco de la proa; avanza hacia el + de su lado más largo. Flota y gira solo alrededor de su Y. Tiene dos pértigas, una de cada lado de la popa (el 40 % de atrás): empuja la de su lado el que va de pie ahí con los brazos alzados. Una sola la tuerce (se clava de costado); las dos, derecho. La viga de arriba del arco choca: no pasa bajo un puente más bajo. Puede llevar flores en el piso: cada golpe (un cambio de velocidad de más de `golpe` en un paso) bota una al agua, que flota un rato y se hunde. Al que va a bordo, quieto, lo lleva. | `masa` (80 kg) · `pertiga` (72 N cada una) · `lado` (0.7 m: dónde se clava cada pértiga) · `flores` (0) · `golpe` (0.4 m/s) · `arco` (2.1 m sobre el piso; 0: sin arco) |
+| `chinampa`  | Una chinampa flotante del tamaño de la caja (la tierra arriba de la caja). Con alguien parado encima, aguanta `aguante` y se hunde `hundir` por segundo por cada muñeco; vacía, vuelve a subir. Cinemática: lleva al que la pisa.                                                                                                                                                                                                                                                                                                                                                                                                             | `hundir` (0.3 m/s) · `aguante` (0.25 s) · `subir` (0.2 m/s) · `fondo` (1 m: hasta dónde se hunde)                                                                       |
+| `pinata`    | Una piñata de siete picos colgada en el medio de una soga tendida entre dos postes (en las puntas del lado más largo de la caja; la caja va del suelo a la soga). La soga baja hasta una manija junto al poste de la punta −, 75 cm hacia adentro: jalándola caminando hacia atrás (hacia el − de su frente) la piñata baja; al soltarla, un resorte la sube. La mano o la cabeza que le llega a más de `pegar` cuenta un golpe (cada muñeco, uno cada 0.4 s) y la mece; con `golpes` se rompe y saltan los dulces. Los muñecos la atraviesan.                                                                                                | `soga` (2.4 m) · `baja` (2 m) · `fuerza` (20 N) · `golpes` (4) · `pegar` (1 m/s)                                                                                        |
+| `llorona`   | La Llorona, de pie en su caja (los pies abajo) mirando hacia su frente. Un fantasma: no choca. Llora (`llanto`, de 0 a 1) y se ríe de los porrazos: un muñeco que se cae delante de ella, a menos de `publico`. Cada carcajada le baja el llanto; con `risas` deja de llorar para siempre. Si pasa `olvido` sin reírse, se olvida de una.                                                                                                                                                                                                                                                                                                     | `risas` (3) · `olvido` (20 s) · `publico` (6 m)                                                                                                                         |
+
+```ts
+nivel.trajinera("trajinera").pertigas; // [izquierda, derecha]: 0, 1 o null; y .aBordo, .rumbo, .encima(p), .casa
+nivel.trajinera("trajinera-flores").flores; // las que lleva, de .totalFlores; .alBotarFlor(quedan => {}), .llevar(c), .volver()
+nivel.chinampa("chinampa-1").hundida; // m; y .encima (cuántos), .tierra (su altura), .volver()
+nivel.pinata("pinata").estado; // "colgada" o "rota"; .jalada, .bajada, .golpes, .aguanta, .manija, .alGolpear(j => {}), .alRomper(() => {}), .romper()
+nivel.llorona("llorona").estado; // "llorando", "riendo" o "tranquila"; .risas, .faltan, .llanto, .alReir(j => {}), .alCalmarse(() => {}), .calmar()
+```
+
+En línea viajan en la foto las dos trajineras y sus flores (cuerpos cinemáticos sin choques), las chinampas, la
+piñata y su manija, La Llorona y el marcador de cada agua: el invitado cuenta las flores que ve en el piso, mueve
+las pértigas si la trajinera avanza, rompe la piñata cuando la ve desaparecer y sabe si La Llorona llora, se ríe o
+está tranquila por cuánto la ve inclinada.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -513,6 +541,40 @@ punto de control (`&punto=N` empieza en la misión N + 1):
 El secreto, «la figura de jade de la ciudad perdida», está en el nicho de arriba del templo, detrás de la meta: dos
 gradas de 1.4 m que se trepan colgándose (la zona `secreto`). Sin color nuevo: es lo único claro, pulido y con luz de
 la ciudad. De noche no va la trampa del mecate: la palmera lanza a uno solo al otro lado del barranco.
+
+### `09-canales` (`?escena=nivel&nivel=canales`)
+
+<!-- Los canales (TU-42) -->
+
+El nivel 9 (TU-42): Los canales de Xochimilco, México. Canales, chinampas con flores, trajineras (sin color:
+siluetas y grises) y una feria. Estrena la trajinera, el nivel del agua de La Llorona, la chinampa flotante y la
+piñata. Lo arma `scripts/niveles/canales.mjs` (`pnpm niveles`). Va de oeste a este y todo va corrido 45 m hacia −x
+(el nivel mide 104 m; la foto de la red, ±64). Cada misión termina en un punto de control (`&punto=N` empieza en la
+misión N + 1):
+
+1. **La trajinera**, de a dos: amarrada al muelle, en un carril de 2.4 m con corriente en contra (0.6 m/s). Cada
+   uno empuja con la pértiga de su lado, de pie en la popa. Con una sola no le gana a la corriente y se tuerce
+   contra la orilla; pasándose de un lado al otro, la corriente se la lleva de vuelta → punto 1, en la chinampa de
+   La Llorona. La trajinera vacía que quedó lejos vuelve sola al muelle.
+2. **La Llorona** llora tanto que el canal está crecido (25 cm): el arco de la trajinera choca contra el puente. Se
+   ríe de los porrazos: el que trepa la tarima de los mariachis (1.5 m, colgándose) y se tira delante de ella cae
+   como trapo y le saca una carcajada. Cada carcajada baja un poco el agua; a la tercera deja de llorar y el canal
+   baja del todo. Si pasan 20 s sin reírse, se olvida de una. La trajinera, que los espera junto a la chinampa,
+   pasa bajo el puente hasta el embarcadero → punto 2.
+3. **Las chinampas flotantes**: cinco islotes de 1.3 m con 70 cm de agua entre uno y otro, que se hunden mientras
+   alguien está encima (el doble con los dos). Se cruzan saltando sin quedarse → punto 3, a la entrada de la feria.
+4. **La piñata**, de a dos: cuelga a 3.5 m. La manija de la soga está junto al poste del fondo: uno la jala
+   caminando hacia el este y la piñata baja a la altura de las manos; el otro le pega saltando con los brazos
+   alzados. Con cuatro golpes se rompe y se hunde la reja del muelle de las flores → punto 4. Solo no se puede: al
+   soltar la soga la piñata sube antes de que llegue debajo (la manija queda a más de 3 m).
+5. **La trajinera de las flores** (8 macetas), con las mismas dos pértigas, por un canal con dos chinampas en el
+   medio (la primera se pasa por detrás, la segunda por delante) hasta el embarcadero de la feria → punto 5, la
+   meta. Cada golpe fuerte (contra una chinampa, o llegar rápido al muelle) bota una flor. Llegar con todas da el
+   logro, «Ni una flor menos». La trajinera que dejan sola vuelve a su muelle con todas sus flores.
+
+El secreto, «un alebrije dormido en una chinampa», está en la chinampa firme del fondo de la ciénaga, a un salto
+de la segunda chinampa flotante (la zona `secreto`). Es lo único claro y con dibujitos de la ciénaga. De noche no va
+la trampa del mecate: el que jala la soga de la piñata queda lejos del que le pega.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 

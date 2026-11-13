@@ -272,6 +272,11 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     puente: (nombre) => deJuego("puente", nombre),
     palmera: (nombre) => deJuego("palmera", nombre),
     sisimite: (nombre) => deJuego("sisimite", nombre),
+    // Los canales (TU-42)
+    trajinera: (nombre) => deJuego("trajinera", nombre),
+    chinampa: (nombre) => deJuego("chinampa", nombre),
+    pinata: (nombre) => deJuego("pinata", nombre),
+    llorona: (nombre) => deJuego("llorona", nombre),
     avance,
     premios,
     antes(entradas) {

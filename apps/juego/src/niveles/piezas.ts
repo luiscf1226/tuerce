@@ -23,6 +23,8 @@ import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
 import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
+// Los canales (TU-42)
+import { armarLlorona, type Llorona } from "./llorona";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
 import {
   type Alfombra,
@@ -36,6 +38,14 @@ import {
   type Engranaje,
   type Pesa,
 } from "./piezas-calle";
+import {
+  armarChinampa,
+  armarPinata,
+  armarTrajinera,
+  type Chinampa,
+  type Pinata,
+  type Trajinera,
+} from "./piezas-canales";
 import {
   armarHueso,
   armarLampara,
@@ -238,6 +248,11 @@ export interface PiezaPorTipo {
   puente: Puente;
   palmera: Palmera;
   sisimite: Sisimite;
+  // Los canales (TU-42): piezas-canales.ts y llorona.ts
+  trajinera: Trajinera;
+  chinampa: Chinampa;
+  pinata: Pinata;
+  llorona: Llorona;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -860,6 +875,19 @@ export function armarPiezas(
         break;
       case "sisimite":
         lista.push(armarSisimite(herramientas, p));
+        break;
+      // Los canales (TU-42)
+      case "trajinera":
+        lista.push(armarTrajinera(herramientas, p));
+        break;
+      case "chinampa":
+        lista.push(armarChinampa(herramientas, p));
+        break;
+      case "pinata":
+        lista.push(armarPinata(herramientas, p));
+        break;
+      case "llorona":
+        lista.push(armarLlorona(herramientas, p));
         break;
     }
   }
