@@ -23,6 +23,8 @@
 //   6. Ropero, secretos y logros (TU-29). Cada muñeco lleva lo que su dueño eligió en el ropero (Convex, por la
 //      pareja). Si la escena es un nivel, el anfitrión guarda el secreto y el logro cuando la pareja los gana, y los
 //      dos miran lo guardado para avisarlo (src/red/premios.ts).
+//   7. Noche de tuerce (TU-33, `&noche`): la trampa la elige el anfitrión con su semilla y viaja en las fotos; el
+//      invitado pone la misma, aunque haya abierto de día (src/niveles/noche.ts).
 //
 // Para probar sin Convex (solo en desarrollo): `?escena=en-linea&sala=<url de la sala>&pase=<pase>`, como la
 // pantalla `red` (ver scripts/prueba-red.mjs). También valen `forzar=repetidor` y `espera=<ms>`, y las entradas
@@ -37,6 +39,7 @@ import { parametrosDeLaDireccion } from "../entrada/teclado";
 import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import { formatearTiempo } from "../niveles/contrarreloj";
+import { type Noche, numeroDeTrampa, trampaDeNumero } from "../niveles/noche";
 import { type Conexion, conectar, type EstadoRed, type Rol } from "../red";
 import { type Guardado, guardarAvance, retomarAvance } from "../red/avance";
 import { sincronizarPremios } from "../red/premios";
@@ -52,7 +55,12 @@ import type { AvanceDeNivel, PremiosDeNivel, Vestir } from "./tipos";
 import "./en-linea.css";
 
 /** Lo que en línea necesita de la escena de base: los dos muñecos (rojo y turquesa) y, si es un nivel, su avance. */
-export type EscenaDeDos = EscenaDeJuego & { readonly munecos: readonly [Muneco, Muneco]; readonly vestir?: Vestir };
+export type EscenaDeDos = EscenaDeJuego & {
+  readonly munecos: readonly [Muneco, Muneco];
+  readonly vestir?: Vestir;
+  /** La Noche de tuerce (TU-33), si la escena es un nivel. */
+  readonly noche?: Noche;
+};
 /** Arma una escena de dos jugadores; `enRed` decide las entradas de cada paso (o que no se simule). */
 export type CrearEscenaDeDos = (
   rapier: Rapier,
@@ -136,6 +144,7 @@ export function crearEscenaEnLinea(
   const juego: Juego | undefined = dos.juego && Object.create(dos.juego, { corren: { get: () => true } });
 
   const avance = dos.avance;
+  const noche = dos.noche;
   // Una carrera solo si la escena es un nivel con reloj
   const reloj = avance && parametros.has("contrarreloj") ? dos.reloj : undefined;
   const prueba: EstadoEnLinea = {
@@ -172,6 +181,17 @@ export function crearEscenaEnLinea(
           ...(avance ? { avance } : {}),
           // Una carrera ya terminada no se retoma: el anfitrión que vuelve arranca otra desde la salida
           ...(reloj ? { reloj, aceptarMundo: (foto) => foto.punto < meta } : {}),
+          ...(noche
+            ? {
+                trampa: {
+                  leer: () => numeroDeTrampa(noche.trampa),
+                  fijar: (numero: number) => {
+                    noche.poner(trampaDeNumero(numero));
+                    noche.anunciar();
+                  },
+                },
+              }
+            : {}),
         });
         if (avance && guardado) guardarAvance(avance, guardado, conexion.rol);
         if (reloj && carrera) {

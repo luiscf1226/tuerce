@@ -317,7 +317,7 @@ async function partida(red: Red) {
     rol: "anfitrion" | "invitado",
     entrada: () => EntradaJugador,
     avance?: OpcionesSincronia["avance"],
-    extra: Pick<OpcionesSincronia, "reloj" | "aceptarMundo"> = {},
+    extra: Pick<OpcionesSincronia, "reloj" | "aceptarMundo" | "trampa"> = {},
   ) => {
     const { rapier, mundo } = await crearMundo();
     const lado: { sincronia?: Sincronia } = {};
@@ -505,6 +505,32 @@ describe("reconexión (TU-22)", () => {
     // Su reloj es solo lo que contó él: no tomó el de la carrera vieja
     expect(relojOtraCarrera.pasos).toBe(pasos);
     expect(pasos).toBeLessThan(antes);
+  });
+
+  it("noche de tuerce (TU-33): la trampa del anfitrión viaja en las fotos y el invitado pone la misma", async () => {
+    const red = crearRed({ perdida: 0 });
+    const { crearLado } = await partida(red);
+    let delAnfitrion = 5;
+    const recibidas: number[] = [];
+    const anfitrion = await crearLado("anfitrion", entradaQuieta, undefined, {
+      trampa: { leer: () => delAnfitrion, fijar: () => expect.unreachable("el anfitrión no recibe trampa") },
+    });
+    const invitado = await crearLado("invitado", entradaQuieta, undefined, {
+      trampa: { leer: () => 2, fijar: (n) => recibidas.push(n) },
+    });
+    const paso = () => {
+      red.avanzar(1000 / 60);
+      anfitrion.escena.pasar();
+      anfitrion.sincronia.despues();
+      invitado.escena.pasar();
+    };
+    for (let i = 0; i < 30; i++) paso();
+    expect(recibidas.length).toBeGreaterThan(5);
+    expect(new Set(recibidas)).toEqual(new Set([5]));
+    // Si el anfitrión pasa a otra (o al día), el invitado también
+    delAnfitrion = 0;
+    for (let i = 0; i < 30; i++) paso();
+    expect(recibidas.at(-1)).toBe(0);
   });
 
   it("si el invitado tampoco tiene mundo, el anfitrión juega con el suyo", async () => {

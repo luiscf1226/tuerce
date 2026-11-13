@@ -3,12 +3,15 @@
 // prueba (niveles/99-prueba) y el de las piezas de juego (niveles/98-piezas).
 //
 // Parámetros (además de los de `dos`: `&j1=`, `&j2=`, `&ayuda`, `&menu`):
-//   &nivel=prueba    qué nivel abrir: `prueba` o `piezas` (ver src/niveles/lista.ts)
+//   &nivel=prueba    qué nivel abrir: `patio`, `prueba` o `piezas` (ver src/niveles/lista.ts)
 //   &punto=N         empieza en ese punto de control, como al retomar un avance guardado
 //   &vista=todo      la cámara quieta, lejos, mirando el nivel entero (para las capturas)
+//   &vista=x,y,z     la cámara quieta mirando ese punto desde la dirección de siempre (el nido del secreto)
 //   &contrarreloj    una carrera (TU-32): desde la salida y con el reloj arriba, que arranca cuando alguno se mueve
 //                    y se para en la meta. Sin red, el tiempo queda en este navegador (en línea lo guarda Convex,
 //                    ver en-linea.ts). `&punto` solo vale en el mismo lugar, para probar.
+//   &noche[=semilla] Noche de tuerce (TU-33): de noche y con una trampa sorpresa; `&trampa=<nombre>` la fuerza
+//                    (ver src/niveles/noche.ts). En línea la elige el anfitrión y el invitado la recibe en las fotos.
 //
 // El secreto y el logro del nivel (TU-29) se avisan arriba al centro (src/ropero/aviso.ts); en línea, además, se
 // guardan en Convex.
@@ -29,11 +32,13 @@ import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
 import { armarNivel, cargarNivel, crearNivel, type GuionDeNivel, type Nivel, type PlanoDeNivel } from "../niveles";
 import { anotarTiempoAqui, crearReloj, formatearTiempo, marcarGanadoAqui, seMueve } from "../niveles/contrarreloj";
 import { NIVEL_INICIAL, NIVELES } from "../niveles/lista";
+import { crearNoche, leerNoche, type Noche } from "../niveles/noche";
 import { avisarPremios } from "../ropero/aviso";
 import { vestuarioDe } from "../ropero/vestuario";
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
 import { crearInterfaz } from "../ui/menu";
+import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
@@ -41,14 +46,19 @@ import type { AvanceDeNivel, Vestir } from "./tipos";
 
 /** La cámara: hacia dónde queda de lo que mira, un poco más alta que en `dos` para ver los huecos. */
 const DIRECCION_CAMARA = new THREE.Vector3(0.35, 0.42, 1);
-/** Con `&vista=todo`: desde dónde y hacia dónde mira la cámara quieta. */
-const VISTA_TODO = { desde: new THREE.Vector3(9, 10, 24), hacia: new THREE.Vector3(9, -0.5, 0) };
+/** Con `&vista=todo`: desde dónde y hacia dónde mira la cámara quieta, para un nivel de hasta `largo` metros (los
+ * más largos, como El pinar, la alejan en proporción y la centran). */
+const VISTA_TODO = { desde: new THREE.Vector3(9, 10, 24), hacia: new THREE.Vector3(9, -0.5, 0), largo: 32 };
+/** Con `&vista=x,y,z`: a cuánto del punto queda la cámara. */
+const VISTA_PUNTO = 7;
 
 export type EscenaNivel = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
   readonly nivel: Nivel;
   readonly camaraDeDos: CamaraDeDos;
   readonly vestir: Vestir;
+  /** La Noche de tuerce (TU-33): de día mientras no tenga trampa. */
+  readonly noche: Noche;
 };
 
 /** Baja el .glb del nivel que pide la dirección (`&nivel=`) y devuelve cómo armar su escena. */
@@ -116,17 +126,48 @@ export function armarEscenaNivel(
   if (conPantalla) avisarPremios(nivel.premios);
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
+  const noche = crearNoche(
+    { rapier, mundo, escena, munecos, jirones: armado.niebla.grupo, ...(conPantalla ? { cartel: mostrarCartel } : {}) },
+    // De noche no hay contrarreloj: la luna o el viento cambiarían los tiempos de la tabla, que es de día
+    parametros.has("contrarreloj")
+      ? undefined
+      : leerNoche(parametros, undefined, NIVELES[parametros.get("nivel") ?? NIVEL_INICIAL]?.sinTrampas),
+  );
 
   const camaraDeDos = crearCamaraDeDos({ direccion: DIRECCION_CAMARA, despejado: despejadoEnElMundo(rapier, mundo) });
-  const vistaTodo = parametros.get("vista") === "todo";
+  const vista = parametros.get("vista");
+  const punto3 = vista?.split(",").map(Number);
+  const vistaPunto =
+    punto3?.length === 3 && punto3.every(Number.isFinite) ? new THREE.Vector3().fromArray(punto3) : null;
+  const vistaTodo = vista === "todo" || vistaPunto !== null;
   const camara = vistaTodo ? new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 200) : camaraDeDos.camara;
+  if (vistaPunto) {
+    camara.position.copy(DIRECCION_CAMARA).setLength(VISTA_PUNTO).add(vistaPunto);
+    camara.lookAt(vistaPunto);
+  }
+  /** Con `&vista=todo`, cuánto más lejos que lo de siempre queda la cámara (1 para los niveles cortos). */
+  let lejos = 1;
+  if (vistaTodo && !vistaPunto) {
+    const limites = new THREE.Box3();
+    for (const s of plano.solidos) limites.union(new THREE.Box3().setFromObject(s.objeto));
+    const largo = limites.max.x - limites.min.x;
+    if (largo <= VISTA_TODO.largo) {
+      camara.position.copy(VISTA_TODO.desde);
+      camara.lookAt(VISTA_TODO.hacia);
+    } else {
+      lejos = largo / VISTA_TODO.largo;
+      const x = (limites.min.x + limites.max.x) / 2;
+      const y = Math.max(0, (limites.min.y + limites.max.y) / 2);
+      camara.position.set(x, VISTA_TODO.desde.y * lejos + y, VISTA_TODO.desde.z * lejos);
+      camara.lookAt(x, VISTA_TODO.hacia.y + y, 0);
+    }
+  }
   if (vistaTodo) {
-    camara.position.copy(VISTA_TODO.desde);
-    camara.lookAt(VISTA_TODO.hacia);
     // Desde lejos, la niebla se corre para que el nivel entero se lea
     if (escena.fog instanceof THREE.Fog) {
-      escena.fog.near = plano.niebla.cerca + 12;
-      escena.fog.far = plano.niebla.lejos + 22;
+      const atras = VISTA_TODO.desde.z * (lejos - 1);
+      escena.fog.near = plano.niebla.cerca + 12 + atras;
+      escena.fog.far = plano.niebla.lejos + 22 + atras;
     }
   }
   const seguirConLaCamara = () =>
@@ -197,8 +238,9 @@ export function armarEscenaNivel(
     ...(reloj ? { reloj } : {}),
     premios: nivel.premios,
     vestir: (jugador, vestuario) => jugadores[jugador].malla.vestir(vestuario),
+    noche,
     pasar() {
-      const leidas = juego.atienden ? controles.leer() : quietas;
+      const leidas = noche.entradas(juego.atienden ? controles.leer() : quietas);
       const entradas = enRed ? enRed(leidas) : leidas;
       if (entradas) {
         const rojo = senas.entrada(0, entradas[0]);
@@ -206,6 +248,8 @@ export function armarEscenaNivel(
         nivel.antes([rojo, turquesa]);
         munecos[0].pasar(rojo);
         munecos[1].pasar(turquesa);
+        noche.antes();
+        if (juego.atienden) noche.anunciar();
         mundo.step();
         // El reloj cuenta este paso antes de los puntos de control: el paso que llega a la meta también vale
         if (reloj && (reloj.pasos > 0 || seMueve(entradas[0]) || seMueve(entradas[1]))) reloj.pasar();
@@ -221,6 +265,7 @@ export function armarEscenaNivel(
     dibujar(alfa) {
       jugadores[0].malla.dibujar(alfa);
       jugadores[1].malla.dibujar(alfa);
+      noche.dibujar(alfa);
       const segundos = (pasos - 1 + alfa) * PASO;
       armado.dibujar(alfa, segundos);
       senas.dibujar(segundos);
@@ -228,8 +273,9 @@ export function armarEscenaNivel(
       if (vistaTodo) return;
       camaraDeDos.dibujar(alfa);
       if (escena.fog instanceof THREE.Fog) {
-        escena.fog.near = plano.niebla.cerca + camaraDeDos.distancia - ENCUADRE.cerca;
-        escena.fog.far = plano.niebla.lejos + camaraDeDos.distancia - ENCUADRE.cerca;
+        // La niebla espesa (TU-33) acorta la del nivel, pero no la de la cámara: los dos se siguen viendo
+        escena.fog.near = plano.niebla.cerca * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca;
+        escena.fog.far = plano.niebla.lejos * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca;
       }
     },
   };

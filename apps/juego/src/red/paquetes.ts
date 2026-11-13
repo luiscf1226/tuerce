@@ -8,7 +8,8 @@
 //
 //   · Foto (anfitrión → invitado, canal rápido, cada 2 pasos: 30 por segundo). 33 + 10 bytes por cuerpo:
 //       [0x46 «F»] [paso u32] [ack u32: la última entrada del invitado que ya se usó, 0 = ninguna]
-//       [estados u8: 3 bits por muñeco] [agarres u8: 1 bit por mano] [rumbo i16 × 2]
+//       [estados u8: 3 bits por muñeco] [agarres u8: 1 bit por mano y, arriba, 4 de la trampa de la noche (TU-33)]
+//       [rumbo i16 × 2]
 //       [velocidad de la pelvis i16 × 3 × 2, en mm/s] [punto de control de la pareja u8]
 //       [reloj del contrarreloj u32, en pasos (TU-32)] [cuántos cuerpos u8]
 //       y por cada cuerpo móvil: [posición i16 × 3, en 1/512 m desde el origen de la escena]
@@ -67,6 +68,9 @@ export interface Foto {
   estados: [EstadoMuneco, EstadoMuneco];
   /** Qué manos agarran algo: bit 0 izquierda del rojo, 1 derecha del rojo, 2 y 3 lo mismo del turquesa. */
   agarres: number;
+  /** La trampa de la Noche de tuerce (TU-33): 0 si es de día, 1 a 15 la del catálogo (ver niveles/noche.ts). Va en
+   * los 4 bits de arriba del byte de los agarres: la foto no crece. */
+  trampa?: number;
   rumbos: [number, number];
   /** Velocidad de la pelvis de cada muñeco (para predecir el propio). */
   velocidades: [Vector, Vector];
@@ -223,7 +227,7 @@ export function escribirFoto(
   vista.setUint32(1, foto.paso >>> 0);
   vista.setUint32(5, foto.ack >>> 0);
   vista.setUint8(9, NUMERO_DE_ESTADO[foto.estados[0]] | (NUMERO_DE_ESTADO[foto.estados[1]] << 3));
-  vista.setUint8(10, foto.agarres & 0xf);
+  vista.setUint8(10, (foto.agarres & 0xf) | ((limitar(Math.floor(foto.trampa ?? 0) || 0, 0, 15) & 0xf) << 4));
   vista.setInt16(11, entero16(envolver(foto.rumbos[0]) * ESCALA_RUMBO));
   vista.setInt16(13, entero16(envolver(foto.rumbos[1]) * ESCALA_RUMBO));
   let o = 15;
@@ -280,6 +284,7 @@ export function leerFoto(
     ack: vista.getUint32(5),
     estados: [ESTADOS[estados & 7] ?? "de pie", ESTADOS[(estados >> 3) & 7] ?? "de pie"],
     agarres: vista.getUint8(10) & 0xf,
+    trampa: vista.getUint8(10) >> 4,
     rumbos: [vista.getInt16(11) / ESCALA_RUMBO, vista.getInt16(13) / ESCALA_RUMBO],
     velocidades: [velocidad(15), velocidad(21)],
     punto: vista.getUint8(27),

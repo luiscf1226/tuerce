@@ -224,6 +224,13 @@ describe("palanca", () => {
     expect(palanca.recorrido).toBeGreaterThan(0.9);
   });
 
+  it("empujada con mucha fuerza se queda en su tope (35° del otro lado), no se acuesta", async () => {
+    const { palanca, correr, empujar } = await jalar(0);
+    correr(120, empujar(200));
+    const arriba = new THREE.Vector3(0, 1, 0).applyQuaternion(new THREE.Quaternion().copy(palanca.brazo.rotation()));
+    expect(arriba.angleTo(new THREE.Vector3(0, 1, 0))).toBeLessThan((37 * Math.PI) / 180);
+  });
+
   it("un muñeco la agarra con los brazos arriba y la empuja caminando: queda activa", async () => {
     // El muñeco mira hacia −z, al frente de la palanca, que se le inclina encima
     const { palanca, correr, poner, entradas } = await jalar(1);
@@ -271,6 +278,13 @@ describe("balancín", () => {
     const balancin = enLaLista(piezas, (p) => p.buscar("balancin", "b"));
     correr(180);
     expect(balancin.inclinacion).toBeCloseTo((15 * Math.PI) / 180, 1);
+  });
+
+  it("en el aire, el lado largo baja solo hasta el tope (15°), no hasta quedar colgando", async () => {
+    const { piezas, correr } = await armar(pieza("balancin", "b", [0, 4, 0], [4, 0.3, 0.6], { apoyo: 0.3 }));
+    const balancin = enLaLista(piezas, (p) => p.buscar("balancin", "b"));
+    correr(180);
+    expect(balancin.inclinacion).toBeLessThan((16 * Math.PI) / 180);
   });
 });
 

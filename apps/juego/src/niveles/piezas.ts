@@ -20,7 +20,18 @@ import { PASO } from "../motor/bucle";
 import { GRAVEDAD, type Rapier } from "../motor/fisica";
 import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
-import type { PiezaDelPlano, TipoDePieza } from "./formato";
+import { armarCadejo, type Cadejo } from "./cadejo";
+import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
+import {
+  armarHueso,
+  armarLampara,
+  armarTranca,
+  armarTronco,
+  type Hueso,
+  type Lampara,
+  type Tranca,
+  type Tronco,
+} from "./piezas-pinar";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si
@@ -129,6 +140,12 @@ export interface PiezaPorTipo {
   plancha: Plancha;
   balancin: Balancin;
   bejuco: Bejuco;
+  // Las del pinar (TU-14): piezas-pinar.ts y cadejo.ts
+  tronco: Tronco;
+  tranca: Tranca;
+  hueso: Hueso;
+  lampara: Lampara;
+  cadejo: Cadejo;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -150,6 +167,34 @@ export interface PiezasDeJuego {
   dibujar(alfa: number): void;
 }
 
+/** Lo que necesitan las piezas que se arman en otros archivos (las del pinar): el mundo, la escena y cómo
+ * engancharse en cada momento del paso. */
+export interface Herramientas {
+  readonly rapier: Rapier;
+  readonly mundo: RAPIER.World;
+  readonly escena: THREE.Scene;
+  readonly madera: THREE.Material;
+  readonly oscuro: THREE.Material;
+  /** Todas las piezas del nivel (se llena mientras se arman): el Cadejo busca ahí los huesos. */
+  readonly lista: readonly PiezaDeJuego[];
+  /** Pone la imagen en la escena y la hace seguir al cuerpo, interpolando entre pasos. */
+  mover(cuerpo: RAPIER.RigidBody, objeto: THREE.Object3D): void;
+  /** Un cuerpo fijo en ese lugar. */
+  fijo(posicion: THREE.Vector3, giro: THREE.Quaternion): RAPIER.RigidBody;
+  /** La descripción de un cuerpo dinámico en ese lugar. */
+  dinamico(posicion: THREE.Vector3, giro: THREE.Quaternion): RAPIER.RigidBodyDesc;
+  /** Un punto de la caja (en su marco) llevado al mundo. */
+  enElMundo(p: { readonly caja: Volumen }, x: number, y: number, z: number): THREE.Vector3;
+  /** El cuerpo principal de la pieza, para `nivel.pieza(nombre)`. */
+  solida(pieza: Pieza): void;
+  antes(f: (munecos: readonly Muneco[], entradas?: readonly EntradaMuneco[]) => void): void;
+  despues(f: (munecos: readonly Muneco[], fuera: (p: THREE.Vector3Like) => boolean) => void): void;
+  /** Después de anotar dónde quedó cada cuerpo, en cada paso (también en el invitado, que no simula). */
+  guardar(f: () => void): void;
+  /** Después de mover las imágenes: para animar (las patas del Cadejo, la luz de la lámpara). */
+  dibujar(f: (alfa: number) => void): void;
+}
+
 /** Un cuerpo que se mueve y su imagen, que lo sigue interpolando entre pasos. */
 interface Movil {
   readonly cuerpo: RAPIER.RigidBody;
@@ -167,7 +212,7 @@ const vector = (v: THREE.Vector3) => ({ x: v.x, y: v.y, z: v.z });
 const limitar = (x: number, min: number, max: number) => Math.min(max, Math.max(min, x));
 
 /** Un interruptor con histéresis y sus avisos. */
-function crearInterruptor() {
+export function crearInterruptor() {
   let prendido = false;
   const avisos = new Set<(prendida: boolean) => void>();
   return {
@@ -235,6 +280,8 @@ export function armarPiezas(
   /** Lo que hace cada pieza en `antes` y en `despues`. */
   const antesDe: ((munecos: readonly Muneco[], entradas?: readonly EntradaMuneco[]) => void)[] = [];
   const despuesDe: ((munecos: readonly Muneco[], fuera: (p: THREE.Vector3Like) => boolean) => void)[] = [];
+  const guardarDe: (() => void)[] = [];
+  const dibujarDe: ((alfa: number) => void)[] = [];
 
   const mover = (cuerpo: RAPIER.RigidBody, objeto: THREE.Object3D) => {
     const p = new THREE.Vector3().copy(cuerpo.translation());
@@ -251,7 +298,7 @@ export function armarPiezas(
   const dinamico = (posicion: THREE.Vector3, giro: THREE.Quaternion) =>
     rapier.RigidBodyDesc.dynamic().setTranslation(posicion.x, posicion.y, posicion.z).setRotation(giro);
   /** Un punto de la caja (en su marco) llevado al mundo. */
-  const enElMundo = (p: PiezaDelPlano, x: number, y: number, z: number) =>
+  const enElMundo = (p: { readonly caja: Volumen }, x: number, y: number, z: number) =>
     new THREE.Vector3(x, y, z).applyQuaternion(p.caja.giro).add(p.caja.centro);
 
   const armarHuacal = (p: Extract<PiezaDelPlano, { cual: "huacal" }>): Huacal => {
@@ -320,11 +367,11 @@ export function armarPiezas(
       brazo,
     );
     const datos = rapier.JointData.revolute({ x: 0, y: 0, z: 0 }, { x: 0, y: -largo / 2, z: 0 }, EJE_X);
-    datos.limitsEnabled = true;
-    datos.limits = [-p.angulo, p.angulo];
     const junta = mundo.createImpulseJoint(datos, ancla, brazo, true);
     junta.setContactsEnabled(false);
     if (junta instanceof rapier.RevoluteImpulseJoint) {
+      // En una bisagra, Rapier ignora los topes de JointData: van después de crearla
+      junta.setLimits(-p.angulo, p.angulo);
       junta.configureMotorModel(rapier.MotorModel.ForceBased);
       if (p.vuelve) {
         // El resorte lleva el brazo al reposo: del todo al otro lado hace falta `fuerza` en la manija, más lo que
@@ -463,11 +510,11 @@ export function armarPiezas(
       tabla,
     );
     const datos = rapier.JointData.revolute({ x: 0, y: 0, z: 0 }, vector(apoyo), ejeGiro);
-    datos.limitsEnabled = true;
-    datos.limits = [-p.angulo, p.angulo];
     const junta = mundo.createImpulseJoint(datos, ancla, tabla, true);
     junta.setContactsEnabled(false);
     if (junta instanceof rapier.RevoluteImpulseJoint) {
+      // En una bisagra, Rapier ignora los topes de JointData: van después de crearla
+      junta.setLimits(-p.angulo, p.angulo);
       junta.configureMotorModel(rapier.MotorModel.ForceBased);
       junta.configureMotorVelocity(0, a.rozamiento);
     }
@@ -583,6 +630,24 @@ export function armarPiezas(
     };
   };
 
+  const herramientas: Herramientas = {
+    rapier,
+    mundo,
+    escena,
+    madera,
+    oscuro,
+    lista,
+    mover,
+    fijo,
+    dinamico,
+    enElMundo,
+    solida: (pieza) => solidas.push(pieza),
+    antes: (f) => antesDe.push(f),
+    despues: (f) => despuesDe.push(f),
+    guardar: (f) => guardarDe.push(f),
+    dibujar: (f) => dibujarDe.push(f),
+  };
+
   for (const p of plano) {
     // El nodo de Blender no se dibuja: la imagen de cada pieza la arma el juego
     p.objeto.visible = false;
@@ -601,6 +666,21 @@ export function armarPiezas(
         break;
       case "bejuco":
         lista.push(armarBejuco(p));
+        break;
+      case "tronco":
+        lista.push(armarTronco(herramientas, p));
+        break;
+      case "tranca":
+        lista.push(armarTranca(herramientas, p));
+        break;
+      case "hueso":
+        lista.push(armarHueso(herramientas, p));
+        break;
+      case "lampara":
+        lista.push(armarLampara(herramientas, p));
+        break;
+      case "cadejo":
+        lista.push(armarCadejo(herramientas, p));
         break;
     }
   }
@@ -624,12 +704,14 @@ export function armarPiezas(
         m.ahora.copy(m.cuerpo.translation());
         m.ahoraQ.copy(m.cuerpo.rotation());
       }
+      for (const f of guardarDe) f();
     },
     dibujar(alfa) {
       for (const m of moviles) {
         m.objeto.position.lerpVectors(m.antes, m.ahora, alfa);
         m.objeto.quaternion.slerpQuaternions(m.antesQ, m.ahoraQ, alfa);
       }
+      for (const f of dibujarDe) f(alfa);
     },
   };
 }

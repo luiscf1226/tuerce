@@ -5,6 +5,7 @@
 // Este archivo no carga nada ni toca Rapier: recibe el árbol de three que dejó GLTFLoader y devuelve el plano del
 // nivel. Así se prueba en Node leyendo el .glb del disco.
 import * as THREE from "three";
+import { leerPiezaDelPinar, PIEZAS_DEL_PINAR, type PiezaDelPinarEnPlano } from "./formato-pinar";
 
 export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza"] as const;
 export type Tipo = (typeof TIPOS)[number];
@@ -17,8 +18,9 @@ export const MATERIALES = ["suelo", "tela", "corteza", "honda", "lejana"] as con
 export type Material = (typeof MATERIALES)[number];
 export const ADORNOS = ["pino", "abeto", "roca", "mata", "tronco"] as const;
 export type FormaDeAdorno = (typeof ADORNOS)[number];
-/** Las piezas de juego (TU-12): cosas que se mueven con físicas y que el guion puede mirar. */
-export const PIEZAS = ["huacal", "palanca", "plancha", "balancin", "bejuco"] as const;
+/** Las piezas de juego (TU-12): cosas que se mueven con físicas y que el guion puede mirar. Las que estrena El pinar
+ * (TU-14) están en formato-pinar.ts. */
+export const PIEZAS = ["huacal", "palanca", "plancha", "balancin", "bejuco", ...PIEZAS_DEL_PINAR] as const;
 export type TipoDePieza = (typeof PIEZAS)[number];
 
 /** Una caja girada en el mundo: zona de un punto de control o del vacío. */
@@ -109,7 +111,8 @@ export type PiezaDelPlano =
       /** Dónde está el eje, a lo largo de la tabla: 0 un extremo, 0.5 el medio, 1 el otro. */
       readonly apoyo: number;
     })
-  | (BaseDePieza & { readonly cual: "bejuco"; readonly masa: number; readonly segmentos: number });
+  | (BaseDePieza & { readonly cual: "bejuco"; readonly masa: number; readonly segmentos: number })
+  | PiezaDelPinarEnPlano;
 
 export interface PlanoDeNivel {
   /** Número del nivel (99 para el de prueba). */
@@ -277,6 +280,14 @@ function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPl
       if (!Number.isInteger(segmentos)) throw new ErrorDeNivel(`«${donde}»: \`segmentos\` tiene que ser entero`);
       return { ...base, cual, masa: leerEntre(extras, "masa", donde, 4, 0.2, 100), segmentos };
     }
+    case "tronco":
+    case "tranca":
+    case "hueso":
+    case "lampara":
+    case "cadejo":
+      return leerPiezaDelPinar(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
   }
 }
 

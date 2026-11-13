@@ -95,6 +95,65 @@ const TOMAS = [
   },
   { archivo: "piezas-balancin", ruta: "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=170" },
   { archivo: "piezas-balancin-volcado", ruta: "/?escena=nivel&nivel=piezas&punto=3&j1=andar:1&j2=&congelar=230" },
+  // TU-13: el nivel 0, El patio (niveles/00-patio). Entero desde lejos; despiertan tirados en el montón de trapos y
+  // se levantan; el rojo empuja la aldaba y el turquesa pasa el portón; los dos cargan la escalera y se apoya en el
+  // muro (logro «A la de tres»); suben el techo de lámina; el rojo cae al camión que maniobra (la meta); y el
+  // turquesa encuentra la piñata en el palo de mango (el secreto)
+  { archivo: "patio-entero", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "patio-1-despiertan", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=100" },
+  { archivo: "patio-1-levantados", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=260" },
+  {
+    archivo: "patio-2-porton",
+    ruta: "/?escena=nivel&nivel=patio&punto=1&j1=andar:0.8,izq@15,der@15&j2=andar:1&congelar=115",
+  },
+  {
+    archivo: "patio-3-escalera",
+    ruta: "/?escena=nivel&nivel=patio&punto=2&j1=andar:0.6,izq@15,der@15&j2=andar:0.6,izq@15,der@15&congelar=200",
+  },
+  {
+    archivo: "patio-3-apoyada",
+    ruta: "/?escena=nivel&nivel=patio&punto=2&j1=andar:0.6,izq@15,der@15&j2=andar:0.6,izq@15,der@15&congelar=440",
+  },
+  { archivo: "patio-4-lamina", ruta: "/?escena=nivel&nivel=patio&punto=3&j1=andar:1&j2=andar:1&congelar=170" },
+  { archivo: "patio-5-camion", ruta: "/?escena=nivel&nivel=patio&punto=4&j1=andar:1&j2=&congelar=95" },
+  { archivo: "patio-5-meta", ruta: "/?escena=nivel&nivel=patio&punto=4&j1=andar:1&j2=&congelar=170" },
+  { archivo: "patio-secreto", ruta: "/?escena=nivel&nivel=patio&punto=2&j1=&j2=andar:1,girar:0.1&congelar=150" },
+  // TU-14: el nivel 1, El pinar (niveles/01-pinar), entero, en la salida y una toma por misión: 1. el rojo empuja el
+  // cajón contra el cerco; 2. el turquesa sube solo por el balancín y, pasado el eje, se le vuelca; 3. el rojo se
+  // columpia en el bejuco sobre el barranco; 4. el rojo agarra el tronco de los caballetes (solo no lo levanta);
+  // 5. el Cadejo echado en su corral, persiguiendo al rojo y recién lamido; 6. el rojo agarra la lámpara, que se
+  // enciende y abre la puerta de la pulpería (y, ya en la meta, la lámpara encendida y la puerta abierta). Y el nido
+  // del secreto, arriba del pino más alto (`vista=x,y,z`: la cámara quieta mirando ese punto)
+  { archivo: "pinar-entero", ruta: "/?escena=nivel&nivel=pinar&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "pinar-salida", ruta: "/?escena=nivel&nivel=pinar&j1=&j2=&congelar=60" },
+  { archivo: "pinar-1-cerco", ruta: "/?escena=nivel&nivel=pinar&j1=andar:1&j2=andar:1&congelar=230" },
+  { archivo: "pinar-2-balancin", ruta: "/?escena=nivel&nivel=pinar&punto=1&j1=&j2=andar:1&congelar=260" },
+  { archivo: "pinar-2-volcado", ruta: "/?escena=nivel&nivel=pinar&punto=1&j1=&j2=andar:1&congelar=395" },
+  {
+    archivo: "pinar-3-bejuco",
+    ruta: "/?escena=nivel&nivel=pinar&punto=2&j1=andar:1,izq@15,der@15&j2=&congelar=250",
+  },
+  { archivo: "pinar-4-tronco", ruta: "/?escena=nivel&nivel=pinar&punto=3&j1=andar:1,der@15&j2=andar:1&congelar=100" },
+  { archivo: "pinar-5-cadejo", ruta: "/?escena=nivel&nivel=pinar&punto=4&j1=&j2=&vista=41.2,3.8,0&congelar=60" },
+  { archivo: "pinar-5-persigue", ruta: "/?escena=nivel&nivel=pinar&punto=4&j1=andar:1&j2=&congelar=118" },
+  { archivo: "pinar-5-lamida", ruta: "/?escena=nivel&nivel=pinar&punto=4&j1=andar:1&j2=&congelar=140" },
+  { archivo: "pinar-6-lampara", ruta: "/?escena=nivel&nivel=pinar&punto=5&j1=andar:1,der@15&j2=&congelar=250" },
+  { archivo: "pinar-6-encendida", ruta: "/?escena=nivel&nivel=pinar&punto=6&j1=&j2=&vista=50.6,4.6,0&congelar=60" },
+  { archivo: "pinar-secreto", ruta: "/?escena=nivel&nivel=pinar&punto=5&j1=&j2=&vista=49.7,7.9,-2.45&congelar=30" },
+  // TU-33: Noche de tuerce. El nivel de piezas de noche, entero; con el cartel de la trampa al empezar: amarrados por
+  // un mecate (el turquesa se queda y el rojo lo arrastra), la niebla espesa en el de prueba, los dos saltando con
+  // gravedad de luna, y la línea del menú
+  {
+    archivo: "noche-piezas-entero",
+    ruta: "/?escena=nivel&nivel=piezas&noche=2&trampa=cruzados&j1=&j2=&vista=todo&congelar=60",
+  },
+  {
+    archivo: "noche-amarrados",
+    ruta: "/?escena=nivel&nivel=piezas&noche=7&trampa=mecate&j1=andar:1,girar:-0.15&j2=&congelar=200",
+  },
+  { archivo: "noche-niebla", ruta: "/?escena=nivel&noche=3&trampa=niebla&j1=andar:1&j2=andar:1&congelar=120" },
+  { archivo: "noche-luna", ruta: "/?escena=nivel&noche=1&trampa=luna&j1=saltar@30&j2=saltar@36&congelar=75" },
+  { archivo: "noche-menu", ruta: "/?escena=nivel&noche=5&j1=&j2=&menu&congelar=60" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

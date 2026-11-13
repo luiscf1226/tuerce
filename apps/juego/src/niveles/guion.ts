@@ -5,8 +5,10 @@ import type * as THREE from "three";
 import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import type { Pieza } from "./armar";
+import type { Cadejo } from "./cadejo";
 import type { PlanoDeNivel } from "./formato";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
+import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -37,6 +39,12 @@ export interface NivelEnJuego {
   plancha(nombre: string): Plancha;
   balancin(nombre: string): Balancin;
   bejuco(nombre: string): Bejuco;
+  /** Las que estrena El pinar (TU-14, ver piezas-pinar.ts y cadejo.ts). */
+  tronco(nombre: string): Tronco;
+  tranca(nombre: string): Tranca;
+  hueso(nombre: string): Hueso;
+  lampara(nombre: string): Lampara;
+  cadejo(nombre: string): Cadejo;
 }
 
 export interface GuionDeNivel {

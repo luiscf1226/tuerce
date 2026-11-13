@@ -31,6 +31,8 @@
 //   · En el contrarreloj (TU-32) la foto lleva también el reloj de la carrera: el invitado lo muestra tal cual y lo
 //     devuelve con el mundo, así el anfitrión que vuelve sigue contando desde ahí. `aceptarMundo` deja que la escena
 //     rechace un mundo devuelto (una carrera ya terminada: se empieza otra desde la salida).
+//   · De noche (TU-33) la foto lleva también la trampa que eligió el anfitrión: el invitado pone la misma (y su
+//     cartel), aunque él haya abierto la página de día o con otra semilla.
 //   · Una vez decidido no se pregunta más: si al anfitrión solo se le cortó la red, su mundo es el bueno.
 //   · Lo que no vuelve: los agarres (las manos se sueltan) y las velocidades (todo retoma quieto).
 //
@@ -140,6 +142,8 @@ export interface OpcionesSincronia {
   avance?: Pick<AvanceDeNivel, "puntoDeControl" | "retomar">;
   /** El reloj del contrarreloj, si es una carrera (TU-32): lo cuenta el anfitrión y viaja en las fotos. */
   reloj?: Pick<Reloj, "pasos" | "fijar">;
+  /** La trampa de la Noche de tuerce (TU-33), por su número: la elige el anfitrión y viaja en las fotos. */
+  trampa?: { leer(): number; fijar(numero: number): void };
   /** Anfitrión: si retoma el mundo que devuelve el invitado (sí, si no se dice otra cosa). */
   aceptarMundo?: (foto: Foto) => boolean;
   /** El colchón del invitado en pasos (6 = 100 ms). */
@@ -168,7 +172,16 @@ function medidasNuevas(): Medidas {
 
 const SIN_DESVIO: Desvio = { x: 0, z: 0, rumbo: 0 };
 
-function crearAnfitrion({ enlace, mundo, munecos, origen, avance, reloj, aceptarMundo }: OpcionesSincronia): Sincronia {
+function crearAnfitrion({
+  enlace,
+  mundo,
+  munecos,
+  origen,
+  avance,
+  reloj,
+  trampa,
+  aceptarMundo,
+}: OpcionesSincronia): Sincronia {
   const cuerpos = cuerposMoviles(mundo);
   const medidas = medidasNuevas();
   const cola = new Map<number, EntradaJugador>();
@@ -312,6 +325,7 @@ function crearAnfitrion({ enlace, mundo, munecos, origen, avance, reloj, aceptar
         ack: aplicada,
         estados: [rojo.estado, turquesa.estado],
         agarres: agarres(),
+        trampa: trampa?.leer() ?? 0,
         rumbos: [rojo.rumbo, turquesa.rumbo],
         velocidades: [rojo.partes.pelvis.linvel(), turquesa.partes.pelvis.linvel()],
         punto: avance?.puntoDeControl() ?? 0,
@@ -342,6 +356,7 @@ function crearInvitado({
   origen,
   avance,
   reloj,
+  trampa,
   retraso = RETRASO_PASOS,
   ...op
 }: OpcionesSincronia): Sincronia {
@@ -380,6 +395,7 @@ function crearInvitado({
       ultima = foto;
       // Antes que el punto de control: al llegar a la meta, el reloj ya marca el tiempo final
       reloj?.fijar(foto.reloj);
+      trampa?.fijar(foto.trampa ?? 0);
     }
     if (avance && foto.punto > avance.puntoDeControl()) avance.retomar(foto.punto);
     medidas.fotos++;
