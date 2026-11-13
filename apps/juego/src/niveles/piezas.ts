@@ -21,6 +21,8 @@ import { GRAVEDAD, type Rapier } from "../motor/fisica";
 import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
+// La minga (TU-47)
+import { armarCaleuche, type Caleuche } from "./caleuche";
 // El cafetal (TU-41)
 import { armarCipitio, type Cipitio } from "./cipitio";
 import { armarDuende, type Duende } from "./duende";
@@ -90,6 +92,8 @@ import {
   type Vagoneta,
   type Velas,
 } from "./piezas-mina";
+// La minga (TU-47)
+import { type Ancla, armarAncla, armarChalupa, armarMinga, type Chalupa, type Minga } from "./piezas-minga";
 import {
   armarHueso,
   armarLampara,
@@ -361,6 +365,11 @@ export interface PiezaPorTipo {
   ofrenda: Ofrenda;
   velas: Velas;
   tio: Tio;
+  // La minga (TU-47): piezas-minga.ts y caleuche.ts
+  minga: Minga;
+  chalupa: Chalupa;
+  ancla: Ancla;
+  caleuche: Caleuche;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -1098,6 +1107,19 @@ export function armarPiezas(
         break;
       case "tio":
         lista.push(armarTio(herramientas, p));
+        break;
+      // La minga (TU-47)
+      case "minga":
+        lista.push(armarMinga(herramientas, p));
+        break;
+      case "chalupa":
+        lista.push(armarChalupa(herramientas, p));
+        break;
+      case "ancla":
+        lista.push(armarAncla(herramientas, p));
+        break;
+      case "caleuche":
+        lista.push(armarCaleuche(herramientas, p));
         break;
     }
   }

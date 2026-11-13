@@ -8,6 +8,8 @@ import type { Muneco } from "../muneco";
 import type { Agua, Aguas } from "./agua";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
+// La minga (TU-47)
+import type { Caleuche } from "./caleuche";
 // El cafetal (TU-41)
 import type { Cipitio } from "./cipitio";
 import type { Duende } from "./duende";
@@ -29,6 +31,8 @@ import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
 // La mina (TU-46)
 import type { Espejo, Grieta, Ofrenda, Vagoneta, Velas } from "./piezas-mina";
+// La minga (TU-47)
+import type { Ancla, Chalupa, Minga } from "./piezas-minga";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 import type { Anden, Bocatoma, Chaka, Qeswa } from "./piezas-puente";
@@ -160,6 +164,11 @@ export interface NivelEnJuego {
   ofrenda(nombre: string): Ofrenda;
   velas(nombre: string): Velas;
   tio(nombre: string): Tio;
+  /** Las piezas que estrena La minga (TU-47, ver piezas-minga.ts y caleuche.ts). */
+  minga(nombre: string): Minga;
+  chalupa(nombre: string): Chalupa;
+  ancla(nombre: string): Ancla;
+  caleuche(nombre: string): Caleuche;
 }
 
 export interface GuionDeNivel {

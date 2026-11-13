@@ -315,6 +315,11 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     ofrenda: (nombre) => deJuego("ofrenda", nombre),
     velas: (nombre) => deJuego("velas", nombre),
     tio: (nombre) => deJuego("tio", nombre),
+    // La minga (TU-47)
+    minga: (nombre) => deJuego("minga", nombre),
+    chalupa: (nombre) => deJuego("chalupa", nombre),
+    ancla: (nombre) => deJuego("ancla", nombre),
+    caleuche: (nombre) => deJuego("caleuche", nombre),
     avance,
     premios,
     antes(entradas) {

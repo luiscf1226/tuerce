@@ -35,6 +35,9 @@ import { crearGuion as guionPuente } from "../../../../niveles/12-puente/guion";
 // La mina (TU-46)
 import escenaMina from "../../../../niveles/13-mina/escena.glb?url";
 import { crearGuion as guionMina } from "../../../../niveles/13-mina/guion";
+// La minga (TU-47)
+import escenaMinga from "../../../../niveles/14-minga/escena.glb?url";
+import { crearGuion as guionMinga } from "../../../../niveles/14-minga/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -160,6 +163,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     crearGuion: guionMina,
     // Amarrados no: el que sostiene el cambio queda a más de 4 m de la vagoneta, uno sube en la jaula mientras el
     // otro se cuelga abajo, y los espejos están a 6 m
+    sinTrampas: ["mecate"],
+  },
+  // La minga (TU-47): nivel 14, Chiloé. La marea, la casa sobre troncos, la chalupa, el ancla y El Caleuche
+  minga: {
+    carpeta: "14-minga",
+    escena: escenaMinga,
+    crearGuion: guionMinga,
+    // Amarrados no: las bitas de la chalupa quedan a 5 m una de la otra, y el ancla sube a uno solo a la vez
     sinTrampas: ["mecate"],
   },
 };

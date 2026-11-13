@@ -390,6 +390,23 @@ const TOMAS = [
   { archivo: "mina-5-boca", ruta: "/?escena=nivel&nivel=mina&punto=4&j1=&j2=&vista=20.5,2.8,0.4&congelar=60" },
   { archivo: "mina-5-salar", ruta: "/?escena=nivel&nivel=mina&punto=5&j1=&j2=&vista=45,-2.4,0.8&congelar=60" },
   { archivo: "mina-secreto", ruta: "/?escena=nivel&nivel=mina&punto=1&j1=&j2=&vista=-24.6,1.8,-2.4&congelar=30" },
+  // La minga (TU-47): el nivel 14, Chiloé (niveles/14-minga; va corrido 52 m hacia −x), entero y en la salida;
+  // 1. los palafitos con la marea baja y con la marea alta; 2. la casa sobre los troncos con sus dos cabos, y ya en su
+  // sitio con la tranquera abierta; 3. la chalupa fondeada lejos del muelle, con los cabos colgando del poste, y
+  // amarrada; 4. los dos subiendo en el ancla del Caleuche; 5. la fiesta en la cubierta, y la plancha baja hasta la
+  // meta. Y el curanto enterrado del secreto, en la playa
+  { archivo: "minga-entero", ruta: "/?escena=nivel&nivel=minga&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "minga-salida", ruta: "/?escena=nivel&nivel=minga&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "minga-1-bajamar", ruta: "/?escena=nivel&nivel=minga&j1=&j2=&vista=-34,0.8,-0.6&congelar=60" },
+  { archivo: "minga-1-pleamar", ruta: "/?escena=nivel&nivel=minga&j1=&j2=&vista=-34,0.8,-0.6&congelar=960" },
+  { archivo: "minga-2-casa", ruta: "/?escena=nivel&nivel=minga&punto=1&j1=&j2=&vista=-1.6,2,0&congelar=60" },
+  { archivo: "minga-2-sitio", ruta: "/?escena=nivel&nivel=minga&punto=2&j1=&j2=&vista=6.5,2,0&congelar=120" },
+  { archivo: "minga-3-chalupa", ruta: "/?escena=nivel&nivel=minga&punto=2&j1=&j2=&vista=26,1,-1.8&congelar=60" },
+  { archivo: "minga-3-amarrada", ruta: "/?escena=nivel&nivel=minga&punto=3&j1=&j2=&vista=28,1,-2&congelar=30" },
+  { archivo: "minga-4-ancla", ruta: "/?escena=nivel&nivel=minga&punto=3&j1=&j2=&vista=29.4,2.4,-3.4&congelar=200" },
+  { archivo: "minga-5-fiesta", ruta: "/?escena=nivel&nivel=minga&punto=4&j1=&j2=&vista=36,4,-5.6&congelar=640" },
+  { archivo: "minga-5-meta", ruta: "/?escena=nivel&nivel=minga&punto=5&j1=&j2=&vista=49.5,3.2,-5.6&congelar=150" },
+  { archivo: "minga-secreto", ruta: "/?escena=nivel&nivel=minga&j1=&j2=&vista=-19,0.6,-2.4&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
