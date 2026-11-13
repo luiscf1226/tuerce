@@ -25,6 +25,8 @@ import { armarCadejo, type Cadejo } from "./cadejo";
 import { armarCipitio, type Cipitio } from "./cipitio";
 import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
+// El puente (TU-45)
+import { armarCarguera, type Carguera } from "./llama";
 // Los canales (TU-42)
 import { armarLlorona, type Llorona } from "./llorona";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
@@ -96,6 +98,16 @@ import {
   type Piedra,
   type Tendedero,
 } from "./piezas-poza";
+import {
+  type Anden,
+  armarAnden,
+  armarBocatoma,
+  armarChaka,
+  armarQeswa,
+  type Bocatoma,
+  type Chaka,
+  type Qeswa,
+} from "./piezas-puente";
 // El Río Plátano (TU-28)
 import { armarPalmera, armarPipante, armarPuente, type Palmera, type Pipante, type Puente } from "./piezas-rio";
 import {
@@ -322,6 +334,12 @@ export interface PiezaPorTipo {
   costal: Costal;
   guineo: Guineo;
   cipitio: Cipitio;
+  // El puente (TU-45): piezas-puente.ts y llama.ts
+  qeswa: Qeswa;
+  chaka: Chaka;
+  bocatoma: Bocatoma;
+  anden: Anden;
+  carguera: Carguera;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -1024,6 +1042,22 @@ export function armarPiezas(
         break;
       case "cipitio":
         lista.push(armarCipitio(herramientas, p));
+        break;
+      // El puente (TU-45)
+      case "qeswa":
+        lista.push(armarQeswa(herramientas, p));
+        break;
+      case "chaka":
+        lista.push(armarChaka(herramientas, p));
+        break;
+      case "bocatoma":
+        lista.push(armarBocatoma(herramientas, p));
+        break;
+      case "anden":
+        lista.push(armarAnden(herramientas, p));
+        break;
+      case "carguera":
+        lista.push(armarCarguera(herramientas, p));
         break;
     }
   }

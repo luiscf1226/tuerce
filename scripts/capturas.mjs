@@ -361,6 +361,21 @@ const TOMAS = [
   { archivo: "cafetal-5-portillo", ruta: "/?escena=nivel&nivel=cafetal&punto=4&j1=&j2=&vista=26,4.2,0&congelar=60" },
   { archivo: "cafetal-5-contento", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=27,5.4,-1&congelar=60" },
   { archivo: "cafetal-secreto", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=35,6.4,-2.4&congelar=30" },
+  // El puente (TU-45): el nivel 12, Q'eswachaka (niveles/12-puente; va corrido 42 m hacia −x), entero y en la
+  // salida; 1. la qeswa entre sus dos torcedores; 2. la cabecera con la soga y el amarre, y el puente flojo colgando
+  // en el cañón; 3. el rojo cruzando el puente amarrado, que se mece; 4. las terrazas con la de arriba regada y las
+  // bocatomas, y las tres regadas; 5. la llama carguera delante de su corral, y contenta en el patio del tambo con
+  // la meta. Y el quipu del secreto, entre las piedras del pedregal
+  { archivo: "puente-entero", ruta: "/?escena=nivel&nivel=puente&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "puente-salida", ruta: "/?escena=nivel&nivel=puente&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "puente-1-qeswa", ruta: "/?escena=nivel&nivel=puente&j1=&j2=&vista=-35,1,-1.8&congelar=60" },
+  { archivo: "puente-2-tender", ruta: "/?escena=nivel&nivel=puente&punto=1&j1=&j2=&vista=-19.5,0.6,0&congelar=60" },
+  { archivo: "puente-3-cruzar", ruta: "/?escena=nivel&nivel=puente&punto=2&j1=andar:1&j2=&congelar=230" },
+  { archivo: "puente-4-terrazas", ruta: "/?escena=nivel&nivel=puente&punto=3&j1=&j2=&vista=10,1.8,-4.5&congelar=90" },
+  { archivo: "puente-4-regadas", ruta: "/?escena=nivel&nivel=puente&punto=4&j1=&j2=&vista=4,0.8,-4.5&congelar=90" },
+  { archivo: "puente-5-llama", ruta: "/?escena=nivel&nivel=puente&punto=4&j1=&j2=&vista=22.5,3.4,-1&congelar=60" },
+  { archivo: "puente-5-meta", ruta: "/?escena=nivel&nivel=puente&punto=5&j1=&j2=&vista=40,3.4,-1&congelar=60" },
+  { archivo: "puente-secreto", ruta: "/?escena=nivel&nivel=puente&j1=&j2=&vista=-31.7,1.6,-6.3&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

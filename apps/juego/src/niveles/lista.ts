@@ -29,6 +29,9 @@ import { crearGuion as guionGarrucha } from "../../../../niveles/10-garrucha/gui
 // El llano (TU-44)
 import escenaLlano from "../../../../niveles/11-llano/escena.glb?url";
 import { crearGuion as guionLlano } from "../../../../niveles/11-llano/guion";
+// El puente (TU-45)
+import escenaPuente from "../../../../niveles/12-puente/escena.glb?url";
+import { crearGuion as guionPuente } from "../../../../niveles/12-puente/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -136,6 +139,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaLlano,
     crearGuion: guionLlano,
     // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
+    sinTrampas: ["mecate"],
+  },
+  // El puente (TU-45): nivel 12, Q'eswachaka, Perú. La qeswa, el puente de paja, los canales y la llama carguera
+  puente: {
+    carpeta: "12-puente",
+    escena: escenaPuente,
+    crearGuion: guionPuente,
+    // Amarrados no: los torcedores de la qeswa quedan a 6 m, y la soga del puente a más de 4 m del amarre
     sinTrampas: ["mecate"],
   },
 };

@@ -302,6 +302,12 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     costal: (nombre) => deJuego("costal", nombre),
     guineo: (nombre) => deJuego("guineo", nombre),
     cipitio: (nombre) => deJuego("cipitio", nombre),
+    // El puente (TU-45)
+    qeswa: (nombre) => deJuego("qeswa", nombre),
+    chaka: (nombre) => deJuego("chaka", nombre),
+    bocatoma: (nombre) => deJuego("bocatoma", nombre),
+    anden: (nombre) => deJuego("anden", nombre),
+    carguera: (nombre) => deJuego("carguera", nombre),
     avance,
     premios,
     antes(entradas) {

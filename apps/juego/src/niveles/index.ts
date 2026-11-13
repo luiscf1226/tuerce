@@ -12,6 +12,8 @@ export type { Cipitio } from "./cipitio";
 export type { Duende } from "./duende";
 export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from "./formato";
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
+// El puente (TU-45)
+export type { Carguera } from "./llama";
 // Los canales (TU-42)
 export type { Llorona } from "./llorona";
 export type { Murcielagos } from "./murcielagos";
@@ -28,6 +30,7 @@ export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 export type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+export type { Anden, Bocatoma, Chaka, Qeswa } from "./piezas-puente";
 // El Río Plátano (TU-28)
 export type { Palmera, Pipante, Puente } from "./piezas-rio";
 export type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
