@@ -16,7 +16,7 @@
     "prueba:red": "node scripts/prueba-red.mjs",
     "red:local": "node scripts/red-local.mjs",
     "capturas": "node scripts/capturas.mjs",
-    "niveles": "node scripts/niveles/prueba.mjs && node scripts/niveles/piezas.mjs && node scripts/niveles/patio.mjs && node scripts/niveles/pinar.mjs && node scripts/niveles/poza.mjs && node scripts/niveles/xibalba.mjs && node scripts/niveles/tren.mjs && node scripts/niveles/calle.mjs && node scripts/niveles/rio.mjs && node scripts/niveles/canales.mjs && node scripts/niveles/llano.mjs && node scripts/niveles/garrucha.mjs && node scripts/niveles/trenzas.mjs && node scripts/niveles/cafetal.mjs",
+    "niveles": "node scripts/niveles/prueba.mjs && node scripts/niveles/piezas.mjs && node scripts/niveles/patio.mjs && node scripts/niveles/pinar.mjs && node scripts/niveles/poza.mjs && node scripts/niveles/xibalba.mjs && node scripts/niveles/tren.mjs && node scripts/niveles/calle.mjs && node scripts/niveles/rio.mjs && node scripts/niveles/canales.mjs && node scripts/niveles/llano.mjs && node scripts/niveles/garrucha.mjs && node scripts/niveles/trenzas.mjs && node scripts/niveles/cafetal.mjs && node scripts/niveles/minga.mjs",
     "convex:dev": "convex dev",
     "sala:dev": "pnpm --filter tuerce-sala dev",
     "sala:test": "pnpm --filter tuerce-sala test",

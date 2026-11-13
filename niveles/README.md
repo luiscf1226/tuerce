@@ -399,6 +399,37 @@ corre el guion ni las piezas: el silbido y sus ondas los calcula con los cuerpos
 silba porque lo ve hundido en su escondite; quiénes lo oyen se lo dice el guion en `alEmpezar`, que corre en los dos),
 anima las patas de las reses con lo que anduvieron y dibuja la tela y la cabuya de la hamaca.
 
+## Las piezas de La minga (TU-47)
+
+<!-- La minga (TU-47) -->
+
+Las que estrena el nivel 14, La minga (`apps/juego/src/niveles/piezas-minga.ts` y `caleuche.ts`; su lectura, en
+`formato-minga.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza; la marea la sube y la baja el
+guion con `irA` y `mareaEn` (bajamar, sube, pleamar y baja, siempre igual desde que empieza el nivel).
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Propiedades                                                                                                                                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `minga`    | La casa de la minga, del tamaño de la caja (las paredes; el techo de dos aguas va encima), sobre un camino de troncos que sigue `recorrido` metros hacia el +x de la caja (los troncos, de 12 cm de radio, van bajo la base de la caja). De cada esquina de adelante cuelga un cabo con su manija, a la altura de las manos. Se tira caminando para atrás: pasado su largo, el cabo se estira como un resorte. La casa anda **solo si cada cabo lo tira un muñeco distinto**, los dos pasados el `umbral`, y va hacia donde tiran los dos juntos: si uno tira torcido se corre de costado y, si una esquina pasa la punta de los troncos, **se sale**: se ladea, se atasca y a los `atasco` s los vecinos la vuelven a poner en los troncos. Cinemática.                                                           | `recorrido` (8 m) · `cabo` (2 m) · `estirar` (0.4 m) · `fuerza` (24 N, estirado del todo) · `umbral` (0.45) · `velocidad` (0.7 m/s) · `margen` (0.3 m: lo que salen los troncos de cada lado) · `atasco` (3 s) |
+| `chalupa`  | El bote chilote, del tamaño de la caja **donde queda amarrado**, con la proa hacia el + de su lado más largo y el muelle de su lado +z. Flota y gira solo alrededor de su Y. Suelto queda fondeado `fondeo` m más afuera y `corrida` m hacia atrás (un resorte lo lleva ahí). Sus dos cabos (proa y popa) cuelgan de una barandilla en la orilla del muelle; las bitas van frente a cada punta, `muelle` m adentro del muelle, sobre un piso que está `alto` m más arriba que el de la chalupa. Con **los dos cabos en sus bitas a la vez**, cada uno en una mano, durante `nudo` s, se amarra: los cabos quedan atados y la chalupa se arrima al muelle y se corre a su lugar. Suelto, cada cabo vuelve a su clavo. Lleva al que pisa.                                                                            | `masa` (150 kg) · `cabo` (6.5 m) · `fondeo` (2.6 m) · `corrida` (5 m) · `muelle` (1 m) · `alto` (0.8 m) · `nudo` (1 s) · `alcance` (0.5 m)                                                                     |
+| `ancla`    | El ancla del Caleuche, colgada de su cadena (que sube hasta un escobén sobre la caja). Lo de arriba de sus brazos (donde se pisa) va de lo bajo de la caja a lo alto. Abajo, con alguien parado en sus brazos `espera` s, la suben; arriba, sin nadie `arriba` s, la bajan; si alguien se sube mientras baja, la vuelven a subir. Cinemática.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `velocidad` (0.6 m/s) · `espera` (0.6 s) · `arriba` (2.5 s)                                                                                                                                                    |
+| `caleuche` | El Caleuche: el casco del tamaño de la caja, la cubierta arriba, la proa hacia su −x y la popa hacia su +x. Bordas de 50 cm en los costados (la de adelante, +z, abierta en el `portalon`, por donde llega el ancla) y de 90 cm en proa y popa (la de popa, abierta donde va la plancha, parada). Con los dos a bordo un segundo **empieza la fiesta**: `compases` compases de `compas` s en que la cubierta se mece de lado a lado, cada vez más, hasta `rolido`. Si uno se sale de la cubierta (se cae al agua, se cuelga de la borda), **se corta la música** y vuelve a empezar cuando los dos están a bordo. Terminada la canción queda **contento**: deja de mecerse y baja la plancha (`plancha` m, hasta `bajada` más abajo). La tripulación de fantasmas, los faroles y las velas son imagen. Cinemático. | `compases` (24) · `compas` (0.8 s) · `rolido` (7°) · `plancha` (3.4 m) · `bajada` (0.6 m) · `portalon` (1 m desde la proa)                                                                                     |
+
+```ts
+nivel.minga("casa").estado; // "quieta", "andando", "atascada" o "llego"; .avance, .desvio, .tiradores, .jaladas, .seSalio
+nivel.minga("casa").alLlegar(() => {}); // y .alSalirse(() => {}), .llevarAlFinal(), .volver(), .manijas
+nivel.chalupa("chalupa").estado; // "suelta", "amarrando" o "amarrada"; .cabos, .bitas, .aBordo, .encima(p), .alAmarrar(() => {})
+nivel.chalupa("chalupa").amarrar(); // al retomar; y .volver()
+nivel.ancla("ancla").estado; // "abajo", "subiendo", "arriba" o "bajando"; .altura, .encima, .alLlegarArriba(() => {}), .volver()
+nivel.caleuche("caleuche").estado; // "fondeado", "de fiesta" o "contento"; .compas, .rolido, .aBordo, .cortes, .aBordoDe(p)
+nivel.caleuche("caleuche").alContento(() => {}); // y .alCortar(() => {}), .contentar()
+```
+
+En línea viajan en la foto la casa y las manijas de sus cabos, la chalupa y las suyas, el ancla, el casco del Caleuche
+y su plancha, y el marcador de cada agua (la marea). El invitado no simula: saca de los cuerpos cuánto anduvo la casa y
+si se salió (la ve ladeada), si la chalupa está amarrada (las manijas en las bitas), dónde va el ancla y si hay fiesta
+(el casco se mece) o el Caleuche está contento (la plancha abajo), y dibuja los cabos, los troncos que ruedan, la
+cadena y el baile de la tripulación con los cuerpos tal como llegan.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -455,7 +486,7 @@ el último punto de control alcanzado. El punto de control se guarda en Convex p
 
 Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `pinar.mjs`, `poza.mjs`,
 `calle.mjs`, `xibalba.mjs`, `tren.mjs`, `rio.mjs`, `trenzas.mjs`, `cafetal.mjs`, `canales.mjs`, `garrucha.mjs`,
-`llano.mjs`, `prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
+`llano.mjs`, `minga.mjs`, `prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
 `comun.mjs`). Si los cambiás, volvé a correrlo y subí los `.glb`.
 
 La garrucha (TU-43): `scripts/niveles/garrucha.mjs` arma `10-garrucha`, también con `pnpm niveles`.
@@ -823,6 +854,39 @@ misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
 El secreto, «un arpa llanera bajo el samán», está en el conuco de atrás: se trepa la tapia (1.4 m) colgándose y la zona
 `secreto` está al pie del samán (da la vincha). De noche no va la trampa del mecate: el que frena el molino queda lejos
 de las aspas, y la hamaca lanza a uno solo al otro lado del caño.
+
+### `14-minga` (`?escena=nivel&nivel=minga`)
+
+<!-- La minga (TU-47) -->
+
+El nivel 14 (TU-47): La minga, en Chiloé, Chile. Palafitos sobre la marea (de grises: siluetas, sin colores), el
+bosque mojado con sus nalcas, una iglesia de madera en la loma, un muelle y El Caleuche, el barco fantasma que en
+realidad anda de fiesta. Estrena la marea, mover una casa y los cabos de barco. Lo arma `scripts/niveles/minga.mjs`
+(`pnpm niveles`). Va de oeste a este y todo va corrido 52 m hacia −x (mide 116 m; la foto de la red, ±64). Cada
+misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **Los palafitos**: la marea de la caleta pasa 10 s abajo, sube en 3, se queda 6 tapando la playa y baja en 3. Con
+   la marea alta solo se salvan los corredores de los dos palafitos (se sube por sus rampas). Del camino al primer
+   palafito, de ahí al segundo y del segundo a la explanada: cada tramo alcanza en una bajamar, dos seguidos no. El que
+   se queda en la playa cae al agua y reaparece junto al compañero → punto 1, arriba de la explanada.
+2. **La minga**, de a dos: la casa va sobre un camino de troncos. Cada uno agarra la manija de un cabo y camina para
+   atrás; la casa anda solo con los dos cabos tirados, cada uno por uno distinto (solo, con uno o con los dos cabos en
+   las manos, no se mueve). Si uno tira torcido, la casa se corre y se sale de los troncos: se atasca un rato y los
+   vecinos la vuelven a poner. Cuando llega a su sitio se hunde la tranquera (2.6 m: no se trepa) → punto 2. Llevarla
+   sin que se salga nunca de los troncos da el logro, «A hombro».
+3. **La chalupa**, de a dos: está fondeada lejos del muelle (2.4 m de agua: no se salta) y sus dos cabos cuelgan de la
+   barandilla de la orilla. Cada uno lleva un cabo a su bita; las bitas están a 5 m una de otra, así que uno solo no
+   las alcanza. Con los dos a la vez, un segundo, se amarra, se arrima y se corre junto al muelle. Se baja a ella y se
+   la cruza hasta los brazos del ancla del Caleuche, que cuelga del otro lado → punto 3 (desde el muelle no se llega).
+4. **El ancla**: parados en sus brazos, la tripulación la sube hasta la borda; se pasa a la cubierta por el portalón →
+   punto 4. Sin nadie, la vuelven a bajar a buscar al otro.
+5. **La fiesta**: con los dos a bordo suena la música (24 compases, unos 19 s) y la cubierta se mece de lado a lado,
+   cada vez más (hasta 7°). Si uno se cae al agua (o se cuelga de la borda), se corta la música y empieza de nuevo.
+   Aguantando la canción entera, El Caleuche baja la plancha de la popa al muelle de la fiesta → punto 5, la meta.
+
+El secreto, «un curanto enterrado en la playa», es el montículo con hojas de nalca y vapor detrás del segundo
+palafito, junto al mar (la zona `secreto`; da las colitas): se llega solo con la marea baja, y el desvío come tiempo del
+último tramo. De noche no va la trampa del mecate: las bitas de la chalupa quedan a 5 m una de otra.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 

@@ -6,6 +6,8 @@
 export type { Agua, Aguas } from "./agua";
 export { armarNivel, type NivelArmado, type Pieza } from "./armar";
 export type { Cadejo } from "./cadejo";
+// La minga (TU-47)
+export type { Caleuche } from "./caleuche";
 export { cargarNivel, parsearGlb } from "./cargar";
 // El cafetal (TU-41)
 export type { Cipitio } from "./cipitio";
@@ -26,6 +28,8 @@ export type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 export type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La minga (TU-47)
+export type { Ancla, Chalupa, Minga } from "./piezas-minga";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
