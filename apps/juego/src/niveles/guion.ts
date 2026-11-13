@@ -4,11 +4,24 @@ import type RAPIER from "@dimforge/rapier3d-compat";
 import type * as THREE from "three";
 import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
+// La poza (TU-24)
+import type { Agua, Aguas } from "./agua";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
+import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
+import type { Murcielagos } from "./murcielagos";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
+import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
+import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+// El Río Plátano (TU-28)
+import type { Palmera, Pipante, Puente } from "./piezas-rio";
+import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
+import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
+import type { SinBueyes } from "./sin-bueyes";
+import type { Sisimite } from "./sisimite";
+import type { Sucia } from "./sucia";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -45,6 +58,43 @@ export interface NivelEnJuego {
   hueso(nombre: string): Hueso;
   lampara(nombre: string): Lampara;
   cadejo(nombre: string): Cadejo;
+  /** El agua (TU-24, ver agua.ts): la zona con ese nombre, y todas (para `alMojar`, `densidad`…). */
+  agua(nombre: string): Agua;
+  readonly aguas: Aguas;
+  /** Las piezas que estrena La poza (TU-24, ver piezas-poza.ts y sucia.ts). */
+  balsa(nombre: string): Balsa;
+  tendedero(nombre: string): Tendedero;
+  batea(nombre: string): Batea;
+  piedra(nombre: string): Piedra;
+  sucia(nombre: string): Sucia;
+  /** Las que estrena Xibalbá (TU-26, ver piezas-xibalba.ts y murcielagos.ts). */
+  bloque(nombre: string): Bloque;
+  doble(nombre: string): Doble;
+  estela(nombre: string): Estela;
+  pelota(nombre: string): Pelota;
+  antorcha(nombre: string): Antorcha;
+  llave(nombre: string): Llave;
+  murcielagos(nombre: string): Murcielagos;
+  guacamayas(nombre: string): Guacamayas;
+  /** Las que estrena El tren bananero (TU-27, ver piezas-tren.ts y duende.ts). */
+  vagon(nombre: string): Vagon;
+  dresina(nombre: string): Dresina;
+  grua(nombre: string): Grua;
+  racimo(nombre: string): Racimo;
+  sombrero(nombre: string): Sombrero;
+  duende(nombre: string): Duende;
+  /** Las que estrena La calle empedrada (TU-25, ver piezas-calle.ts y sin-bueyes.ts). */
+  carreta(nombre: string): Carreta;
+  sinBueyes(nombre: string): SinBueyes;
+  pesa(nombre: string): Pesa;
+  engranaje(nombre: string): Engranaje;
+  campana(nombre: string): Campana;
+  alfombra(nombre: string): Alfombra;
+  /** Las piezas que estrena el Río Plátano (TU-28, ver piezas-rio.ts y sisimite.ts). */
+  pipante(nombre: string): Pipante;
+  puente(nombre: string): Puente;
+  palmera(nombre: string): Palmera;
+  sisimite(nombre: string): Sisimite;
 }
 
 export interface GuionDeNivel {

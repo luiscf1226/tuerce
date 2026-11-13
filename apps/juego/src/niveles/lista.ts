@@ -4,6 +4,16 @@ import escenaPatio from "../../../../niveles/00-patio/escena.glb?url";
 import { crearGuion as guionPatio } from "../../../../niveles/00-patio/guion";
 import escenaPinar from "../../../../niveles/01-pinar/escena.glb?url";
 import { crearGuion as guionPinar } from "../../../../niveles/01-pinar/guion";
+import escenaPoza from "../../../../niveles/02-poza/escena.glb?url";
+import { crearGuion as guionPoza } from "../../../../niveles/02-poza/guion";
+import escenaCalle from "../../../../niveles/03-calle/escena.glb?url";
+import { crearGuion as guionCalle } from "../../../../niveles/03-calle/guion";
+import escenaXibalba from "../../../../niveles/04-xibalba/escena.glb?url";
+import { crearGuion as guionXibalba } from "../../../../niveles/04-xibalba/guion";
+import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
+import { crearGuion as guionTren } from "../../../../niveles/05-tren/guion";
+import escenaRio from "../../../../niveles/06-rio/escena.glb?url";
+import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -34,6 +44,41 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaPinar,
     crearGuion: guionPinar,
     // Amarrados no: en el balancín uno hace contrapeso en tierra y el otro baja en la otra orilla, a más de 8 m
+    sinTrampas: ["mecate"],
+  },
+  // Nivel 2 (TU-24): el río Guayape, Honduras. El agua, la balsa, la compuerta y La Sucia
+  poza: {
+    carpeta: "02-poza",
+    escena: escenaPoza,
+    crearGuion: guionPoza,
+    // Amarrados no: en la represa uno sostiene la palanca y el otro trepa lejos; en el tendedero baja uno solo
+    sinTrampas: ["mecate"],
+  },
+  // Nivel 4 (TU-26): Copán, Honduras. Seis misiones y los murciélagos de Xibalbá
+  xibalba: { carpeta: "04-xibalba", escena: escenaXibalba, crearGuion: guionXibalba },
+  // Nivel 5 (TU-27): El Progreso, Honduras. Vagones, dresina, cambio de vía, grúa y el Duende
+  tren: {
+    carpeta: "05-tren",
+    escena: escenaTren,
+    crearGuion: guionTren,
+    // Amarrados no: el que cuida el cambio se queda en la loma mientras el otro baja con la dresina, y la palanca de
+    // la grúa y las del portón final quedan lejos del racimo y del portón
+    sinTrampas: ["mecate"],
+  },
+  // Nivel 3 (TU-25): Comayagua, Honduras. Seis misiones y la Carreta sin bueyes
+  calle: {
+    carpeta: "03-calle",
+    escena: escenaCalle,
+    crearGuion: guionCalle,
+    // Amarrados no: uno sostiene el freno mientras el otro cruza la calle (9 m), y las campanas están a 7 m
+    sinTrampas: ["mecate"],
+  },
+  // Nivel 6 (TU-28): el Río Plátano, La Mosquitia. El pipante, el puente colgante, la palmera y el Sisimite
+  rio: {
+    carpeta: "06-rio",
+    escena: escenaRio,
+    crearGuion: guionRio,
+    // Amarrados no: la palmera lanza a uno solo al otro lado del barranco, y el otro se queda jalando la soga
     sinTrampas: ["mecate"],
   },
 };

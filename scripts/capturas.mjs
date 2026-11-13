@@ -154,6 +154,111 @@ const TOMAS = [
   { archivo: "noche-niebla", ruta: "/?escena=nivel&noche=3&trampa=niebla&j1=andar:1&j2=andar:1&congelar=120" },
   { archivo: "noche-luna", ruta: "/?escena=nivel&noche=1&trampa=luna&j1=saltar@30&j2=saltar@36&congelar=75" },
   { archivo: "noche-menu", ruta: "/?escena=nivel&noche=5&j1=&j2=&menu&congelar=60" },
+  // TU-24: el nivel 2, La poza (niveles/02-poza), entero y en la salida (los troncos en sus caballetes); 1. la balsa
+  // amarrada junto al muelle, con los dos a bordo; 2. remando río arriba; 3. el chorro de la represa y, abierta la
+  // compuerta, cortado; 4. los dos bajando por el tendedero; 5. las piedras de la isla y la boca, y la poza seca;
+  // 6. la batea en lo hondo y La Sucia tirándole agua al que se quedó en su lavadero. Y la pepita del secreto
+  { archivo: "poza-entero", ruta: "/?escena=nivel&nivel=poza&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "poza-salida", ruta: "/?escena=nivel&nivel=poza&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "poza-1-balsa", ruta: "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&vista=5.6,0.8,-1.5&congelar=60" },
+  { archivo: "poza-2-remando", ruta: "/?escena=nivel&nivel=poza&punto=1&j1=izq,der&j2=izq,der&congelar=600" },
+  { archivo: "poza-3-chorro", ruta: "/?escena=nivel&nivel=poza&punto=2&j1=&j2=&vista=24.2,1.6,0.6&congelar=60" },
+  { archivo: "poza-3-compuerta", ruta: "/?escena=nivel&nivel=poza&punto=3&j1=&j2=&vista=24.2,1.6,0.6&congelar=60" },
+  { archivo: "poza-4-tendedero", ruta: "/?escena=nivel&nivel=poza&punto=3&j1=izq,der&j2=izq@40,der@40&congelar=230" },
+  { archivo: "poza-5-boca", ruta: "/?escena=nivel&nivel=poza&punto=4&j1=&j2=&vista=39,2.2,0.6&congelar=60" },
+  { archivo: "poza-5-seca", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&vista=31,0.8,0&congelar=60" },
+  { archivo: "poza-6-batea", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&congelar=60" },
+  { archivo: "poza-6-sucia", ruta: "/?escena=nivel&nivel=poza&punto=6&j1=&j2=&vista=42.6,2.6,-1.4&congelar=268" },
+  { archivo: "poza-secreto", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&vista=28.1,0,2.3&congelar=30" },
+  // TU-26: el nivel 4, Xibalbá de juguete (niveles/04-xibalba), entero, en la salida y una toma por misión: 1. los dos
+  // en la plancha doble y la entrada ya hundida; 2. la estela con sus varas y, alineada, con la reja abierta; 3. el aro
+  // y la pelota en su soporte; 4. los dos suben el bloque por la escalinata y lo dejan contra el templo; 5. el túnel
+  // con los murciélagos colgados, la antorcha, el brasero y la llave de jade, y los murciélagos que se le tiran al
+  // rojo, que entró a oscuras; 6. la tumba con el plato del contrapeso, las piedras y la losa; la meta; y la
+  // guacamaya dorada del secreto, en lo alto del templo
+  { archivo: "xibalba-entero", ruta: "/?escena=nivel&nivel=xibalba&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "xibalba-salida", ruta: "/?escena=nivel&nivel=xibalba&j1=&j2=&congelar=60" },
+  { archivo: "xibalba-1-planchas", ruta: "/?escena=nivel&nivel=xibalba&j1=andar:1&j2=andar:1&congelar=330" },
+  {
+    archivo: "xibalba-1-abierta",
+    ruta: "/?escena=nivel&nivel=xibalba&j1=andar:1&j2=andar:1&vista=8,1.2,0&congelar=430",
+  },
+  { archivo: "xibalba-2-estela", ruta: "/?escena=nivel&nivel=xibalba&punto=1&j1=&j2=&vista=11.5,1.6,0&congelar=60" },
+  {
+    archivo: "xibalba-2-alineada",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=2&j1=&j2=&vista=13.5,1.6,0&congelar=60",
+  },
+  { archivo: "xibalba-3-aro", ruta: "/?escena=nivel&nivel=xibalba&punto=2&j1=&j2=&vista=23,1.4,0&congelar=60" },
+  {
+    archivo: "xibalba-4-bloque",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=3&j1=andar:0.7,izq@15,der@15&j2=andar:0.7,izq@15,der@15&congelar=420",
+  },
+  {
+    archivo: "xibalba-4-arriba",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=3&j1=andar:0.7,izq@15,der@15&j2=andar:0.7,izq@15,der@15&vista=40.6,2.4,0&congelar=900",
+  },
+  { archivo: "xibalba-5-tunel", ruta: "/?escena=nivel&nivel=xibalba&punto=4&j1=&j2=&vista=48.5,5.6,0&congelar=60" },
+  { archivo: "xibalba-5-murcielagos", ruta: "/?escena=nivel&nivel=xibalba&punto=4&j1=andar:1&j2=&congelar=200" },
+  { archivo: "xibalba-6-tumba", ruta: "/?escena=nivel&nivel=xibalba&punto=5&j1=&j2=&vista=58.5,5.3,0.5&congelar=60" },
+  { archivo: "xibalba-meta", ruta: "/?escena=nivel&nivel=xibalba&punto=6&j1=&j2=&congelar=60" },
+  {
+    archivo: "xibalba-secreto",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=4&j1=&j2=&vista=48.9,9.0,-2.1&congelar=30",
+  },
+  // TU-27: el nivel 5, El tren bananero (niveles/05-tren), entero, en la salida y una toma por misión (`vista=x,y,z`:
+  // la cámara quieta mirando ese punto): 1. el tren tapa el paso a nivel, con la plataforma suelta detrás; 2. la
+  // dresina en su zanja, con la bomba de balancín; 3. la palanca del cambio, su señal y el agujero del Duende, y el
+  // racimo de mínimos dorados en el rellano del puente roto (el secreto); 4. la grúa, su tolva y el racimo grande;
+  // 5. la romana con sus ganchos y los racimos en el colgadero; 6. el Duende en su casa, y en la meta el tren que
+  // llegó y el Duende contento con su sombrero
+  { archivo: "tren-entero", ruta: "/?escena=nivel&nivel=tren&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "tren-salida", ruta: "/?escena=nivel&nivel=tren&j1=&j2=&congelar=60" },
+  { archivo: "tren-1-tren", ruta: "/?escena=nivel&nivel=tren&j1=&j2=&vista=-18,1.4,0&congelar=30" },
+  { archivo: "tren-2-dresina", ruta: "/?escena=nivel&nivel=tren&punto=1&j1=&j2=&vista=-13.4,1.2,-4&congelar=30" },
+  { archivo: "tren-3-cambio", ruta: "/?escena=nivel&nivel=tren&punto=2&j1=&j2=&vista=9,1.8,-2.6&congelar=30" },
+  { archivo: "tren-3-secreto", ruta: "/?escena=nivel&nivel=tren&punto=2&j1=&j2=&vista=24.4,1.3,-3.5&congelar=30" },
+  { archivo: "tren-4-grua", ruta: "/?escena=nivel&nivel=tren&punto=3&j1=&j2=&vista=32.5,2.4,-11.5&congelar=30" },
+  { archivo: "tren-5-romana", ruta: "/?escena=nivel&nivel=tren&punto=4&j1=&j2=&vista=45,1.6,-9.5&congelar=30" },
+  { archivo: "tren-6-duende", ruta: "/?escena=nivel&nivel=tren&punto=5&j1=&j2=&vista=53.5,1,-11&congelar=30" },
+  { archivo: "tren-6-meta", ruta: "/?escena=nivel&nivel=tren&punto=6&j1=&j2=&vista=56,1.2,-7&congelar=30" },
+  // TU-25: el nivel 3, La calle empedrada (niveles/03-calle), entero, en la salida y una toma por misión: 1. los dos
+  // empujan la carreta por el callejón de la cuesta, y arriba queda trabada; 2. la Carreta sin bueyes en su calle
+  // (con el freno a la entrada) y el rojo que entra y lo saca; 3. la torre del reloj con las pesas y, ya pasado el
+  // punto 3, las agujas en las doce y la puerta arriba; 4. el corredor alto con las enredaderas sobre las alfombras,
+  // y las pisadas del que pasa por la calle; 5. las dos campanas y la reja; 6. los dos suben a la carreta del mirador,
+  // bajando y ya en la plaza. Y el pilón del secreto, arriba de la vitrina del carrito
+  { archivo: "calle-entero", ruta: "/?escena=nivel&nivel=calle&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "calle-salida", ruta: "/?escena=nivel&nivel=calle&j1=&j2=&congelar=60" },
+  { archivo: "calle-1-cuesta", ruta: "/?escena=nivel&nivel=calle&j1=andar:1&j2=andar:1&congelar=700" },
+  { archivo: "calle-1-arriba", ruta: "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-29,3.2,0&congelar=30" },
+  { archivo: "calle-2-sin-bueyes", ruta: "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-15.5,2.6,0&congelar=150" },
+  { archivo: "calle-2-sacado", ruta: "/?escena=nivel&nivel=calle&punto=1&j1=andar:1&j2=&congelar=468" },
+  { archivo: "calle-3-reloj", ruta: "/?escena=nivel&nivel=calle&punto=2&j1=&j2=&vista=3.4,5.4,2.4&congelar=30" },
+  { archivo: "calle-3-abierta", ruta: "/?escena=nivel&nivel=calle&punto=3&j1=&j2=&vista=3.4,5.4,2.4&congelar=90" },
+  { archivo: "calle-4-corredor", ruta: "/?escena=nivel&nivel=calle&punto=3&j1=&j2=&vista=19,4,-0.5&congelar=30" },
+  { archivo: "calle-4-pisadas", ruta: "/?escena=nivel&nivel=calle&punto=3&j1=andar:1&j2=andar:1&congelar=420" },
+  { archivo: "calle-5-campanas", ruta: "/?escena=nivel&nivel=calle&punto=4&j1=&j2=&vista=32.5,9.5,-2.5&congelar=30" },
+  { archivo: "calle-6-subiendo", ruta: "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=150" },
+  { archivo: "calle-6-bajando", ruta: "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=262" },
+  { archivo: "calle-6-plaza", ruta: "/?escena=nivel&nivel=calle&punto=5&j1=andar:1&j2=andar:1&congelar=420" },
+  { archivo: "calle-secreto", ruta: "/?escena=nivel&nivel=calle&punto=1&j1=&j2=&vista=-20.6,4,-2.4&congelar=30" },
+  // TU-28: el nivel 6, el Río Plátano (niveles/06-rio; va corrido 53 m hacia −x), entero y en la salida; 1. el
+  // pipante amarrado junto al muelle y el río con sus dos piedras, y los dos ya en el embarcadero; 2. los rápidos con
+  // un tronco cruzando el vado; 3. las huellas en la bifurcación; 4. el puente con sus dos huecos y reparado;
+  // 5. el Sisimite dormido en el cañón y los dos en su cumbre; 6. la palmera, el barranco y la liana recogida junto a
+  // la ceiba. Y la figura de jade del secreto, arriba del templo
+  { archivo: "rio-entero", ruta: "/?escena=nivel&nivel=rio&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "rio-salida", ruta: "/?escena=nivel&nivel=rio&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "rio-1-pipante", ruta: "/?escena=nivel&nivel=rio&j1=&j2=&vista=-48,0.6,-0.8&congelar=60" },
+  { archivo: "rio-1-embarcadero", ruta: "/?escena=nivel&nivel=rio&punto=1&j1=&j2=&congelar=60" },
+  { archivo: "rio-2-rapidos", ruta: "/?escena=nivel&nivel=rio&punto=1&j1=&j2=&vista=-21,0.6,0&congelar=85" },
+  { archivo: "rio-3-huellas", ruta: "/?escena=nivel&nivel=rio&punto=2&j1=&j2=&vista=-10.5,0.4,0&congelar=60" },
+  { archivo: "rio-4-puente", ruta: "/?escena=nivel&nivel=rio&punto=3&j1=&j2=&vista=13,0.6,0&congelar=60" },
+  { archivo: "rio-4-reparado", ruta: "/?escena=nivel&nivel=rio&punto=4&j1=&j2=&vista=13,0.6,0&congelar=60" },
+  { archivo: "rio-5-sisimite", ruta: "/?escena=nivel&nivel=rio&punto=4&j1=&j2=&vista=26.5,2.2,3&congelar=60" },
+  { archivo: "rio-5-cumbre", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=29,3.6,0&congelar=60" },
+  { archivo: "rio-6-palmera", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=44,1.6,0&congelar=60" },
+  { archivo: "rio-secreto", ruta: "/?escena=nivel&nivel=rio&punto=6&j1=&j2=&vista=59.5,3.1,-2.4&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

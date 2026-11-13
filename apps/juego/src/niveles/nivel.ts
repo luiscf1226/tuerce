@@ -117,7 +117,11 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     if (p.x < limites.min.x || p.x > limites.max.x || p.z < limites.min.z || p.z > limites.max.z) return true;
     return plano.vacios.some((v) => adentro(v, p));
   };
-  const cayo = (jugador: Jugador) => fuera(munecos[jugador].partes.pelvis.translation());
+  /** Un muñeco cayó si quedó en el vacío o bajo un agua que se lo lleva (TU-24: los huacales no se ahogan, flotan). */
+  const cayo = (jugador: Jugador) => {
+    const p = munecos[jugador].partes.pelvis.translation();
+    return fuera(p) || armado.aguas.seLoLleva(p);
+  };
 
   /** Si el muñeco está de pie en terreno firme: no cayó, tiene los pies en el suelo y no anda en otra cosa. */
   const firme = (jugador: Jugador) => {
@@ -144,6 +148,7 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
           if (piso === null || Math.abs(piso - pies) > DESNIVEL) continue;
           lugar.y = piso;
           if (plano.vacios.some((v) => adentro(v, lugar))) continue;
+          if (armado.aguas.en({ x: lugar.x, y: piso + 0.5, z: lugar.z })) continue;
           if (tapado(pelvis, new THREE.Vector3(lugar.x, pelvis.y, lugar.z))) continue;
           return { jugador, junto: true, posicion: lugar.clone().setY(piso + SOBRE_EL_PISO), rumbo };
         }
@@ -232,11 +237,47 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     hueso: (nombre) => deJuego("hueso", nombre),
     lampara: (nombre) => deJuego("lampara", nombre),
     cadejo: (nombre) => deJuego("cadejo", nombre),
+    agua(nombre) {
+      const agua = armado.aguas.buscar(nombre);
+      if (!agua) throw new Error(`el nivel «${plano.nombre}» no tiene un agua «${nombre}»`);
+      return agua;
+    },
+    aguas: armado.aguas,
+    balsa: (nombre) => deJuego("balsa", nombre),
+    tendedero: (nombre) => deJuego("tendedero", nombre),
+    batea: (nombre) => deJuego("batea", nombre),
+    piedra: (nombre) => deJuego("piedra", nombre),
+    sucia: (nombre) => deJuego("sucia", nombre),
+    bloque: (nombre) => deJuego("bloque", nombre),
+    doble: (nombre) => deJuego("doble", nombre),
+    estela: (nombre) => deJuego("estela", nombre),
+    pelota: (nombre) => deJuego("pelota", nombre),
+    antorcha: (nombre) => deJuego("antorcha", nombre),
+    llave: (nombre) => deJuego("llave", nombre),
+    murcielagos: (nombre) => deJuego("murcielagos", nombre),
+    guacamayas: (nombre) => deJuego("guacamayas", nombre),
+    vagon: (nombre) => deJuego("vagon", nombre),
+    dresina: (nombre) => deJuego("dresina", nombre),
+    grua: (nombre) => deJuego("grua", nombre),
+    racimo: (nombre) => deJuego("racimo", nombre),
+    sombrero: (nombre) => deJuego("sombrero", nombre),
+    duende: (nombre) => deJuego("duende", nombre),
+    carreta: (nombre) => deJuego("carreta", nombre),
+    sinBueyes: (nombre) => deJuego("sin-bueyes", nombre),
+    pesa: (nombre) => deJuego("pesa", nombre),
+    engranaje: (nombre) => deJuego("engranaje", nombre),
+    campana: (nombre) => deJuego("campana", nombre),
+    alfombra: (nombre) => deJuego("alfombra", nombre),
+    pipante: (nombre) => deJuego("pipante", nombre),
+    puente: (nombre) => deJuego("puente", nombre),
+    palmera: (nombre) => deJuego("palmera", nombre),
+    sisimite: (nombre) => deJuego("sisimite", nombre),
     avance,
     premios,
     antes(entradas) {
       guion.cadaPaso?.(nivel);
       armado.piezasDeJuego.antes(munecos, entradas);
+      armado.aguas.antes(munecos, entradas);
     },
     despues() {
       pasos++;
@@ -259,6 +300,8 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
         const encontrado = munecos.some((m) => plano.secretos.some((z) => adentro(z, m.partes.pelvis.translation())));
         if (encontrado) premios.ganar("secreto");
       }
+      // El agua: quién cayó (antes de que reaparezca)
+      armado.aguas.despues(munecos);
       // Caídas: no hay derrota, se reaparece. Después las piezas: los huacales que cayeron vuelven a su lugar
       const cayeron = ([0, 1] as const).filter(cayo);
       const reaparecidos = cayeron.map((jugador) => reaparecer(jugador, cayeron.length === 2));

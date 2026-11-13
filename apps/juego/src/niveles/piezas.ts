@@ -21,7 +21,21 @@ import { GRAVEDAD, type Rapier } from "../motor/fisica";
 import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
+import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
+import { armarMurcielagos, type Murcielagos } from "./murcielagos";
+import {
+  type Alfombra,
+  armarAlfombra,
+  armarCampana,
+  armarCarreta,
+  armarEngranaje,
+  armarPesa,
+  type Campana,
+  type Carreta,
+  type Engranaje,
+  type Pesa,
+} from "./piezas-calle";
 import {
   armarHueso,
   armarLampara,
@@ -32,6 +46,50 @@ import {
   type Tranca,
   type Tronco,
 } from "./piezas-pinar";
+// La poza (TU-24)
+import {
+  armarBalsa,
+  armarBatea,
+  armarPiedra,
+  armarTendedero,
+  type Balsa,
+  type Batea,
+  type Piedra,
+  type Tendedero,
+} from "./piezas-poza";
+// El Río Plátano (TU-28)
+import { armarPalmera, armarPipante, armarPuente, type Palmera, type Pipante, type Puente } from "./piezas-rio";
+import {
+  armarDresina,
+  armarGrua,
+  armarRacimo,
+  armarSombrero,
+  armarVagon,
+  type Dresina,
+  type Grua,
+  type Racimo,
+  type Sombrero,
+  type Vagon,
+} from "./piezas-tren";
+import {
+  type Antorcha,
+  armarAntorcha,
+  armarBloque,
+  armarDoble,
+  armarEstela,
+  armarGuacamayas,
+  armarLlave,
+  armarPelota,
+  type Bloque,
+  type Doble,
+  type Estela,
+  type Guacamayas,
+  type Llave,
+  type Pelota,
+} from "./piezas-xibalba";
+import { armarSinBueyes, type SinBueyes } from "./sin-bueyes";
+import { armarSisimite, type Sisimite } from "./sisimite";
+import { armarSucia, type Sucia } from "./sucia";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si
@@ -146,6 +204,40 @@ export interface PiezaPorTipo {
   hueso: Hueso;
   lampara: Lampara;
   cadejo: Cadejo;
+  // Las de la poza (TU-24): piezas-poza.ts y sucia.ts
+  balsa: Balsa;
+  tendedero: Tendedero;
+  batea: Batea;
+  piedra: Piedra;
+  sucia: Sucia;
+  // Las de Xibalbá (TU-26): piezas-xibalba.ts y murcielagos.ts
+  bloque: Bloque;
+  doble: Doble;
+  estela: Estela;
+  pelota: Pelota;
+  antorcha: Antorcha;
+  llave: Llave;
+  murcielagos: Murcielagos;
+  guacamayas: Guacamayas;
+  // Las del tren bananero (TU-27): piezas-tren.ts y duende.ts
+  vagon: Vagon;
+  dresina: Dresina;
+  grua: Grua;
+  racimo: Racimo;
+  sombrero: Sombrero;
+  duende: Duende;
+  // Las de La calle empedrada (TU-25): piezas-calle.ts y sin-bueyes.ts
+  carreta: Carreta;
+  "sin-bueyes": SinBueyes;
+  pesa: Pesa;
+  engranaje: Engranaje;
+  campana: Campana;
+  alfombra: Alfombra;
+  // Las del Río Plátano (TU-28): piezas-rio.ts y sisimite.ts
+  pipante: Pipante;
+  puente: Puente;
+  palmera: Palmera;
+  sisimite: Sisimite;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -681,6 +773,93 @@ export function armarPiezas(
         break;
       case "cadejo":
         lista.push(armarCadejo(herramientas, p));
+        break;
+      case "balsa":
+        lista.push(armarBalsa(herramientas, p));
+        break;
+      case "tendedero":
+        lista.push(armarTendedero(herramientas, p));
+        break;
+      case "batea":
+        lista.push(armarBatea(herramientas, p));
+        break;
+      case "piedra":
+        lista.push(armarPiedra(herramientas, p));
+        break;
+      case "sucia":
+        lista.push(armarSucia(herramientas, p));
+        break;
+      case "bloque":
+        lista.push(armarBloque(herramientas, p));
+        break;
+      case "doble":
+        lista.push(armarDoble(herramientas, p));
+        break;
+      case "estela":
+        lista.push(armarEstela(herramientas, p));
+        break;
+      case "pelota":
+        lista.push(armarPelota(herramientas, p));
+        break;
+      case "antorcha":
+        lista.push(armarAntorcha(herramientas, p));
+        break;
+      case "llave":
+        lista.push(armarLlave(herramientas, p));
+        break;
+      case "murcielagos":
+        lista.push(armarMurcielagos(herramientas, p));
+        break;
+      case "guacamayas":
+        lista.push(armarGuacamayas(herramientas, p));
+        break;
+      case "vagon":
+        lista.push(armarVagon(herramientas, p));
+        break;
+      case "dresina":
+        lista.push(armarDresina(herramientas, p));
+        break;
+      case "grua":
+        lista.push(armarGrua(herramientas, p));
+        break;
+      case "racimo":
+        lista.push(armarRacimo(herramientas, p));
+        break;
+      case "sombrero":
+        lista.push(armarSombrero(herramientas, p));
+        break;
+      case "duende":
+        lista.push(armarDuende(herramientas, p));
+        break;
+      case "carreta":
+        lista.push(armarCarreta(herramientas, p));
+        break;
+      case "sin-bueyes":
+        lista.push(armarSinBueyes(herramientas, p));
+        break;
+      case "pesa":
+        lista.push(armarPesa(herramientas, p));
+        break;
+      case "engranaje":
+        lista.push(armarEngranaje(herramientas, p));
+        break;
+      case "campana":
+        lista.push(armarCampana(herramientas, p));
+        break;
+      case "alfombra":
+        lista.push(armarAlfombra(herramientas, p));
+        break;
+      case "pipante":
+        lista.push(armarPipante(herramientas, p));
+        break;
+      case "puente":
+        lista.push(armarPuente(herramientas, p));
+        break;
+      case "palmera":
+        lista.push(armarPalmera(herramientas, p));
+        break;
+      case "sisimite":
+        lista.push(armarSisimite(herramientas, p));
         break;
     }
   }
