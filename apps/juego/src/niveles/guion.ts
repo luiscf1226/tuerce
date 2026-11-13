@@ -10,9 +10,12 @@ import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
 import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
+// Los canales (TU-42)
+import type { Llorona } from "./llorona";
 import type { Murcielagos } from "./murcielagos";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
+import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
@@ -95,6 +98,11 @@ export interface NivelEnJuego {
   puente(nombre: string): Puente;
   palmera(nombre: string): Palmera;
   sisimite(nombre: string): Sisimite;
+  /** Las piezas que estrenan Los canales (TU-42, ver piezas-canales.ts y llorona.ts). */
+  trajinera(nombre: string): Trajinera;
+  chinampa(nombre: string): Chinampa;
+  pinata(nombre: string): Pinata;
+  llorona(nombre: string): Llorona;
 }
 
 export interface GuionDeNivel {

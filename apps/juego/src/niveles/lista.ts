@@ -14,6 +14,9 @@ import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
 import { crearGuion as guionTren } from "../../../../niveles/05-tren/guion";
 import escenaRio from "../../../../niveles/06-rio/escena.glb?url";
 import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
+// Los canales (TU-42)
+import escenaCanales from "../../../../niveles/09-canales/escena.glb?url";
+import { crearGuion as guionCanales } from "../../../../niveles/09-canales/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -79,6 +82,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaRio,
     crearGuion: guionRio,
     // Amarrados no: la palmera lanza a uno solo al otro lado del barranco, y el otro se queda jalando la soga
+    sinTrampas: ["mecate"],
+  },
+  // Los canales (TU-42): nivel 9, Xochimilco. La trajinera, el agua de La Llorona, las chinampas y la piñata
+  canales: {
+    carpeta: "09-canales",
+    escena: escenaCanales,
+    crearGuion: guionCanales,
+    // Amarrados no: el que jala la soga de la piñata queda a más de 3 m de ella
     sinTrampas: ["mecate"],
   },
 };

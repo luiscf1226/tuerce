@@ -259,6 +259,38 @@ const TOMAS = [
   { archivo: "rio-5-cumbre", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=29,3.6,0&congelar=60" },
   { archivo: "rio-6-palmera", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=44,1.6,0&congelar=60" },
   { archivo: "rio-secreto", ruta: "/?escena=nivel&nivel=rio&punto=6&j1=&j2=&vista=59.5,3.1,-2.4&congelar=30" },
+  // Los canales (TU-42): el nivel 9, Xochimilco (niveles/09-canales; va corrido 45 m hacia −x), entero y en la salida;
+  // 1. la trajinera amarrada en el canal y los dos ya en la chinampa de La Llorona, que llora; 2. el arco de la
+  // trajinera contra el puente, con el canal crecido, y La Llorona ya tranquila con el agua abajo; 3. las chinampas
+  // flotantes de la ciénaga; 4. la piñata colgada alta entre sus postes y la reja abierta; 5. la trajinera de las
+  // flores entre las chinampas y la meta. Y el alebrije dormido del secreto
+  { archivo: "canales-entero", ruta: "/?escena=nivel&nivel=canales&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "canales-salida", ruta: "/?escena=nivel&nivel=canales&j1=andar:0.6&j2=andar:0.6&congelar=150" },
+  { archivo: "canales-1-trajinera", ruta: "/?escena=nivel&nivel=canales&j1=&j2=&vista=-41.5,0.9,-1.2&congelar=60" },
+  {
+    archivo: "canales-1-llorona",
+    ruta: "/?escena=nivel&nivel=canales&punto=1&j1=&j2=&vista=-22.2,1.5,1.2&congelar=90",
+  },
+  {
+    archivo: "canales-2-puente",
+    ruta: "/?escena=nivel&nivel=canales&punto=1&j1=&j2=&vista=-19.5,1.4,-1&congelar=60",
+  },
+  {
+    archivo: "canales-2-tranquila",
+    ruta: "/?escena=nivel&nivel=canales&punto=2&j1=&j2=&vista=-21,1.2,0.6&congelar=60",
+  },
+  {
+    archivo: "canales-3-chinampas",
+    ruta: "/?escena=nivel&nivel=canales&punto=2&j1=&j2=&vista=-4.6,0.4,0&congelar=60",
+  },
+  { archivo: "canales-4-pinata", ruta: "/?escena=nivel&nivel=canales&punto=3&j1=&j2=&vista=9,2,0&congelar=60" },
+  { archivo: "canales-4-reja", ruta: "/?escena=nivel&nivel=canales&punto=4&j1=&j2=&congelar=60" },
+  { archivo: "canales-5-flores", ruta: "/?escena=nivel&nivel=canales&punto=4&j1=&j2=&vista=26,0.8,-0.4&congelar=60" },
+  { archivo: "canales-5-meta", ruta: "/?escena=nivel&nivel=canales&punto=5&j1=&j2=&congelar=60" },
+  {
+    archivo: "canales-secreto",
+    ruta: "/?escena=nivel&nivel=canales&punto=2&j1=&j2=&vista=-6.7,0.7,-2.5&congelar=30",
+  },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
