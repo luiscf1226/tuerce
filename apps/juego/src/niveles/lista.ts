@@ -17,6 +17,9 @@ import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
 // Los canales (TU-42)
 import escenaCanales from "../../../../niveles/09-canales/escena.glb?url";
 import { crearGuion as guionCanales } from "../../../../niveles/09-canales/guion";
+// El llano (TU-44)
+import escenaLlano from "../../../../niveles/11-llano/escena.glb?url";
+import { crearGuion as guionLlano } from "../../../../niveles/11-llano/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -90,6 +93,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaCanales,
     crearGuion: guionCanales,
     // Amarrados no: el que jala la soga de la piñata queda a más de 3 m de ella
+    sinTrampas: ["mecate"],
+  },
+  // El llano (TU-44): Los Llanos, Venezuela. El Silbón, el molino, el ganado, la hamaca y el saco
+  llano: {
+    carpeta: "11-llano",
+    escena: escenaLlano,
+    crearGuion: guionLlano,
+    // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
     sinTrampas: ["mecate"],
   },
 };

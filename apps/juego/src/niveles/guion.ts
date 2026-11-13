@@ -16,12 +16,15 @@ import type { Murcielagos } from "./murcielagos";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
+// El llano (TU-44)
+import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
 import type { Palmera, Pipante, Puente } from "./piezas-rio";
 import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
 import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
+import type { Silbon } from "./silbon";
 import type { SinBueyes } from "./sin-bueyes";
 import type { Sisimite } from "./sisimite";
 import type { Sucia } from "./sucia";
@@ -103,6 +106,12 @@ export interface NivelEnJuego {
   chinampa(nombre: string): Chinampa;
   pinata(nombre: string): Pinata;
   llorona(nombre: string): Llorona;
+  /** Las que estrena El llano (TU-44, ver piezas-llano.ts y silbon.ts). */
+  silbon(nombre: string): Silbon;
+  molino(nombre: string): Molino;
+  ganado(nombre: string): Ganado;
+  hamaca(nombre: string): Hamaca;
+  saco(nombre: string): Saco;
 }
 
 export interface GuionDeNivel {

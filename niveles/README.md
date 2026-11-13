@@ -288,6 +288,33 @@ piñata y su manija, La Llorona y el marcador de cada agua: el invitado cuenta l
 las pértigas si la trajinera avanza, rompe la piñata cuando la ve desaparecer y sabe si La Llorona llora, se ríe o
 está tranquila por cuánto la ve inclinada.
 
+## Las piezas del llano (TU-44)
+
+Las que estrena el nivel 11, El llano (`apps/juego/src/niveles/piezas-llano.ts` y `silbon.ts`; su lectura, en
+`formato-llano.ts`; el silbido, en `silbido.ts` y `silbido-audio.ts`). Como las otras, su malla no se dibuja.
+
+| `pieza`  | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Propiedades                                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `silbon` | El Silbón, un flaco altísimo de sombrero. Su caja es donde está escondido, agachado en el pajonal (la base en el suelo; de alto, lo que mide de pie). Escondido no se ve y **silba al revés**: a cada jugador le toca su volumen y su paneo (`silbido.ts`, una función pura), fuerte de lejos y bajito de cerca, y viene del lado contrario. Suena con Web Audio, sintetizado, y se ve: unas ondas sobre cada muñeco que se cierran, más marcadas cuanto más fuerte suena. El primero que llega a `hallar` de él lo halla: se alza, se va y aparece donde el guion le dijo que espere (`esperarEn`). Esperando, recoge su saco si se lo dejan suelto a menos de `alcance`. Cinemático, sin choques y sin azar. | `hallar` (1.3 m) · `velocidad` (1.4 m/s) · `alcance` (1.6 m)                                                     |
+| `molino` | Un molino de viento de dos aspas largas que giran sobre la z de la caja (la rueda: el eje en el centro y de radio el mayor de su X y su Y; de grueso, su Z). Gira sin parar con el viento; con el freno (`frenar`, lo manda el guion) para con las aspas en rampa, subiendo `angulo` hacia su +x: se sube caminando por ellas. Al soltar el freno vuelve a agarrar viento y bota al que esté encima. Cinemática.                                                                                                                                                                                                                                                                                               | `angulo` (15°) · `viento` (1.6 rad/s) · `arranque` (1.2 rad/s²) · `frenada` (2.5 rad/s²)                         |
+| `ganado` | Reses cebú que pastan sueltas en el potrero (la caja) y se apartan del muñeco que se les acerca a menos de `huir`: se las arrea. No van contra la cerca del potrero; arrinconadas, se escurren hacia el corral. La que entra al corral (los últimos `corral` metros de la X de la caja) se queda ahí, en su comedero contra la cerca de atrás. Pastan con azar de semilla: dos corridas iguales dan lo mismo.                                                                                                                                                                                                                                                                                                  | `cuantas` (3) · `corral` (5 m) · `huir` (3.2 m) · `velocidad` (1.4 m/s) · `masa` (250 kg) · `semilla` (1)        |
+| `hamaca` | Una hamaca colgada a lo ancho de la X de la caja, entre dos horcones, mirando a su frente (el −Y de Blender). Su cabuya cuelga hasta una manija a un costado: jalándola caminando hacia atrás (como la palmera del río) la hamaca se estira hacia atrás hasta el suelo, donde uno se puede meter. Estirada del todo y soltada la cabuya, vuelve de golpe y lanza hacia su frente al que esté adentro. Los muñecos la atraviesan.                                                                                                                                                                                                                                                                               | `estirar` (2.2 m) · `lado` (−1.8 m) · `fuerza` (25 N) · `colgar` (0.55 m) · `lanzar` (8 m/s) · `elevacion` (38°) |
+| `saco`   | El saco de cachivaches del Silbón: un costal del tamaño de la caja, quieto donde lo pongan hasta que lo agarran; se carga con una mano o con las dos. Tirado mucho rato (o caído al vacío), vuelve a su lugar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `masa` (3 kg)                                                                                                    |
+
+```ts
+nivel.silbon("silbon").silbidos(); // [{ volumen, paneo }, …]: lo que oye cada uno; .silba, .estado, .hallado, .conSaco
+nivel.silbon("silbon").oir(nivel.munecos); // y .esperarEn(donde, rumbo), .alHallar(j => {}), .alRecibir(() => {}), .hallar()
+nivel.molino("molino").frenar(palanca.activa); // .parada, .giro, .velocidad, .rueda
+nivel.ganado("ganado").encerradas; // y .cuantas, .reses, .enElCorral(i), .alEncerrar(n => {}), .encerrar()
+nivel.hamaca("hamaca").estado; // "colgada", "estirada" o "disparando"; .estirada, .jalada, .medio(), .adentro(p), .lanzados
+nivel.saco("saco").entregado; // y .agarrado, .enSuLugar, .volver()
+```
+
+En línea viajan en la foto las aspas, las reses, el medio de la hamaca y su manija, el saco y el Silbón. El invitado no
+corre el guion ni las piezas: el silbido y sus ondas los calcula con los cuerpos tal como llegan (sabe que el Silbón
+silba porque lo ve hundido en su escondite; quiénes lo oyen se lo dice el guion en `alEmpezar`, que corre en los dos),
+anima las patas de las reses con lo que anduvieron y dibuja la tela y la cabuya de la hamaca.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -575,6 +602,35 @@ misión N + 1):
 El secreto, «un alebrije dormido en una chinampa», está en la chinampa firme del fondo de la ciénaga, a un salto
 de la segunda chinampa flotante (la zona `secreto`). Es lo único claro y con dibujitos de la ciénaga. De noche no va
 la trampa del mecate: el que jala la soga de la piñata queda lejos del que le pega.
+
+### `11-llano` (`?escena=nivel&nivel=llano`)
+
+El nivel 11 (TU-44): Los Llanos, Venezuela. Sabana plana, molinos de viento, corrales y hamacas; anda por ahí el
+Silbón. Estrena el sonido como pista, el molino y la hamaca. Lo arma `scripts/niveles/llano.mjs` (`pnpm niveles`). Va
+de oeste a este, y va todo corrido 49 m hacia −x (mide 104 m: la foto de la red mide las posiciones en int16). Cada
+misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **El Silbón**, en el pajonal: está escondido en una de tres matas y no se ve. Silba al revés: bajito de cerca y
+   fuerte de lejos, y del lado contrario. Hay que ir hacia donde suena más bajito; al hallarlo se alza, se va y la
+   talanquera del pajonal se abre → punto 1. Entrar antes a otra mata es un intento fallido: hallarlo al primer intento
+   da el logro, «Buen oído».
+2. **El molino**, de a dos: la empalizada del hato (2.6 m) y las pacas de heno (2.25 m) no se trepan. Uno empuja el
+   freno y el molino para con las aspas en rampa, del borde del pozo hasta las pacas; el otro sube caminando por ellas,
+   baja del otro lado y saca la tranca: el portón se abre y queda abierto → punto 2. Solo no se puede: al soltar el
+   freno las aspas agarran viento antes de que llegue arriba, y lo botan al pozo.
+3. **El ganado**: tres reses pastan en el potrero y se apartan del que se acerca. Se las arrea caminando detrás hasta
+   el corral; con las tres adentro, la talanquera del corral se abre → punto 3.
+4. **La hamaca**, de a dos: uno jala la cabuya caminando para atrás y estira la hamaca hasta el suelo; el otro se mete
+   y, al soltarla, sale disparado sobre el caño (3.2 m: no se salta). Del otro lado empuja la palanca y baja el puente
+   de tablas (queda abajo); el otro cruza → punto 4. Solo no se puede: al soltar la cabuya la hamaca vuelve antes de
+   que llegue a meterse.
+5. **El saco**: arriba de la troja (1.5 m, se trepa colgándose) está el saco de cachivaches del Silbón, sobre un banco.
+   Se lo baja, se lo lleva y se lo deja junto al Silbón, que espera al lado de su rancho: lo recoge, se va contento y
+   aparece la meta → punto 5.
+
+El secreto, «un arpa llanera bajo el samán», está en el conuco de atrás: se trepa la tapia (1.4 m) colgándose y la zona
+`secreto` está al pie del samán (da la vincha). De noche no va la trampa del mecate: el que frena el molino queda lejos
+de las aspas, y la hamaca lanza a uno solo al otro lado del caño.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 

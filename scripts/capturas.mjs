@@ -291,6 +291,23 @@ const TOMAS = [
     archivo: "canales-secreto",
     ruta: "/?escena=nivel&nivel=canales&punto=2&j1=&j2=&vista=-6.7,0.7,-2.5&congelar=30",
   },
+  // El llano (TU-44): el nivel 11 (niveles/11-llano; va corrido 49 m hacia −x), entero y en la salida; 1. el pajonal
+  // con las ondas del silbido sobre los dos (se cierran: suena al revés); 2. el molino girando y frenado en rampa, y
+  // el portón abierto; 3. las reses en el potrero y ya en el corral; 4. la hamaca junto al caño, y el puente bajado;
+  // 5. la troja con el saco y el Silbón esperando bajo su rancho. Y el arpa llanera del secreto, bajo el samán
+  { archivo: "llano-entero", ruta: "/?escena=nivel&nivel=llano&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "llano-salida", ruta: "/?escena=nivel&nivel=llano&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "llano-1-pajonal", ruta: "/?escena=nivel&nivel=llano&j1=&j2=&vista=-41,1,-2.5&congelar=60" },
+  { archivo: "llano-2-molino", ruta: "/?escena=nivel&nivel=llano&punto=1&j1=&j2=&vista=-15.5,1.4,-1.5&congelar=69" },
+  { archivo: "llano-2-porton", ruta: "/?escena=nivel&nivel=llano&punto=2&j1=&j2=&vista=-9,1.2,0&congelar=60" },
+  { archivo: "llano-3-ganado", ruta: "/?escena=nivel&nivel=llano&punto=2&j1=&j2=&vista=1.5,0.8,0&congelar=60" },
+  { archivo: "llano-3-corral", ruta: "/?escena=nivel&nivel=llano&punto=3&j1=&j2=&vista=10,0.8,-1&congelar=60" },
+  { archivo: "llano-4-hamaca", ruta: "/?escena=nivel&nivel=llano&punto=3&j1=&j2=&vista=21,0.8,0&congelar=60" },
+  { archivo: "llano-4-puente", ruta: "/?escena=nivel&nivel=llano&punto=4&j1=&j2=&vista=24,0.6,1&congelar=60" },
+  { archivo: "llano-5-troja", ruta: "/?escena=nivel&nivel=llano&punto=4&j1=&j2=&vista=33,1.6,-2&congelar=60" },
+  { archivo: "llano-5-silbon", ruta: "/?escena=nivel&nivel=llano&punto=4&j1=&j2=&vista=42.4,1.8,-0.7&congelar=60" },
+  { archivo: "llano-5-meta", ruta: "/?escena=nivel&nivel=llano&punto=5&j1=&j2=&congelar=60" },
+  { archivo: "llano-secreto", ruta: "/?escena=nivel&nivel=llano&punto=4&j1=&j2=&vista=39.6,1.2,-5.6&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

@@ -46,6 +46,17 @@ import {
   type Pinata,
   type Trajinera,
 } from "./piezas-canales";
+// El llano (TU-44)
+import {
+  armarGanado,
+  armarHamaca,
+  armarMolino,
+  armarSaco,
+  type Ganado,
+  type Hamaca,
+  type Molino,
+  type Saco,
+} from "./piezas-llano";
 import {
   armarHueso,
   armarLampara,
@@ -97,6 +108,7 @@ import {
   type Llave,
   type Pelota,
 } from "./piezas-xibalba";
+import { armarSilbon, type Silbon } from "./silbon";
 import { armarSinBueyes, type SinBueyes } from "./sin-bueyes";
 import { armarSisimite, type Sisimite } from "./sisimite";
 import { armarSucia, type Sucia } from "./sucia";
@@ -253,6 +265,12 @@ export interface PiezaPorTipo {
   chinampa: Chinampa;
   pinata: Pinata;
   llorona: Llorona;
+  // Las de El llano (TU-44): piezas-llano.ts y silbon.ts
+  silbon: Silbon;
+  molino: Molino;
+  ganado: Ganado;
+  hamaca: Hamaca;
+  saco: Saco;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -888,6 +906,22 @@ export function armarPiezas(
         break;
       case "llorona":
         lista.push(armarLlorona(herramientas, p));
+        break;
+      // El llano (TU-44)
+      case "silbon":
+        lista.push(armarSilbon(herramientas, p));
+        break;
+      case "molino":
+        lista.push(armarMolino(herramientas, p));
+        break;
+      case "ganado":
+        lista.push(armarGanado(herramientas, p));
+        break;
+      case "hamaca":
+        lista.push(armarHamaca(herramientas, p));
+        break;
+      case "saco":
+        lista.push(armarSaco(herramientas, p));
         break;
     }
   }

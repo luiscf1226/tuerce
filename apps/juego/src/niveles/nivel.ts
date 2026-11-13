@@ -277,6 +277,12 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     chinampa: (nombre) => deJuego("chinampa", nombre),
     pinata: (nombre) => deJuego("pinata", nombre),
     llorona: (nombre) => deJuego("llorona", nombre),
+    // El llano (TU-44)
+    silbon: (nombre) => deJuego("silbon", nombre),
+    molino: (nombre) => deJuego("molino", nombre),
+    ganado: (nombre) => deJuego("ganado", nombre),
+    hamaca: (nombre) => deJuego("hamaca", nombre),
+    saco: (nombre) => deJuego("saco", nombre),
     avance,
     premios,
     antes(entradas) {
