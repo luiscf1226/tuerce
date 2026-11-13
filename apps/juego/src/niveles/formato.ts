@@ -7,12 +7,22 @@
 import * as THREE from "three";
 // El agua (TU-24, La poza)
 import { type AguaDelPlano, leerAgua } from "./formato-agua";
+// El cafetal (TU-41)
+import { leerPiezaDelCafetal, PIEZAS_DEL_CAFETAL, type PiezaDelCafetalEnPlano } from "./formato-cafetal";
 import { leerPiezaDeLaCalle, PIEZAS_DE_LA_CALLE, type PiezaDeLaCalleEnPlano } from "./formato-calle";
+// Los canales (TU-42)
+import { leerPiezaDeLosCanales, PIEZAS_DE_LOS_CANALES, type PiezaDeLosCanalesEnPlano } from "./formato-canales";
+// La garrucha (TU-43)
+import { leerPiezaDeLaGarrucha, PIEZAS_DE_LA_GARRUCHA, type PiezaDeLaGarruchaEnPlano } from "./formato-garrucha";
+// El llano (TU-44)
+import { leerPiezaDelLlano, PIEZAS_DEL_LLANO, type PiezaDelLlanoEnPlano } from "./formato-llano";
 import { leerPiezaDelPinar, PIEZAS_DEL_PINAR, type PiezaDelPinarEnPlano } from "./formato-pinar";
 import { leerPiezaDeLaPoza, PIEZAS_DE_LA_POZA, type PiezaDeLaPozaEnPlano } from "./formato-poza";
 // El Río Plátano (TU-28)
 import { leerPiezaDelRio, PIEZAS_DEL_RIO, type PiezaDelRioEnPlano } from "./formato-rio";
 import { leerPiezaDelTren, PIEZAS_DEL_TREN, type PiezaDelTrenEnPlano } from "./formato-tren";
+// Las trenzas (TU-40)
+import { leerPiezaDeLasTrenzas, PIEZAS_DE_LAS_TRENZAS, type PiezaDeLasTrenzasEnPlano } from "./formato-trenzas";
 import { leerPiezaDeXibalba, PIEZAS_DE_XIBALBA, type PiezaDeXibalbaEnPlano } from "./formato-xibalba";
 
 export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza", "agua"] as const;
@@ -41,6 +51,16 @@ export const PIEZAS = [
   ...PIEZAS_DEL_TREN,
   ...PIEZAS_DE_LA_CALLE,
   ...PIEZAS_DEL_RIO,
+  // Los canales (TU-42)
+  ...PIEZAS_DE_LOS_CANALES,
+  // El llano (TU-44)
+  ...PIEZAS_DEL_LLANO,
+  // La garrucha (TU-43)
+  ...PIEZAS_DE_LA_GARRUCHA,
+  // Las trenzas (TU-40)
+  ...PIEZAS_DE_LAS_TRENZAS,
+  // El cafetal (TU-41)
+  ...PIEZAS_DEL_CAFETAL,
 ] as const;
 export type TipoDePieza = (typeof PIEZAS)[number];
 
@@ -138,7 +158,17 @@ export type PiezaDelPlano =
   | PiezaDeXibalbaEnPlano
   | PiezaDelTrenEnPlano
   | PiezaDeLaCalleEnPlano
-  | PiezaDelRioEnPlano;
+  | PiezaDelRioEnPlano
+  // Los canales (TU-42)
+  | PiezaDeLosCanalesEnPlano
+  // El llano (TU-44)
+  | PiezaDelLlanoEnPlano
+  // La garrucha (TU-43)
+  | PiezaDeLaGarruchaEnPlano
+  // Las trenzas (TU-40)
+  | PiezaDeLasTrenzasEnPlano
+  // El cafetal (TU-41)
+  | PiezaDelCafetalEnPlano;
 
 export interface PlanoDeNivel {
   /** Número del nivel (99 para el de prueba). */
@@ -358,6 +388,51 @@ function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPl
     case "palmera":
     case "sisimite":
       return leerPiezaDelRio(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // Los canales (TU-42)
+    case "trajinera":
+    case "chinampa":
+    case "pinata":
+    case "llorona":
+      return leerPiezaDeLosCanales(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // El llano (TU-44)
+    case "silbon":
+    case "molino":
+    case "ganado":
+    case "hamaca":
+    case "saco":
+      return leerPiezaDelLlano(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // La garrucha (TU-43)
+    case "garrucha":
+    case "chiva":
+    case "palma":
+    case "patasola":
+      return leerPiezaDeLaGarrucha(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // Las trenzas (TU-40)
+    case "nudo":
+    case "mula":
+    case "balde":
+    case "brasa":
+    case "sombreron":
+    case "sombrerote":
+      return leerPiezaDeLasTrenzas(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // El cafetal (TU-41)
+    case "canasto":
+    case "zaranda":
+    case "polea":
+    case "costal":
+    case "guineo":
+    case "cipitio":
+      return leerPiezaDelCafetal(cual, base, (clave, porDefecto, min, max) =>
         leerEntre(extras, clave, donde, porDefecto, min, max),
       );
   }

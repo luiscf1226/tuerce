@@ -21,9 +21,28 @@ import { GRAVEDAD, type Rapier } from "../motor/fisica";
 import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
+// El cafetal (TU-41)
+import { armarCipitio, type Cipitio } from "./cipitio";
 import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
+// Los canales (TU-42)
+import { armarLlorona, type Llorona } from "./llorona";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
+// La garrucha (TU-43)
+import { armarPatasola, type Patasola } from "./patasola";
+// El cafetal (TU-41)
+import {
+  armarCanasto,
+  armarCostal,
+  armarGuineo,
+  armarPolea,
+  armarZaranda,
+  type Canasto,
+  type Costal,
+  type Guineo,
+  type Polea,
+  type Zaranda,
+} from "./piezas-cafetal";
 import {
   type Alfombra,
   armarAlfombra,
@@ -36,6 +55,26 @@ import {
   type Engranaje,
   type Pesa,
 } from "./piezas-calle";
+import {
+  armarChinampa,
+  armarPinata,
+  armarTrajinera,
+  type Chinampa,
+  type Pinata,
+  type Trajinera,
+} from "./piezas-canales";
+import { armarChiva, armarGarrucha, armarPalma, type Chiva, type Garrucha, type Palma } from "./piezas-garrucha";
+// El llano (TU-44)
+import {
+  armarGanado,
+  armarHamaca,
+  armarMolino,
+  armarSaco,
+  type Ganado,
+  type Hamaca,
+  type Molino,
+  type Saco,
+} from "./piezas-llano";
 import {
   armarHueso,
   armarLampara,
@@ -71,6 +110,19 @@ import {
   type Sombrero,
   type Vagon,
 } from "./piezas-tren";
+// Las trenzas (TU-40)
+import {
+  armarBalde,
+  armarBrasa,
+  armarMula,
+  armarNudo,
+  armarSombrerote,
+  type Balde,
+  type Brasa,
+  type Mula,
+  type Nudo,
+  type Sombrerote,
+} from "./piezas-trenzas";
 import {
   type Antorcha,
   armarAntorcha,
@@ -87,8 +139,10 @@ import {
   type Llave,
   type Pelota,
 } from "./piezas-xibalba";
+import { armarSilbon, type Silbon } from "./silbon";
 import { armarSinBueyes, type SinBueyes } from "./sin-bueyes";
 import { armarSisimite, type Sisimite } from "./sisimite";
+import { armarSombreron, type Sombreron } from "./sombreron";
 import { armarSucia, type Sucia } from "./sucia";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
@@ -238,6 +292,36 @@ export interface PiezaPorTipo {
   puente: Puente;
   palmera: Palmera;
   sisimite: Sisimite;
+  // Los canales (TU-42): piezas-canales.ts y llorona.ts
+  trajinera: Trajinera;
+  chinampa: Chinampa;
+  pinata: Pinata;
+  llorona: Llorona;
+  // Las de El llano (TU-44): piezas-llano.ts y silbon.ts
+  silbon: Silbon;
+  molino: Molino;
+  ganado: Ganado;
+  hamaca: Hamaca;
+  saco: Saco;
+  // La garrucha (TU-43): piezas-garrucha.ts y patasola.ts
+  garrucha: Garrucha;
+  chiva: Chiva;
+  palma: Palma;
+  patasola: Patasola;
+  // Las trenzas (TU-40): piezas-trenzas.ts y sombreron.ts
+  nudo: Nudo;
+  mula: Mula;
+  balde: Balde;
+  brasa: Brasa;
+  sombreron: Sombreron;
+  sombrerote: Sombrerote;
+  // El cafetal (TU-41): piezas-cafetal.ts y cipitio.ts
+  canasto: Canasto;
+  zaranda: Zaranda;
+  polea: Polea;
+  costal: Costal;
+  guineo: Guineo;
+  cipitio: Cipitio;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -860,6 +944,86 @@ export function armarPiezas(
         break;
       case "sisimite":
         lista.push(armarSisimite(herramientas, p));
+        break;
+      // Los canales (TU-42)
+      case "trajinera":
+        lista.push(armarTrajinera(herramientas, p));
+        break;
+      case "chinampa":
+        lista.push(armarChinampa(herramientas, p));
+        break;
+      case "pinata":
+        lista.push(armarPinata(herramientas, p));
+        break;
+      case "llorona":
+        lista.push(armarLlorona(herramientas, p));
+        break;
+      // El llano (TU-44)
+      case "silbon":
+        lista.push(armarSilbon(herramientas, p));
+        break;
+      case "molino":
+        lista.push(armarMolino(herramientas, p));
+        break;
+      case "ganado":
+        lista.push(armarGanado(herramientas, p));
+        break;
+      case "hamaca":
+        lista.push(armarHamaca(herramientas, p));
+        break;
+      case "saco":
+        lista.push(armarSaco(herramientas, p));
+        break;
+      // La garrucha (TU-43)
+      case "garrucha":
+        lista.push(armarGarrucha(herramientas, p));
+        break;
+      case "chiva":
+        lista.push(armarChiva(herramientas, p));
+        break;
+      case "palma":
+        lista.push(armarPalma(herramientas, p));
+        break;
+      case "patasola":
+        lista.push(armarPatasola(herramientas, p));
+        break;
+      // Las trenzas (TU-40)
+      case "nudo":
+        lista.push(armarNudo(herramientas, p));
+        break;
+      case "mula":
+        lista.push(armarMula(herramientas, p));
+        break;
+      case "balde":
+        lista.push(armarBalde(herramientas, p));
+        break;
+      case "brasa":
+        lista.push(armarBrasa(herramientas, p));
+        break;
+      case "sombreron":
+        lista.push(armarSombreron(herramientas, p));
+        break;
+      case "sombrerote":
+        lista.push(armarSombrerote(herramientas, p));
+        break;
+      // El cafetal (TU-41)
+      case "canasto":
+        lista.push(armarCanasto(herramientas, p));
+        break;
+      case "zaranda":
+        lista.push(armarZaranda(herramientas, p));
+        break;
+      case "polea":
+        lista.push(armarPolea(herramientas, p));
+        break;
+      case "costal":
+        lista.push(armarCostal(herramientas, p));
+        break;
+      case "guineo":
+        lista.push(armarGuineo(herramientas, p));
+        break;
+      case "cipitio":
+        lista.push(armarCipitio(herramientas, p));
         break;
     }
   }

@@ -259,6 +259,108 @@ const TOMAS = [
   { archivo: "rio-5-cumbre", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=29,3.6,0&congelar=60" },
   { archivo: "rio-6-palmera", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=44,1.6,0&congelar=60" },
   { archivo: "rio-secreto", ruta: "/?escena=nivel&nivel=rio&punto=6&j1=&j2=&vista=59.5,3.1,-2.4&congelar=30" },
+  // Los canales (TU-42): el nivel 9, Xochimilco (niveles/09-canales; va corrido 45 m hacia −x), entero y en la salida;
+  // 1. la trajinera amarrada en el canal y los dos ya en la chinampa de La Llorona, que llora; 2. el arco de la
+  // trajinera contra el puente, con el canal crecido, y La Llorona ya tranquila con el agua abajo; 3. las chinampas
+  // flotantes de la ciénaga; 4. la piñata colgada alta entre sus postes y la reja abierta; 5. la trajinera de las
+  // flores entre las chinampas y la meta. Y el alebrije dormido del secreto
+  { archivo: "canales-entero", ruta: "/?escena=nivel&nivel=canales&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "canales-salida", ruta: "/?escena=nivel&nivel=canales&j1=andar:0.6&j2=andar:0.6&congelar=150" },
+  { archivo: "canales-1-trajinera", ruta: "/?escena=nivel&nivel=canales&j1=&j2=&vista=-41.5,0.9,-1.2&congelar=60" },
+  {
+    archivo: "canales-1-llorona",
+    ruta: "/?escena=nivel&nivel=canales&punto=1&j1=&j2=&vista=-22.2,1.5,1.2&congelar=90",
+  },
+  {
+    archivo: "canales-2-puente",
+    ruta: "/?escena=nivel&nivel=canales&punto=1&j1=&j2=&vista=-19.5,1.4,-1&congelar=60",
+  },
+  {
+    archivo: "canales-2-tranquila",
+    ruta: "/?escena=nivel&nivel=canales&punto=2&j1=&j2=&vista=-21,1.2,0.6&congelar=60",
+  },
+  {
+    archivo: "canales-3-chinampas",
+    ruta: "/?escena=nivel&nivel=canales&punto=2&j1=&j2=&vista=-4.6,0.4,0&congelar=60",
+  },
+  { archivo: "canales-4-pinata", ruta: "/?escena=nivel&nivel=canales&punto=3&j1=&j2=&vista=9,2,0&congelar=60" },
+  { archivo: "canales-4-reja", ruta: "/?escena=nivel&nivel=canales&punto=4&j1=&j2=&congelar=60" },
+  { archivo: "canales-5-flores", ruta: "/?escena=nivel&nivel=canales&punto=4&j1=&j2=&vista=26,0.8,-0.4&congelar=60" },
+  { archivo: "canales-5-meta", ruta: "/?escena=nivel&nivel=canales&punto=5&j1=&j2=&congelar=60" },
+  {
+    archivo: "canales-secreto",
+    ruta: "/?escena=nivel&nivel=canales&punto=2&j1=&j2=&vista=-6.7,0.7,-2.5&congelar=30",
+  },
+  // El llano (TU-44): el nivel 11 (niveles/11-llano; va corrido 49 m hacia −x), entero y en la salida; 1. el pajonal
+  // con las ondas del silbido sobre los dos (se cierran: suena al revés); 2. el molino girando y frenado en rampa, y
+  // el portón abierto; 3. las reses en el potrero y ya en el corral; 4. la hamaca junto al caño, y el puente bajado;
+  // 5. la troja con el saco y el Silbón esperando bajo su rancho. Y el arpa llanera del secreto, bajo el samán
+  { archivo: "llano-entero", ruta: "/?escena=nivel&nivel=llano&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "llano-salida", ruta: "/?escena=nivel&nivel=llano&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "llano-1-pajonal", ruta: "/?escena=nivel&nivel=llano&j1=&j2=&vista=-41,1,-2.5&congelar=60" },
+  { archivo: "llano-2-molino", ruta: "/?escena=nivel&nivel=llano&punto=1&j1=&j2=&vista=-15.5,1.4,-1.5&congelar=69" },
+  { archivo: "llano-2-porton", ruta: "/?escena=nivel&nivel=llano&punto=2&j1=&j2=&vista=-9,1.2,0&congelar=60" },
+  { archivo: "llano-3-ganado", ruta: "/?escena=nivel&nivel=llano&punto=2&j1=&j2=&vista=1.5,0.8,0&congelar=60" },
+  { archivo: "llano-3-corral", ruta: "/?escena=nivel&nivel=llano&punto=3&j1=&j2=&vista=10,0.8,-1&congelar=60" },
+  { archivo: "llano-4-hamaca", ruta: "/?escena=nivel&nivel=llano&punto=3&j1=&j2=&vista=21,0.8,0&congelar=60" },
+  { archivo: "llano-4-puente", ruta: "/?escena=nivel&nivel=llano&punto=4&j1=&j2=&vista=24,0.6,1&congelar=60" },
+  { archivo: "llano-5-troja", ruta: "/?escena=nivel&nivel=llano&punto=4&j1=&j2=&vista=33,1.6,-2&congelar=60" },
+  { archivo: "llano-5-silbon", ruta: "/?escena=nivel&nivel=llano&punto=4&j1=&j2=&vista=42.4,1.8,-0.7&congelar=60" },
+  { archivo: "llano-5-meta", ruta: "/?escena=nivel&nivel=llano&punto=5&j1=&j2=&congelar=60" },
+  { archivo: "llano-secreto", ruta: "/?escena=nivel&nivel=llano&punto=4&j1=&j2=&vista=39.6,1.2,-5.6&congelar=30" },
+  // La garrucha (TU-43): el nivel 10, el Eje cafetero (niveles/10-garrucha; va corrido 52 m hacia −x), entero y en
+  // la salida; 1. la canasta en la finca, el cable sobre el cañón y las manijas, y los dos ya en la loma; 2. la
+  // carrera: el rojo pasa la salida y La Patasola arranca brincando; 3. la chiva junto a la bodega, con la carga en la
+  // tarima, y ya llegada a la otra loma; 4. la palma de cera con su manea, y los dos en su plataforma; 5. el cañón de las lianas
+  // con sus farallones, y la meta. Y la orquídea del secreto, en lo alto de la palma más alta
+  { archivo: "garrucha-entero", ruta: "/?escena=nivel&nivel=garrucha&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "garrucha-salida", ruta: "/?escena=nivel&nivel=garrucha&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "garrucha-1-canasta", ruta: "/?escena=nivel&nivel=garrucha&j1=&j2=&vista=-37,1.4,-0.4&congelar=60" },
+  { archivo: "garrucha-1-loma", ruta: "/?escena=nivel&nivel=garrucha&punto=1&j1=&j2=&congelar=60" },
+  { archivo: "garrucha-2-carrera", ruta: "/?escena=nivel&nivel=garrucha&punto=1&j1=andar:1&j2=&congelar=170" },
+  { archivo: "garrucha-3-chiva", ruta: "/?escena=nivel&nivel=garrucha&punto=2&j1=&j2=&vista=9,2.8,0&congelar=60" },
+  { archivo: "garrucha-3-llegada", ruta: "/?escena=nivel&nivel=garrucha&punto=3&j1=&j2=&congelar=60" },
+  { archivo: "garrucha-4-palma", ruta: "/?escena=nivel&nivel=garrucha&punto=3&j1=&j2=&vista=34.5,5.6,0&congelar=60" },
+  { archivo: "garrucha-4-plataforma", ruta: "/?escena=nivel&nivel=garrucha&punto=4&j1=&j2=&congelar=60" },
+  { archivo: "garrucha-5-lianas", ruta: "/?escena=nivel&nivel=garrucha&punto=4&j1=&j2=&vista=42,9.4,0&congelar=60" },
+  { archivo: "garrucha-5-meta", ruta: "/?escena=nivel&nivel=garrucha&punto=5&j1=&j2=&congelar=60" },
+  { archivo: "garrucha-secreto", ruta: "/?escena=nivel&nivel=garrucha&punto=5&j1=&j2=&vista=54.9,13.6,0&congelar=30" },
+  // Las trenzas (TU-40): el nivel 7, Antigua (niveles/07-trenzas; va corrido 38 m hacia −x), entero y en la salida;
+  // 1. el nudo y el portón del arco; 2. la mula y sus bultos; 3. las ruinas de la iglesia; 4. la fuente, el pretil y
+  // las piedras calientes; 5. el sombrero al pie de la cuesta, el Sombrerón en su plaza y la meta con el sombrero
+  // puesto. Y el barrilete del secreto, en el campanario
+  { archivo: "trenzas-entero", ruta: "/?escena=nivel&nivel=trenzas&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "trenzas-salida", ruta: "/?escena=nivel&nivel=trenzas&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "trenzas-1-nudo", ruta: "/?escena=nivel&nivel=trenzas&j1=&j2=&vista=-32,1,0&congelar=60" },
+  { archivo: "trenzas-1-abierto", ruta: "/?escena=nivel&nivel=trenzas&punto=1&j1=&j2=&vista=-31,1,0&congelar=60" },
+  { archivo: "trenzas-2-mula", ruta: "/?escena=nivel&nivel=trenzas&punto=1&j1=&j2=&vista=-24.5,0.8,0&congelar=60" },
+  { archivo: "trenzas-2-meson", ruta: "/?escena=nivel&nivel=trenzas&punto=2&j1=&j2=&vista=-12.5,0.8,0&congelar=60" },
+  { archivo: "trenzas-3-ruinas", ruta: "/?escena=nivel&nivel=trenzas&punto=2&j1=&j2=&vista=0.4,0,0&congelar=60" },
+  { archivo: "trenzas-4-balde", ruta: "/?escena=nivel&nivel=trenzas&punto=3&j1=&j2=&vista=12.5,0.8,-0.8&congelar=60" },
+  { archivo: "trenzas-4-brasas", ruta: "/?escena=nivel&nivel=trenzas&punto=3&j1=&j2=&vista=19.9,0.4,0&congelar=60" },
+  { archivo: "trenzas-5-sombrero", ruta: "/?escena=nivel&nivel=trenzas&punto=4&j1=&j2=&vista=28.5,1,-0.5&congelar=60" },
+  { archivo: "trenzas-5-sombreron", ruta: "/?escena=nivel&nivel=trenzas&punto=4&j1=&j2=&vista=38.7,2.3,0&congelar=60" },
+  { archivo: "trenzas-5-meta", ruta: "/?escena=nivel&nivel=trenzas&punto=5&j1=&j2=&vista=38.2,2.5,0.8&congelar=60" },
+  { archivo: "trenzas-secreto", ruta: "/?escena=nivel&nivel=trenzas&punto=5&j1=&j2=&vista=44.8,4.9,-2.1&congelar=30" },
+  // El cafetal (TU-41): el nivel 8, entero y en la salida; 1. el tapesco con los canastos y el patio de secado con el
+  // recibidero; 2. El Cipitío en la rama del palo de jocote, tirándole a la pareja recién llegada al patio, y la
+  // piedra que queda al pie del muro; 3. la zaranda colgada de la ramada y la puerta del beneficio; 4. la polea, los
+  // costales y la troja; 5. El Cipitío sentado en el portillo de la tapia, y contento arriba de la tapia. Y el sombrero
+  // puntudo del secreto, arriba de la piedra grande
+  { archivo: "cafetal-entero", ruta: "/?escena=nivel&nivel=cafetal&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "cafetal-salida", ruta: "/?escena=nivel&nivel=cafetal&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "cafetal-1-canastos", ruta: "/?escena=nivel&nivel=cafetal&j1=&j2=&vista=-28.5,1.6,-0.6&congelar=60" },
+  { archivo: "cafetal-1-patio", ruta: "/?escena=nivel&nivel=cafetal&j1=&j2=&vista=-22,1.6,-1&congelar=60" },
+  {
+    archivo: "cafetal-2-cipitio",
+    ruta: "/?escena=nivel&nivel=cafetal&punto=1&j1=&j2=&vista=-12.9,4.3,-1.5&congelar=50",
+  },
+  { archivo: "cafetal-2-piedra", ruta: "/?escena=nivel&nivel=cafetal&punto=1&j1=&j2=&vista=-14,2.2,0&congelar=240" },
+  { archivo: "cafetal-3-zaranda", ruta: "/?escena=nivel&nivel=cafetal&punto=2&j1=&j2=&vista=-4.5,4.6,0&congelar=60" },
+  { archivo: "cafetal-4-polea", ruta: "/?escena=nivel&nivel=cafetal&punto=3&j1=&j2=&vista=7,5.2,-0.6&congelar=60" },
+  { archivo: "cafetal-5-portillo", ruta: "/?escena=nivel&nivel=cafetal&punto=4&j1=&j2=&vista=26,4.2,0&congelar=60" },
+  { archivo: "cafetal-5-contento", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=27,5.4,-1&congelar=60" },
+  { archivo: "cafetal-secreto", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=35,6.4,-2.4&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

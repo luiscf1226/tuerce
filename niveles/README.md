@@ -260,6 +260,145 @@ En línea viajan en la foto el pipante, el piso del puente y sus tablas (las cla
 de la palmera y su manija, y el Sisimite: el invitado mueve la pértiga si ve avanzar el pipante, dibuja la soga y le
 abre los ojos al Sisimite cuando lo ve alzado.
 
+## Las piezas de Las trenzas (TU-40)
+
+Las que estrena el nivel 7, Antigua (`apps/juego/src/niveles/piezas-trenzas.ts` y `sombreron.ts`; su lectura, en
+`formato-trenzas.ts`). Como las otras, su malla no se dibuja. Los cabos del nudo, la rienda de la mula y el balde los
+atraviesan los muñecos, pero los agarran igual.
+
+| `pieza`      | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                | Propiedades                                                                                                |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `nudo`       | Dos cuerdas trenzadas a lo largo del lado más largo de la caja, con un nudo en el medio y un cabo (una barra de través, para las dos manos) en cada punta. Cada cabo se jala hacia afuera, agarrado y caminando para atrás (como la tranca); un resorte lo vuelve a meter. Con los dos cabos jalados a la vez el nudo se afloja de a poco hasta **desatarse**; con uno solo, se aprieta.                         | `recorrido` (0.5 m) · `umbral` (0.7) · `fuerza` (25 N) · `desatar` (2.5 s jalando los dos) · `masa` (1 kg) |
+| `mula`       | Una mula del tamaño de la caja, mirando hacia el + de su lado más largo. Cinemática y sin azar: no da un paso sin su carga, los huacales `<nombre>-1`, `-2`…, que quedan **amarrados** en su lomo al soltarlos junto a su costado, en alto (del suelo no). Cargada, sigue al que la lleva de la rienda (una manija colgada del bozal con una soga de verdad). No se mete en las paredes ni se tira a los huecos. | `velocidad` (1.2 m/s) · `rienda` (1.3 m) · `carga` (2 bultos) · `giro` (1.8 rad/s)                         |
+| `balde`      | Un balde de madera del tamaño de la caja. El guion lo **llena**; se lleva en la mano (3 kg: uno solo). Lleno, si nadie lo agarra un ratito se **derrama**: no se puede dejar en ningún lado ni tirar, solo pasar de mano en mano. Tirado en el suelo, vuelve solo a su lugar.                                                                                                                                    | `masa` (3 kg) · `suelto` (0.3 s) · `vuelve` (3 s)                                                          |
+| `brasa`      | Una piedra caliente del tamaño de la caja: **quema** al que la toca (lo tira para atrás, no hay derrota) y no se salta. Un balde lleno que llega a `alcance` de ella la **apaga**: se vacía el balde y la piedra se hunde a ras del suelo, ya se camina.                                                                                                                                                         | `empujon` (3.4 m/s) · `alcance` (0.9 m)                                                                    |
+| `sombreron`  | El Sombrerón, bajito, de negro y con su guitarra. Su caja es su plaza: anda por adentro y no sale. Sin su sombrero, persigue al muñeco de pie más cercano que entra y le hace trenzas (lo **enreda**: lo tumba) y se queda tocando la guitarra un rato. Si su sombrero llega a la plaza, va por él y se lo pone; con el sombrero puesto ya no molesta. Cinemático, sin choques ni azar.                          | `velocidad` (1 m/s) · `alcance` (0.7 m) · `tocar` (4 s) · `empujon` (3.6 m/s)                              |
+| `sombrerote` | El sombrero gigante del Sombrerón: una rueda de canto del tamaño de la caja que solo gira sobre su eje (el lado corto de abajo) y rueda a lo largo del largo. Se empuja caminando contra él; en una cuesta, sin nadie, rueda para abajo.                                                                                                                                                                         | `masa` (5 kg) · `rozamiento` (1)                                                                           |
+
+```ts
+nivel.nudo("nudo").desatado; // y .progreso (0 a 1), .jalados, .recorridos, .desatar(), .alDesatar(() => {})
+nivel.mula("mula").cargada; // y .cargados, .bultos, .guia, .rapidez, .rumbo, .cargar(), .ponerEn(x, z, rumbo), .alCargar(n => {})
+nivel.balde("balde").lleno; // y .cargadores, .derramadas, .llenar(), .vaciar(), .volver(), .alDerramar(() => {})
+nivel.brasa("brasa-1").caliente; // y .quemados, .apagar(ya?), .alApagar(() => {})
+nivel.sombreron("sombreron").conSombrero; // y .estado, .enredos, .persigue, .ponerse(), .volver(), .alEnredar(j => {}), .alPonerse(() => {})
+nivel.sombrerote("sombrero").puesto; // y .radio, .eje, .volver()
+```
+
+En línea viajan en la foto los cabos y el nudo (un marcador cinemático sin choques: gira con lo que se aflojó y cae al
+desatarse), la mula, su rienda y sus bultos, el balde y su marcador (un metro más alto con el balde lleno), las piedras
+(hundidas, apagadas), el Sombrerón (agachado mientras hace trenzas) y su sombrero: el invitado dibuja las trenzas del
+nudo, el agua del balde, el brillo de las piedras y al Sombrerón tocando o trenzando con los cuerpos tal como llegan.
+
+<!-- El cafetal (TU-41) -->
+
+## Las piezas del cafetal (TU-41)
+
+Las que estrena el nivel 8, El cafetal (`apps/juego/src/niveles/piezas-cafetal.ts` y `cipitio.ts`; su lectura, en
+`formato-cafetal.ts`). Como las otras, su malla no se dibuja. El canasto, el costal, el guineo, la llave y las piedras del
+Cipitío los atraviesan los muñecos pero los agarran igual (y pisan las piedras: el rayo de la suspensión las ve).
+
+| `pieza`   | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Propiedades                                                                                                                                                            |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `canasto` | Un canasto de corte lleno de café, del tamaño de la caja, quieto en su poste hasta que lo agarran. **Lanzar y atrapar** salen del agarre de siempre, sin ayuda: se lanza saltando y soltándolo en el aire (como la pelota de Xibalbá) y se atrapa con los brazos alzados (la mano que lo toca en el aire lo agarra). Sale a unos 2 m de alto y se atrapa a 3 o 3.5 m, con el que atrapa unos 60 cm más arriba que el que lanza. Suelto, en cuanto toca algo que no sea una mano se vacía y vuelve lleno a su poste: el guion mira dónde cayó.                                                                                                                                                                                                   | `masa` (1.5 kg)                                                                                                                                                        |
+| `zaranda` | La zaranda del café: una bandeja colgada del tamaño de la caja, con una manija a lo ancho en cada punta de su x. **Trabada** mientras no la agarren los dos (uno de cada manija); entre los dos se la mueve a lo largo de su x, `recorrido` hacia cada lado. Cada vez que pasa de una punta a la otra es un zarandeo; con `zarandeos`, la llave (un manojo, escondido entre el café) cae por detrás y queda colgando de un clavo, `llave` detrás de la caja, a la altura de las manos. Al agarrarla se descuelga; tirada, vuelve al clavo. Los muñecos la atraviesan (con los brazos alzados se agarra la bandeja).                                                                                                                             | `masa` (12 kg) · `recorrido` (0.35 m) · `zarandeos` (6) · `umbral` (0.7: qué parte del recorrido es llegar a la punta) · `llave` (0.3 m) · `vuelve` (4 s)              |
+| `polea`   | Una polea con torno: su caja es el armazón. La manija cuelga en la punta −x, a `manija` de la base (se salta para colgarse); el gancho, en la punta +x, a `gancho`. El que se cuelga de la manija la baja `recorrido` y el gancho sube `subir`; sin nadie, vuelven solos. El costal que alguien le acerca al gancho (con el gancho abajo) queda colgado.                                                                                                                                                                                                                                                                                                                                                                                        | `manija` (1.75 m) · `gancho` (1.25 m) · `recorrido` (0.5 m) · `subir` (2.8 m) · `bajada` (0.35 m/s) · `subida` (0.25 m/s)                                              |
+| `costal`  | Un costal de café del tamaño de la caja, quieto en su tarima hasta que lo agarran (4 kg: uno solo lo carga). Se cuelga del gancho de la polea. Tirado en el suelo, vuelve solo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `masa` (4 kg) · `vuelve` (3 s)                                                                                                                                         |
+| `guineo`  | Un guineo maduro colgado de su mata, quieto hasta que lo agarran. Tirado, vuelve solo; El Cipitío se come el que le queda a la mano.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | `masa` (0.3 kg) · `vuelve` (3 s)                                                                                                                                       |
+| `cipitio` | El Cipitío: un cipote barrigón con los pies al revés, sentado en el medio de la base de su caja, mirando hacia su frente. Al muñeco más cercano a menos de `vista` (de costado) que no le traiga un guineo le tira una piedra cada `cada` segundos, adelantándole lo que camina, `corto` antes (nunca más cerca de él que `cerca`), y se ríe. Las piedras (4 kg, 50 cm de alto, no giran) se quedan donde caen: la que cae a los pies de uno lo sube encima, y sirve de escalón. Con `empujon`, la piedra que pasa junto a un muñeco lo tumba. Con el morral vacío recoge la tirada más vieja de las que tiene a la vista. Un guineo suelto a menos de 1 m de su boca, se lo come: desde ahí está contento y no tira más. Cinemático, sin azar. | `vista` (6 m) · `cada` (1.8 s) · `piedras` (4) · `corto` (1 m) · `cerca` (1.2 m) · `empujon` (0 m/s: con más de 3.2 tumba) · `vuelo` (0.9 s: lo que vuela cada piedra) |
+
+```ts
+nivel.canasto("canasto-1").estado; // "en su lugar", "llevado" o "volando"; .lanzador, .atrapadas, .alAtrapar(j => {}), .alCaer((donde, atrapado) => {})
+nivel.zaranda("zaranda").trabada; // y .corrido (−1 a 1), .zarandeos, .llave (.suelta, .colgada, .agarrada, .encajada), .encajar(p), .soltarLlave()
+nivel.polea("polea").subida; // de 0 (abajo) a 1; .colgados, .costal, .descolgar()
+nivel.costal("costal-1").colgado; // y .agarrado, .enSuLugar, .ponerEn(p), .volver()
+nivel.guineo("guineo").comido; // y .agarrado, .enSuLugar, .volver()
+nivel.cipitio("cipitio").estado; // "sentado", "apuntando", "riendo", "comiendo" o "contento"; .tiradas, .pegadas, .riendo, .conPiedra, .mudarse(p, rumbo, punteria), .alComer(() => {})
+```
+
+En línea viajan en la foto los canastos, la bandeja de la zaranda y su llave, la manija y el gancho de la polea, los
+costales, el guineo, El Cipitío y sus piedras (las del morral, escondidas 40 m abajo). El invitado no corre el guion ni
+`antes`: ve al Cipitío reírse porque lo ve echado para atrás, alzar el brazo porque tiene una piedra en la mano y
+comer porque tiene el guineo en la boca, y dibuja las sogas de la zaranda y de la polea con los cuerpos como llegan.
+
+## Las piezas de los canales (TU-42)
+
+<!-- Los canales (TU-42) -->
+
+Las que estrena el nivel 9, Los canales de Xochimilco (`apps/juego/src/niveles/piezas-canales.ts` y `llorona.ts`;
+su lectura, en `formato-canales.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza; su nivel lo
+sube y lo baja el guion con `irA` (el llanto de La Llorona).
+
+| `pieza`     | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Propiedades                                                                                                                                                             |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trajinera` | Una lancha plana del tamaño de la caja, con el piso arriba de la caja, un techo y el arco de la proa; avanza hacia el + de su lado más largo. Flota y gira solo alrededor de su Y. Tiene dos pértigas, una de cada lado de la popa (el 40 % de atrás): empuja la de su lado el que va de pie ahí con los brazos alzados. Una sola la tuerce (se clava de costado); las dos, derecho. La viga de arriba del arco choca: no pasa bajo un puente más bajo. Puede llevar flores en el piso: cada golpe (un cambio de velocidad de más de `golpe` en un paso) bota una al agua, que flota un rato y se hunde. Al que va a bordo, quieto, lo lleva. | `masa` (80 kg) · `pertiga` (72 N cada una) · `lado` (0.7 m: dónde se clava cada pértiga) · `flores` (0) · `golpe` (0.4 m/s) · `arco` (2.1 m sobre el piso; 0: sin arco) |
+| `chinampa`  | Una chinampa flotante del tamaño de la caja (la tierra arriba de la caja). Con alguien parado encima, aguanta `aguante` y se hunde `hundir` por segundo por cada muñeco; vacía, vuelve a subir. Cinemática: lleva al que la pisa.                                                                                                                                                                                                                                                                                                                                                                                                             | `hundir` (0.3 m/s) · `aguante` (0.25 s) · `subir` (0.2 m/s) · `fondo` (1 m: hasta dónde se hunde)                                                                       |
+| `pinata`    | Una piñata de siete picos colgada en el medio de una soga tendida entre dos postes (en las puntas del lado más largo de la caja; la caja va del suelo a la soga). La soga baja hasta una manija junto al poste de la punta −, 75 cm hacia adentro: jalándola caminando hacia atrás (hacia el − de su frente) la piñata baja; al soltarla, un resorte la sube. La mano o la cabeza que le llega a más de `pegar` cuenta un golpe (cada muñeco, uno cada 0.4 s) y la mece; con `golpes` se rompe y saltan los dulces. Los muñecos la atraviesan.                                                                                                | `soga` (2.4 m) · `baja` (2 m) · `fuerza` (20 N) · `golpes` (4) · `pegar` (1 m/s)                                                                                        |
+| `llorona`   | La Llorona, de pie en su caja (los pies abajo) mirando hacia su frente. Un fantasma: no choca. Llora (`llanto`, de 0 a 1) y se ríe de los porrazos: un muñeco que se cae delante de ella, a menos de `publico`. Cada carcajada le baja el llanto; con `risas` deja de llorar para siempre. Si pasa `olvido` sin reírse, se olvida de una.                                                                                                                                                                                                                                                                                                     | `risas` (3) · `olvido` (20 s) · `publico` (6 m)                                                                                                                         |
+
+```ts
+nivel.trajinera("trajinera").pertigas; // [izquierda, derecha]: 0, 1 o null; y .aBordo, .rumbo, .encima(p), .casa
+nivel.trajinera("trajinera-flores").flores; // las que lleva, de .totalFlores; .alBotarFlor(quedan => {}), .llevar(c), .volver()
+nivel.chinampa("chinampa-1").hundida; // m; y .encima (cuántos), .tierra (su altura), .volver()
+nivel.pinata("pinata").estado; // "colgada" o "rota"; .jalada, .bajada, .golpes, .aguanta, .manija, .alGolpear(j => {}), .alRomper(() => {}), .romper()
+nivel.llorona("llorona").estado; // "llorando", "riendo" o "tranquila"; .risas, .faltan, .llanto, .alReir(j => {}), .alCalmarse(() => {}), .calmar()
+```
+
+En línea viajan en la foto las dos trajineras y sus flores (cuerpos cinemáticos sin choques), las chinampas, la
+piñata y su manija, La Llorona y el marcador de cada agua: el invitado cuenta las flores que ve en el piso, mueve
+las pértigas si la trajinera avanza, rompe la piñata cuando la ve desaparecer y sabe si La Llorona llora, se ríe o
+está tranquila por cuánto la ve inclinada.
+
+## Las piezas de La garrucha (TU-43)
+
+Las que estrena el nivel 10, La garrucha (`apps/juego/src/niveles/piezas-garrucha.ts` y `patasola.ts`; su lectura, en
+`formato-garrucha.ts`). Como las otras, su malla no se dibuja. Las lianas son bejucos.
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Propiedades                                                                                                                                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `garrucha` | Una canasta colgada de un cable, a lo largo del lado más largo de la caja: de la estación de abajo (la punta −, con el piso de la canasta abajo de la caja) a la de arriba (la punta +, con el piso arriba de la caja). Se sube caminando por las puntas, que están abiertas. Cada estación tiene una manija en la soga, detrás de la punta y de costado: jalándola caminando hacia atrás (como la soga de la palmera), la canasta sube; al soltarla la manija vuelve sola y la canasta no (un trinquete), si alguien va adentro. Vacía y sin nadie en las manijas, baja sola a la estación de abajo. Desde la canasta no se alcanza ninguna manija: hacen falta los dos. | `velocidad` (1.4 m/s) · `soga` (2.2 m: lo que se jala) · `multiplica` (3.2 m de cable por metro de soga) · `bajar` (1.2 m/s) · `fuerza` (20 N) · `lado` (−1.3 m: de costado) · `atras` (1.4 m: detrás de la punta) |
+| `chiva`    | El bus de escalera, del tamaño de la caja (de la calle hasta arriba del techo), mirando hacia el + de su lado más largo, con la parrilla del techo (barandas a los costados). Su carga es el huacal `<nombre>-carga`. Con la carga en el techo y los dos encima, arranca y pasa `baches`; en cada bache la carga salta del techo si no la sostienen los dos, y se lleva al que la sostenía solo: la chiva frena, se devuelve y la carga vuelve a su lugar. Al que va en el techo lo lleva. Cinemática, sin azar.                                                                                                                                                          | `recorrido` (14 m) · `velocidad` (2 m/s) · `baches` (2) · `bache` (0.1 m)                                                                                                                                          |
+| `palma`    | Una palma de cera de pie, del tamaño de la caja: arriba de la caja termina lo que se trepa (ahí va su plataforma, un sólido aparte, con el borde al ras del tronco del lado por donde se sube) y encima va el cogollo, que solo se ve. Con `manea`, un aro de soga alrededor del tronco: el que lo agarra con las dos manos sube apretando adelante y baja apretando atrás; arriba se encarama a la plataforma, como a cualquier borde. Sin nadie, la manea baja sola.                                                                                                                                                                                                    | `manea` (1) · `velocidad` (0.9 m/s) · `copa` (2.5 m: el cogollo sobre la caja)                                                                                                                                     |
+| `patasola` | La Patasola, que anda brincando en una sola pata: corre a lo largo del lado más largo de su caja (su carril), de la punta − (la salida de la carrera) a la + (la meta), con la base de la caja en el suelo. Esperando, brinca en el lugar. Arranca cuando alguno de los dos cruza la salida, llega a la meta en `tiempo` segundos (siempre igual) y se devuelve; para otra carrera los dos tienen que volver detrás de la salida. No choca con nada.                                                                                                                                                                                                                      | `tiempo` (15 s) · `salto` (0.45 m) · `brinco` (0.5 s)                                                                                                                                                              |
+
+```ts
+nivel.garrucha("garrucha").recorrido; // de 0 (abajo) a 1 (arriba); .aBordo, .jalando, .jalada(0 | 1), .manijas, .encima(p), .volver()
+nivel.chiva("chiva").estado; // "parada", "andando", "frenando", "devolviendose" o "llego"; .recorrido, .caidas, .carga, .cargada, .alLlegar(), .alCaer(), .llegar(), .volver()
+nivel.palma("palma").altura; // la manea, de 0 a 1; .trepando (0, 1 o null), .manea, .volver()
+nivel.patasola("patasola").estado; // "esperando", "corriendo" o "volviendo"; .avance, .alto, .carreras, .perdidas, .ganadas, .alPerder(j => {}), .alGanar(), .volver()
+```
+
+En línea viajan en la foto la canasta y sus manijas, la chiva y su carga, las maneas y La Patasola: el invitado dibuja
+las sogas, hace girar las ruedas de la chiva y le dobla la pata a La Patasola con lo alto que la ve.
+
+<!-- Las trenzas (TU-40) -->
+
+## Las piezas del llano (TU-44)
+
+Las que estrena el nivel 11, El llano (`apps/juego/src/niveles/piezas-llano.ts` y `silbon.ts`; su lectura, en
+`formato-llano.ts`; el silbido, en `silbido.ts` y `silbido-audio.ts`). Como las otras, su malla no se dibuja.
+
+| `pieza`  | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Propiedades                                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `silbon` | El Silbón, un flaco altísimo de sombrero. Su caja es donde está escondido, agachado en el pajonal (la base en el suelo; de alto, lo que mide de pie). Escondido no se ve y **silba al revés**: a cada jugador le toca su volumen y su paneo (`silbido.ts`, una función pura), fuerte de lejos y bajito de cerca, y viene del lado contrario. Suena con Web Audio, sintetizado, y se ve: unas ondas sobre cada muñeco que se cierran, más marcadas cuanto más fuerte suena. El primero que llega a `hallar` de él lo halla: se alza, se va y aparece donde el guion le dijo que espere (`esperarEn`). Esperando, recoge su saco si se lo dejan suelto a menos de `alcance`. Cinemático, sin choques y sin azar. | `hallar` (1.3 m) · `velocidad` (1.4 m/s) · `alcance` (1.6 m)                                                     |
+| `molino` | Un molino de viento de dos aspas largas que giran sobre la z de la caja (la rueda: el eje en el centro y de radio el mayor de su X y su Y; de grueso, su Z). Gira sin parar con el viento; con el freno (`frenar`, lo manda el guion) para con las aspas en rampa, subiendo `angulo` hacia su +x: se sube caminando por ellas. Al soltar el freno vuelve a agarrar viento y bota al que esté encima. Cinemática.                                                                                                                                                                                                                                                                                               | `angulo` (15°) · `viento` (1.6 rad/s) · `arranque` (1.2 rad/s²) · `frenada` (2.5 rad/s²)                         |
+| `ganado` | Reses cebú que pastan sueltas en el potrero (la caja) y se apartan del muñeco que se les acerca a menos de `huir`: se las arrea. No van contra la cerca del potrero; arrinconadas, se escurren hacia el corral. La que entra al corral (los últimos `corral` metros de la X de la caja) se queda ahí, en su comedero contra la cerca de atrás. Pastan con azar de semilla: dos corridas iguales dan lo mismo.                                                                                                                                                                                                                                                                                                  | `cuantas` (3) · `corral` (5 m) · `huir` (3.2 m) · `velocidad` (1.4 m/s) · `masa` (250 kg) · `semilla` (1)        |
+| `hamaca` | Una hamaca colgada a lo ancho de la X de la caja, entre dos horcones, mirando a su frente (el −Y de Blender). Su cabuya cuelga hasta una manija a un costado: jalándola caminando hacia atrás (como la palmera del río) la hamaca se estira hacia atrás hasta el suelo, donde uno se puede meter. Estirada del todo y soltada la cabuya, vuelve de golpe y lanza hacia su frente al que esté adentro. Los muñecos la atraviesan.                                                                                                                                                                                                                                                                               | `estirar` (2.2 m) · `lado` (−1.8 m) · `fuerza` (25 N) · `colgar` (0.55 m) · `lanzar` (8 m/s) · `elevacion` (38°) |
+| `saco`   | El saco de cachivaches del Silbón: un costal del tamaño de la caja, quieto donde lo pongan hasta que lo agarran; se carga con una mano o con las dos. Tirado mucho rato (o caído al vacío), vuelve a su lugar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `masa` (3 kg)                                                                                                    |
+
+```ts
+nivel.silbon("silbon").silbidos(); // [{ volumen, paneo }, …]: lo que oye cada uno; .silba, .estado, .hallado, .conSaco
+nivel.silbon("silbon").oir(nivel.munecos); // y .esperarEn(donde, rumbo), .alHallar(j => {}), .alRecibir(() => {}), .hallar()
+nivel.molino("molino").frenar(palanca.activa); // .parada, .giro, .velocidad, .rueda
+nivel.ganado("ganado").encerradas; // y .cuantas, .reses, .enElCorral(i), .alEncerrar(n => {}), .encerrar()
+nivel.hamaca("hamaca").estado; // "colgada", "estirada" o "disparando"; .estirada, .jalada, .medio(), .adentro(p), .lanzados
+nivel.saco("saco").entregado; // y .agarrado, .enSuLugar, .volver()
+```
+
+En línea viajan en la foto las aspas, las reses, el medio de la hamaca y su manija, el saco y el Silbón. El invitado no
+corre el guion ni las piezas: el silbido y sus ondas los calcula con los cuerpos tal como llegan (sabe que el Silbón
+silba porque lo ve hundido en su escondite; quiénes lo oyen se lo dice el guion en `alEmpezar`, que corre en los dos),
+anima las patas de las reses con lo que anduvieron y dibuja la tela y la cabuya de la hamaca.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -312,11 +451,14 @@ nunca se vuelve atrás. El que cae al vacío (por debajo de `vacio`, dentro de u
 sólido) reaparece de pie **junto a su compañero**, si este está de pie en terreno firme y hay piso al lado; si no, en
 el último punto de control alcanzado. El punto de control se guarda en Convex para retomar (TU-22).
 
-## Los niveles sin Blender: del `00-patio` al `06-rio`, `98-piezas` y `99-prueba`
+## Los niveles sin Blender: del `00-patio` al `11-llano`, `98-piezas` y `99-prueba`
 
 Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `pinar.mjs`, `poza.mjs`,
-`calle.mjs`, `xibalba.mjs`, `tren.mjs`, `rio.mjs`, `prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
+`calle.mjs`, `xibalba.mjs`, `tren.mjs`, `rio.mjs`, `trenzas.mjs`, `cafetal.mjs`, `canales.mjs`, `garrucha.mjs`,
+`llano.mjs`, `prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
 `comun.mjs`). Si los cambiás, volvé a correrlo y subí los `.glb`.
+
+La garrucha (TU-43): `scripts/niveles/garrucha.mjs` arma `10-garrucha`, también con `pnpm niveles`.
 
 ### `00-patio` (`?escena=nivel&nivel=patio`), el nivel 0
 
@@ -514,6 +656,174 @@ El secreto, «la figura de jade de la ciudad perdida», está en el nicho de arr
 gradas de 1.4 m que se trepan colgándose (la zona `secreto`). Sin color nuevo: es lo único claro, pulido y con luz de
 la ciudad. De noche no va la trampa del mecate: la palmera lanza a uno solo al otro lado del barranco.
 
+### `07-trenzas` (`?escena=nivel&nivel=trenzas`)
+
+El nivel 7 (TU-40): Las trenzas, en Antigua (Guatemala). Calles de fachadas en grises (sin color: solo los pañuelos lo
+tienen), arcos, ruinas de iglesias y un volcán al fondo; ahí anda el Sombrerón, que le hace trenzas a todo (a las
+cuerdas del arco, a la crin y la cola de la mula, a la gente). Estrena el nudo, la mula, el balde de agua y las piedras
+calientes. Lo arma `scripts/niveles/trenzas.mjs` (`pnpm niveles`). Va de oeste a este, y va todo corrido 38 m hacia
+−x: la foto de la red mide las posiciones en int16 (±64 m desde el origen) y el nivel mide 92 m. Cada misión termina
+en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **El nudo**, de a dos: las cuerdas trenzadas amarran el portón del arco, de lado a lado de la calle. Cada uno agarra
+   un cabo (a 4 m uno de otro) y camina para atrás; con los dos jalados a la vez el nudo se afloja en 2.5 s, se desata y
+   las dos hojas del portón se abren → punto 1. Solo no se puede: no se llega a los dos cabos, y jalando uno solo el
+   nudo se aprieta.
+2. **La mula**: no da un paso sin su carga. Se agarra cada bulto (4 kg: uno solo) de su pilar y se lo suelta junto al
+   costado de la mula, en alto: queda amarrado en su lomo. Con los dos, se la lleva de la rienda (la manija delante de
+   su cabeza) por al lado de la pila hasta el mesón: el zaguán se abre → punto 2. Los bultos tirados en el suelo
+   vuelven a su pilar.
+3. **Las ruinas**: el piso de la iglesia se hundió (cuenta como caída). Se cruza saltando de arco caído en arco caído
+   (cuatro, con huecos de 60 cm) → punto 3.
+4. **El balde**, de a dos: la fuente está de este lado del pretil (85 cm y delgado: ni se trepa ni se salta) y las dos
+   piedras calientes, en el pasillo de la sacristía, del otro. Uno trepa el muro caído del fondo (1.4 m, colgándose);
+   el otro agarra el balde de su pilar, lo llena bajo el caño de la fuente y se lo pasa por encima del pretil, de mano
+   en mano. El de allá lo lleva hasta cada piedra y la apaga (se vacía el balde, la piedra se hunde); vacío, lo suelta
+   y el balde vuelve solo a su pilar para la segunda → punto 4, pasado el pasillo. Solo no se puede: el balde lleno que
+   se suelta se derrama (no se puede dejar sobre el pretil ni tirar), y con el balde en las manos no se trepa el muro.
+5. **El sombrero**: el del Sombrerón rodó al pie de la cuesta (1.5 m en 8 m). Se lo empuja rodando, caminando contra
+   él, hasta su plaza; él va por él y se lo pone, y aparece la meta → punto 5. Soltado en la cuesta, rueda para abajo.
+   Al que entra a su plaza sin el sombrero, el Sombrerón lo persigue y le hace trenzas (lo tumba).
+
+El secreto, «un barrilete escondido en el campanario», está arriba de la torre de la plaza del Sombrerón: un escalón y
+la torre, de 1.45 m cada uno, que se trepan colgándose (la zona `secreto`; da el pañuelo «Bufanda»). Antes de devolverle
+el sombrero, subir es meterse a su plaza. El logro, «Sin un nudo», es llegar a la meta sin que el Sombrerón haya
+enredado a ninguno de los dos. De noche no va la trampa del mecate: los cabos del nudo están a 4 m, y en la fuente uno
+se queda de cada lado del pretil.
+
+### `08-cafetal` (`?escena=nivel&nivel=cafetal`)
+
+El nivel 8 (TU-41): Izalco, El Salvador. Cafetales en la falda del volcán, patios de secado, un beneficio y El
+Cipitío, un cipote barrigón que tira piedritas y se ríe. Estrena lanzar y atrapar, el canasto y la zaranda. Lo arma
+`scripts/niveles/cafetal.mjs` (`pnpm niveles`). Va de oeste a este, subiendo por terrazas: el cafetal (y = 0), el patio
+de secado (1.4 m) y la terraza del beneficio (3.5 m). Mide 82 m (de −46 a 36): cabe en la foto de la red sin correrlo.
+Cada misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **Los canastos**, de a dos: uno, en el tapesco del cafetal (80 cm), agarra un canasto de su poste, retrocede un
+   paso, salta y lo suelta en el aire; el otro, parado en el patio a un metro del borde, lo atrapa con los brazos
+   alzados y lo vacía en el recibidero, a más de 6 m del borde (hasta ahí no llega uno tirado). Con tres vaciados
+   baja el portón del patio → punto 1. Solo no se puede: el patio (1.4 m) se trepa colgándose, con las dos manos, así
+   que con un canasto no; y el canasto que nadie atrapa cae en el patio y se riega (vuelve lleno a su poste).
+2. **Las piedras del Cipitío**: el muro de la terraza mide 2.1 m (se trepa hasta 1.65). El Cipitío, en la rama del palo
+   de jocote que sale por encima del muro, le tira piedras a los pies al que se acerca. El que lo espera al pie del muro
+   queda parado sobre la piedra (50 cm), y de ahí trepa → punto 2. El Cipitío se va riendo al portillo; la piedra se
+   queda para el otro.
+3. **La zaranda**, de a dos: colgada de la ramada; cada uno agarra una manija y la mueven para un lado y para el otro
+   (uno tira mientras el otro empuja). A los seis zarandeos la llave cae por detrás y queda colgando de un clavo; se pasa
+   por debajo de la zaranda con los brazos abajo y se la agarra. Llevada al candado, junto a la puerta del beneficio,
+   se encaja y la puerta baja → punto 3. Solo no se puede: con uno solo la zaranda está trabada.
+4. **La polea**: los dos costales (4 kg) en su tarima; se los cuelga del gancho de la polea (abajo, a la altura de las
+   manos) y, colgándose de la manija (se salta), el gancho sube 2.8 m y el costal se descarga en la troja (2.6 m, no se
+   trepa). Con los dos arriba se abre la puerta de atrás del beneficio → punto 4.
+5. **El guineo**: El Cipitío se sentó en el portillo de la tapia (2.4 m) y le tira piedrazos que tumban al que se acerca
+   (a menos de 6 m; le adelanta lo que camina, así que no se lo esquiva). Al que le trae el guineo de la mata de atrás
+   del beneficio no le tira: soltado delante de él, se lo come, se sube contento a la tapia y deja libre el portillo
+   → punto 5, la meta.
+
+El secreto, «el sombrero puntudo del Cipitío», está arriba de la piedra grande de detrás de la meta: dos gradas de
+1.4 m que se trepan colgándose (la zona `secreto`; da el sombrero «puntudo»). El logro, «Buen pulso», es atrapar diez
+canastos seguidos: la racha se corta cuando un canasto lanzado cae sin que nadie lo atrape (el que ya atraparon y
+después se suelta no la corta). De noche no va la trampa del mecate: el que lanza y el que atrapa quedan a más de 3 m.
+
+### `09-canales` (`?escena=nivel&nivel=canales`)
+
+<!-- Los canales (TU-42) -->
+
+El nivel 9 (TU-42): Los canales de Xochimilco, México. Canales, chinampas con flores, trajineras (sin color:
+siluetas y grises) y una feria. Estrena la trajinera, el nivel del agua de La Llorona, la chinampa flotante y la
+piñata. Lo arma `scripts/niveles/canales.mjs` (`pnpm niveles`). Va de oeste a este y todo va corrido 45 m hacia −x
+(el nivel mide 104 m; la foto de la red, ±64). Cada misión termina en un punto de control (`&punto=N` empieza en la
+misión N + 1):
+
+1. **La trajinera**, de a dos: amarrada al muelle, en un carril de 2.4 m con corriente en contra (0.6 m/s). Cada
+   uno empuja con la pértiga de su lado, de pie en la popa. Con una sola no le gana a la corriente y se tuerce
+   contra la orilla; pasándose de un lado al otro, la corriente se la lleva de vuelta → punto 1, en la chinampa de
+   La Llorona. La trajinera vacía que quedó lejos vuelve sola al muelle.
+2. **La Llorona** llora tanto que el canal está crecido (25 cm): el arco de la trajinera choca contra el puente. Se
+   ríe de los porrazos: el que trepa la tarima de los mariachis (1.5 m, colgándose) y se tira delante de ella cae
+   como trapo y le saca una carcajada. Cada carcajada baja un poco el agua; a la tercera deja de llorar y el canal
+   baja del todo. Si pasan 20 s sin reírse, se olvida de una. La trajinera, que los espera junto a la chinampa,
+   pasa bajo el puente hasta el embarcadero → punto 2.
+3. **Las chinampas flotantes**: cinco islotes de 1.3 m con 70 cm de agua entre uno y otro, que se hunden mientras
+   alguien está encima (el doble con los dos). Se cruzan saltando sin quedarse → punto 3, a la entrada de la feria.
+4. **La piñata**, de a dos: cuelga a 3.5 m. La manija de la soga está junto al poste del fondo: uno la jala
+   caminando hacia el este y la piñata baja a la altura de las manos; el otro le pega saltando con los brazos
+   alzados. Con cuatro golpes se rompe y se hunde la reja del muelle de las flores → punto 4. Solo no se puede: al
+   soltar la soga la piñata sube antes de que llegue debajo (la manija queda a más de 3 m).
+5. **La trajinera de las flores** (8 macetas), con las mismas dos pértigas, por un canal con dos chinampas en el
+   medio (la primera se pasa por detrás, la segunda por delante) hasta el embarcadero de la feria → punto 5, la
+   meta. Cada golpe fuerte (contra una chinampa, o llegar rápido al muelle) bota una flor. Llegar con todas da el
+   logro, «Ni una flor menos». La trajinera que dejan sola vuelve a su muelle con todas sus flores.
+
+El secreto, «un alebrije dormido en una chinampa», está en la chinampa firme del fondo de la ciénaga, a un salto
+de la segunda chinampa flotante (la zona `secreto`). Es lo único claro y con dibujitos de la ciénaga. De noche no va
+la trampa del mecate: el que jala la soga de la piñata queda lejos del que le pega.
+
+### `10-garrucha` (`?escena=nivel&nivel=garrucha`)
+
+El nivel 10 (TU-43): La garrucha, en el Eje cafetero (Colombia). Montañas (en siluetas y grises), palmas de cera
+altísimas, guaduales y cables sobre los cañones. Estrena la garrucha, la chiva, la palma de cera y La Patasola; las
+lianas son bejucos. Lo arma `scripts/niveles/garrucha.mjs` (`pnpm niveles`). Va de oeste a este y va todo corrido 52 m
+hacia −x, para caber en la foto de la red (el nivel mide 120 m). La finca está a 0.3 m, la loma a 2.3 m y la
+plataforma de la palma y la otra orilla del cañón a 8.3 m. Cada misión termina en un punto de control (`&punto=N`
+empieza en la misión N + 1):
+
+1. **La garrucha**, de a dos: la canasta cruza el cañón del río, de la finca a la loma (13 m, 2 m más arriba). Uno se
+   sube a la canasta y el otro jala la manija de la finca caminando hacia atrás, la suelta, vuelve y otra vez (unas
+   tres jaladas) → punto 1, al bajarse en la loma. Vacía, la canasta baja sola; el que llegó jala la manija de arriba
+   y sube al otro. Solo no se puede: desde la canasta no se alcanza la manija, y la que sube vacía se devuelve.
+2. **La carrera de saltos contra La Patasola**: cuatro zanjas de 70 cm cruzan la loma (se saltan; el que cae,
+   reaparece). Cuando alguno cruza la salida, La Patasola arranca brincando por su carril, detrás, y llega a la meta
+   en 15 s. Corriendo y saltando bien se le gana por unos dos segundos: el logro, «En una pata». Si gana ella, se
+   sigue igual → punto 2, pasada la meta.
+3. **La chiva**, de a dos: parqueada junto a la bodega, con el techo a la altura del piso. La carga (un huacal de
+   8 kg) espera en una tarima, a la altura de las manos: se agarra entre los dos, cada uno con el brazo de adentro, y
+   se lleva al techo. Con la carga y los dos encima, la chiva arranca, vadea el río y pasa dos baches. Si en un bache
+   la carga no la sostienen los dos, salta del techo (con el que la sostenía solo), la chiva frena, se devuelve y la
+   carga vuelve a la tarima. Con uno solo en el techo no arranca → punto 3, en la otra loma.
+4. **La palma de cera**: 6 m de tronco. Se agarra la manea con las dos manos, adelante sube y atrás baja; arriba se
+   encarama a la plataforma → punto 4. La manea baja sola para el otro.
+5. **El cañón de las lianas**: de la plataforma, tres lianas cuelgan de un cable, cada una a 30 cm de un borde, con
+   dos farallones entre ellas (huecos de 2 m). De liana en liana, columpiándose y soltándose sobre el piso de
+   enfrente → punto 5, la meta, en la otra orilla.
+
+El secreto, «una orquídea en la palma más alta», está detrás de la meta: la palma más alta tiene su manea y un nido
+en lo alto, donde está la orquídea (la zona `secreto`). Sin color nuevo: la orquídea es lo único blanco y con luz allá
+arriba. Los bordes invisibles del lado de la cámara solo atajan a los muñecos (el guion les cambia los grupos de
+choque): así la cámara no los ve como paredes. De noche no va la trampa del mecate: el que jala la manija se queda en
+la finca mientras el otro cruza en la canasta.
+
+<!-- Las trenzas (TU-40) -->
+
+### `11-llano` (`?escena=nivel&nivel=llano`)
+
+El nivel 11 (TU-44): Los Llanos, Venezuela. Sabana plana, molinos de viento, corrales y hamacas; anda por ahí el
+Silbón. Estrena el sonido como pista, el molino y la hamaca. Lo arma `scripts/niveles/llano.mjs` (`pnpm niveles`). Va
+de oeste a este, y va todo corrido 49 m hacia −x (mide 104 m: la foto de la red mide las posiciones en int16). Cada
+misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **El Silbón**, en el pajonal: está escondido en una de tres matas y no se ve. Silba al revés: bajito de cerca y
+   fuerte de lejos, y del lado contrario. Hay que ir hacia donde suena más bajito; al hallarlo se alza, se va y la
+   talanquera del pajonal se abre → punto 1. Entrar antes a otra mata es un intento fallido: hallarlo al primer intento
+   da el logro, «Buen oído».
+2. **El molino**, de a dos: la empalizada del hato (2.6 m) y las pacas de heno (2.25 m) no se trepan. Uno empuja el
+   freno y el molino para con las aspas en rampa, del borde del pozo hasta las pacas; el otro sube caminando por ellas,
+   baja del otro lado y saca la tranca: el portón se abre y queda abierto → punto 2. Solo no se puede: al soltar el
+   freno las aspas agarran viento antes de que llegue arriba, y lo botan al pozo.
+3. **El ganado**: tres reses pastan en el potrero y se apartan del que se acerca. Se las arrea caminando detrás hasta
+   el corral; con las tres adentro, la talanquera del corral se abre → punto 3.
+4. **La hamaca**, de a dos: uno jala la cabuya caminando para atrás y estira la hamaca hasta el suelo; el otro se mete
+   y, al soltarla, sale disparado sobre el caño (3.2 m: no se salta). Del otro lado empuja la palanca y baja el puente
+   de tablas (queda abajo); el otro cruza → punto 4. Solo no se puede: al soltar la cabuya la hamaca vuelve antes de
+   que llegue a meterse.
+5. **El saco**: arriba de la troja (1.5 m, se trepa colgándose) está el saco de cachivaches del Silbón, sobre un banco.
+   Se lo baja, se lo lleva y se lo deja junto al Silbón, que espera al lado de su rancho: lo recoge, se va contento y
+   aparece la meta → punto 5.
+
+El secreto, «un arpa llanera bajo el samán», está en el conuco de atrás: se trepa la tapia (1.4 m) colgándose y la zona
+`secreto` está al pie del samán (da la vincha). De noche no va la trampa del mecate: el que frena el molino queda lejos
+de las aspas, y la hamaca lanza a uno solo al otro lado del caño.
+
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 
 Las piezas de juego, una tras otra. El patio (salida, tres huacales, dos apilados, y una plancha delante del rojo) →
@@ -528,3 +838,5 @@ El patio (salida y un huacal de 8 kg) → un hueco de 2.5 m con un tablón angos
 punto 1 → una compuerta que el guion hunde al llegar al punto 1 → un escalón de 1.5 m para trepar colgándose (o de la
 mano del compañero) → punto 2 arriba → punto 3, la meta. El secreto está detrás de la meta, en la mata del rincón (da
 el peinado «Cresta»), y el logro, «Mudanza», es subir el huacal hasta arriba del escalón.
+
+<!-- El cafetal (TU-41) -->

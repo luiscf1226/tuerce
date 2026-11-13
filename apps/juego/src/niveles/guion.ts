@@ -8,19 +8,35 @@ import type { Muneco } from "../muneco";
 import type { Agua, Aguas } from "./agua";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
+// El cafetal (TU-41)
+import type { Cipitio } from "./cipitio";
 import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
+// Los canales (TU-42)
+import type { Llorona } from "./llorona";
 import type { Murcielagos } from "./murcielagos";
+// La garrucha (TU-43)
+import type { Patasola } from "./patasola";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
+// El cafetal (TU-41)
+import type { Canasto, Costal, Guineo, Polea, Zaranda } from "./piezas-cafetal";
 import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
+import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
+import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
+// El llano (TU-44)
+import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
 import type { Palmera, Pipante, Puente } from "./piezas-rio";
 import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
+// Las trenzas (TU-40)
+import type { Balde, Brasa, Mula, Nudo, Sombrerote } from "./piezas-trenzas";
 import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
+import type { Silbon } from "./silbon";
 import type { SinBueyes } from "./sin-bueyes";
 import type { Sisimite } from "./sisimite";
+import type { Sombreron } from "./sombreron";
 import type { Sucia } from "./sucia";
 
 /** Lo que el guion ve del nivel en juego. */
@@ -95,6 +111,36 @@ export interface NivelEnJuego {
   puente(nombre: string): Puente;
   palmera(nombre: string): Palmera;
   sisimite(nombre: string): Sisimite;
+  /** Las piezas que estrenan Los canales (TU-42, ver piezas-canales.ts y llorona.ts). */
+  trajinera(nombre: string): Trajinera;
+  chinampa(nombre: string): Chinampa;
+  pinata(nombre: string): Pinata;
+  llorona(nombre: string): Llorona;
+  /** Las que estrena El llano (TU-44, ver piezas-llano.ts y silbon.ts). */
+  silbon(nombre: string): Silbon;
+  molino(nombre: string): Molino;
+  ganado(nombre: string): Ganado;
+  hamaca(nombre: string): Hamaca;
+  saco(nombre: string): Saco;
+  /** Las piezas que estrena La garrucha (TU-43, ver piezas-garrucha.ts y patasola.ts). */
+  garrucha(nombre: string): Garrucha;
+  chiva(nombre: string): Chiva;
+  palma(nombre: string): Palma;
+  patasola(nombre: string): Patasola;
+  /** Las piezas que estrena Las trenzas (TU-40, ver piezas-trenzas.ts y sombreron.ts). */
+  nudo(nombre: string): Nudo;
+  mula(nombre: string): Mula;
+  balde(nombre: string): Balde;
+  brasa(nombre: string): Brasa;
+  sombreron(nombre: string): Sombreron;
+  sombrerote(nombre: string): Sombrerote;
+  /** Las piezas que estrena El cafetal (TU-41, ver piezas-cafetal.ts y cipitio.ts). */
+  canasto(nombre: string): Canasto;
+  zaranda(nombre: string): Zaranda;
+  polea(nombre: string): Polea;
+  costal(nombre: string): Costal;
+  guineo(nombre: string): Guineo;
+  cipitio(nombre: string): Cipitio;
 }
 
 export interface GuionDeNivel {

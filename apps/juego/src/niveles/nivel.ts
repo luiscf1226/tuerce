@@ -272,6 +272,36 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     puente: (nombre) => deJuego("puente", nombre),
     palmera: (nombre) => deJuego("palmera", nombre),
     sisimite: (nombre) => deJuego("sisimite", nombre),
+    // Los canales (TU-42)
+    trajinera: (nombre) => deJuego("trajinera", nombre),
+    chinampa: (nombre) => deJuego("chinampa", nombre),
+    pinata: (nombre) => deJuego("pinata", nombre),
+    llorona: (nombre) => deJuego("llorona", nombre),
+    // El llano (TU-44)
+    silbon: (nombre) => deJuego("silbon", nombre),
+    molino: (nombre) => deJuego("molino", nombre),
+    ganado: (nombre) => deJuego("ganado", nombre),
+    hamaca: (nombre) => deJuego("hamaca", nombre),
+    saco: (nombre) => deJuego("saco", nombre),
+    // La garrucha (TU-43)
+    garrucha: (nombre) => deJuego("garrucha", nombre),
+    chiva: (nombre) => deJuego("chiva", nombre),
+    palma: (nombre) => deJuego("palma", nombre),
+    patasola: (nombre) => deJuego("patasola", nombre),
+    // Las trenzas (TU-40)
+    nudo: (nombre) => deJuego("nudo", nombre),
+    mula: (nombre) => deJuego("mula", nombre),
+    balde: (nombre) => deJuego("balde", nombre),
+    brasa: (nombre) => deJuego("brasa", nombre),
+    sombreron: (nombre) => deJuego("sombreron", nombre),
+    sombrerote: (nombre) => deJuego("sombrerote", nombre),
+    // El cafetal (TU-41)
+    canasto: (nombre) => deJuego("canasto", nombre),
+    zaranda: (nombre) => deJuego("zaranda", nombre),
+    polea: (nombre) => deJuego("polea", nombre),
+    costal: (nombre) => deJuego("costal", nombre),
+    guineo: (nombre) => deJuego("guineo", nombre),
+    cipitio: (nombre) => deJuego("cipitio", nombre),
     avance,
     premios,
     antes(entradas) {
