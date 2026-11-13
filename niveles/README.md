@@ -399,6 +399,38 @@ corre el guion ni las piezas: el silbido y sus ondas los calcula con los cuerpos
 silba porque lo ve hundido en su escondite; quiénes lo oyen se lo dice el guion en `alEmpezar`, que corre en los dos),
 anima las patas de las reses con lo que anduvieron y dibuja la tela y la cabuya de la hamaca.
 
+<!-- El puente (TU-45) -->
+
+## Las piezas del puente de paja (TU-45)
+
+Las que estrena el nivel 12, El puente de paja (`apps/juego/src/niveles/piezas-puente.ts` y `llama.ts`; su lectura, en
+`formato-puente.ts`). Como las otras, su malla no se dibuja. Los torcedores, la soga, el amarre, las losas y la rienda
+los atraviesan los muñecos, pero los agarran igual. El agua de las acequias es la de La poza (su nivel lo sube y lo
+baja el guion con `irA`) y las puertas de las pircas las baja el guion (`crearPuertaQueBaja`).
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Propiedades                                                                                                                                                                                                                        |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `qeswa`    | Tres hebras de paja a lo largo del lado más largo de la caja, con un **torcedor** en cada punta: un palo de través, arriba de la caja (a la altura de las manos), que gira sobre su estaca. Agarrado con las dos manos, gira con el que lo agarra al girar. La cuerda se **trenza** solo si los dos torcedores giran a la vez y para lados contrarios (uno a la izquierda, el otro a la derecha); para el mismo lado, o uno solo, no pasa nada. Si alguien suelta su torcedor antes de terminar, se destuerce.                                                                                                                                                                                                         | `vueltas` (3: las que da cada torcedor) · `destorcer` (4 s) · `masa` (1 kg)                                                                                                                                                        |
+| `chaka`    | El puente colgante, a lo largo del lado más largo de la caja, con el piso arriba de la caja en las puntas. Empieza **flojo**: colgando `flojo` en el cañón y sin piso. Detrás de su punta −, de costado (+z), su **soga**: una manija que se jala caminando hacia atrás (como la tranca) y lo tensa; del otro costado, sobre el estribo, el **amarre**: sostenido con las dos manos mientras está tenso, en `amarrar` segundos queda **amarrado** y se teje el piso. Amarrado se **mece**: cada uno que camina encima lo mece más (más rápido y más en el medio, más), y quieto se calma solo; corrido del medio, se ladea. Mecido más que `voltear`, se **voltea**: bota a los de encima al cañón y se endereza solo. | `comba` (0.6 m) · `flojo` (4 m) · `tensar` (2.4 m) · `fuerza` (25 N) · `lado` (1.3 m) · `umbral` (0.85) · `amarrar` (2.5 s) · `mecer` (0.3 rad/s) · `calma` (0.35/s) · `periodo` (2.4 s) · `ladear` (0.35 rad/m) · `voltear` (32°) |
+| `bocatoma` | Una losa de piedra del tamaño de la caja (cerrada) que tapa la boca de una acequia, con un palo y un travesaño a `manija` de su base. Se **abre** jalándola del travesaño hacia su frente (el −Y de Blender), caminando para atrás, y se **cierra** empujándola; queda donde la dejan.                                                                                                                                                                                                                                                                                                                                                                                                                                 | `recorrido` (0.5 m) · `umbral` (0.7) · `manija` (1 m) · `masa` (6 kg) · `abierta` (0)                                                                                                                                              |
+| `anden`    | La terraza sembrada: la base de la caja es la tierra y su alto, las matas de papa, en `surcos` a lo largo de su X. El guion la riega (`regar(true)` en cada paso que le llega agua): con `regar` segundos de agua queda **regada** y las matas se paran.                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `regar` (5 s) · `surcos` (4) · `regada` (0)                                                                                                                                                                                        |
+| `carguera` | La llama carguera, con su carga en el lomo: su caja es ella de pie, mirando hacia el + de su lado más largo. Sigue a su paso al que la lleva de la **rienda** (una manija colgada del bozal con una soga de verdad, como la mula). Si la **apuran** (la rienda tirante del todo más de `paciencia`, o alguien que se le viene encima por detrás, a menos de `arrear` de su anca), se **enoja**: se da vuelta, le **escupe** (el escupitajo vuela y lo tumba), se echa `echarse` segundos y se vuelve sola a su casa. Cinemática, sin azar.                                                                                                                                                                             | `velocidad` (0.9 m/s) · `giro` (1.8 rad/s) · `rienda` (1.4 m) · `paciencia` (1.5 s) · `echarse` (3 s) · `escupir` (3.6 m/s) · `arrear` (0.6 m)                                                                                     |
+
+```ts
+nivel.qeswa("qeswa").trenzada; // y .progreso, .agarrados, .giros, .soltadas, .trenzar(), .alTrenzar(() => {}), .alSoltar(() => {})
+nivel.chaka("chaka").estado; // "flojo", "firme", "volteado" o "enderezandose"; .tension, .jalada, .amarrando, .amarrado, .ladeo, .mecida, .carga, .volteadas, .soltadas
+nivel.chaka("chaka").encima(p); // y .amarrar(), .alAmarrar(() => {}), .alVoltear(() => {}), .alSoltar(() => {})
+nivel.bocatoma("bocatoma-1").abierta; // y .abertura (0 a 1), .poner(abierta), .alCambiar(abierta => {})
+nivel.anden("anden-1").regada; // y .humedad, .mojandose, .regar(si), .mojar(), .alRegar(() => {})
+nivel.carguera("llama").estado; // "tranquila", "escupiendo", "echada", "volviendo" o "contenta"; .guia, .apuro, .enojos, .escupidas, .casa
+nivel.carguera("llama").llegar(); // y .ponerEn(x, z, rumbo), .volver(), .alEnojar(j => {}), .alEscupir(j => {})
+```
+
+En línea viajan en la foto los torcedores, los tramos del puente, su soga, las losas, la llama, su rienda y su
+escupitajo (escondido 40 m abajo mientras no vuela). Lo que no se ve en un cuerpo lo lleva un marcador cinemático sin
+choques, como el nudo de Las trenzas: lo trenzado (su giro), si el puente está amarrado (su altura), lo regado de cada
+andén y si le llega agua, y en qué anda la llama. El invitado no corre `antes` ni el guion: dibuja con eso (`vista`).
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -823,6 +855,44 @@ misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
 El secreto, «un arpa llanera bajo el samán», está en el conuco de atrás: se trepa la tapia (1.4 m) colgándose y la zona
 `secreto` está al pie del samán (da la vincha). De noche no va la trampa del mecate: el que frena el molino queda lejos
 de las aspas, y la hamaca lanza a uno solo al otro lado del caño.
+
+<!-- El puente (TU-45) -->
+
+### `12-puente` (`?escena=nivel&nivel=puente`)
+
+El nivel 12 (TU-45): Q'eswachaka, Perú. Un cañón andino, terrazas con canales de agua y un puente tejido a mano; andan
+por ahí las llamas, que escupen si las apurás. Estrena trenzar la cuerda, el puente que se mece y los canales. Lo arma
+`scripts/niveles/puente.mjs` (`pnpm niveles`). Va de oeste a este y va todo corrido 42 m hacia −x (mide 91 m: la foto
+de la red mide las posiciones en int16). La pampa y la otra orilla están a la altura del puente (y = 0), las terrazas
+suben de a 1.3 m y la puna de la llama está a 2.6 m. Cada misión termina en un punto de control (`&punto=N` empieza en
+la misión N + 1):
+
+1. **La qeswa**, de a dos: tres hebras de paja entre dos torcedores, a 6 m uno del otro. Cada uno agarra el suyo con
+   las dos manos y gira para su lado (uno a la izquierda, el otro a la derecha): en unos ocho segundos la cuerda queda
+   trenzada y baja la puerta de la pirca → punto 1. Solo no se puede: un torcedor solo gira en vano, y los dos para
+   el mismo lado tampoco trenzan. Si uno suelta a medias, se destuerce.
+2. **Tender el puente**, de a dos: el puente cuelga flojo en el cañón, sin piso. Uno jala la soga de la cabecera
+   caminando hacia atrás y lo tensa; el otro, sobre el estribo del otro costado, sostiene el amarre con las dos manos.
+   Tenso y sostenido dos segundos y medio, queda amarrado, se teje el piso y aparece la cabecera → punto 2. Solo no se
+   puede: la soga queda a más de 4 m del amarre y, soltada, el puente se afloja antes de llegar.
+3. **Cruzarlo sin que se voltee**: el puente se mece con los que caminan encima (más rápido y más en el medio, más) y
+   se calma solo. De corrido se voltea a mitad de camino (con los dos encima, en menos de tres segundos) y bota a los
+   de encima al río; parándose cuando se mece mucho, se cruza → punto 3, en la otra orilla.
+4. **Los canales**: el agua sale del ojo de agua arriba de la tercera terraza, baja por la acequia madre y se va entera
+   por la primera bocatoma abierta, de arriba hacia abajo. Al llegar, la de arriba está abierta (su terraza ya está
+   regada) y las de abajo, secas: hay que cerrar la de arriba y abrir las de abajo (y cerrar la del medio para que el
+   agua llegue a la primera). Cinco segundos de agua riegan una terraza; con las tres regadas baja la puerta de arriba
+   → punto 4. Las terrazas se suben colgándose.
+5. **La llama carguera**: se la lleva de la rienda por el camino de piedra hasta el patio del tambo. Anda más despacio
+   que un muñeco: con la rienda tirante más de un segundo y medio se enoja, escupe al que la lleva (lo tumba), se echa y
+   se vuelve a su casa. También con el que se le viene encima por detrás. Llevándola a su paso (parando cuando la rienda
+   se pone tirante) llega, se queda contenta y aparece la meta → punto 5.
+
+El secreto, «un quipu escondido entre las piedras», está arriba del pedregal del fondo de la pampa (1.35 m, se trepa
+colgándose): entre las dos piedras grandes, la zona `secreto` (da el chullo). Es lo único claro del pedregal. El logro,
+«Tejedores», es armar el puente sin soltar la cuerda: trenzar la qeswa y tender el puente sin que nadie suelte su
+torcedor a medio trenzar ni la soga del puente tenso antes de amarrarlo (retomando del punto 1 en adelante ya no se
+puede). De noche no va la trampa del mecate: los torcedores quedan a 6 m, y la soga a más de 4 m del amarre.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 

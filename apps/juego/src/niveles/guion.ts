@@ -12,6 +12,8 @@ import type { Cadejo } from "./cadejo";
 import type { Cipitio } from "./cipitio";
 import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
+// El puente (TU-45)
+import type { Carguera } from "./llama";
 // Los canales (TU-42)
 import type { Llorona } from "./llorona";
 import type { Murcielagos } from "./murcielagos";
@@ -27,6 +29,7 @@ import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+import type { Anden, Bocatoma, Chaka, Qeswa } from "./piezas-puente";
 // El Río Plátano (TU-28)
 import type { Palmera, Pipante, Puente } from "./piezas-rio";
 import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
@@ -141,6 +144,12 @@ export interface NivelEnJuego {
   costal(nombre: string): Costal;
   guineo(nombre: string): Guineo;
   cipitio(nombre: string): Cipitio;
+  /** Las piezas que estrena El puente de paja (TU-45, ver piezas-puente.ts y llama.ts). */
+  qeswa(nombre: string): Qeswa;
+  chaka(nombre: string): Chaka;
+  bocatoma(nombre: string): Bocatoma;
+  anden(nombre: string): Anden;
+  carguera(nombre: string): Carguera;
 }
 
 export interface GuionDeNivel {
