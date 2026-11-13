@@ -9,6 +9,8 @@ import * as THREE from "three";
 import { type AguaDelPlano, leerAgua } from "./formato-agua";
 import { leerPiezaDelPinar, PIEZAS_DEL_PINAR, type PiezaDelPinarEnPlano } from "./formato-pinar";
 import { leerPiezaDeLaPoza, PIEZAS_DE_LA_POZA, type PiezaDeLaPozaEnPlano } from "./formato-poza";
+// El Río Plátano (TU-28)
+import { leerPiezaDelRio, PIEZAS_DEL_RIO, type PiezaDelRioEnPlano } from "./formato-rio";
 
 export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza", "agua"] as const;
 export type Tipo = (typeof TIPOS)[number];
@@ -31,6 +33,7 @@ export const PIEZAS = [
   "bejuco",
   ...PIEZAS_DEL_PINAR,
   ...PIEZAS_DE_LA_POZA,
+  ...PIEZAS_DEL_RIO,
 ] as const;
 export type TipoDePieza = (typeof PIEZAS)[number];
 
@@ -124,7 +127,8 @@ export type PiezaDelPlano =
     })
   | (BaseDePieza & { readonly cual: "bejuco"; readonly masa: number; readonly segmentos: number })
   | PiezaDelPinarEnPlano
-  | PiezaDeLaPozaEnPlano;
+  | PiezaDeLaPozaEnPlano
+  | PiezaDelRioEnPlano;
 
 export interface PlanoDeNivel {
   /** Número del nivel (99 para el de prueba). */
@@ -308,6 +312,13 @@ function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPl
     case "piedra":
     case "sucia":
       return leerPiezaDeLaPoza(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    case "pipante":
+    case "puente":
+    case "palmera":
+    case "sisimite":
+      return leerPiezaDelRio(cual, base, (clave, porDefecto, min, max) =>
         leerEntre(extras, clave, donde, porDefecto, min, max),
       );
   }

@@ -163,6 +163,29 @@ En línea viajan en la foto los troncos, la polea, la batea, las piedras, La Suc
 amarras cuando los troncos están uno al lado del otro, mueve los remos si la balsa avanza, dibuja los brazos de La
 Sucia hacia el guacal y el agua que sale cuando lo tira, y bota las pepitas cuando ve la batea ladeada.
 
+## Las piezas del río (TU-28)
+
+Las que estrena el nivel 6, el Río Plátano (`apps/juego/src/niveles/piezas-rio.ts` y `sisimite.ts`; su lectura, en
+`formato-rio.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza.
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Propiedades                                                                                                                                                 |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pipante`  | Una canoa de un solo tronco del tamaño de la caja, con el piso arriba de la caja; avanza hacia el + de su lado más largo. Flota y gira solo alrededor de su Y. Empuja el que va de pie en la popa (el tercio de atrás) con los brazos alzados: la pértiga se clava de un lado, así que sola lo tuerce. El que va en la proa con los brazos alzados lleva el rumbo: gira el pipante hacia donde él mira. Al que va a bordo, quieto, lo lleva.                                                                                                                                                                           | `masa` (30 kg) · `pertiga` (70 N) · `lado` (0.45 m: dónde se clava la pértiga) · `timon` (6: qué tan fuerte endereza el de la proa)                         |
+| `puente`   | Un puente colgante a lo largo del lado más largo de la caja: el piso, a la altura de arriba de la caja en las puntas, se comba hacia el medio, con barandas de soga (atajan a los muñecos, no a lo que llevan en las manos). Baja y se mece con los que van encima. Le faltan tablas en `huecos` lugares (cada uno en el medio de su parte del largo). Una tabla (las piezas `tronco` `<nombre>-1`, `-2`…) que se suelta tendida sobre un hueco, apoyada de los dos lados, queda clavada, si la llevaban entre dos (la que uno solo arrastra hasta ahí, no).                                                           | `comba` (0.25 m) · `huecos` (2) · `hueco` (1.8 m) · `mecer` (0.04 m por muñeco)                                                                             |
+| `palmera`  | Una palmera de pie del tamaño de la caja, mirando hacia su frente. Una soga cuelga del cogollo hasta una manija, junto al tronco, de costado: jalándola caminando hacia atrás (como la tranca), la palmera se dobla hacia atrás hasta que el cogollo toca el suelo; un resorte la endereza. Doblada del todo y soltada la soga, se endereza de golpe y lanza hacia su frente al que esté en el cogollo. Los muñecos la atraviesan.                                                                                                                                                                                     | `angulo` (85°) · `soga` (2.4 m: lo que se jala) · `lado` (1.1 m: a qué costado cuelga la manija) · `fuerza` (20 N) · `lanzar` (6.5 m/s) · `elevacion` (35°) |
+| `sisimite` | El Sisimite, un gigante peludo con los pies al revés, dormido boca arriba en su caja (12 × 2.6 × 3.4 m; su forma se escala con ella), con los pies hacia el − de su lado largo. Se lo trepa como a un cerro: los pies (1 m) y las canillas (1.25 m más) colgándose; las rodillas, los muslos, la panza y el pecho (2.6 m, la cumbre) caminando, y se baja por el brazo que tiene estirado sobre la cabeza. Respira. Se despierta si alguien le cae encima de lo alto o le pisa la cara: abre los ojos, se alza, se sacude y tumba a los que tiene encima (no hay derrota), y se vuelve a dormir. Cinemático, sin azar. | `aterrizaje` (3.6 m/s: cayéndole encima más rápido, lo despierta; un salto no) · `revolverse` (3 s) · `empujon` (2.5 m/s)                                   |
+
+```ts
+nivel.pipante("pipante").pertiguero; // y .timonel (0, 1 o null), .aBordo, .rumbo, .encima(p), .casa, .volver()
+nivel.puente("puente").huecos; // [true, false]: cuáles tienen su tabla; .faltan, .tablas, .hueco(i), .reparar(), .alClavar(i => {})
+nivel.palmera("palmera").estado; // "derecha", "doblada" o "disparando"; .doblada, .jalada, .cogollo(), .lanzados, .alLanzar(j => {})
+nivel.sisimite("sisimite").ojos; // y .estado ("dormido" o "despierto"), .despertares, .encima(p), .alDespertar(j => {}), .volver()
+```
+
+En línea viajan en la foto el pipante, el piso del puente y sus tablas (las clavadas se vuelven cinemáticas), el tronco
+de la palmera y su manija, y el Sisimite: el invitado mueve la pértiga si ve avanzar el pipante, dibuja la soga y le
+abre los ojos al Sisimite cuando lo ve alzado.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -314,3 +337,38 @@ El secreto, «una pepita de oro en el fondo de la poza», está en un hoyo en lo
 `secreto`): se llega con la poza seca. El logro, «Secos», es llegar a la meta sin que ninguno haya caído al agua (el
 río, la poza, la quebrada o el chorro). De noche no va la trampa del mecate: en la represa uno sostiene la palanca
 lejos del otro.
+
+### `06-rio` (`?escena=nivel&nivel=rio`)
+
+El nivel 6 (TU-28): el Río Plátano, La Mosquitia (Honduras). Selva, un río ancho, puentes colgantes y las huellas
+enormes del Sisimite. Estrena el pipante, el puente colgante, la palmera y el Sisimite; el agua es la de La poza. Lo
+arma `scripts/niveles/rio.mjs` (`pnpm niveles`). Va de oeste a este, río arriba, y va todo corrido 53 m hacia −x: la
+foto de la red mide las posiciones en int16 (±64 m desde el origen) y el nivel mide 124 m. Cada misión termina en un
+punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **El pipante**, de a dos: amarrado junto al muelle. El río baja a 0.75 m/s y tiene dos piedras. Uno empuja con
+   la pértiga desde la popa y el otro lleva el rumbo desde la proa (el pipante gira hacia donde él mira). Solo con la
+   pértiga se tuerce contra la orilla; solo con el rumbo, la corriente se lo lleva → punto 1, en el embarcadero. El
+   pipante vacío que quedó lejos vuelve solo al muelle.
+2. **Los rápidos**: una quebrada brava (2.4 m/s) cruza el camino; se pasa por un vado de piedras mientras bajan
+   troncos por tres carriles, siempre igual (cada 4.2 s por carril). Se espera entre carril y carril; el tronco que
+   alcanza al que está en el vado lo tumba al agua → punto 2.
+3. **Las huellas**: el camino se parte en dos por un matorral que no se trepa. En el carril de adelante los dedos de
+   las huellas apuntan para adentro; en el de atrás, para afuera. El Sisimite tiene los pies al revés: se fue por el
+   de atrás. El de adelante termina en un lodazal → punto 3.
+4. **El puente colgante**, de a dos: 10 m sobre la cañada, con dos huecos de 1.6 m (ni se saltan). Las dos tablas
+   (9 kg, 5 m) están sobre caballetes, una detrás de otra: se llevan en fila con la mano derecha, cerca del medio, y
+   se sueltan con el de adelante en el borde de cada hueco. Uno solo no las levanta, y la que arrastra no queda
+   clavada. Las tiradas en el suelo vuelven a sus caballetes → punto 4.
+5. **El Sisimite**, dormido de pared a pared en el cañón: se trepan sus pies y sus canillas colgándose y se camina
+   hasta su pecho → punto 5, en la cumbre. Llegar sin que abra los ojos da el logro, «Sin despertarlo». Del pecho se
+   baja por el brazo, sin pisarle la cara.
+6. **La palmera**, de a dos: uno agarra la manija de la soga y camina para atrás hasta doblarla del todo; el otro se
+   mete en el cogollo, en el suelo. Al soltar la soga, la palmera lo lanza sobre el barranco (2.2 m). Del otro lado,
+   el que voló agarra la liana recogida junto a la ceiba y la suelta: se corre por la rama y queda colgando junto a
+   la orilla de acá, y el otro cruza columpiándose. Recién ahí aparece la meta → punto 6, a la entrada de la ciudad
+   perdida. Solo no se puede: al soltar la soga la palmera se endereza antes de llegar al cogollo.
+
+El secreto, «la figura de jade de la ciudad perdida», está en el nicho de arriba del templo, detrás de la meta: dos
+gradas de 1.4 m que se trepan colgándose (la zona `secreto`). Sin color nuevo: es lo único claro, pulido y con luz de
+la ciudad. De noche no va la trampa del mecate: la palmera lanza a uno solo al otro lado del barranco.

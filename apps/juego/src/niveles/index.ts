@@ -13,4 +13,7 @@ export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel"
 export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+// El Río Plátano (TU-28)
+export type { Palmera, Pipante, Puente } from "./piezas-rio";
+export type { Sisimite } from "./sisimite";
 export type { Sucia } from "./sucia";

@@ -43,6 +43,9 @@ import {
   type Piedra,
   type Tendedero,
 } from "./piezas-poza";
+// El Río Plátano (TU-28)
+import { armarPalmera, armarPipante, armarPuente, type Palmera, type Pipante, type Puente } from "./piezas-rio";
+import { armarSisimite, type Sisimite } from "./sisimite";
 import { armarSucia, type Sucia } from "./sucia";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
@@ -164,6 +167,11 @@ export interface PiezaPorTipo {
   batea: Batea;
   piedra: Piedra;
   sucia: Sucia;
+  // Las del Río Plátano (TU-28): piezas-rio.ts y sisimite.ts
+  pipante: Pipante;
+  puente: Puente;
+  palmera: Palmera;
+  sisimite: Sisimite;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -714,6 +722,18 @@ export function armarPiezas(
         break;
       case "sucia":
         lista.push(armarSucia(herramientas, p));
+        break;
+      case "pipante":
+        lista.push(armarPipante(herramientas, p));
+        break;
+      case "puente":
+        lista.push(armarPuente(herramientas, p));
+        break;
+      case "palmera":
+        lista.push(armarPalmera(herramientas, p));
+        break;
+      case "sisimite":
+        lista.push(armarSisimite(herramientas, p));
         break;
     }
   }

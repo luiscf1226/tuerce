@@ -170,6 +170,23 @@ const TOMAS = [
   { archivo: "poza-6-batea", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&congelar=60" },
   { archivo: "poza-6-sucia", ruta: "/?escena=nivel&nivel=poza&punto=6&j1=&j2=&vista=42.6,2.6,-1.4&congelar=268" },
   { archivo: "poza-secreto", ruta: "/?escena=nivel&nivel=poza&punto=5&j1=&j2=&vista=28.1,0,2.3&congelar=30" },
+  // TU-28: el nivel 6, el Río Plátano (niveles/06-rio; va corrido 53 m hacia −x), entero y en la salida; 1. el
+  // pipante amarrado junto al muelle y el río con sus dos piedras, y los dos ya en el embarcadero; 2. los rápidos con
+  // un tronco cruzando el vado; 3. las huellas en la bifurcación; 4. el puente con sus dos huecos y reparado;
+  // 5. el Sisimite dormido en el cañón y los dos en su cumbre; 6. la palmera, el barranco y la liana recogida junto a
+  // la ceiba. Y la figura de jade del secreto, arriba del templo
+  { archivo: "rio-entero", ruta: "/?escena=nivel&nivel=rio&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "rio-salida", ruta: "/?escena=nivel&nivel=rio&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "rio-1-pipante", ruta: "/?escena=nivel&nivel=rio&j1=&j2=&vista=-48,0.6,-0.8&congelar=60" },
+  { archivo: "rio-1-embarcadero", ruta: "/?escena=nivel&nivel=rio&punto=1&j1=&j2=&congelar=60" },
+  { archivo: "rio-2-rapidos", ruta: "/?escena=nivel&nivel=rio&punto=1&j1=&j2=&vista=-21,0.6,0&congelar=85" },
+  { archivo: "rio-3-huellas", ruta: "/?escena=nivel&nivel=rio&punto=2&j1=&j2=&vista=-10.5,0.4,0&congelar=60" },
+  { archivo: "rio-4-puente", ruta: "/?escena=nivel&nivel=rio&punto=3&j1=&j2=&vista=13,0.6,0&congelar=60" },
+  { archivo: "rio-4-reparado", ruta: "/?escena=nivel&nivel=rio&punto=4&j1=&j2=&vista=13,0.6,0&congelar=60" },
+  { archivo: "rio-5-sisimite", ruta: "/?escena=nivel&nivel=rio&punto=4&j1=&j2=&vista=26.5,2.2,3&congelar=60" },
+  { archivo: "rio-5-cumbre", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=29,3.6,0&congelar=60" },
+  { archivo: "rio-6-palmera", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=44,1.6,0&congelar=60" },
+  { archivo: "rio-secreto", ruta: "/?escena=nivel&nivel=rio&punto=6&j1=&j2=&vista=59.5,3.1,-2.4&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
