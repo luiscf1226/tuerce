@@ -14,6 +14,9 @@ import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
 import { crearGuion as guionTren } from "../../../../niveles/05-tren/guion";
 import escenaRio from "../../../../niveles/06-rio/escena.glb?url";
 import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
+// Las trenzas (TU-40)
+import escenaTrenzas from "../../../../niveles/07-trenzas/escena.glb?url";
+import { crearGuion as guionTrenzas } from "../../../../niveles/07-trenzas/guion";
 // Los canales (TU-42)
 import escenaCanales from "../../../../niveles/09-canales/escena.glb?url";
 import { crearGuion as guionCanales } from "../../../../niveles/09-canales/guion";
@@ -113,6 +116,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaGarrucha,
     crearGuion: guionGarrucha,
     // Amarrados no: el que jala la manija se queda en la finca mientras el otro cruza el cañón en la canasta (13 m)
+    sinTrampas: ["mecate"],
+  },
+  // Las trenzas (TU-40): Antigua, Guatemala. El nudo, la mula, el balde de agua y el Sombrerón
+  trenzas: {
+    carpeta: "07-trenzas",
+    escena: escenaTrenzas,
+    crearGuion: guionTrenzas,
+    // Amarrados no: los cabos del nudo quedan a 4 m, y en la fuente uno se queda de cada lado del pretil
     sinTrampas: ["mecate"],
   },
 };

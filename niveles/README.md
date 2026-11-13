@@ -337,6 +337,37 @@ nivel.patasola("patasola").estado; // "esperando", "corriendo" o "volviendo"; .a
 En línea viajan en la foto la canasta y sus manijas, la chiva y su carga, las maneas y La Patasola: el invitado dibuja
 las sogas, hace girar las ruedas de la chiva y le dobla la pata a La Patasola con lo alto que la ve.
 
+<!-- Las trenzas (TU-40) -->
+
+## Las piezas de Las trenzas (TU-40)
+
+Las que estrena el nivel 7, Antigua (`apps/juego/src/niveles/piezas-trenzas.ts` y `sombreron.ts`; su lectura, en
+`formato-trenzas.ts`). Como las otras, su malla no se dibuja. Los cabos del nudo, la rienda de la mula y el balde los
+atraviesan los muñecos, pero los agarran igual.
+
+| `pieza`      | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                | Propiedades                                                                                                |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `nudo`       | Dos cuerdas trenzadas a lo largo del lado más largo de la caja, con un nudo en el medio y un cabo (una barra de través, para las dos manos) en cada punta. Cada cabo se jala hacia afuera, agarrado y caminando para atrás (como la tranca); un resorte lo vuelve a meter. Con los dos cabos jalados a la vez el nudo se afloja de a poco hasta **desatarse**; con uno solo, se aprieta.                         | `recorrido` (0.5 m) · `umbral` (0.7) · `fuerza` (25 N) · `desatar` (2.5 s jalando los dos) · `masa` (1 kg) |
+| `mula`       | Una mula del tamaño de la caja, mirando hacia el + de su lado más largo. Cinemática y sin azar: no da un paso sin su carga, los huacales `<nombre>-1`, `-2`…, que quedan **amarrados** en su lomo al soltarlos junto a su costado, en alto (del suelo no). Cargada, sigue al que la lleva de la rienda (una manija colgada del bozal con una soga de verdad). No se mete en las paredes ni se tira a los huecos. | `velocidad` (1.2 m/s) · `rienda` (1.3 m) · `carga` (2 bultos) · `giro` (1.8 rad/s)                         |
+| `balde`      | Un balde de madera del tamaño de la caja. El guion lo **llena**; se lleva en la mano (3 kg: uno solo). Lleno, si nadie lo agarra un ratito se **derrama**: no se puede dejar en ningún lado ni tirar, solo pasar de mano en mano. Tirado en el suelo, vuelve solo a su lugar.                                                                                                                                    | `masa` (3 kg) · `suelto` (0.3 s) · `vuelve` (3 s)                                                          |
+| `brasa`      | Una piedra caliente del tamaño de la caja: **quema** al que la toca (lo tira para atrás, no hay derrota) y no se salta. Un balde lleno que llega a `alcance` de ella la **apaga**: se vacía el balde y la piedra se hunde a ras del suelo, ya se camina.                                                                                                                                                         | `empujon` (3.4 m/s) · `alcance` (0.9 m)                                                                    |
+| `sombreron`  | El Sombrerón, bajito, de negro y con su guitarra. Su caja es su plaza: anda por adentro y no sale. Sin su sombrero, persigue al muñeco de pie más cercano que entra y le hace trenzas (lo **enreda**: lo tumba) y se queda tocando la guitarra un rato. Si su sombrero llega a la plaza, va por él y se lo pone; con el sombrero puesto ya no molesta. Cinemático, sin choques ni azar.                          | `velocidad` (1 m/s) · `alcance` (0.7 m) · `tocar` (4 s) · `empujon` (3.6 m/s)                              |
+| `sombrerote` | El sombrero gigante del Sombrerón: una rueda de canto del tamaño de la caja que solo gira sobre su eje (el lado corto de abajo) y rueda a lo largo del largo. Se empuja caminando contra él; en una cuesta, sin nadie, rueda para abajo.                                                                                                                                                                         | `masa` (5 kg) · `rozamiento` (1)                                                                           |
+
+```ts
+nivel.nudo("nudo").desatado; // y .progreso (0 a 1), .jalados, .recorridos, .desatar(), .alDesatar(() => {})
+nivel.mula("mula").cargada; // y .cargados, .bultos, .guia, .rapidez, .rumbo, .cargar(), .ponerEn(x, z, rumbo), .alCargar(n => {})
+nivel.balde("balde").lleno; // y .cargadores, .derramadas, .llenar(), .vaciar(), .volver(), .alDerramar(() => {})
+nivel.brasa("brasa-1").caliente; // y .quemados, .apagar(ya?), .alApagar(() => {})
+nivel.sombreron("sombreron").conSombrero; // y .estado, .enredos, .persigue, .ponerse(), .volver(), .alEnredar(j => {}), .alPonerse(() => {})
+nivel.sombrerote("sombrero").puesto; // y .radio, .eje, .volver()
+```
+
+En línea viajan en la foto los cabos y el nudo (un marcador cinemático sin choques: gira con lo que se aflojó y cae al
+desatarse), la mula, su rienda y sus bultos, el balde y su marcador (un metro más alto con el balde lleno), las piedras
+(hundidas, apagadas), el Sombrerón (agachado mientras hace trenzas) y su sombrero: el invitado dibuja las trenzas del
+nudo, el agua del balde, el brillo de las piedras y al Sombrerón tocando o trenzando con los cuerpos tal como llegan.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -689,6 +720,43 @@ en lo alto, donde está la orquídea (la zona `secreto`). Sin color nuevo: la or
 arriba. Los bordes invisibles del lado de la cámara solo atajan a los muñecos (el guion les cambia los grupos de
 choque): así la cámara no los ve como paredes. De noche no va la trampa del mecate: el que jala la manija se queda en
 la finca mientras el otro cruza en la canasta.
+
+<!-- Las trenzas (TU-40) -->
+
+### `07-trenzas` (`?escena=nivel&nivel=trenzas`)
+
+El nivel 7 (TU-40): Las trenzas, en Antigua (Guatemala). Calles de fachadas en grises (sin color: solo los pañuelos lo
+tienen), arcos, ruinas de iglesias y un volcán al fondo; ahí anda el Sombrerón, que le hace trenzas a todo (a las
+cuerdas del arco, a la crin y la cola de la mula, a la gente). Estrena el nudo, la mula, el balde de agua y las piedras
+calientes. Lo arma `scripts/niveles/trenzas.mjs` (`pnpm niveles`). Va de oeste a este, y va todo corrido 38 m hacia
+−x: la foto de la red mide las posiciones en int16 (±64 m desde el origen) y el nivel mide 92 m. Cada misión termina
+en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **El nudo**, de a dos: las cuerdas trenzadas amarran el portón del arco, de lado a lado de la calle. Cada uno agarra
+   un cabo (a 4 m uno de otro) y camina para atrás; con los dos jalados a la vez el nudo se afloja en 2.5 s, se desata y
+   las dos hojas del portón se abren → punto 1. Solo no se puede: no se llega a los dos cabos, y jalando uno solo el
+   nudo se aprieta.
+2. **La mula**: no da un paso sin su carga. Se agarra cada bulto (4 kg: uno solo) de su pilar y se lo suelta junto al
+   costado de la mula, en alto: queda amarrado en su lomo. Con los dos, se la lleva de la rienda (la manija delante de
+   su cabeza) por al lado de la pila hasta el mesón: el zaguán se abre → punto 2. Los bultos tirados en el suelo
+   vuelven a su pilar.
+3. **Las ruinas**: el piso de la iglesia se hundió (cuenta como caída). Se cruza saltando de arco caído en arco caído
+   (cuatro, con huecos de 60 cm) → punto 3.
+4. **El balde**, de a dos: la fuente está de este lado del pretil (85 cm y delgado: ni se trepa ni se salta) y las dos
+   piedras calientes, en el pasillo de la sacristía, del otro. Uno trepa el muro caído del fondo (1.4 m, colgándose);
+   el otro agarra el balde de su pilar, lo llena bajo el caño de la fuente y se lo pasa por encima del pretil, de mano
+   en mano. El de allá lo lleva hasta cada piedra y la apaga (se vacía el balde, la piedra se hunde); vacío, lo suelta
+   y el balde vuelve solo a su pilar para la segunda → punto 4, pasado el pasillo. Solo no se puede: el balde lleno que
+   se suelta se derrama (no se puede dejar sobre el pretil ni tirar), y con el balde en las manos no se trepa el muro.
+5. **El sombrero**: el del Sombrerón rodó al pie de la cuesta (1.5 m en 8 m). Se lo empuja rodando, caminando contra
+   él, hasta su plaza; él va por él y se lo pone, y aparece la meta → punto 5. Soltado en la cuesta, rueda para abajo.
+   Al que entra a su plaza sin el sombrero, el Sombrerón lo persigue y le hace trenzas (lo tumba).
+
+El secreto, «un barrilete escondido en el campanario», está arriba de la torre de la plaza del Sombrerón: un escalón y
+la torre, de 1.45 m cada uno, que se trepan colgándose (la zona `secreto`; da el pañuelo «Bufanda»). Antes de devolverle
+el sombrero, subir es meterse a su plaza. El logro, «Sin un nudo», es llegar a la meta sin que el Sombrerón haya
+enredado a ninguno de los dos. De noche no va la trampa del mecate: los cabos del nudo están a 4 m, y en la fuente uno
+se queda de cada lado del pretil.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 

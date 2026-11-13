@@ -95,6 +95,19 @@ import {
   type Sombrero,
   type Vagon,
 } from "./piezas-tren";
+// Las trenzas (TU-40)
+import {
+  armarBalde,
+  armarBrasa,
+  armarMula,
+  armarNudo,
+  armarSombrerote,
+  type Balde,
+  type Brasa,
+  type Mula,
+  type Nudo,
+  type Sombrerote,
+} from "./piezas-trenzas";
 import {
   type Antorcha,
   armarAntorcha,
@@ -114,6 +127,7 @@ import {
 import { armarSilbon, type Silbon } from "./silbon";
 import { armarSinBueyes, type SinBueyes } from "./sin-bueyes";
 import { armarSisimite, type Sisimite } from "./sisimite";
+import { armarSombreron, type Sombreron } from "./sombreron";
 import { armarSucia, type Sucia } from "./sucia";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
@@ -279,6 +293,13 @@ export interface PiezaPorTipo {
   chiva: Chiva;
   palma: Palma;
   patasola: Patasola;
+  // Las trenzas (TU-40): piezas-trenzas.ts y sombreron.ts
+  nudo: Nudo;
+  mula: Mula;
+  balde: Balde;
+  brasa: Brasa;
+  sombreron: Sombreron;
+  sombrerote: Sombrerote;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -943,6 +964,25 @@ export function armarPiezas(
         break;
       case "patasola":
         lista.push(armarPatasola(herramientas, p));
+        break;
+      // Las trenzas (TU-40)
+      case "nudo":
+        lista.push(armarNudo(herramientas, p));
+        break;
+      case "mula":
+        lista.push(armarMula(herramientas, p));
+        break;
+      case "balde":
+        lista.push(armarBalde(herramientas, p));
+        break;
+      case "brasa":
+        lista.push(armarBrasa(herramientas, p));
+        break;
+      case "sombreron":
+        lista.push(armarSombreron(herramientas, p));
+        break;
+      case "sombrerote":
+        lista.push(armarSombrerote(herramientas, p));
         break;
     }
   }

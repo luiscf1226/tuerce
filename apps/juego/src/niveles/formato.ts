@@ -19,6 +19,8 @@ import { leerPiezaDeLaPoza, PIEZAS_DE_LA_POZA, type PiezaDeLaPozaEnPlano } from 
 // El Río Plátano (TU-28)
 import { leerPiezaDelRio, PIEZAS_DEL_RIO, type PiezaDelRioEnPlano } from "./formato-rio";
 import { leerPiezaDelTren, PIEZAS_DEL_TREN, type PiezaDelTrenEnPlano } from "./formato-tren";
+// Las trenzas (TU-40)
+import { leerPiezaDeLasTrenzas, PIEZAS_DE_LAS_TRENZAS, type PiezaDeLasTrenzasEnPlano } from "./formato-trenzas";
 import { leerPiezaDeXibalba, PIEZAS_DE_XIBALBA, type PiezaDeXibalbaEnPlano } from "./formato-xibalba";
 
 export const TIPOS = ["solido", "salida", "control", "vacio", "adorno", "niebla", "secreto", "pieza", "agua"] as const;
@@ -53,6 +55,8 @@ export const PIEZAS = [
   ...PIEZAS_DEL_LLANO,
   // La garrucha (TU-43)
   ...PIEZAS_DE_LA_GARRUCHA,
+  // Las trenzas (TU-40)
+  ...PIEZAS_DE_LAS_TRENZAS,
 ] as const;
 export type TipoDePieza = (typeof PIEZAS)[number];
 
@@ -156,7 +160,9 @@ export type PiezaDelPlano =
   // El llano (TU-44)
   | PiezaDelLlanoEnPlano
   // La garrucha (TU-43)
-  | PiezaDeLaGarruchaEnPlano;
+  | PiezaDeLaGarruchaEnPlano
+  // Las trenzas (TU-40)
+  | PiezaDeLasTrenzasEnPlano;
 
 export interface PlanoDeNivel {
   /** Número del nivel (99 para el de prueba). */
@@ -401,6 +407,16 @@ function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPl
     case "palma":
     case "patasola":
       return leerPiezaDeLaGarrucha(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // Las trenzas (TU-40)
+    case "nudo":
+    case "mula":
+    case "balde":
+    case "brasa":
+    case "sombreron":
+    case "sombrerote":
+      return leerPiezaDeLasTrenzas(cual, base, (clave, porDefecto, min, max) =>
         leerEntre(extras, clave, donde, porDefecto, min, max),
       );
   }
