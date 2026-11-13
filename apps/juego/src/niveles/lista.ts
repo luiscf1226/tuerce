@@ -38,6 +38,9 @@ import { crearGuion as guionMina } from "../../../../niveles/13-mina/guion";
 // La minga (TU-47)
 import escenaMinga from "../../../../niveles/14-minga/escena.glb?url";
 import { crearGuion as guionMinga } from "../../../../niveles/14-minga/guion";
+// La pampa (TU-48)
+import escenaPampa from "../../../../niveles/15-pampa/escena.glb?url";
+import { crearGuion as guionPampa } from "../../../../niveles/15-pampa/guion";
 // La medianoche (TU-49)
 import escenaMedianoche from "../../../../niveles/16-medianoche/escena.glb?url";
 import { crearGuion as guionMedianoche } from "../../../../niveles/16-medianoche/guion";
@@ -174,6 +177,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaMinga,
     crearGuion: guionMinga,
     // Amarrados no: las bitas de la chalupa quedan a 5 m una de la otra, y el ancla sube a uno solo a la vez
+    sinTrampas: ["mecate"],
+  },
+  // La pampa (TU-48): nivel 15, La Pampa (Argentina). La Luz Mala, la tranquera, las boleadoras, el ombú y el candil
+  pampa: {
+    carpeta: "15-pampa",
+    escena: escenaPampa,
+    crearGuion: guionPampa,
+    // Amarrados no: el que sostiene la tranquera queda en la punta de la manija, a más de 3 m de donde pasa el otro
     sinTrampas: ["mecate"],
   },
   // La medianoche (TU-49): nivel 16, la Amazonía (Brasil), el último. Las huellas del Curupira, los nenúfares

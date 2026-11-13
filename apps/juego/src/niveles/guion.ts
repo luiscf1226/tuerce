@@ -20,6 +20,8 @@ import type { PlanoDeNivel } from "./formato";
 import type { Carguera } from "./llama";
 // Los canales (TU-42)
 import type { Llorona } from "./llorona";
+// La pampa (TU-48)
+import type { LuzMala } from "./luz-mala";
 import type { Murcielagos } from "./murcielagos";
 // La garrucha (TU-43)
 import type { Patasola } from "./patasola";
@@ -37,6 +39,8 @@ import type { Fuegos, Montaria, Nenufar } from "./piezas-medianoche";
 import type { Espejo, Grieta, Ofrenda, Vagoneta, Velas } from "./piezas-mina";
 // La minga (TU-47)
 import type { Ancla, Chalupa, Minga } from "./piezas-minga";
+// La pampa (TU-48)
+import type { Boleadoras, Candil, Chambergo, Pampero, PieDeAmigo, Tranquera } from "./piezas-pampa";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 import type { Anden, Bocatoma, Chaka, Qeswa } from "./piezas-puente";
@@ -178,6 +182,14 @@ export interface NivelEnJuego {
   montaria(nombre: string): Montaria;
   fuegos(nombre: string): Fuegos;
   curupira(nombre: string): Curupira;
+  /** Las piezas que estrena La pampa (TU-48, ver piezas-pampa.ts y luz-mala.ts). */
+  pampero(nombre: string): Pampero;
+  tranquera(nombre: string): Tranquera;
+  boleadoras(nombre: string): Boleadoras;
+  chambergo(nombre: string): Chambergo;
+  pieDeAmigo(nombre: string): PieDeAmigo;
+  candil(nombre: string): Candil;
+  luzMala(nombre: string): LuzMala;
 }
 
 export interface GuionDeNivel {

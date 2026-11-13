@@ -20,6 +20,8 @@ export type { GuionDeNivel, NivelEnJuego } from "./guion";
 export type { Carguera } from "./llama";
 // Los canales (TU-42)
 export type { Llorona } from "./llorona";
+// La pampa (TU-48)
+export type { LuzMala } from "./luz-mala";
 export type { Murcielagos } from "./murcielagos";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
 // La garrucha (TU-43)
@@ -38,6 +40,8 @@ export type { Fuegos, Montaria, Nenufar } from "./piezas-medianoche";
 export type { Espejo, Grieta, Ofrenda, Vagoneta, Velas } from "./piezas-mina";
 // La minga (TU-47)
 export type { Ancla, Chalupa, Minga } from "./piezas-minga";
+// La pampa (TU-48)
+export type { Boleadoras, Candil, Chambergo, Pampero, PieDeAmigo, Tranquera } from "./piezas-pampa";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 export type { Anden, Bocatoma, Chaka, Qeswa } from "./piezas-puente";

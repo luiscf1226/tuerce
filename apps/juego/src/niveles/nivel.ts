@@ -325,6 +325,14 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     montaria: (nombre) => deJuego("montaria", nombre),
     fuegos: (nombre) => deJuego("fuegos", nombre),
     curupira: (nombre) => deJuego("curupira", nombre),
+    // La pampa (TU-48)
+    pampero: (nombre) => deJuego("pampero", nombre),
+    tranquera: (nombre) => deJuego("tranquera", nombre),
+    boleadoras: (nombre) => deJuego("boleadoras", nombre),
+    chambergo: (nombre) => deJuego("chambergo", nombre),
+    pieDeAmigo: (nombre) => deJuego("pie-de-amigo", nombre),
+    candil: (nombre) => deJuego("candil", nombre),
+    luzMala: (nombre) => deJuego("luz-mala", nombre),
     avance,
     premios,
     antes(entradas) {
