@@ -302,6 +302,13 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     costal: (nombre) => deJuego("costal", nombre),
     guineo: (nombre) => deJuego("guineo", nombre),
     cipitio: (nombre) => deJuego("cipitio", nombre),
+    // La mina (TU-46)
+    vagoneta: (nombre) => deJuego("vagoneta", nombre),
+    espejo: (nombre) => deJuego("espejo", nombre),
+    grieta: (nombre) => deJuego("grieta", nombre),
+    ofrenda: (nombre) => deJuego("ofrenda", nombre),
+    velas: (nombre) => deJuego("velas", nombre),
+    tio: (nombre) => deJuego("tio", nombre),
     avance,
     premios,
     antes(entradas) {

@@ -25,6 +25,8 @@ import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La mina (TU-46)
+import type { Espejo, Grieta, Ofrenda, Vagoneta, Velas } from "./piezas-mina";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
@@ -38,6 +40,7 @@ import type { SinBueyes } from "./sin-bueyes";
 import type { Sisimite } from "./sisimite";
 import type { Sombreron } from "./sombreron";
 import type { Sucia } from "./sucia";
+import type { Tio } from "./tio";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -141,6 +144,13 @@ export interface NivelEnJuego {
   costal(nombre: string): Costal;
   guineo(nombre: string): Guineo;
   cipitio(nombre: string): Cipitio;
+  /** Las piezas que estrena La mina (TU-46, ver piezas-mina.ts y tio.ts). */
+  vagoneta(nombre: string): Vagoneta;
+  espejo(nombre: string): Espejo;
+  grieta(nombre: string): Grieta;
+  ofrenda(nombre: string): Ofrenda;
+  velas(nombre: string): Velas;
+  tio(nombre: string): Tio;
 }
 
 export interface GuionDeNivel {

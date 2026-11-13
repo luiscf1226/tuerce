@@ -26,6 +26,8 @@ export type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 export type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La mina (TU-46)
+export type { Espejo, Grieta, Ofrenda, Vagoneta, Velas } from "./piezas-mina";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
@@ -39,3 +41,4 @@ export type { SinBueyes } from "./sin-bueyes";
 export type { Sisimite } from "./sisimite";
 export type { Sombreron } from "./sombreron";
 export type { Sucia } from "./sucia";
+export type { Tio } from "./tio";

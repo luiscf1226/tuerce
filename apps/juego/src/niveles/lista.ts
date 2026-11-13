@@ -29,6 +29,9 @@ import { crearGuion as guionGarrucha } from "../../../../niveles/10-garrucha/gui
 // El llano (TU-44)
 import escenaLlano from "../../../../niveles/11-llano/escena.glb?url";
 import { crearGuion as guionLlano } from "../../../../niveles/11-llano/guion";
+// La mina (TU-46)
+import escenaMina from "../../../../niveles/13-mina/escena.glb?url";
+import { crearGuion as guionMina } from "../../../../niveles/13-mina/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -136,6 +139,16 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaLlano,
     crearGuion: guionLlano,
     // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
+    sinTrampas: ["mecate"],
+  },
+  // La mina (TU-46): nivel 13, Potosí. La vagoneta y su cambio, el pozo con la polea, la ofrenda del Tío entre las
+  // velas, los espejos del salar y la bajada al salar
+  mina: {
+    carpeta: "13-mina",
+    escena: escenaMina,
+    crearGuion: guionMina,
+    // Amarrados no: el que sostiene el cambio queda a más de 4 m de la vagoneta, uno sube en la jaula mientras el
+    // otro se cuelga abajo, y los espejos están a 6 m
     sinTrampas: ["mecate"],
   },
 };

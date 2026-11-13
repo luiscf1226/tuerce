@@ -75,6 +75,19 @@ import {
   type Molino,
   type Saco,
 } from "./piezas-llano";
+// La mina (TU-46)
+import {
+  armarEspejo,
+  armarGrieta,
+  armarOfrenda,
+  armarVagoneta,
+  armarVelas,
+  type Espejo,
+  type Grieta,
+  type Ofrenda,
+  type Vagoneta,
+  type Velas,
+} from "./piezas-mina";
 import {
   armarHueso,
   armarLampara,
@@ -144,6 +157,7 @@ import { armarSinBueyes, type SinBueyes } from "./sin-bueyes";
 import { armarSisimite, type Sisimite } from "./sisimite";
 import { armarSombreron, type Sombreron } from "./sombreron";
 import { armarSucia, type Sucia } from "./sucia";
+import { armarTio, type Tio } from "./tio";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si
@@ -322,6 +336,13 @@ export interface PiezaPorTipo {
   costal: Costal;
   guineo: Guineo;
   cipitio: Cipitio;
+  // La mina (TU-46): piezas-mina.ts y tio.ts
+  vagoneta: Vagoneta;
+  espejo: Espejo;
+  grieta: Grieta;
+  ofrenda: Ofrenda;
+  velas: Velas;
+  tio: Tio;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -1024,6 +1045,25 @@ export function armarPiezas(
         break;
       case "cipitio":
         lista.push(armarCipitio(herramientas, p));
+        break;
+      // La mina (TU-46)
+      case "vagoneta":
+        lista.push(armarVagoneta(herramientas, p));
+        break;
+      case "espejo":
+        lista.push(armarEspejo(herramientas, p));
+        break;
+      case "grieta":
+        lista.push(armarGrieta(herramientas, p));
+        break;
+      case "ofrenda":
+        lista.push(armarOfrenda(herramientas, p));
+        break;
+      case "velas":
+        lista.push(armarVelas(herramientas, p));
+        break;
+      case "tio":
+        lista.push(armarTio(herramientas, p));
         break;
     }
   }

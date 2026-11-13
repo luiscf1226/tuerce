@@ -361,6 +361,20 @@ const TOMAS = [
   { archivo: "cafetal-5-portillo", ruta: "/?escena=nivel&nivel=cafetal&punto=4&j1=&j2=&vista=26,4.2,0&congelar=60" },
   { archivo: "cafetal-5-contento", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=27,5.4,-1&congelar=60" },
   { archivo: "cafetal-secreto", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=35,6.4,-2.4&congelar=30" },
+  // La mina (TU-46): el nivel 13, entero y en la salida; 1. la vagoneta con el cambio, y el derrumbe y la reja; 2. el
+  // pozo con la jaula y sus poleas; 3. las velas con El Tío esperando, y contento con su ofrenda; 4. los espejos y el
+  // haz; 5. la vagoneta en la boca de la mina, y el salar; y la galería vieja con la pepita del secreto
+  { archivo: "mina-entero", ruta: "/?escena=nivel&nivel=mina&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "mina-salida", ruta: "/?escena=nivel&nivel=mina&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "mina-1-vagoneta", ruta: "/?escena=nivel&nivel=mina&j1=&j2=&vista=-41,1.2,0&congelar=60" },
+  { archivo: "mina-1-reja", ruta: "/?escena=nivel&nivel=mina&j1=&j2=&vista=-31,1.2,-0.4&congelar=60" },
+  { archivo: "mina-2-pozo", ruta: "/?escena=nivel&nivel=mina&punto=1&j1=&j2=&vista=-20,2.2,0&congelar=60" },
+  { archivo: "mina-3-velas", ruta: "/?escena=nivel&nivel=mina&punto=2&j1=&j2=&vista=-7,3.2,-0.5&congelar=60" },
+  { archivo: "mina-3-tio", ruta: "/?escena=nivel&nivel=mina&punto=3&j1=&j2=&vista=-2.6,3.2,-1.2&congelar=90" },
+  { archivo: "mina-4-espejos", ruta: "/?escena=nivel&nivel=mina&punto=3&j1=&j2=&vista=8,3.8,-0.6&congelar=60" },
+  { archivo: "mina-5-boca", ruta: "/?escena=nivel&nivel=mina&punto=4&j1=&j2=&vista=20.5,2.8,0.4&congelar=60" },
+  { archivo: "mina-5-salar", ruta: "/?escena=nivel&nivel=mina&punto=5&j1=&j2=&vista=45,-2.4,0.8&congelar=60" },
+  { archivo: "mina-secreto", ruta: "/?escena=nivel&nivel=mina&punto=1&j1=&j2=&vista=-24.6,1.8,-2.4&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
