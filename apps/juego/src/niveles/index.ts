@@ -12,8 +12,11 @@ export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from 
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
 export type { Murcielagos } from "./murcielagos";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
+// La garrucha (TU-43)
+export type { Patasola } from "./patasola";
 export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";
 export type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
+export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)

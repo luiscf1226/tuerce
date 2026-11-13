@@ -11,8 +11,11 @@ import type { Cadejo } from "./cadejo";
 import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
 import type { Murcielagos } from "./murcielagos";
+// La garrucha (TU-43)
+import type { Patasola } from "./patasola";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
+import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
 // El Río Plátano (TU-28)
@@ -95,6 +98,11 @@ export interface NivelEnJuego {
   puente(nombre: string): Puente;
   palmera(nombre: string): Palmera;
   sisimite(nombre: string): Sisimite;
+  /** Las piezas que estrena La garrucha (TU-43, ver piezas-garrucha.ts y patasola.ts). */
+  garrucha(nombre: string): Garrucha;
+  chiva(nombre: string): Chiva;
+  palma(nombre: string): Palma;
+  patasola(nombre: string): Patasola;
 }
 
 export interface GuionDeNivel {

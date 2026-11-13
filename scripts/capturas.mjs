@@ -259,6 +259,23 @@ const TOMAS = [
   { archivo: "rio-5-cumbre", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=29,3.6,0&congelar=60" },
   { archivo: "rio-6-palmera", ruta: "/?escena=nivel&nivel=rio&punto=5&j1=&j2=&vista=44,1.6,0&congelar=60" },
   { archivo: "rio-secreto", ruta: "/?escena=nivel&nivel=rio&punto=6&j1=&j2=&vista=59.5,3.1,-2.4&congelar=30" },
+  // La garrucha (TU-43): el nivel 10, el Eje cafetero (niveles/10-garrucha; va corrido 52 m hacia −x), entero y en
+  // la salida; 1. la canasta en la finca, el cable sobre el cañón y las manijas, y los dos ya en la loma; 2. la
+  // carrera: el rojo pasa la salida y La Patasola arranca brincando; 3. la chiva junto a la bodega, con la carga en la
+  // tarima, y ya llegada a la otra loma; 4. la palma de cera con su manea, y los dos en su plataforma; 5. el cañón de las lianas
+  // con sus farallones, y la meta. Y la orquídea del secreto, en lo alto de la palma más alta
+  { archivo: "garrucha-entero", ruta: "/?escena=nivel&nivel=garrucha&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "garrucha-salida", ruta: "/?escena=nivel&nivel=garrucha&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "garrucha-1-canasta", ruta: "/?escena=nivel&nivel=garrucha&j1=&j2=&vista=-37,1.4,-0.4&congelar=60" },
+  { archivo: "garrucha-1-loma", ruta: "/?escena=nivel&nivel=garrucha&punto=1&j1=&j2=&congelar=60" },
+  { archivo: "garrucha-2-carrera", ruta: "/?escena=nivel&nivel=garrucha&punto=1&j1=andar:1&j2=&congelar=170" },
+  { archivo: "garrucha-3-chiva", ruta: "/?escena=nivel&nivel=garrucha&punto=2&j1=&j2=&vista=9,2.8,0&congelar=60" },
+  { archivo: "garrucha-3-llegada", ruta: "/?escena=nivel&nivel=garrucha&punto=3&j1=&j2=&congelar=60" },
+  { archivo: "garrucha-4-palma", ruta: "/?escena=nivel&nivel=garrucha&punto=3&j1=&j2=&vista=34.5,5.6,0&congelar=60" },
+  { archivo: "garrucha-4-plataforma", ruta: "/?escena=nivel&nivel=garrucha&punto=4&j1=&j2=&congelar=60" },
+  { archivo: "garrucha-5-lianas", ruta: "/?escena=nivel&nivel=garrucha&punto=4&j1=&j2=&vista=42,9.4,0&congelar=60" },
+  { archivo: "garrucha-5-meta", ruta: "/?escena=nivel&nivel=garrucha&punto=5&j1=&j2=&congelar=60" },
+  { archivo: "garrucha-secreto", ruta: "/?escena=nivel&nivel=garrucha&punto=5&j1=&j2=&vista=54.9,13.6,0&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

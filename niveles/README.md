@@ -260,6 +260,28 @@ En línea viajan en la foto el pipante, el piso del puente y sus tablas (las cla
 de la palmera y su manija, y el Sisimite: el invitado mueve la pértiga si ve avanzar el pipante, dibuja la soga y le
 abre los ojos al Sisimite cuando lo ve alzado.
 
+## Las piezas de La garrucha (TU-43)
+
+Las que estrena el nivel 10, La garrucha (`apps/juego/src/niveles/piezas-garrucha.ts` y `patasola.ts`; su lectura, en
+`formato-garrucha.ts`). Como las otras, su malla no se dibuja. Las lianas son bejucos.
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Propiedades                                                                                                                                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `garrucha` | Una canasta colgada de un cable, a lo largo del lado más largo de la caja: de la estación de abajo (la punta −, con el piso de la canasta abajo de la caja) a la de arriba (la punta +, con el piso arriba de la caja). Se sube caminando por las puntas, que están abiertas. Cada estación tiene una manija en la soga, detrás de la punta y de costado: jalándola caminando hacia atrás (como la soga de la palmera), la canasta sube; al soltarla la manija vuelve sola y la canasta no (un trinquete), si alguien va adentro. Vacía y sin nadie en las manijas, baja sola a la estación de abajo. Desde la canasta no se alcanza ninguna manija: hacen falta los dos. | `velocidad` (1.4 m/s) · `soga` (2.2 m: lo que se jala) · `multiplica` (3.2 m de cable por metro de soga) · `bajar` (1.2 m/s) · `fuerza` (20 N) · `lado` (−1.3 m: de costado) · `atras` (1.4 m: detrás de la punta) |
+| `chiva`    | El bus de escalera, del tamaño de la caja (de la calle hasta arriba del techo), mirando hacia el + de su lado más largo, con la parrilla del techo (barandas a los costados). Su carga es el huacal `<nombre>-carga`. Con la carga en el techo y los dos encima, arranca y pasa `baches`; en cada bache la carga salta del techo si no la sostienen los dos, y se lleva al que la sostenía solo: la chiva frena, se devuelve y la carga vuelve a su lugar. Al que va en el techo lo lleva. Cinemática, sin azar.                                                                                                                                                          | `recorrido` (14 m) · `velocidad` (2 m/s) · `baches` (2) · `bache` (0.1 m)                                                                                                                                          |
+| `palma`    | Una palma de cera de pie, del tamaño de la caja: arriba de la caja termina lo que se trepa (ahí va su plataforma, un sólido aparte, con el borde al ras del tronco del lado por donde se sube) y encima va el cogollo, que solo se ve. Con `manea`, un aro de soga alrededor del tronco: el que lo agarra con las dos manos sube apretando adelante y baja apretando atrás; arriba se encarama a la plataforma, como a cualquier borde. Sin nadie, la manea baja sola.                                                                                                                                                                                                    | `manea` (1) · `velocidad` (0.9 m/s) · `copa` (2.5 m: el cogollo sobre la caja)                                                                                                                                     |
+| `patasola` | La Patasola, que anda brincando en una sola pata: corre a lo largo del lado más largo de su caja (su carril), de la punta − (la salida de la carrera) a la + (la meta), con la base de la caja en el suelo. Esperando, brinca en el lugar. Arranca cuando alguno de los dos cruza la salida, llega a la meta en `tiempo` segundos (siempre igual) y se devuelve; para otra carrera los dos tienen que volver detrás de la salida. No choca con nada.                                                                                                                                                                                                                      | `tiempo` (15 s) · `salto` (0.45 m) · `brinco` (0.5 s)                                                                                                                                                              |
+
+```ts
+nivel.garrucha("garrucha").recorrido; // de 0 (abajo) a 1 (arriba); .aBordo, .jalando, .jalada(0 | 1), .manijas, .encima(p), .volver()
+nivel.chiva("chiva").estado; // "parada", "andando", "frenando", "devolviendose" o "llego"; .recorrido, .caidas, .carga, .cargada, .alLlegar(), .alCaer(), .llegar(), .volver()
+nivel.palma("palma").altura; // la manea, de 0 a 1; .trepando (0, 1 o null), .manea, .volver()
+nivel.patasola("patasola").estado; // "esperando", "corriendo" o "volviendo"; .avance, .alto, .carreras, .perdidas, .ganadas, .alPerder(j => {}), .alGanar(), .volver()
+```
+
+En línea viajan en la foto la canasta y sus manijas, la chiva y su carga, las maneas y La Patasola: el invitado dibuja
+las sogas, hace girar las ruedas de la chiva y le dobla la pata a La Patasola con lo alto que la ve.
+
 ## El guion: `guion.ts`
 
 Lo que la escena no puede decir. Exporta `crearGuion(): GuionDeNivel` (ver `apps/juego/src/niveles/guion.ts`), con
@@ -317,6 +339,8 @@ el último punto de control alcanzado. El punto de control se guarda en Convex p
 Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `pinar.mjs`, `poza.mjs`,
 `calle.mjs`, `xibalba.mjs`, `tren.mjs`, `rio.mjs`, `prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
 `comun.mjs`). Si los cambiás, volvé a correrlo y subí los `.glb`.
+
+La garrucha (TU-43): `scripts/niveles/garrucha.mjs` arma `10-garrucha`, también con `pnpm niveles`.
 
 ### `00-patio` (`?escena=nivel&nivel=patio`), el nivel 0
 
@@ -513,6 +537,40 @@ punto de control (`&punto=N` empieza en la misión N + 1):
 El secreto, «la figura de jade de la ciudad perdida», está en el nicho de arriba del templo, detrás de la meta: dos
 gradas de 1.4 m que se trepan colgándose (la zona `secreto`). Sin color nuevo: es lo único claro, pulido y con luz de
 la ciudad. De noche no va la trampa del mecate: la palmera lanza a uno solo al otro lado del barranco.
+
+### `10-garrucha` (`?escena=nivel&nivel=garrucha`)
+
+El nivel 10 (TU-43): La garrucha, en el Eje cafetero (Colombia). Montañas (en siluetas y grises), palmas de cera
+altísimas, guaduales y cables sobre los cañones. Estrena la garrucha, la chiva, la palma de cera y La Patasola; las
+lianas son bejucos. Lo arma `scripts/niveles/garrucha.mjs` (`pnpm niveles`). Va de oeste a este y va todo corrido 52 m
+hacia −x, para caber en la foto de la red (el nivel mide 120 m). La finca está a 0.3 m, la loma a 2.3 m y la
+plataforma de la palma y la otra orilla del cañón a 8.3 m. Cada misión termina en un punto de control (`&punto=N`
+empieza en la misión N + 1):
+
+1. **La garrucha**, de a dos: la canasta cruza el cañón del río, de la finca a la loma (13 m, 2 m más arriba). Uno se
+   sube a la canasta y el otro jala la manija de la finca caminando hacia atrás, la suelta, vuelve y otra vez (unas
+   tres jaladas) → punto 1, al bajarse en la loma. Vacía, la canasta baja sola; el que llegó jala la manija de arriba
+   y sube al otro. Solo no se puede: desde la canasta no se alcanza la manija, y la que sube vacía se devuelve.
+2. **La carrera de saltos contra La Patasola**: cuatro zanjas de 70 cm cruzan la loma (se saltan; el que cae,
+   reaparece). Cuando alguno cruza la salida, La Patasola arranca brincando por su carril, detrás, y llega a la meta
+   en 15 s. Corriendo y saltando bien se le gana por unos dos segundos: el logro, «En una pata». Si gana ella, se
+   sigue igual → punto 2, pasada la meta.
+3. **La chiva**, de a dos: parqueada junto a la bodega, con el techo a la altura del piso. La carga (un huacal de
+   8 kg) espera en una tarima, a la altura de las manos: se agarra entre los dos, cada uno con el brazo de adentro, y
+   se lleva al techo. Con la carga y los dos encima, la chiva arranca, vadea el río y pasa dos baches. Si en un bache
+   la carga no la sostienen los dos, salta del techo (con el que la sostenía solo), la chiva frena, se devuelve y la
+   carga vuelve a la tarima. Con uno solo en el techo no arranca → punto 3, en la otra loma.
+4. **La palma de cera**: 6 m de tronco. Se agarra la manea con las dos manos, adelante sube y atrás baja; arriba se
+   encarama a la plataforma → punto 4. La manea baja sola para el otro.
+5. **El cañón de las lianas**: de la plataforma, tres lianas cuelgan de un cable, cada una a 30 cm de un borde, con
+   dos farallones entre ellas (huecos de 2 m). De liana en liana, columpiándose y soltándose sobre el piso de
+   enfrente → punto 5, la meta, en la otra orilla.
+
+El secreto, «una orquídea en la palma más alta», está detrás de la meta: la palma más alta tiene su manea y un nido
+en lo alto, donde está la orquídea (la zona `secreto`). Sin color nuevo: la orquídea es lo único blanco y con luz allá
+arriba. Los bordes invisibles del lado de la cámara solo atajan a los muñecos (el guion les cambia los grupos de
+choque): así la cámara no los ve como paredes. De noche no va la trampa del mecate: el que jala la manija se queda en
+la finca mientras el otro cruza en la canasta.
 
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 
