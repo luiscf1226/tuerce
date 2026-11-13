@@ -123,30 +123,6 @@ verdad, lo que se pisa, es un sólido aparte). La arma `apps/juego/src/niveles/a
   reaparece junto al compañero o en el punto de control; nunca reaparece en el agua. Con `caer: nadar`, flota y
   `avanzar` lo lleva despacio hacia donde mira, hasta que hace pie. Lo que no es un muñeco no se ahoga: flota o se
   hunde (las piezas que vuelven solas, vuelven al caer al `vacio` de siempre).
-## Las piezas de la calle (TU-25)
-
-Las que estrena el nivel 3 (`apps/juego/src/niveles/piezas-calle.ts` y `sin-bueyes.ts`; su lectura, en
-`formato-calle.ts`). Como las otras, su malla no se dibuja. Las pesas, los engranajes, las campanas y la Carreta sin
-bueyes son cinemáticos (los mueve la pieza, a paso fijo y sin azar); la carreta es dinámica.
-
-| `pieza`      | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                 | Propiedades                                                                                                                                                                                                                                                                  |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `carreta`    | Una carreta de dos ruedas; la caja va de abajo de las ruedas a arriba de las barandas y mira hacia su +x. Corre por un riel a lo largo de su x (inclinado `pendiente`): sola no frena, la cuesta la lleva. Se empuja caminando contra ella (90 kg en 12°: uno solo no la mueve) y se monta (el muñeco anda respecto de lo que pisa). Con `empina`, la caja gira sobre el eje y se empina si el peso queda detrás. | `masa` (90 kg) · `adelante` y `atras` (5 y 0 m de riel desde donde empieza) · `pendiente` (0°) · `rozamiento` (40 N·s/m) · `eje` (0.5) · `empina` (0°: fija al eje) · `cabecea` (4°) · `contrapeso` (12 kg en las varas) · `llegada` (0 m: en los últimos metros frena sola) |
-| `sin-bueyes` | La Carreta sin bueyes: rueda sola a lo largo de la x de su caja, hasta `recorrido` y de vuelta, sin frenar nunca. Mientras anda no choca con nada, pero al muñeco que alcanza lo saca hacia donde empieza el recorrido (un empujón que lo tira). Solo la para el guion (`frenar`): se detiene donde está y choca como madera.                                                                                     | `recorrido` (8 m) · `velocidad` (3.5 m/s) · `espera` (0.6 s en cada punta) · `empujon` (4.5 m/s) · `frenada` (6 m/s²)                                                                                                                                                        |
-| `pesa`       | Una pesa del reloj colgada de su cadena, con una manija a lo ancho (la x de la caja) abajo, a 1.75 m del suelo (se salta para colgarse). El que se cuelga la baja `recorrido`; abajo del todo se traba.                                                                                                                                                                                                           | `recorrido` (0.4 m) · `bajada` (0.35 m/s) · `subida` (0.15 m/s) · `cadena` (2 m, desde arriba de la caja)                                                                                                                                                                    |
-| `engranaje`  | Una rueda dentada, o con `aguja: 1` una aguja del reloj (de largo, el radio de la caja), que gira sobre la z de su caja con la pesa `pesa-N`: da `vueltas` cuando la pesa baja todo. No vuelve atrás.                                                                                                                                                                                                             | `pesa` (1) · `vueltas` (1; positivo como el reloj, visto desde su +z) · `desde` (0°: hacia arriba) · `dientes` (12) · `aguja` (0)                                                                                                                                            |
-| `campana`    | Una campana colgada (su caja), que se columpia sobre su yugo, con su soga hasta una manija a lo ancho. Colgarse de la manija la baja `recorrido` y la campana suena (y queda `sonando` un rato); para volver a sonar, la manija tiene que subir.                                                                                                                                                                  | `soga` (3 m, desde abajo de la campana) · `adelante` (0 m: la soga cuelga hacia el +z de la caja) · `recorrido` (0.35 m) · `sonar` (1 s)                                                                                                                                     |
-| `alfombra`   | Una alfombra de aserrín del tamaño de la caja, sobre el suelo. Cualquier parte de un muñeco que la toque la deja marcada (una pisada cada 35 cm). Se busca en el mundo con los cuerpos como quedaron, así el invitado ve las mismas pisadas.                                                                                                                                                                      | `semilla` (el dibujo)                                                                                                                                                                                                                                                        |
-
-Desde el guion:
-
-```ts
-const poza = nivel.agua("poza"); // .nivel (la altura de la superficie ahora), .lleno, .fondo, .caer
-poza.irA(poza.fondo, 0.4); // la seca a 40 cm por segundo (sin velocidad: de una vez); .quieta cuando llegó
-poza.corriente = 0; // m/s hacia su frente
-poza.hondura({ x, y, z }); // cuánto está ese punto bajo la superficie (m), o null si está fuera de la zona
-nivel.aguas.alMojar((jugador, agua) => {}); // y .caidas ([rojo, turquesa]), .en(punto), .densidad(cuerpo, kg)
-```
 
 En línea, el nivel de cada zona y su corriente viajan en la foto: cada zona tiene un cuerpo cinemático sin
 colisionadores (su marcador) a la altura de su superficie y corrido en x lo que vale su corriente. El invitado no
@@ -207,14 +183,82 @@ Lo que da hacia la cámara puede ser bajo y aun así no dejar pasar: un sólido 
 `-baranda` lo vuelve el guion de Xibalbá una baranda (`soloParaMunecos`), que choca solo con los muñecos; la cámara
 y lo suelto no la ven. Un muro de 90 cm, en cambio, se trepa.
 
+## Las piezas del tren bananero (TU-27)
+
+Las que estrena el nivel 5 (`apps/juego/src/niveles/piezas-tren.ts` y `duende.ts`; su lectura, en `formato-tren.ts`).
+Como las otras, su malla no se dibuja. El racimo, el sombrero y la bomba de la dresina los atraviesan los muñecos
+pero los agarran igual.
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                    | Propiedades                                                                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vagon`    | Un vagón sobre rieles del tamaño de la caja: más alto que 1.5 m es un furgón, si no una plataforma con barandas. Rueda empujado a lo largo de su lado más largo (su frente es su +x) y se **engancha** al vagón que toca con su punta de adelante. Las ruedas (los 35 cm de abajo) son solo imagen.                                                                                                                                  | `masa` (30 kg) · `adelante` y `atras` (0 m: cuánto rueda hacia cada lado; con los dos en 0 no se mueve) · `roce` (40 N por m/s)                                                 |
+| `dresina`  | Una plataforma del tamaño de la caja con una bomba de balancín a lo largo, sobre un poste. Cinemática: va por su vía (el guion se la da, `seguir`; si no, derecho hacia su +x). Cada vez que la bomba pasa de un lado al otro la apura; la cuesta la frena (o la apura de bajada) y los rieles de a poco. El que agarra su manija se cuelga y la baja: se bombea de a dos, uno arriba y otro abajo. Lo que va encima viaja con ella. | `impulso` (0.55 m/s por bombeo) · `roce` (0.2 por s) · `angulo` (10°) · `bomba` (1.15 m: el eje sobre la plataforma) · `velocidad` (2.2 m/s) · `recorrido` (10 m, sin otra vía) |
+| `grua`     | Su caja es el mástil. Arriba, un brazo de `brazo` que mira hacia el frente de la caja (donde recoge) y un gancho que cuelga de su punta. Mientras el guion la manda (`mandar(true)`, con una palanca), el gancho baja a `bajo`; el racimo que alguien le acerca agarrado se engancha. Al soltar la palanca lo sube a `alto`, gira `giro` a la izquierda, lo suelta y vuelve.                                                         | `brazo` (3.2 m) · `giro` (90°) · `bajo` (1.7 m) · `alto` (3.6 m), sobre la base del mástil                                                                                      |
+| `racimo`   | Un racimo de guineos que cuelga de su tallo, del tamaño de la caja. Empieza quieto en su lugar hasta que lo agarran; tirado en el suelo vuelve solo a los 3 s (las manos no llegan al suelo).                                                                                                                                                                                                                                        | `masa` (4 kg: uno solo lo carga; con más de 5, no)                                                                                                                              |
+| `sombrero` | El sombrero del Duende. Quieto en su lugar hasta que lo agarran.                                                                                                                                                                                                                                                                                                                                                                     | `masa` (0.4 kg)                                                                                                                                                                 |
+| `duende`   | El Duende: su caja es su casa (se para en el centro de la base, mirando al frente). Cinemático, sin choques ni azar. Cuida las palancas que le encarga el guion (`cuidar(palanca, agujero)`): la que quedó movida, sin nadie que la agarre ni nadie a menos de `vista`, la vuelve a su lugar saliendo por el agujero de al lado. Con el sombrero suelto a su alcance se lo pone y las deja en paz.                                   | `vista` (3.5 m) · `viaje` (0.4 s: lo que tarda bajo tierra de un agujero a otro)                                                                                                |
+
+```ts
+nivel.vagon("vagon-1").enganchados; // .corrido, .puntas(), .alEnganchar((otro) => {}), .llevar(posicion, giro)
+nivel.dresina("dresina").seguir(via, () => cambio.activa); // .avance, .velocidad, .bombeos, .porElDesvio, .frenar()
+nivel.grua("grua").mandar(palanca.activa); // .estado, .racimo, .alEnganchar(), .alSoltar(), .volver()
+nivel.racimo("racimo").colgado; // .agarrado, .colgarDe(cuerpo, punto), .descolgar(), .volver()
+nivel.duende("duende").cuidar(nivel.palanca("cambio"), { x, y, z }); // .contento, .cambios, .ponerSombrero()
+```
+
+Y los mecanismos del nivel (`mecanismos/via.ts` y `mecanismos/tren.ts`): `crearVia(puntos, { desde, puntos })` (una vía
+de tramos rectos con un cambio y su desvío), `crearTren` (la locomotora y sus vagones salen de una estación y llegan a
+otra a la hora, con un pito de vapor), `crearLevadizo` (un puente que gira sobre su punta de +x) y `crearRomana` (los
+racimos que se sueltan bajo una plancha alta se cuelgan de sus ganchos y pesan).
+
+## Las piezas de la calle (TU-25)
+
+Las que estrena el nivel 3 (`apps/juego/src/niveles/piezas-calle.ts` y `sin-bueyes.ts`; su lectura, en
+`formato-calle.ts`). Como las otras, su malla no se dibuja. Las pesas, los engranajes, las campanas y la Carreta sin
+bueyes son cinemáticos (los mueve la pieza, a paso fijo y sin azar); la carreta es dinámica.
+
+| `pieza`      | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                 | Propiedades                                                                                                                                                                                                                                                                  |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `carreta`    | Una carreta de dos ruedas; la caja va de abajo de las ruedas a arriba de las barandas y mira hacia su +x. Corre por un riel a lo largo de su x (inclinado `pendiente`): sola no frena, la cuesta la lleva. Se empuja caminando contra ella (90 kg en 12°: uno solo no la mueve) y se monta (el muñeco anda respecto de lo que pisa). Con `empina`, la caja gira sobre el eje y se empina si el peso queda detrás. | `masa` (90 kg) · `adelante` y `atras` (5 y 0 m de riel desde donde empieza) · `pendiente` (0°) · `rozamiento` (40 N·s/m) · `eje` (0.5) · `empina` (0°: fija al eje) · `cabecea` (4°) · `contrapeso` (12 kg en las varas) · `llegada` (0 m: en los últimos metros frena sola) |
+| `sin-bueyes` | La Carreta sin bueyes: rueda sola a lo largo de la x de su caja, hasta `recorrido` y de vuelta, sin frenar nunca. Mientras anda no choca con nada, pero al muñeco que alcanza lo saca hacia donde empieza el recorrido (un empujón que lo tira). Solo la para el guion (`frenar`): se detiene donde está y choca como madera.                                                                                     | `recorrido` (8 m) · `velocidad` (3.5 m/s) · `espera` (0.6 s en cada punta) · `empujon` (4.5 m/s) · `frenada` (6 m/s²)                                                                                                                                                        |
+| `pesa`       | Una pesa del reloj colgada de su cadena, con una manija a lo ancho (la x de la caja) abajo, a 1.75 m del suelo (se salta para colgarse). El que se cuelga la baja `recorrido`; abajo del todo se traba.                                                                                                                                                                                                           | `recorrido` (0.4 m) · `bajada` (0.35 m/s) · `subida` (0.15 m/s) · `cadena` (2 m, desde arriba de la caja)                                                                                                                                                                    |
+| `engranaje`  | Una rueda dentada, o con `aguja: 1` una aguja del reloj (de largo, el radio de la caja), que gira sobre la z de su caja con la pesa `pesa-N`: da `vueltas` cuando la pesa baja todo. No vuelve atrás.                                                                                                                                                                                                             | `pesa` (1) · `vueltas` (1; positivo como el reloj, visto desde su +z) · `desde` (0°: hacia arriba) · `dientes` (12) · `aguja` (0)                                                                                                                                            |
+| `campana`    | Una campana colgada (su caja), que se columpia sobre su yugo, con su soga hasta una manija a lo ancho. Colgarse de la manija la baja `recorrido` y la campana suena (y queda `sonando` un rato); para volver a sonar, la manija tiene que subir.                                                                                                                                                                  | `soga` (3 m, desde abajo de la campana) · `adelante` (0 m: la soga cuelga hacia el +z de la caja) · `recorrido` (0.35 m) · `sonar` (1 s)                                                                                                                                     |
+| `alfombra`   | Una alfombra de aserrín del tamaño de la caja, sobre el suelo. Cualquier parte de un muñeco que la toque la deja marcada (una pisada cada 35 cm). Se busca en el mundo con los cuerpos como quedaron, así el invitado ve las mismas pisadas.                                                                                                                                                                      | `semilla` (el dibujo)                                                                                                                                                                                                                                                        |
+
+Desde el guion:
+
+```ts
 nivel.carreta("carreta").avance; // y .velocidad, .empinada, .encima, .frenar(si), .trabar(), .ponerEn(m), .volver()
 nivel.sinBueyes("carreta-sin-bueyes").frenar(true); // y .estado, .avance, .sacados, .alSacar((jugador) => {}), .volver()
 nivel.pesa("pesa-1").llego; // y .bajada, .colgados, .bajar()
 nivel.engranaje("minutero").angulo; // radianes desde arriba, como las agujas
 nivel.campana("campana-1").sonando; // y .campanadas, .alSonar(() => {})
 nivel.alfombra("alfombra-1").intacta; // y .pisadas, .alPisar(() => {})
+```
 
-````
+## Las piezas del río (TU-28)
+
+Las que estrena el nivel 6, el Río Plátano (`apps/juego/src/niveles/piezas-rio.ts` y `sisimite.ts`; su lectura, en
+`formato-rio.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza.
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Propiedades                                                                                                                                                 |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pipante`  | Una canoa de un solo tronco del tamaño de la caja, con el piso arriba de la caja; avanza hacia el + de su lado más largo. Flota y gira solo alrededor de su Y. Empuja el que va de pie en la popa (el tercio de atrás) con los brazos alzados: la pértiga se clava de un lado, así que sola lo tuerce. El que va en la proa con los brazos alzados lleva el rumbo: gira el pipante hacia donde él mira. Al que va a bordo, quieto, lo lleva.                                                                                                                                                                           | `masa` (30 kg) · `pertiga` (70 N) · `lado` (0.45 m: dónde se clava la pértiga) · `timon` (6: qué tan fuerte endereza el de la proa)                         |
+| `puente`   | Un puente colgante a lo largo del lado más largo de la caja: el piso, a la altura de arriba de la caja en las puntas, se comba hacia el medio, con barandas de soga (atajan a los muñecos, no a lo que llevan en las manos). Baja y se mece con los que van encima. Le faltan tablas en `huecos` lugares (cada uno en el medio de su parte del largo). Una tabla (las piezas `tronco` `<nombre>-1`, `-2`…) que se suelta tendida sobre un hueco, apoyada de los dos lados, queda clavada, si la llevaban entre dos (la que uno solo arrastra hasta ahí, no).                                                           | `comba` (0.25 m) · `huecos` (2) · `hueco` (1.8 m) · `mecer` (0.04 m por muñeco)                                                                             |
+| `palmera`  | Una palmera de pie del tamaño de la caja, mirando hacia su frente. Una soga cuelga del cogollo hasta una manija, junto al tronco, de costado: jalándola caminando hacia atrás (como la tranca), la palmera se dobla hacia atrás hasta que el cogollo toca el suelo; un resorte la endereza. Doblada del todo y soltada la soga, se endereza de golpe y lanza hacia su frente al que esté en el cogollo. Los muñecos la atraviesan.                                                                                                                                                                                     | `angulo` (85°) · `soga` (2.4 m: lo que se jala) · `lado` (1.1 m: a qué costado cuelga la manija) · `fuerza` (20 N) · `lanzar` (6.5 m/s) · `elevacion` (35°) |
+| `sisimite` | El Sisimite, un gigante peludo con los pies al revés, dormido boca arriba en su caja (12 × 2.6 × 3.4 m; su forma se escala con ella), con los pies hacia el − de su lado largo. Se lo trepa como a un cerro: los pies (1 m) y las canillas (1.25 m más) colgándose; las rodillas, los muslos, la panza y el pecho (2.6 m, la cumbre) caminando, y se baja por el brazo que tiene estirado sobre la cabeza. Respira. Se despierta si alguien le cae encima de lo alto o le pisa la cara: abre los ojos, se alza, se sacude y tumba a los que tiene encima (no hay derrota), y se vuelve a dormir. Cinemático, sin azar. | `aterrizaje` (3.6 m/s: cayéndole encima más rápido, lo despierta; un salto no) · `revolverse` (3 s) · `empujon` (2.5 m/s)                                   |
+
+```ts
+nivel.pipante("pipante").pertiguero; // y .timonel (0, 1 o null), .aBordo, .rumbo, .encima(p), .casa, .volver()
+nivel.puente("puente").huecos; // [true, false]: cuáles tienen su tabla; .faltan, .tablas, .hueco(i), .reparar(), .alClavar(i => {})
+nivel.palmera("palmera").estado; // "derecha", "doblada" o "disparando"; .doblada, .jalada, .cogollo(), .lanzados, .alLanzar(j => {})
+nivel.sisimite("sisimite").ojos; // y .estado ("dormido" o "despierto"), .despertares, .encima(p), .alDespertar(j => {}), .volver()
+```
+
+En línea viajan en la foto el pipante, el piso del puente y sus tablas (las clavadas se vuelven cinemáticas), el tronco
+de la palmera y su manija, y el Sisimite: el invitado mueve la pértiga si ve avanzar el pipante, dibuja la soga y le
+abre los ojos al Sisimite cuando lo ve alzado.
 
 ## El guion: `guion.ts`
 
@@ -268,10 +312,10 @@ nunca se vuelve atrás. El que cae al vacío (por debajo de `vacio`, dentro de u
 sólido) reaparece de pie **junto a su compañero**, si este está de pie en terreno firme y hay piso al lado; si no, en
 el último punto de control alcanzado. El punto de control se guarda en Convex para retomar (TU-22).
 
-## Los niveles sin Blender: `00-patio`, `01-pinar`, `03-calle`, `99-prueba` y `98-piezas`
+## Los niveles sin Blender: del `00-patio` al `06-rio`, `98-piezas` y `99-prueba`
 
-Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `pinar.mjs`, `calle.mjs`,
-`prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
+Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `pinar.mjs`, `poza.mjs`,
+`calle.mjs`, `xibalba.mjs`, `tren.mjs`, `rio.mjs`, `prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
 `comun.mjs`). Si los cambiás, volvé a correrlo y subí los `.glb`.
 
 ### `00-patio` (`?escena=nivel&nivel=patio`), el nivel 0
@@ -319,74 +363,6 @@ misión N + 1):
 El secreto, «el nido en el pino más alto», está arriba de tres escalones de leña (de 1.5 m) al pie del pino, junto a
 la pulpería: se trepan colgándose y la zona `secreto` está en el nido (da el peinado «Greñas de nido»).
 
-### `04-xibalba` (`?escena=nivel&nivel=xibalba`)
-
-El nivel 4 (TU-26): Xibalbá de juguete, en Copán, Honduras. Pirámides y ceibas entre la niebla, estelas y túneles de
-piedra clara, guacamayas por todas partes, y los murciélagos de Xibalbá. Va de oeste a este; cada misión termina en
-un punto de control (`&punto=N` empieza en la misión N + 1):
-
-1. **La plancha doble**, de a dos: una placa a cada lado de la entrada de la muralla, a 2 m una de otra. Con los dos
-   encima a la vez la entrada se hunde y queda abierta → punto 1.
-2. **La estela**, de a dos: se la gira entre los dos empujando sus varas (trabada si la agarra uno solo) hasta que el
-   glifo del sol mira la reja; la reja se hunde → punto 2.
-3. **El juego de pelota**: la pelota de hule en su soporte, frente al aro. Agarrarla, retroceder un paso, saltar y
-   soltarla en el aire la mete por el aro; se hunde el portón → punto 3. Soltada parado no llega.
-4. **La escalinata**, de a dos: el bloque de 9 kg en su altar (uno solo no lo saca de ahí); lo suben los dos grada por
-   grada (30 cm) hasta el pie del templo (2.3 m, más de lo que se trepa), lo dejan contra la pared y desde el bloque
-   se trepa → punto 4. Tirado sin servir, a los 3 s vuelve a su altar.
-5. **El túnel de los murciélagos**, de a dos: uno lleva la antorcha con las dos manos y el otro la llave de jade, juntos
-   (a oscuras los espantan), sin pasar la llama por debajo de las perchas. La llave encaja en la cerradura de la
-   puerta del fondo y la puerta se hunde → punto 5. Solo no se puede: con la antorcha bien llevada no quedan manos
-   para la llave, y con una sola mano los murciélagos la apagan. Apagada, se prende en el brasero de la entrada. El
-   logro, «Con luz», es llegar al punto 5 sin que la apaguen ni una vez.
-6. **La tumba**: la losa sube con el contrapeso, tanto como se hunde el plato; con las dos piedras de la repisa en el
-   plato (o alguien parado encima) sube del todo → punto 6 adentro, la meta.
-
-El secreto, «la guacamaya dorada en lo alto del templo», está arriba del muro del túnel: se sube por tres escalones de
-1.5 m junto a la boca del túnel, colgándose (da la máscara «Guacamaya»). El dorado, el jade y el fuego no tienen color:
-se leen por la forma, lo claro y el brillo.
-### `03-calle` (`?escena=nivel&nivel=calle`)
-
-El nivel 3 (TU-25): Comayagua, Honduras. Calles coloniales en subida, el corredor alto de las casas, las alfombras de
-aserrín, la torre del reloj y el campanario; la ronda la Carreta sin bueyes. Va de oeste a este; hacia +z (la cámara)
-solo hay tapias bajas y delgadas, que no se trepan. Cada misión termina en un punto de control:
-
-1. **La cuesta**, de a dos: un callejón de 12° justo del ancho de la carreta (90 kg). Uno solo no la mueve; los dos
-   la suben hasta donde la cuesta se abre, ahí se traba (una cuña) y pasan por al lado → punto 1 en la plazuela.
-2. **La Carreta sin bueyes**, de a dos: rueda sola de la plazuela al fondo de su calle y de vuelta, a 3.5 m/s, y al que
-   encuentra lo saca de la calle. Uno empuja el freno (una palanca a la entrada) mientras la carreta espera en la
-   plazuela, y el otro cruza la calle y empuja los dos huacales que tapan el zaguán → punto 2. Pasado el punto 2 queda
-   frenada. Solo no se puede: la calle mide 9 m y la carreta pasa antes.
-3. **La torre del reloj**: colgado de cada pesa (se salta a la manija), la pesa baja y su aguja llega a las doce; con
-   las dos, la puerta del arco sube → punto 3.
-4. **Las alfombras**: se sube por la escalinata al corredor alto, se cruza el callejón columpiándose en la enredadera
-   (una para cada uno) y se baja por la otra escalinata → punto 4. Por la calle también se llega, pisando las
-   alfombras. Llegar al punto 4 con las tres intactas da el logro, «Ni una pisada».
-5. **Las campanas**, de a dos: cada una con su soga, a 7 m una de otra; si suenan juntas (cada una cuenta un segundo),
-   la reja del mirador sube → punto 5.
-6. **La bajada**: la carreta del mirador espera frenada hasta que suben los dos y no está empinada; entonces baja sola
-   por el riel, sobre la barranca, y frena al llegar a la plaza (punto 6, la meta). Si en la bajada los dos se van
-   para atrás, se empina y vuelca: caen a la barranca y la carreta vuelve arriba.
-
-El secreto, «el pilón escondido en el carrito del parque», está arriba de la vitrina del carrito de la plazuela: se
-trepa al mostrador (1 m) y de ahí a la vitrina (otro metro); la zona `secreto` está encima (da el sombrero bombín).
-Con la Noche de tuerce no sale el mecate: uno sostiene el freno lejos del otro, y las campanas están a 7 m.
-
-### `98-piezas` (`?escena=nivel&nivel=piezas`)
-
-Las piezas de juego, una tras otra. El patio (salida, tres huacales, dos apilados, y una plancha delante del rojo) →
-una compuerta que baja mientras la plancha está pisada (uno se para encima o le ponen un huacal) → punto 1 → una
-palanca y otra compuerta que baja mientras alguien la empuja, y queda abajo pasado el punto 2 → punto 2 al borde de
-una quebrada de 2.2 m, con un bejuco para cada uno colgando de una rama → punto 3 en la otra orilla → un balancín de
-tronco → un escalón de 1.4 m → punto 4, la meta.
-
-### `99-prueba`
-
-El patio (salida y un huacal de 8 kg) → un hueco de 2.5 m con un tablón angosto, donde no caben los dos a la vez →
-punto 1 → una compuerta que el guion hunde al llegar al punto 1 → un escalón de 1.5 m para trepar colgándose (o de la
-mano del compañero) → punto 2 arriba → punto 3, la meta. El secreto está detrás de la meta, en la mata del rincón (da
-el peinado «Cresta»), y el logro, «Mudanza», es subir el huacal hasta arriba del escalón.
-
 ### `02-poza` (`?escena=nivel&nivel=poza`)
 
 El nivel 2 (TU-24): el río Guayape, Honduras. Un río de piedras redondas, tendederos de ropa y una represa de
@@ -421,33 +397,59 @@ El secreto, «una pepita de oro en el fondo de la poza», está en un hoyo en lo
 río, la poza, la quebrada o el chorro). De noche no va la trampa del mecate: en la represa uno sostiene la palanca
 lejos del otro.
 
-## Las piezas del tren bananero (TU-27)
+### `03-calle` (`?escena=nivel&nivel=calle`)
 
-Las que estrena el nivel 5 (`apps/juego/src/niveles/piezas-tren.ts` y `duende.ts`; su lectura, en `formato-tren.ts`).
-Como las otras, su malla no se dibuja. El racimo, el sombrero y la bomba de la dresina los atraviesan los muñecos
-pero los agarran igual.
+El nivel 3 (TU-25): Comayagua, Honduras. Calles coloniales en subida, el corredor alto de las casas, las alfombras de
+aserrín, la torre del reloj y el campanario; la ronda la Carreta sin bueyes. Va de oeste a este; hacia +z (la cámara)
+solo hay tapias bajas y delgadas, que no se trepan. Cada misión termina en un punto de control:
 
-| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                    | Propiedades                                                                                                                                                                     |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `vagon`    | Un vagón sobre rieles del tamaño de la caja: más alto que 1.5 m es un furgón, si no una plataforma con barandas. Rueda empujado a lo largo de su lado más largo (su frente es su +x) y se **engancha** al vagón que toca con su punta de adelante. Las ruedas (los 35 cm de abajo) son solo imagen.                                                                                                                                  | `masa` (30 kg) · `adelante` y `atras` (0 m: cuánto rueda hacia cada lado; con los dos en 0 no se mueve) · `roce` (40 N por m/s)                                                 |
-| `dresina`  | Una plataforma del tamaño de la caja con una bomba de balancín a lo largo, sobre un poste. Cinemática: va por su vía (el guion se la da, `seguir`; si no, derecho hacia su +x). Cada vez que la bomba pasa de un lado al otro la apura; la cuesta la frena (o la apura de bajada) y los rieles de a poco. El que agarra su manija se cuelga y la baja: se bombea de a dos, uno arriba y otro abajo. Lo que va encima viaja con ella. | `impulso` (0.55 m/s por bombeo) · `roce` (0.2 por s) · `angulo` (10°) · `bomba` (1.15 m: el eje sobre la plataforma) · `velocidad` (2.2 m/s) · `recorrido` (10 m, sin otra vía) |
-| `grua`     | Su caja es el mástil. Arriba, un brazo de `brazo` que mira hacia el frente de la caja (donde recoge) y un gancho que cuelga de su punta. Mientras el guion la manda (`mandar(true)`, con una palanca), el gancho baja a `bajo`; el racimo que alguien le acerca agarrado se engancha. Al soltar la palanca lo sube a `alto`, gira `giro` a la izquierda, lo suelta y vuelve.                                                         | `brazo` (3.2 m) · `giro` (90°) · `bajo` (1.7 m) · `alto` (3.6 m), sobre la base del mástil                                                                                      |
-| `racimo`   | Un racimo de guineos que cuelga de su tallo, del tamaño de la caja. Empieza quieto en su lugar hasta que lo agarran; tirado en el suelo vuelve solo a los 3 s (las manos no llegan al suelo).                                                                                                                                                                                                                                        | `masa` (4 kg: uno solo lo carga; con más de 5, no)                                                                                                                              |
-| `sombrero` | El sombrero del Duende. Quieto en su lugar hasta que lo agarran.                                                                                                                                                                                                                                                                                                                                                                     | `masa` (0.4 kg)                                                                                                                                                                 |
-| `duende`   | El Duende: su caja es su casa (se para en el centro de la base, mirando al frente). Cinemático, sin choques ni azar. Cuida las palancas que le encarga el guion (`cuidar(palanca, agujero)`): la que quedó movida, sin nadie que la agarre ni nadie a menos de `vista`, la vuelve a su lugar saliendo por el agujero de al lado. Con el sombrero suelto a su alcance se lo pone y las deja en paz.                                   | `vista` (3.5 m) · `viaje` (0.4 s: lo que tarda bajo tierra de un agujero a otro)                                                                                                |
+1. **La cuesta**, de a dos: un callejón de 12° justo del ancho de la carreta (90 kg). Uno solo no la mueve; los dos
+   la suben hasta donde la cuesta se abre, ahí se traba (una cuña) y pasan por al lado → punto 1 en la plazuela.
+2. **La Carreta sin bueyes**, de a dos: rueda sola de la plazuela al fondo de su calle y de vuelta, a 3.5 m/s, y al que
+   encuentra lo saca de la calle. Uno empuja el freno (una palanca a la entrada) mientras la carreta espera en la
+   plazuela, y el otro cruza la calle y empuja los dos huacales que tapan el zaguán → punto 2. Pasado el punto 2 queda
+   frenada. Solo no se puede: la calle mide 9 m y la carreta pasa antes.
+3. **La torre del reloj**: colgado de cada pesa (se salta a la manija), la pesa baja y su aguja llega a las doce; con
+   las dos, la puerta del arco sube → punto 3.
+4. **Las alfombras**: se sube por la escalinata al corredor alto, se cruza el callejón columpiándose en la enredadera
+   (una para cada uno) y se baja por la otra escalinata → punto 4. Por la calle también se llega, pisando las
+   alfombras. Llegar al punto 4 con las tres intactas da el logro, «Ni una pisada».
+5. **Las campanas**, de a dos: cada una con su soga, a 7 m una de otra; si suenan juntas (cada una cuenta un segundo),
+   la reja del mirador sube → punto 5.
+6. **La bajada**: la carreta del mirador espera frenada hasta que suben los dos y no está empinada; entonces baja sola
+   por el riel, sobre la barranca, y frena al llegar a la plaza (punto 6, la meta). Si en la bajada los dos se van
+   para atrás, se empina y vuelca: caen a la barranca y la carreta vuelve arriba.
 
-```ts
-nivel.vagon("vagon-1").enganchados; // .corrido, .puntas(), .alEnganchar((otro) => {}), .llevar(posicion, giro)
-nivel.dresina("dresina").seguir(via, () => cambio.activa); // .avance, .velocidad, .bombeos, .porElDesvio, .frenar()
-nivel.grua("grua").mandar(palanca.activa); // .estado, .racimo, .alEnganchar(), .alSoltar(), .volver()
-nivel.racimo("racimo").colgado; // .agarrado, .colgarDe(cuerpo, punto), .descolgar(), .volver()
-nivel.duende("duende").cuidar(nivel.palanca("cambio"), { x, y, z }); // .contento, .cambios, .ponerSombrero()
-````
+El secreto, «el pilón escondido en el carrito del parque», está arriba de la vitrina del carrito de la plazuela: se
+trepa al mostrador (1 m) y de ahí a la vitrina (otro metro); la zona `secreto` está encima (da el sombrero bombín).
+Con la Noche de tuerce no sale el mecate: uno sostiene el freno lejos del otro, y las campanas están a 7 m.
 
-Y los mecanismos del nivel (`mecanismos/via.ts` y `mecanismos/tren.ts`): `crearVia(puntos, { desde, puntos })` (una vía
-de tramos rectos con un cambio y su desvío), `crearTren` (la locomotora y sus vagones salen de una estación y llegan a
-otra a la hora, con un pito de vapor), `crearLevadizo` (un puente que gira sobre su punta de +x) y `crearRomana` (los
-racimos que se sueltan bajo una plancha alta se cuelgan de sus ganchos y pesan).
+### `04-xibalba` (`?escena=nivel&nivel=xibalba`)
+
+El nivel 4 (TU-26): Xibalbá de juguete, en Copán, Honduras. Pirámides y ceibas entre la niebla, estelas y túneles de
+piedra clara, guacamayas por todas partes, y los murciélagos de Xibalbá. Va de oeste a este; cada misión termina en
+un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **La plancha doble**, de a dos: una placa a cada lado de la entrada de la muralla, a 2 m una de otra. Con los dos
+   encima a la vez la entrada se hunde y queda abierta → punto 1.
+2. **La estela**, de a dos: se la gira entre los dos empujando sus varas (trabada si la agarra uno solo) hasta que el
+   glifo del sol mira la reja; la reja se hunde → punto 2.
+3. **El juego de pelota**: la pelota de hule en su soporte, frente al aro. Agarrarla, retroceder un paso, saltar y
+   soltarla en el aire la mete por el aro; se hunde el portón → punto 3. Soltada parado no llega.
+4. **La escalinata**, de a dos: el bloque de 9 kg en su altar (uno solo no lo saca de ahí); lo suben los dos grada por
+   grada (30 cm) hasta el pie del templo (2.3 m, más de lo que se trepa), lo dejan contra la pared y desde el bloque
+   se trepa → punto 4. Tirado sin servir, a los 3 s vuelve a su altar.
+5. **El túnel de los murciélagos**, de a dos: uno lleva la antorcha con las dos manos y el otro la llave de jade, juntos
+   (a oscuras los espantan), sin pasar la llama por debajo de las perchas. La llave encaja en la cerradura de la
+   puerta del fondo y la puerta se hunde → punto 5. Solo no se puede: con la antorcha bien llevada no quedan manos
+   para la llave, y con una sola mano los murciélagos la apagan. Apagada, se prende en el brasero de la entrada. El
+   logro, «Con luz», es llegar al punto 5 sin que la apaguen ni una vez.
+6. **La tumba**: la losa sube con el contrapeso, tanto como se hunde el plato; con las dos piedras de la repisa en el
+   plato (o alguien parado encima) sube del todo → punto 6 adentro, la meta.
+
+El secreto, «la guacamaya dorada en lo alto del templo», está arriba del muro del túnel: se sube por tres escalones de
+1.5 m junto a la boca del túnel, colgándose (da la máscara «Guacamaya»). El dorado, el jade y el fuego no tienen color:
+se leen por la forma, lo claro y el brillo.
 
 ### `05-tren` (`?escena=nivel&nivel=tren`)
 
@@ -476,3 +478,53 @@ El secreto, «el racimo de mínimos dorados», cuelga en el rellano del puente r
 (da el peinado «Copete»). El logro, «Puntual», es llegar a la meta antes de que pite el tren: sale al enganchar los
 vagones y llega a la estación de llegada seis minutos después. Retomando un avance guardado no se gana (el tren ya
 llegó). En la noche de tuerce no sale el mecate: la pareja se separa en el cambio, en la grúa y en el portón.
+
+### `06-rio` (`?escena=nivel&nivel=rio`)
+
+El nivel 6 (TU-28): el Río Plátano, La Mosquitia (Honduras). Selva, un río ancho, puentes colgantes y las huellas
+enormes del Sisimite. Estrena el pipante, el puente colgante, la palmera y el Sisimite; el agua es la de La poza. Lo
+arma `scripts/niveles/rio.mjs` (`pnpm niveles`). Va de oeste a este, río arriba, y va todo corrido 53 m hacia −x: la
+foto de la red mide las posiciones en int16 (±64 m desde el origen) y el nivel mide 124 m. Cada misión termina en un
+punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **El pipante**, de a dos: amarrado junto al muelle. El río baja a 0.75 m/s y tiene dos piedras. Uno empuja con
+   la pértiga desde la popa y el otro lleva el rumbo desde la proa (el pipante gira hacia donde él mira). Solo con la
+   pértiga se tuerce contra la orilla; solo con el rumbo, la corriente se lo lleva → punto 1, en el embarcadero. El
+   pipante vacío que quedó lejos vuelve solo al muelle.
+2. **Los rápidos**: una quebrada brava (2.4 m/s) cruza el camino; se pasa por un vado de piedras mientras bajan
+   troncos por tres carriles, siempre igual (cada 4.2 s por carril). Se espera entre carril y carril; el tronco que
+   alcanza al que está en el vado lo tumba al agua → punto 2.
+3. **Las huellas**: el camino se parte en dos por un matorral que no se trepa. En el carril de adelante los dedos de
+   las huellas apuntan para adentro; en el de atrás, para afuera. El Sisimite tiene los pies al revés: se fue por el
+   de atrás. El de adelante termina en un lodazal → punto 3.
+4. **El puente colgante**, de a dos: 10 m sobre la cañada, con dos huecos de 1.6 m (ni se saltan). Las dos tablas
+   (9 kg, 5 m) están sobre caballetes, una detrás de otra: se llevan en fila con la mano derecha, cerca del medio, y
+   se sueltan con el de adelante en el borde de cada hueco. Uno solo no las levanta, y la que arrastra no queda
+   clavada. Las tiradas en el suelo vuelven a sus caballetes → punto 4.
+5. **El Sisimite**, dormido de pared a pared en el cañón: se trepan sus pies y sus canillas colgándose y se camina
+   hasta su pecho → punto 5, en la cumbre. Llegar sin que abra los ojos da el logro, «Sin despertarlo». Del pecho se
+   baja por el brazo, sin pisarle la cara.
+6. **La palmera**, de a dos: uno agarra la manija de la soga y camina para atrás hasta doblarla del todo; el otro se
+   mete en el cogollo, en el suelo. Al soltar la soga, la palmera lo lanza sobre el barranco (2.2 m). Del otro lado,
+   el que voló agarra la liana recogida junto a la ceiba y la suelta: se corre por la rama y queda colgando junto a
+   la orilla de acá, y el otro cruza columpiándose. Recién ahí aparece la meta → punto 6, a la entrada de la ciudad
+   perdida. Solo no se puede: al soltar la soga la palmera se endereza antes de llegar al cogollo.
+
+El secreto, «la figura de jade de la ciudad perdida», está en el nicho de arriba del templo, detrás de la meta: dos
+gradas de 1.4 m que se trepan colgándose (la zona `secreto`). Sin color nuevo: es lo único claro, pulido y con luz de
+la ciudad. De noche no va la trampa del mecate: la palmera lanza a uno solo al otro lado del barranco.
+
+### `98-piezas` (`?escena=nivel&nivel=piezas`)
+
+Las piezas de juego, una tras otra. El patio (salida, tres huacales, dos apilados, y una plancha delante del rojo) →
+una compuerta que baja mientras la plancha está pisada (uno se para encima o le ponen un huacal) → punto 1 → una
+palanca y otra compuerta que baja mientras alguien la empuja, y queda abajo pasado el punto 2 → punto 2 al borde de
+una quebrada de 2.2 m, con un bejuco para cada uno colgando de una rama → punto 3 en la otra orilla → un balancín de
+tronco → un escalón de 1.4 m → punto 4, la meta.
+
+### `99-prueba`
+
+El patio (salida y un huacal de 8 kg) → un hueco de 2.5 m con un tablón angosto, donde no caben los dos a la vez →
+punto 1 → una compuerta que el guion hunde al llegar al punto 1 → un escalón de 1.5 m para trepar colgándose (o de la
+mano del compañero) → punto 2 arriba → punto 3, la meta. El secreto está detrás de la meta, en la mata del rincón (da
+el peinado «Cresta»), y el logro, «Mudanza», es subir el huacal hasta arriba del escalón.

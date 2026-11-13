@@ -12,6 +12,8 @@ import escenaXibalba from "../../../../niveles/04-xibalba/escena.glb?url";
 import { crearGuion as guionXibalba } from "../../../../niveles/04-xibalba/guion";
 import escenaTren from "../../../../niveles/05-tren/escena.glb?url";
 import { crearGuion as guionTren } from "../../../../niveles/05-tren/guion";
+import escenaRio from "../../../../niveles/06-rio/escena.glb?url";
+import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -69,6 +71,14 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaCalle,
     crearGuion: guionCalle,
     // Amarrados no: uno sostiene el freno mientras el otro cruza la calle (9 m), y las campanas están a 7 m
+    sinTrampas: ["mecate"],
+  },
+  // Nivel 6 (TU-28): el Río Plátano, La Mosquitia. El pipante, el puente colgante, la palmera y el Sisimite
+  rio: {
+    carpeta: "06-rio",
+    escena: escenaRio,
+    crearGuion: guionRio,
+    // Amarrados no: la palmera lanza a uno solo al otro lado del barranco, y el otro se queda jalando la soga
     sinTrampas: ["mecate"],
   },
 };

@@ -15,9 +15,12 @@ import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+// El Río Plátano (TU-28)
+import type { Palmera, Pipante, Puente } from "./piezas-rio";
 import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
 import type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
 import type { SinBueyes } from "./sin-bueyes";
+import type { Sisimite } from "./sisimite";
 import type { Sucia } from "./sucia";
 
 /** Lo que el guion ve del nivel en juego. */
@@ -87,6 +90,11 @@ export interface NivelEnJuego {
   engranaje(nombre: string): Engranaje;
   campana(nombre: string): Campana;
   alfombra(nombre: string): Alfombra;
+  /** Las piezas que estrena el Río Plátano (TU-28, ver piezas-rio.ts y sisimite.ts). */
+  pipante(nombre: string): Pipante;
+  puente(nombre: string): Puente;
+  palmera(nombre: string): Palmera;
+  sisimite(nombre: string): Sisimite;
 }
 
 export interface GuionDeNivel {

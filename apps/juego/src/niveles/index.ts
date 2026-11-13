@@ -16,7 +16,10 @@ export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Pl
 export type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+// El Río Plátano (TU-28)
+export type { Palmera, Pipante, Puente } from "./piezas-rio";
 export type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
 export type { Antorcha, Bloque, Doble, Estela, Guacamayas, Llave, Pelota } from "./piezas-xibalba";
 export type { SinBueyes } from "./sin-bueyes";
+export type { Sisimite } from "./sisimite";
 export type { Sucia } from "./sucia";

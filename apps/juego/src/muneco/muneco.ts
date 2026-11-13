@@ -155,8 +155,9 @@ const EJE_X = new THREE.Vector3(1, 0, 0);
 const EJE_Z = new THREE.Vector3(0, 0, 1);
 const ABAJO = new THREE.Vector3(0, -1, 0);
 
-/** Desde cuántos kg lo que se mueve bajo los pies lleva al muñeco (una carreta sí; un racimo o un bloque, no). */
-const SUELO_QUE_LLEVA = 30;
+/** Desde cuántos kg lo que se mueve bajo los pies lleva al muñeco (la carreta, de 90, sí; un racimo, un bloque o
+ * una plataforma, no). La balsa y el pipante (30 kg) llevan ellos al que va a bordo (`llevarABordo`). */
+const SUELO_QUE_LLEVA = 50;
 
 export function crearMuneco(rapier: Rapier, mundo: RAPIER.World, opciones: OpcionesMuneco = {}): Muneco {
   const origen = new THREE.Vector3(opciones.posicion?.x ?? 0, opciones.posicion?.y ?? 0, opciones.posicion?.z ?? 0);
