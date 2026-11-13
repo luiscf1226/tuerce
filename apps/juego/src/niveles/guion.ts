@@ -13,9 +13,12 @@ import type { PlanoDeNivel } from "./formato";
 // Los canales (TU-42)
 import type { Llorona } from "./llorona";
 import type { Murcielagos } from "./murcielagos";
+// La garrucha (TU-43)
+import type { Patasola } from "./patasola";
 import type { Balancin, Bejuco, Huacal, Palanca, Plancha } from "./piezas";
 import type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
+import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
@@ -112,6 +115,11 @@ export interface NivelEnJuego {
   ganado(nombre: string): Ganado;
   hamaca(nombre: string): Hamaca;
   saco(nombre: string): Saco;
+  /** Las piezas que estrena La garrucha (TU-43, ver piezas-garrucha.ts y patasola.ts). */
+  garrucha(nombre: string): Garrucha;
+  chiva(nombre: string): Chiva;
+  palma(nombre: string): Palma;
+  patasola(nombre: string): Patasola;
 }
 
 export interface GuionDeNivel {

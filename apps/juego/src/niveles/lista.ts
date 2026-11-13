@@ -17,6 +17,9 @@ import { crearGuion as guionRio } from "../../../../niveles/06-rio/guion";
 // Los canales (TU-42)
 import escenaCanales from "../../../../niveles/09-canales/escena.glb?url";
 import { crearGuion as guionCanales } from "../../../../niveles/09-canales/guion";
+// La garrucha (TU-43)
+import escenaGarrucha from "../../../../niveles/10-garrucha/escena.glb?url";
+import { crearGuion as guionGarrucha } from "../../../../niveles/10-garrucha/guion";
 // El llano (TU-44)
 import escenaLlano from "../../../../niveles/11-llano/escena.glb?url";
 import { crearGuion as guionLlano } from "../../../../niveles/11-llano/guion";
@@ -101,6 +104,15 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaLlano,
     crearGuion: guionLlano,
     // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
+    sinTrampas: ["mecate"],
+  },
+  // La garrucha (TU-43). Nivel 10: el Eje cafetero, Colombia. La garrucha, la carrera contra La Patasola, la chiva,
+  // la palma de cera y las lianas
+  garrucha: {
+    carpeta: "10-garrucha",
+    escena: escenaGarrucha,
+    crearGuion: guionGarrucha,
+    // Amarrados no: el que jala la manija se queda en la finca mientras el otro cruza el cañón en la canasta (13 m)
     sinTrampas: ["mecate"],
   },
 };

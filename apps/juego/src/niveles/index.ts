@@ -14,9 +14,12 @@ export type { GuionDeNivel, NivelEnJuego } from "./guion";
 export type { Llorona } from "./llorona";
 export type { Murcielagos } from "./murcielagos";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
+// La garrucha (TU-43)
+export type { Patasola } from "./patasola";
 export type { Balancin, Bejuco, Huacal, Palanca, PiezaDeJuego, PiezasDeJuego, Plancha } from "./piezas";
 export type { Alfombra, Campana, Carreta, Engranaje, Pesa } from "./piezas-calle";
 export type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
+export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 export type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";

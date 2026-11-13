@@ -26,6 +26,8 @@ import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
 // Los canales (TU-42)
 import { armarLlorona, type Llorona } from "./llorona";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
+// La garrucha (TU-43)
+import { armarPatasola, type Patasola } from "./patasola";
 import {
   type Alfombra,
   armarAlfombra,
@@ -46,6 +48,7 @@ import {
   type Pinata,
   type Trajinera,
 } from "./piezas-canales";
+import { armarChiva, armarGarrucha, armarPalma, type Chiva, type Garrucha, type Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 import {
   armarGanado,
@@ -271,6 +274,11 @@ export interface PiezaPorTipo {
   ganado: Ganado;
   hamaca: Hamaca;
   saco: Saco;
+  // La garrucha (TU-43): piezas-garrucha.ts y patasola.ts
+  garrucha: Garrucha;
+  chiva: Chiva;
+  palma: Palma;
+  patasola: Patasola;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -922,6 +930,19 @@ export function armarPiezas(
         break;
       case "saco":
         lista.push(armarSaco(herramientas, p));
+        break;
+      // La garrucha (TU-43)
+      case "garrucha":
+        lista.push(armarGarrucha(herramientas, p));
+        break;
+      case "chiva":
+        lista.push(armarChiva(herramientas, p));
+        break;
+      case "palma":
+        lista.push(armarPalma(herramientas, p));
+        break;
+      case "patasola":
+        lista.push(armarPatasola(herramientas, p));
         break;
     }
   }

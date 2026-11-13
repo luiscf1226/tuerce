@@ -283,6 +283,11 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     ganado: (nombre) => deJuego("ganado", nombre),
     hamaca: (nombre) => deJuego("hamaca", nombre),
     saco: (nombre) => deJuego("saco", nombre),
+    // La garrucha (TU-43)
+    garrucha: (nombre) => deJuego("garrucha", nombre),
+    chiva: (nombre) => deJuego("chiva", nombre),
+    palma: (nombre) => deJuego("palma", nombre),
+    patasola: (nombre) => deJuego("patasola", nombre),
     avance,
     premios,
     antes(entradas) {
