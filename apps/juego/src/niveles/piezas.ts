@@ -25,6 +25,8 @@ import { armarCadejo, type Cadejo } from "./cadejo";
 import { armarCaleuche, type Caleuche } from "./caleuche";
 // El cafetal (TU-41)
 import { armarCipitio, type Cipitio } from "./cipitio";
+// La medianoche (TU-49)
+import { armarCurupira, type Curupira } from "./curupira";
 import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
 // El puente (TU-45)
@@ -79,6 +81,15 @@ import {
   type Molino,
   type Saco,
 } from "./piezas-llano";
+// La medianoche (TU-49)
+import {
+  armarFuegos,
+  armarMontaria,
+  armarNenufar,
+  type Fuegos,
+  type Montaria,
+  type Nenufar,
+} from "./piezas-medianoche";
 // La mina (TU-46)
 import {
   armarEspejo,
@@ -370,6 +381,11 @@ export interface PiezaPorTipo {
   chalupa: Chalupa;
   ancla: Ancla;
   caleuche: Caleuche;
+  // La medianoche (TU-49): piezas-medianoche.ts y curupira.ts
+  nenufar: Nenufar;
+  montaria: Montaria;
+  fuegos: Fuegos;
+  curupira: Curupira;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -1120,6 +1136,19 @@ export function armarPiezas(
         break;
       case "caleuche":
         lista.push(armarCaleuche(herramientas, p));
+        break;
+      // La medianoche (TU-49)
+      case "nenufar":
+        lista.push(armarNenufar(herramientas, p));
+        break;
+      case "montaria":
+        lista.push(armarMontaria(herramientas, p));
+        break;
+      case "fuegos":
+        lista.push(armarFuegos(herramientas, p));
+        break;
+      case "curupira":
+        lista.push(armarCurupira(herramientas, p));
         break;
     }
   }

@@ -12,6 +12,8 @@ import type { Cadejo } from "./cadejo";
 import type { Caleuche } from "./caleuche";
 // El cafetal (TU-41)
 import type { Cipitio } from "./cipitio";
+// La medianoche (TU-49)
+import type { Curupira } from "./curupira";
 import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
 // El puente (TU-45)
@@ -29,6 +31,8 @@ import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La medianoche (TU-49)
+import type { Fuegos, Montaria, Nenufar } from "./piezas-medianoche";
 // La mina (TU-46)
 import type { Espejo, Grieta, Ofrenda, Vagoneta, Velas } from "./piezas-mina";
 // La minga (TU-47)
@@ -169,6 +173,11 @@ export interface NivelEnJuego {
   chalupa(nombre: string): Chalupa;
   ancla(nombre: string): Ancla;
   caleuche(nombre: string): Caleuche;
+  /** Las piezas que estrena La medianoche (TU-49, ver piezas-medianoche.ts y curupira.ts). */
+  nenufar(nombre: string): Nenufar;
+  montaria(nombre: string): Montaria;
+  fuegos(nombre: string): Fuegos;
+  curupira(nombre: string): Curupira;
 }
 
 export interface GuionDeNivel {

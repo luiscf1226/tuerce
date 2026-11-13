@@ -320,6 +320,11 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     chalupa: (nombre) => deJuego("chalupa", nombre),
     ancla: (nombre) => deJuego("ancla", nombre),
     caleuche: (nombre) => deJuego("caleuche", nombre),
+    // La medianoche (TU-49)
+    nenufar: (nombre) => deJuego("nenufar", nombre),
+    montaria: (nombre) => deJuego("montaria", nombre),
+    fuegos: (nombre) => deJuego("fuegos", nombre),
+    curupira: (nombre) => deJuego("curupira", nombre),
     avance,
     premios,
     antes(entradas) {
