@@ -566,7 +566,10 @@ describe("La mina (niveles/13-mina)", () => {
       const y = (nombre: string) => n.nivel.pieza(nombre).cuerpo?.translation().y ?? 0;
       const cerradas = { reja: y("reja"), tio: y("puerta-tio"), luz: y("puerta-luz") };
       n.nivel.avance.irA(punto);
-      n.correr(240);
+      // Las puertas ya abiertas lo están desde el primer paso (no suben de a poco al retomar)
+      n.correr(1);
+      expect(y("puerta-tio") > cerradas.tio + 2.6, `puerta del Tío de una en ${punto}`).toBe(punto >= 3);
+      n.correr(239);
       expect(n.nivel.puntoDeControl, `punto ${punto}`).toBe(punto);
       expect(y("reja"), `reja en ${punto}`).toBeGreaterThan(cerradas.reja + 2.6);
       expect(n.nivel.vagoneta("vagoneta").porElDesvio, `vagoneta en ${punto}`).toBe(true);

@@ -114,8 +114,8 @@ export function leerPiezaDeLaMinga(cual: TipoDePiezaDeLaMinga, base: Base, entre
         ...base,
         cual,
         velocidad: entre("velocidad", 0.6, 0.05, 5),
-        espera: entre("espera", 0.6, 0, 10),
-        arriba: entre("arriba", 2.5, 0, 30),
+        espera: entre("espera", 0.6, 0.05, 10),
+        arriba: entre("arriba", 2.5, 0.05, 30),
       };
     case "caleuche":
       return {
@@ -126,7 +126,8 @@ export function leerPiezaDeLaMinga(cual: TipoDePiezaDeLaMinga, base: Base, entre
         rolido: entre("rolido", 7, 0, 30) * GRADOS,
         plancha: entre("plancha", 3.4, 0.5, 10),
         bajada: entre("bajada", 0.6, -3, 3),
-        portalon: entre("portalon", 1, 0, 50),
+        // Al menos medio portalón (1,4 m de ancho en caleuche.ts): si no, la borda queda con medio ancho negativo
+        portalon: entre("portalon", 1, 0.7, 50),
       };
   }
 }

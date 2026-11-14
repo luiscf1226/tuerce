@@ -403,11 +403,12 @@ export function armarCarguera(h: Herramientas, p: Extract<PiezaDelPuenteEnPlano,
         }
       }
       // Si se atascó contra algo, igual llega (no se queda a medio camino para siempre)
+      // (se la pone en la casa de una, como `volver()`: con setNextKinematicTranslation Rapier lo tomaría como un
+      // barrido de varios metros en un paso y arrastraría al que tiene la rienda)
       if (tiempo > 30) {
-        pos = { x: casa.x, z: casa.z };
-        base = casa.base;
-        rumbo = casa.rumbo;
         estado = "tranquila";
+        tiempo = 0;
+        ponerEn(casa.x, casa.z, casa.rumbo);
       }
     } else {
       // Contenta: se queda donde llegó

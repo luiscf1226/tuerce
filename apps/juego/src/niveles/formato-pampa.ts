@@ -142,15 +142,18 @@ export function leerPiezaDeLaPampa(cual: TipoDePiezaDeLaPampa, base: Base, entre
         enredar: entre("enredar", 0.75, 0.1, 5),
         semilla: semilla(),
       };
-    case "pie-de-amigo":
+    case "pie-de-amigo": {
+      // `hasta` siempre más allá de `desde`: si no, el escalón sale con fondo negativo
+      const desde = entre("desde", 0.75, 0, 5);
       return {
         ...base,
         cual,
         alto: entre("alto", 1.1, 0.2, 3),
-        desde: entre("desde", 0.75, 0, 5),
-        hasta: entre("hasta", 1.35, 0.1, 6),
+        desde,
+        hasta: Math.max(entre("hasta", 1.35, 0.1, 6), desde + 0.1),
         ancho: entre("ancho", 1, 0.2, 5),
       };
+    }
     case "candil":
       return { ...base, cual, masa: entre("masa", 1, 0.2, 10) };
     case "luz-mala":

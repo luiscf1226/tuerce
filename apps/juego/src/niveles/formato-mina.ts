@@ -6,6 +6,11 @@ import type * as THREE from "three";
 import type { Volumen } from "./formato";
 import type { LeerEntre } from "./formato-pinar";
 
+/** `valor`, pero al menos `minimo` lejos de 0 (con su signo; 0 cuenta como positivo). */
+function lejosDeCero(valor: number, minimo: number): number {
+  return Math.abs(valor) >= minimo ? valor : valor < 0 ? -minimo : minimo;
+}
+
 export const PIEZAS_DE_LA_MINA = ["vagoneta", "espejo", "grieta", "ofrenda", "velas", "tio"] as const;
 export type TipoDePiezaDeLaMina = (typeof PIEZAS_DE_LA_MINA)[number];
 
@@ -101,7 +106,8 @@ export function leerPiezaDeLaMina(cual: TipoDePiezaDeLaMina, base: Base, entre: 
       return {
         ...base,
         cual,
-        giro: entre("giro", 35, -120, 120) * GRADOS,
+        // Con 0 el espejo no gira: la rigidez del motor sería infinita (NaN en el mundo)
+        giro: lejosDeCero(entre("giro", 35, -120, 120), 5) * GRADOS,
         umbral: entre("umbral", 0.9, 0.3, 1),
         fuerza: entre("fuerza", 15, 1, 200),
         brazo: entre("brazo", 0.9, 0.3, 2),

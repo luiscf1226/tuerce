@@ -376,9 +376,11 @@ export function armarMinga(h: Herramientas, p: Extract<PiezaDeLaMingaEnPlano, { 
       atascada += PASO;
       if (atascada >= p.atasco) {
         // Los vecinos la vuelven a poner en los troncos
+        // (de una, sin velocidad: con setNextKinematicTranslation sería un barrido de más de 0,35 m en un paso que
+        // lanza al que está al costado y tira del cabo)
         desvio = 0;
         estado = "quieta";
-        ubicar(false);
+        ubicar(true);
       }
       return;
     }

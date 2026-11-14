@@ -122,8 +122,9 @@ export function crearGuion(): GuionDeNivel {
       }
       if (n >= 3) {
         retomadoTarde = true;
-        nivel.tio("tio").recibir(nivel.ofrenda("ofrenda"));
+        // Primero la puerta abierta de una: `recibir` avisa a `alRecibir`, que la abriría de a poco
         abrir(nivel, "puerta-tio", true);
+        nivel.tio("tio").recibir(nivel.ofrenda("ofrenda"));
       }
       if (n >= 4) abrir(nivel, "puerta-luz", true);
       // La vagoneta de salida: en la meta, abajo; antes, esperando con el freno puesto en la boca de la mina
