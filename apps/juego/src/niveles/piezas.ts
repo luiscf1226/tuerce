@@ -21,12 +21,20 @@ import { GRAVEDAD, type Rapier } from "../motor/fisica";
 import type { EntradaMuneco, Muneco } from "../muneco";
 import type { Pieza } from "./armar";
 import { armarCadejo, type Cadejo } from "./cadejo";
+// La minga (TU-47)
+import { armarCaleuche, type Caleuche } from "./caleuche";
 // El cafetal (TU-41)
 import { armarCipitio, type Cipitio } from "./cipitio";
+// La medianoche (TU-49)
+import { armarCurupira, type Curupira } from "./curupira";
 import { armarDuende, type Duende } from "./duende";
 import type { PiezaDelPlano, TipoDePieza, Volumen } from "./formato";
+// El puente (TU-45)
+import { armarCarguera, type Carguera } from "./llama";
 // Los canales (TU-42)
 import { armarLlorona, type Llorona } from "./llorona";
+// La pampa (TU-48)
+import { armarLuzMala, type LuzMala } from "./luz-mala";
 import { armarMurcielagos, type Murcielagos } from "./murcielagos";
 // La garrucha (TU-43)
 import { armarPatasola, type Patasola } from "./patasola";
@@ -75,6 +83,45 @@ import {
   type Molino,
   type Saco,
 } from "./piezas-llano";
+// La medianoche (TU-49)
+import {
+  armarFuegos,
+  armarMontaria,
+  armarNenufar,
+  type Fuegos,
+  type Montaria,
+  type Nenufar,
+} from "./piezas-medianoche";
+// La mina (TU-46)
+import {
+  armarEspejo,
+  armarGrieta,
+  armarOfrenda,
+  armarVagoneta,
+  armarVelas,
+  type Espejo,
+  type Grieta,
+  type Ofrenda,
+  type Vagoneta,
+  type Velas,
+} from "./piezas-mina";
+// La minga (TU-47)
+import { type Ancla, armarAncla, armarChalupa, armarMinga, type Chalupa, type Minga } from "./piezas-minga";
+// La pampa (TU-48)
+import {
+  armarBoleadoras,
+  armarCandil,
+  armarChambergo,
+  armarPampero,
+  armarPieDeAmigo,
+  armarTranquera,
+  type Boleadoras,
+  type Candil,
+  type Chambergo,
+  type Pampero,
+  type PieDeAmigo,
+  type Tranquera,
+} from "./piezas-pampa";
 import {
   armarHueso,
   armarLampara,
@@ -96,6 +143,16 @@ import {
   type Piedra,
   type Tendedero,
 } from "./piezas-poza";
+import {
+  type Anden,
+  armarAnden,
+  armarBocatoma,
+  armarChaka,
+  armarQeswa,
+  type Bocatoma,
+  type Chaka,
+  type Qeswa,
+} from "./piezas-puente";
 // El Río Plátano (TU-28)
 import { armarPalmera, armarPipante, armarPuente, type Palmera, type Pipante, type Puente } from "./piezas-rio";
 import {
@@ -144,6 +201,7 @@ import { armarSinBueyes, type SinBueyes } from "./sin-bueyes";
 import { armarSisimite, type Sisimite } from "./sisimite";
 import { armarSombreron, type Sombreron } from "./sombreron";
 import { armarSucia, type Sucia } from "./sucia";
+import { armarTio, type Tio } from "./tio";
 
 /** Los segmentos del bejuco no empujan ni son empujados por nada (grupos del resolvedor sin filtro): los muñecos
  * lo atraviesan pero lo agarran igual, porque la mano lo busca con una consulta, que mira los grupos de choque. Si
@@ -322,6 +380,37 @@ export interface PiezaPorTipo {
   costal: Costal;
   guineo: Guineo;
   cipitio: Cipitio;
+  // El puente (TU-45): piezas-puente.ts y llama.ts
+  qeswa: Qeswa;
+  chaka: Chaka;
+  bocatoma: Bocatoma;
+  anden: Anden;
+  carguera: Carguera;
+  // La mina (TU-46): piezas-mina.ts y tio.ts
+  vagoneta: Vagoneta;
+  espejo: Espejo;
+  grieta: Grieta;
+  ofrenda: Ofrenda;
+  velas: Velas;
+  tio: Tio;
+  // La minga (TU-47): piezas-minga.ts y caleuche.ts
+  minga: Minga;
+  chalupa: Chalupa;
+  ancla: Ancla;
+  caleuche: Caleuche;
+  // La medianoche (TU-49): piezas-medianoche.ts y curupira.ts
+  nenufar: Nenufar;
+  montaria: Montaria;
+  fuegos: Fuegos;
+  curupira: Curupira;
+  // La pampa (TU-48): piezas-pampa.ts y luz-mala.ts
+  pampero: Pampero;
+  tranquera: Tranquera;
+  boleadoras: Boleadoras;
+  chambergo: Chambergo;
+  "pie-de-amigo": PieDeAmigo;
+  candil: Candil;
+  "luz-mala": LuzMala;
 }
 export type PiezaDeJuego = PiezaPorTipo[TipoDePieza];
 
@@ -1024,6 +1113,89 @@ export function armarPiezas(
         break;
       case "cipitio":
         lista.push(armarCipitio(herramientas, p));
+        break;
+      // El puente (TU-45)
+      case "qeswa":
+        lista.push(armarQeswa(herramientas, p));
+        break;
+      case "chaka":
+        lista.push(armarChaka(herramientas, p));
+        break;
+      case "bocatoma":
+        lista.push(armarBocatoma(herramientas, p));
+        break;
+      case "anden":
+        lista.push(armarAnden(herramientas, p));
+        break;
+      case "carguera":
+        lista.push(armarCarguera(herramientas, p));
+        break;
+      // La mina (TU-46)
+      case "vagoneta":
+        lista.push(armarVagoneta(herramientas, p));
+        break;
+      case "espejo":
+        lista.push(armarEspejo(herramientas, p));
+        break;
+      case "grieta":
+        lista.push(armarGrieta(herramientas, p));
+        break;
+      case "ofrenda":
+        lista.push(armarOfrenda(herramientas, p));
+        break;
+      case "velas":
+        lista.push(armarVelas(herramientas, p));
+        break;
+      case "tio":
+        lista.push(armarTio(herramientas, p));
+        break;
+      // La minga (TU-47)
+      case "minga":
+        lista.push(armarMinga(herramientas, p));
+        break;
+      case "chalupa":
+        lista.push(armarChalupa(herramientas, p));
+        break;
+      case "ancla":
+        lista.push(armarAncla(herramientas, p));
+        break;
+      case "caleuche":
+        lista.push(armarCaleuche(herramientas, p));
+        break;
+      // La medianoche (TU-49)
+      case "nenufar":
+        lista.push(armarNenufar(herramientas, p));
+        break;
+      case "montaria":
+        lista.push(armarMontaria(herramientas, p));
+        break;
+      case "fuegos":
+        lista.push(armarFuegos(herramientas, p));
+        break;
+      case "curupira":
+        lista.push(armarCurupira(herramientas, p));
+        break;
+      // La pampa (TU-48)
+      case "pampero":
+        lista.push(armarPampero(herramientas, p));
+        break;
+      case "tranquera":
+        lista.push(armarTranquera(herramientas, p));
+        break;
+      case "boleadoras":
+        lista.push(armarBoleadoras(herramientas, p));
+        break;
+      case "chambergo":
+        lista.push(armarChambergo(herramientas, p));
+        break;
+      case "pie-de-amigo":
+        lista.push(armarPieDeAmigo(herramientas, p));
+        break;
+      case "candil":
+        lista.push(armarCandil(herramientas, p));
+        break;
+      case "luz-mala":
+        lista.push(armarLuzMala(herramientas, p));
         break;
     }
   }

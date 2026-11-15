@@ -6,14 +6,22 @@
 export type { Agua, Aguas } from "./agua";
 export { armarNivel, type NivelArmado, type Pieza } from "./armar";
 export type { Cadejo } from "./cadejo";
+// La minga (TU-47)
+export type { Caleuche } from "./caleuche";
 export { cargarNivel, parsearGlb } from "./cargar";
 // El cafetal (TU-41)
 export type { Cipitio } from "./cipitio";
+// La medianoche (TU-49)
+export type { Curupira } from "./curupira";
 export type { Duende } from "./duende";
 export { ErrorDeNivel, leerPlano, type PlanoDeNivel, type PuntoDeControl } from "./formato";
 export type { GuionDeNivel, NivelEnJuego } from "./guion";
+// El puente (TU-45)
+export type { Carguera } from "./llama";
 // Los canales (TU-42)
 export type { Llorona } from "./llorona";
+// La pampa (TU-48)
+export type { LuzMala } from "./luz-mala";
 export type { Murcielagos } from "./murcielagos";
 export { crearNivel, type Jugador, type Nivel, type Reaparicion } from "./nivel";
 // La garrucha (TU-43)
@@ -26,8 +34,17 @@ export type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 export type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 export type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La medianoche (TU-49)
+export type { Fuegos, Montaria, Nenufar } from "./piezas-medianoche";
+// La mina (TU-46)
+export type { Espejo, Grieta, Ofrenda, Vagoneta, Velas } from "./piezas-mina";
+// La minga (TU-47)
+export type { Ancla, Chalupa, Minga } from "./piezas-minga";
+// La pampa (TU-48)
+export type { Boleadoras, Candil, Chambergo, Pampero, PieDeAmigo, Tranquera } from "./piezas-pampa";
 export type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 export type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+export type { Anden, Bocatoma, Chaka, Qeswa } from "./piezas-puente";
 // El Río Plátano (TU-28)
 export type { Palmera, Pipante, Puente } from "./piezas-rio";
 export type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
@@ -39,3 +56,4 @@ export type { SinBueyes } from "./sin-bueyes";
 export type { Sisimite } from "./sisimite";
 export type { Sombreron } from "./sombreron";
 export type { Sucia } from "./sucia";
+export type { Tio } from "./tio";

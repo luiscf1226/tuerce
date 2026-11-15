@@ -289,8 +289,6 @@ desatarse), la mula, su rienda y sus bultos, el balde y su marcador (un metro m�
 (hundidas, apagadas), el Sombrerón (agachado mientras hace trenzas) y su sombrero: el invitado dibuja las trenzas del
 nudo, el agua del balde, el brillo de las piedras y al Sombrerón tocando o trenzando con los cuerpos tal como llegan.
 
-<!-- El cafetal (TU-41) -->
-
 ## Las piezas del cafetal (TU-41)
 
 Las que estrena el nivel 8, El cafetal (`apps/juego/src/niveles/piezas-cafetal.ts` y `cipitio.ts`; su lectura, en
@@ -321,8 +319,6 @@ costales, el guineo, El Cipitío y sus piedras (las del morral, escondidas 40 m 
 comer porque tiene el guineo en la boca, y dibuja las sogas de la zaranda y de la polea con los cuerpos como llegan.
 
 ## Las piezas de los canales (TU-42)
-
-<!-- Los canales (TU-42) -->
 
 Las que estrena el nivel 9, Los canales de Xochimilco (`apps/juego/src/niveles/piezas-canales.ts` y `llorona.ts`;
 su lectura, en `formato-canales.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza; su nivel lo
@@ -370,8 +366,6 @@ nivel.patasola("patasola").estado; // "esperando", "corriendo" o "volviendo"; .a
 En línea viajan en la foto la canasta y sus manijas, la chiva y su carga, las maneas y La Patasola: el invitado dibuja
 las sogas, hace girar las ruedas de la chiva y le dobla la pata a La Patasola con lo alto que la ve.
 
-<!-- Las trenzas (TU-40) -->
-
 ## Las piezas del llano (TU-44)
 
 Las que estrena el nivel 11, El llano (`apps/juego/src/niveles/piezas-llano.ts` y `silbon.ts`; su lectura, en
@@ -398,6 +392,154 @@ En línea viajan en la foto las aspas, las reses, el medio de la hamaca y su man
 corre el guion ni las piezas: el silbido y sus ondas los calcula con los cuerpos tal como llegan (sabe que el Silbón
 silba porque lo ve hundido en su escondite; quiénes lo oyen se lo dice el guion en `alEmpezar`, que corre en los dos),
 anima las patas de las reses con lo que anduvieron y dibuja la tela y la cabuya de la hamaca.
+
+## Las piezas del puente de paja (TU-45)
+
+Las que estrena el nivel 12, El puente de paja (`apps/juego/src/niveles/piezas-puente.ts` y `llama.ts`; su lectura, en
+`formato-puente.ts`). Como las otras, su malla no se dibuja. Los torcedores, la soga, el amarre, las losas y la rienda
+los atraviesan los muñecos, pero los agarran igual. El agua de las acequias es la de La poza (su nivel lo sube y lo
+baja el guion con `irA`) y las puertas de las pircas las baja el guion (`crearPuertaQueBaja`).
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Propiedades                                                                                                                                                                                                                        |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `qeswa`    | Tres hebras de paja a lo largo del lado más largo de la caja, con un **torcedor** en cada punta: un palo de través, arriba de la caja (a la altura de las manos), que gira sobre su estaca. Agarrado con las dos manos, gira con el que lo agarra al girar. La cuerda se **trenza** solo si los dos torcedores giran a la vez y para lados contrarios (uno a la izquierda, el otro a la derecha); para el mismo lado, o uno solo, no pasa nada. Si alguien suelta su torcedor antes de terminar, se destuerce.                                                                                                                                                                                                         | `vueltas` (3: las que da cada torcedor) · `destorcer` (4 s) · `masa` (1 kg)                                                                                                                                                        |
+| `chaka`    | El puente colgante, a lo largo del lado más largo de la caja, con el piso arriba de la caja en las puntas. Empieza **flojo**: colgando `flojo` en el cañón y sin piso. Detrás de su punta −, de costado (+z), su **soga**: una manija que se jala caminando hacia atrás (como la tranca) y lo tensa; del otro costado, sobre el estribo, el **amarre**: sostenido con las dos manos mientras está tenso, en `amarrar` segundos queda **amarrado** y se teje el piso. Amarrado se **mece**: cada uno que camina encima lo mece más (más rápido y más en el medio, más), y quieto se calma solo; corrido del medio, se ladea. Mecido más que `voltear`, se **voltea**: bota a los de encima al cañón y se endereza solo. | `comba` (0.6 m) · `flojo` (4 m) · `tensar` (2.4 m) · `fuerza` (25 N) · `lado` (1.3 m) · `umbral` (0.85) · `amarrar` (2.5 s) · `mecer` (0.3 rad/s) · `calma` (0.35/s) · `periodo` (2.4 s) · `ladear` (0.35 rad/m) · `voltear` (32°) |
+| `bocatoma` | Una losa de piedra del tamaño de la caja (cerrada) que tapa la boca de una acequia, con un palo y un travesaño a `manija` de su base. Se **abre** jalándola del travesaño hacia su frente (el −Y de Blender), caminando para atrás, y se **cierra** empujándola; queda donde la dejan.                                                                                                                                                                                                                                                                                                                                                                                                                                 | `recorrido` (0.5 m) · `umbral` (0.7) · `manija` (1 m) · `masa` (6 kg) · `abierta` (0)                                                                                                                                              |
+| `anden`    | La terraza sembrada: la base de la caja es la tierra y su alto, las matas de papa, en `surcos` a lo largo de su X. El guion la riega (`regar(true)` en cada paso que le llega agua): con `regar` segundos de agua queda **regada** y las matas se paran.                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `regar` (5 s) · `surcos` (4) · `regada` (0)                                                                                                                                                                                        |
+| `carguera` | La llama carguera, con su carga en el lomo: su caja es ella de pie, mirando hacia el + de su lado más largo. Sigue a su paso al que la lleva de la **rienda** (una manija colgada del bozal con una soga de verdad, como la mula). Si la **apuran** (la rienda tirante del todo más de `paciencia`, o alguien que se le viene encima por detrás, a menos de `arrear` de su anca), se **enoja**: se da vuelta, le **escupe** (el escupitajo vuela y lo tumba), se echa `echarse` segundos y se vuelve sola a su casa. Cinemática, sin azar.                                                                                                                                                                             | `velocidad` (0.9 m/s) · `giro` (1.8 rad/s) · `rienda` (1.4 m) · `paciencia` (1.5 s) · `echarse` (3 s) · `escupir` (3.6 m/s) · `arrear` (0.6 m)                                                                                     |
+
+```ts
+nivel.qeswa("qeswa").trenzada; // y .progreso, .agarrados, .giros, .soltadas, .trenzar(), .alTrenzar(() => {}), .alSoltar(() => {})
+nivel.chaka("chaka").estado; // "flojo", "firme", "volteado" o "enderezandose"; .tension, .jalada, .amarrando, .amarrado, .ladeo, .mecida, .carga, .volteadas, .soltadas
+nivel.chaka("chaka").encima(p); // y .amarrar(), .alAmarrar(() => {}), .alVoltear(() => {}), .alSoltar(() => {})
+nivel.bocatoma("bocatoma-1").abierta; // y .abertura (0 a 1), .poner(abierta), .alCambiar(abierta => {})
+nivel.anden("anden-1").regada; // y .humedad, .mojandose, .regar(si), .mojar(), .alRegar(() => {})
+nivel.carguera("llama").estado; // "tranquila", "escupiendo", "echada", "volviendo" o "contenta"; .guia, .apuro, .enojos, .escupidas, .casa
+nivel.carguera("llama").llegar(); // y .ponerEn(x, z, rumbo), .volver(), .alEnojar(j => {}), .alEscupir(j => {})
+```
+
+En línea viajan en la foto los torcedores, los tramos del puente, su soga, las losas, la llama, su rienda y su
+escupitajo (escondido 40 m abajo mientras no vuela). Lo que no se ve en un cuerpo lo lleva un marcador cinemático sin
+choques, como el nudo de Las trenzas: lo trenzado (su giro), si el puente está amarrado (su altura), lo regado de cada
+andén y si le llega agua, y en qué anda la llama. El invitado no corre `antes` ni el guion: dibuja con eso (`vista`).
+
+## Las piezas de la mina (TU-46)
+
+Las que estrena el nivel 13, La mina (`apps/juego/src/niveles/piezas-mina.ts` y `tio.ts`; su lectura, en
+`formato-mina.ts`; lo que solo se ve, en `decorado-mina.ts`). Como las otras, su malla no se dibuja. La polea es la de
+El cafetal; la vía y su cambio, los del tren (`mecanismos/via.ts`, con una `palanca` de cambio).
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Propiedades                                                                                                                                             |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vagoneta` | Una vagoneta de mina del tamaño de la caja (las ruedas abajo), mirando hacia su +x. Va por su vía (el guion se la da con `seguir`, con su cambio; si no, derecho hacia su +x). Se empuja caminando contra ella: en cada paso la pieza la vuelve a poner sobre los rieles y le deja solo la velocidad a lo largo; la cuesta la apura o la frena, y los rieles la frenan. Choca solo con los muñecos (pasa por el piso y las paredes, que la vía esquiva). Lleva al que va adentro. | `masa` (40 kg) · `roce` (2 por s: con mucho, se para apenas la sueltan) · `velocidad` (2 m/s) · `ruedas` (0.3 m) · `recorrido` (10 m, sin otra vía)     |
+| `espejo`   | Un espejo de dos caras del tamaño de la caja (de ancho su x, de alto su y) sobre un poste que baja `poste` hasta el piso. Gira sobre el poste con un brazo hacia su frente, a `manija` del piso, que se empuja caminando de costado. Un resorte lo vuelve al reposo: queda **orientado** (en su tope, `giro` desde el reposo) solo mientras alguien lo sostiene.                                                                                                                  | `giro` (35°, a la izquierda visto desde arriba) · `umbral` (0.9) · `fuerza` (15 N) · `brazo` (0.9 m) · `manija` (1 m) · `poste` (1.5 m) · `masa` (6 kg) |
+| `grieta`   | La grieta por donde entra el sol: un haz claro que sale del centro de la caja hacia su frente (el −Y de Blender), rebota en los espejos que encuentra y lo para lo fijo y lo cinemático. Sin color nuevo: la luz es blanca, como los ojos.                                                                                                                                                                                                                                        | `largo` (20 m por tramo) · `rebotes` (4)                                                                                                                |
+| `ofrenda`  | La ofrenda para El Tío (un atado de coca, un cigarro y un trago), quieta en su lugar hasta que la agarran; tirada, vuelve sola. Si pasa a menos de su radio de una vela (llevada o tirada) es un susto: ¡pum!, humo, vuelve a su lugar y el que la llevaba aparece frente a ella, para retomar. Nadie explota de verdad.                                                                                                                                                          | `masa` (0.6 kg) · `vuelve` (3 s)                                                                                                                        |
+| `velas`    | Una hilera de velas paradas en la base de la caja, a lo largo de su lado más largo, cada una con su llama y la luz que hace en el suelo (lo que no hay que pisar). Solo imagen: no chocan.                                                                                                                                                                                                                                                                                        | `cuantas` (4) · `radio` (0.45 m)                                                                                                                        |
+| `tio`      | El Tío de la mina, un diablito con cuernos sentado en su altar en el medio de la base de su caja, mirando hacia su frente. Mira al muñeco más cercano y estira la mano. La ofrenda suelta (lo que tiene una mano encima no está suelto) a menos de `alcance` de su mano se la queda: la lleva al regazo y fuma contento. Cinemático y sin azar; choca, pero no empuja.                                                                                                            | `vista` (5 m) · `alcance` (0.9 m)                                                                                                                       |
+
+```ts
+nivel.vagoneta("vagoneta").seguir(via, () => cambio.activa); // .avance, .velocidad, .porElDesvio, .enElTope, .montados, .poner(s), .frenar(si)
+nivel.espejo("espejo-1").orientado; // y .recorrido, de 0 (reposo) a 1 (tope), .alCambiar((orientado) => {})
+nivel.grieta("grieta").alumbra(punto, radio); // y .camino (el haz, tramo a tramo) y .espejos (en los que rebota)
+nivel.ofrenda("ofrenda").alAsustar((llevaban) => {}); // y .sustos, .agarrado, .entregada, .volver()
+nivel.velas("velas-1").cerca(punto); // y .puntos (la base de cada vela)
+nivel.tio("tio").estado; // "esperando", "recibiendo" o "contento"; .contento, .mira, .mano(), .recibir(ofrenda), .alRecibir(() => {})
+```
+
+En línea viajan en la foto las vagonetas, los marcos de los espejos, la ofrenda y El Tío. El invitado no corre el guion
+ni las piezas: el haz lo traza con los espejos tal como llegan (pregunta a cada colisionador, porque las consultas del
+mundo se arman al correr pasos), ve al Tío contento porque ve la ofrenda en su regazo, hace tiritar las velas, hace
+girar las ruedas con lo que anduvo cada vagoneta y echa el humo del susto cuando ve la ofrenda saltar a su lugar.
+
+La mina (TU-46): `scripts/niveles/mina.mjs` arma `13-mina`, también con `pnpm niveles`.
+
+## Las piezas de La minga (TU-47)
+
+Las que estrena el nivel 14, La minga (`apps/juego/src/niveles/piezas-minga.ts` y `caleuche.ts`; su lectura, en
+`formato-minga.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza; la marea la sube y la baja el
+guion con `irA` y `mareaEn` (bajamar, sube, pleamar y baja, siempre igual desde que empieza el nivel).
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Propiedades                                                                                                                                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `minga`    | La casa de la minga, del tamaño de la caja (las paredes; el techo de dos aguas va encima), sobre un camino de troncos que sigue `recorrido` metros hacia el +x de la caja (los troncos, de 12 cm de radio, van bajo la base de la caja). De cada esquina de adelante cuelga un cabo con su manija, a la altura de las manos. Se tira caminando para atrás: pasado su largo, el cabo se estira como un resorte. La casa anda **solo si cada cabo lo tira un muñeco distinto**, los dos pasados el `umbral`, y va hacia donde tiran los dos juntos: si uno tira torcido se corre de costado y, si una esquina pasa la punta de los troncos, **se sale**: se ladea, se atasca y a los `atasco` s los vecinos la vuelven a poner en los troncos. Cinemática.                                                           | `recorrido` (8 m) · `cabo` (2 m) · `estirar` (0.4 m) · `fuerza` (24 N, estirado del todo) · `umbral` (0.45) · `velocidad` (0.7 m/s) · `margen` (0.3 m: lo que salen los troncos de cada lado) · `atasco` (3 s) |
+| `chalupa`  | El bote chilote, del tamaño de la caja **donde queda amarrado**, con la proa hacia el + de su lado más largo y el muelle de su lado +z. Flota y gira solo alrededor de su Y. Suelto queda fondeado `fondeo` m más afuera y `corrida` m hacia atrás (un resorte lo lleva ahí). Sus dos cabos (proa y popa) cuelgan de una barandilla en la orilla del muelle; las bitas van frente a cada punta, `muelle` m adentro del muelle, sobre un piso que está `alto` m más arriba que el de la chalupa. Con **los dos cabos en sus bitas a la vez**, cada uno en una mano, durante `nudo` s, se amarra: los cabos quedan atados y la chalupa se arrima al muelle y se corre a su lugar. Suelto, cada cabo vuelve a su clavo. Lleva al que pisa.                                                                            | `masa` (150 kg) · `cabo` (6.5 m) · `fondeo` (2.6 m) · `corrida` (5 m) · `muelle` (1 m) · `alto` (0.8 m) · `nudo` (1 s) · `alcance` (0.5 m)                                                                     |
+| `ancla`    | El ancla del Caleuche, colgada de su cadena (que sube hasta un escobén sobre la caja). Lo de arriba de sus brazos (donde se pisa) va de lo bajo de la caja a lo alto. Abajo, con alguien parado en sus brazos `espera` s, la suben; arriba, sin nadie `arriba` s, la bajan; si alguien se sube mientras baja, la vuelven a subir. Cinemática.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `velocidad` (0.6 m/s) · `espera` (0.6 s) · `arriba` (2.5 s)                                                                                                                                                    |
+| `caleuche` | El Caleuche: el casco del tamaño de la caja, la cubierta arriba, la proa hacia su −x y la popa hacia su +x. Bordas de 50 cm en los costados (la de adelante, +z, abierta en el `portalon`, por donde llega el ancla) y de 90 cm en proa y popa (la de popa, abierta donde va la plancha, parada). Con los dos a bordo un segundo **empieza la fiesta**: `compases` compases de `compas` s en que la cubierta se mece de lado a lado, cada vez más, hasta `rolido`. Si uno se sale de la cubierta (se cae al agua, se cuelga de la borda), **se corta la música** y vuelve a empezar cuando los dos están a bordo. Terminada la canción queda **contento**: deja de mecerse y baja la plancha (`plancha` m, hasta `bajada` más abajo). La tripulación de fantasmas, los faroles y las velas son imagen. Cinemático. | `compases` (24) · `compas` (0.8 s) · `rolido` (7°) · `plancha` (3.4 m) · `bajada` (0.6 m) · `portalon` (1 m desde la proa)                                                                                     |
+
+```ts
+nivel.minga("casa").estado; // "quieta", "andando", "atascada" o "llego"; .avance, .desvio, .tiradores, .jaladas, .seSalio
+nivel.minga("casa").alLlegar(() => {}); // y .alSalirse(() => {}), .llevarAlFinal(), .volver(), .manijas
+nivel.chalupa("chalupa").estado; // "suelta", "amarrando" o "amarrada"; .cabos, .bitas, .aBordo, .encima(p), .alAmarrar(() => {})
+nivel.chalupa("chalupa").amarrar(); // al retomar; y .volver()
+nivel.ancla("ancla").estado; // "abajo", "subiendo", "arriba" o "bajando"; .altura, .encima, .alLlegarArriba(() => {}), .volver()
+nivel.caleuche("caleuche").estado; // "fondeado", "de fiesta" o "contento"; .compas, .rolido, .aBordo, .cortes, .aBordoDe(p)
+nivel.caleuche("caleuche").alContento(() => {}); // y .alCortar(() => {}), .contentar()
+```
+
+En línea viajan en la foto la casa y las manijas de sus cabos, la chalupa y las suyas, el ancla, el casco del Caleuche
+y su plancha, y el marcador de cada agua (la marea). El invitado no simula: saca de los cuerpos cuánto anduvo la casa y
+si se salió (la ve ladeada), si la chalupa está amarrada (las manijas en las bitas), dónde va el ancla y si hay fiesta
+(el casco se mece) o el Caleuche está contento (la plancha abajo), y dibuja los cabos, los troncos que ruedan, la
+cadena y el baile de la tripulación con los cuerpos tal como llegan.
+
+## Las piezas de La pampa (TU-48)
+
+Las que estrena el nivel 15, La pampa (`apps/juego/src/niveles/piezas-pampa.ts` y `luz-mala.ts`; su lectura, en
+`formato-pampa.ts`). Como las otras, su malla no se dibuja. Las boleadoras, el candil y la manija de la tranquera los
+atraviesan los muñecos, pero los agarran igual.
+
+| `pieza`        | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Propiedades                                                                                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pampero`      | El viento de la pampa: su caja es donde sopla, hacia su frente (el −Y de Blender). Sopla siempre un poco (`calma`) y a ratos en ráfagas, con azar de semilla. Empuja a los muñecos que están adentro, cierra las tranqueras y apura al chambergo. Se ve en unas rayas que corren con el viento.                                                                                                                                                                                                                                                      | `fuerza` (3 m/s² en lo más fuerte de una ráfaga) · `calma` (0.35) · `cada` (6 s) · `dura` (2.5 s) · `semilla` (1)                                              |
+| `tranquera`    | Una tranquera de varas del tamaño de la caja, larga a lo largo de su X, con la bisagra en la punta −x y la manija cerca de la +x, que sobresale por delante. Se abre solo hacia su frente, jalándola de la manija caminando hacia atrás; el viento la cierra de golpe al soltarla. Los muñecos atraviesan la hoja, pero los ataja su sombra (un cuerpo cinemático detrás de la hoja). Al que quedó del lado de adentro cuando se le viene encima (o cuando ya casi cierra) le da un portazo: lo voltea hacia afuera y rebota.                        | `fuerza` (16 N en la manija para sostenerla, más en las ráfagas) · `abrir` (100°) · `masa` (4 kg)                                                              |
+| `boleadoras`   | Tres bolas atadas, colgadas donde está su caja hasta que una mano las descuelga. Se lanzan saltando y soltándolas en el aire (salen a unos 2 m de alto y caen a unos 3.5 m). Tiradas en el suelo, vuelven solas a su gancho.                                                                                                                                                                                                                                                                                                                         | `masa` (1.2 kg) · `vuelve` (2.5 s)                                                                                                                             |
+| `chambergo`    | El sombrero que se llevó el viento: vuela solo por su caja, subiendo y bajando (azar de semilla), más rápido con las ráfagas. No se lo agarra con la mano: lo enredan unas boleadoras que vuelan de verdad (soltadas en el aire, a más de 1 m de donde salieron) y le pasan a menos de `enredar`. Enredado, cae al piso con las boleadoras. Cinemático, sin choques.                                                                                                                                                                                 | `velocidad` (1.3 m/s) · `enredar` (0.75 m) · `semilla` (1)                                                                                                     |
+| `pie-de-amigo` | La escalerita: su caja es donde se para el que la hace (la base en el suelo), mirando hacia su frente. Parado ahí, de pie y con los dos brazos alzados, sus manos son un escalón (un poncho doblado) delante de él, a `alto` del suelo: lo pisa solo el otro. Al bajar los brazos o salirse, desaparece.                                                                                                                                                                                                                                             | `alto` (1.1 m) · `desde` y `hasta` (0.75 y 1.35 m delante del medio de la caja) · `ancho` (1 m)                                                                |
+| `candil`       | Un farol de lata del tamaño de la caja, colgado de su gancho hasta que una mano lo descuelga; se lleva con una mano o con las dos. Con la Luz adentro alumbra. Tirado mucho rato (o caído al vacío), vuelve a su gancho.                                                                                                                                                                                                                                                                                                                             | `masa` (1 kg)                                                                                                                                                  |
+| `luz-mala`     | La Luz Mala, una luciérnaga gigante y despistada, del tamaño de la caja. Guía por el camino que le da el guion (`guiar`): en cada parada espera a que alguno llegue cerca. En los desvíos con señuelo a veces se equivoca (azar de semilla): va titubeando, ladeada, hasta el señuelo, se da cuenta y vuelve. Si alguno se cae o los pierde, vuelve a la parada que les queda más cerca. Después se posa en sus posaderos y se espanta del que se le acerca sin candil; un candil que alguien lleva en la mano la encierra. Cinemática, sin choques. | `velocidad` (2.2 m/s) · `esperar` (1.1 m) · `acierto` (0.6) · `despiste` (2.5 s) · `posarse` (3.5 s) · `espantar` (1.3 m) · `atrapar` (0.55 m) · `semilla` (1) |
+
+```ts
+nivel.pampero("pampero").soplo; // de `calma` a 1; .rafagas, .direccion, .adentro(p), .marcador
+nivel.tranquera("tranquera").angulo; // radianes; .apertura, .abierta, .sostenida, .trabada, .golpes, .portazos, .trabar(ya?), .alGolpe(), .alPortazo(j => {}), .volver()
+nivel.boleadoras("boleadoras").estado; // "en su lugar", "llevadas", "volando", "tiradas" o "enredadas"; .lanzador, .recorrido, .tiros, .volver()
+nivel.chambergo("chambergo").atrapado; // y .estado ("volando", "cayendo" o "en el suelo"), .cazador, .alAtrapar(j => {}), .atrapar()
+nivel.pieDeAmigo("pie-de-amigo").activo; // y .quien (0, 1 o null), .pisado, .escalon
+nivel.candil("candil").encendido; // y .agarrado, .enSuLugar, .encender(), .alEncender(() => {}), .volver()
+nivel.luzMala("luz-mala").estado; // "esperando", "volando", "despistada", "yendose", "posada", "revoloteando" o "encerrada"
+nivel.luzMala("luz-mala").guiar(camino, senuelos); // y .posaderos(lista), .irAPosaderos(ya?), .encerrar(candil), .parada, .extravios, .vueltas, .guio, .alExtraviarse(i => {}), .alEncerrar(j => {})
+```
+
+En línea viajan en la foto el marcador del pampero (corrido en x lo que sopla), la hoja de la tranquera y su sombra,
+las boleadoras, el chambergo, el escalón del pie de amigo (40 m abajo mientras nadie hace pie), el candil y la Luz. El
+invitado no corre `antes` ni el guion: ve las rayas del viento por el marcador, abre las boleadoras que ve volar, ve
+titilar la Luz cuando le llega ladeada y prende el candil cuando ve la Luz adentro.
+
+## Las piezas de La medianoche (TU-49)
+
+Las que estrena el nivel 16, La medianoche (`apps/juego/src/niveles/piezas-medianoche.ts` y `curupira.ts`; su lectura,
+en `formato-medianoche.ts`). Como las otras, su malla no se dibuja. El agua es la de La poza; el arbolito que pide el
+Curupira es un `bloque` de Xibalbá (9 kg) que el guion viste de plantón.
+
+| `pieza`    | Qué es y cómo se arma con su caja                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Propiedades                                                                                                                                                   |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nenufar`  | Una hoja de vitória-régia, el nenúfar gigante: de radio el mayor de la X y la Z de la caja y de grueso su alto. Flota de verdad (un prisma de 16 lados, para que el agua la mida de cada lado), se hunde y se ladea un poco con el que salta encima y lo lleva. Su tallo la vuelve a su lugar si la corriente o un salto la corren.                                                                                                                                                                                                                                              | `masa` (20 kg) · `tallo` (250 N/m)                                                                                                                            |
+| `montaria` | La canoa amazónica, del tamaño de la caja, con el piso arriba de la caja; avanza hacia el + de su lado más largo. Flota y gira solo alrededor de su Y. Tiene dos puestos: el de la proa rema a la izquierda y el de la popa a la derecha. Cada vez que el que va de pie en su puesto alza los brazos, da una palada (si terminó la anterior). Dos paladas que empiezan con menos de `compas` entre una y otra van al mismo ritmo y empujan con toda su fuerza, derecho; fuera de ritmo (o solo), cada una empuja `fuera` y tuerce la canoa. Al que va a bordo, quieto, lo lleva. | `masa` (50 kg) · `remo` (95 N por palada) · `palada` (0.55 s) · `compas` (0.25 s) · `fuera` (0.15) · `lado` (0.35 m: dónde se clava cada remo)                |
+| `fuegos`   | Los fuegos artificiales: un castillo de morteros en el medio de la caja (choca) y una mecha a cada punta de su lado más largo, con un chispero colgado de una estaca, a `chispero` de la base. Con los dos chisperos agarrados a la vez durante `juntos` se encienden: las mechas arden hasta el castillo y salen los cohetes, uno cada `cada`, que estallan detrás de la caja (sobre el río), en rojo y turquesa. Con uno solo, chispea y nada más.                                                                                                                             | `cohetes` (8) · `cada` (0.8 s) · `mecha` (2 s) · `juntos` (0.4 s) · `altura` (5.5 m) · `fondo` (13 m) · `radio` (3.6 m) · `chispero` (1.05 m) · `semilla` (1) |
+| `curupira` | El Curupira, el guardián del bosque con los pies al revés (sus huellas apuntan para el lado de donde viene), de pie en el medio de la base de su caja, mirando a su frente; mide el alto de la caja. No choca. Lo mueve el guion: se ríe del que se pierde, pide el árbol señalando el hoyo y se alegra (baila) cuando se lo plantan. Cinemático, sin azar.                                                                                                                                                                                                                      | `reir` (2.2 s: cuánto dura una carcajada)                                                                                                                     |
+
+```ts
+nivel.nenufar("nenufar-1").encima; // cuántos muñecos están encima; y .ladeo, .casa, .volver()
+nivel.montaria("montaria").remeros; // [proa, popa]: 0, 1 o null; y .paladas, .aCompas, .remos, .aBordo, .rumbo, .encima(p), .llevar(c), .volver()
+nivel.fuegos("fuegos-1").estado; // "apagados", "chispeando", "mecha", "disparando" o "quemados"; .encendidos, .agarrados, .estallidos, .cielo, .encender(), .quemar(), .alEncender(() => {})
+nivel.curupira("curupira").estado; // "mirando", "riendo", "pidiendo", "contento" o "escondido"; .risas, .reir(), .pedir(p), .alegrar(), .mudarse(p, rumbo), .esconder(), .alReir(() => {})
+```
+
+En línea viajan en la foto los nenúfares, la montaria y sus dos remos (cinemáticos sin choques: los mueve la canoa), los
+chisperos, las chispas de las mechas, cada cohete y el Curupira. El invitado no corre el guion ni las piezas: cada
+cohete le dice con su altura si está guardado y con su giro si ya estalló y cuánto, y así dibuja los mismos estallidos;
+sabe lo que hace el Curupira por cómo lo ve inclinado (para atrás se ríe, para adelante pide, de costado baila). Con
+cohetes en el cielo, la cámara de la escena se aleja y mira hacia arriba (`cielo`, en los dos).
 
 ## El guion: `guion.ts`
 
@@ -451,14 +593,12 @@ nunca se vuelve atrás. El que cae al vacío (por debajo de `vacio`, dentro de u
 sólido) reaparece de pie **junto a su compañero**, si este está de pie en terreno firme y hay piso al lado; si no, en
 el último punto de control alcanzado. El punto de control se guarda en Convex para retomar (TU-22).
 
-## Los niveles sin Blender: del `00-patio` al `11-llano`, `98-piezas` y `99-prueba`
+## Los niveles sin Blender: del `00-patio` al `16-medianoche`, `98-piezas` y `99-prueba`
 
 Sin Blender a mano, sus `escena.glb` se arman con `pnpm niveles` (`scripts/niveles/patio.mjs`, `pinar.mjs`, `poza.mjs`,
 `calle.mjs`, `xibalba.mjs`, `tren.mjs`, `rio.mjs`, `trenzas.mjs`, `cafetal.mjs`, `canales.mjs`, `garrucha.mjs`,
-`llano.mjs`, `prueba.mjs` y `piezas.mjs`, con el exportador de three y las mismas propiedades que pondría Blender; lo común está en
-`comun.mjs`). Si los cambiás, volvé a correrlo y subí los `.glb`.
-
-La garrucha (TU-43): `scripts/niveles/garrucha.mjs` arma `10-garrucha`, también con `pnpm niveles`.
+`llano.mjs`, `puente.mjs`, `mina.mjs`, `minga.mjs`, `pampa.mjs`, `medianoche.mjs`, `prueba.mjs` y `piezas.mjs`, con
+el exportador de three y las mismas propiedades que pondría Blender; lo común está en `comun.mjs`). Si los cambiás, volvé a correrlo y subí los `.glb`.
 
 ### `00-patio` (`?escena=nivel&nivel=patio`), el nivel 0
 
@@ -727,8 +867,6 @@ después se suelta no la corta). De noche no va la trampa del mecate: el que lan
 
 ### `09-canales` (`?escena=nivel&nivel=canales`)
 
-<!-- Los canales (TU-42) -->
-
 El nivel 9 (TU-42): Los canales de Xochimilco, México. Canales, chinampas con flores, trajineras (sin color:
 siluetas y grises) y una feria. Estrena la trajinera, el nivel del agua de La Llorona, la chinampa flotante y la
 piñata. Lo arma `scripts/niveles/canales.mjs` (`pnpm niveles`). Va de oeste a este y todo va corrido 45 m hacia −x
@@ -793,8 +931,6 @@ arriba. Los bordes invisibles del lado de la cámara solo atajan a los muñecos 
 choque): así la cámara no los ve como paredes. De noche no va la trampa del mecate: el que jala la manija se queda en
 la finca mientras el otro cruza en la canasta.
 
-<!-- Las trenzas (TU-40) -->
-
 ### `11-llano` (`?escena=nivel&nivel=llano`)
 
 El nivel 11 (TU-44): Los Llanos, Venezuela. Sabana plana, molinos de viento, corrales y hamacas; anda por ahí el
@@ -824,6 +960,179 @@ El secreto, «un arpa llanera bajo el samán», está en el conuco de atrás: se
 `secreto` está al pie del samán (da la vincha). De noche no va la trampa del mecate: el que frena el molino queda lejos
 de las aspas, y la hamaca lanza a uno solo al otro lado del caño.
 
+### `12-puente` (`?escena=nivel&nivel=puente`)
+
+El nivel 12 (TU-45): Q'eswachaka, Perú. Un cañón andino, terrazas con canales de agua y un puente tejido a mano; andan
+por ahí las llamas, que escupen si las apurás. Estrena trenzar la cuerda, el puente que se mece y los canales. Lo arma
+`scripts/niveles/puente.mjs` (`pnpm niveles`). Va de oeste a este y va todo corrido 42 m hacia −x (mide 91 m: la foto
+de la red mide las posiciones en int16). La pampa y la otra orilla están a la altura del puente (y = 0), las terrazas
+suben de a 1.3 m y la puna de la llama está a 2.6 m. Cada misión termina en un punto de control (`&punto=N` empieza en
+la misión N + 1):
+
+1. **La qeswa**, de a dos: tres hebras de paja entre dos torcedores, a 6 m uno del otro. Cada uno agarra el suyo con
+   las dos manos y gira para su lado (uno a la izquierda, el otro a la derecha): en unos ocho segundos la cuerda queda
+   trenzada y baja la puerta de la pirca → punto 1. Solo no se puede: un torcedor solo gira en vano, y los dos para
+   el mismo lado tampoco trenzan. Si uno suelta a medias, se destuerce.
+2. **Tender el puente**, de a dos: el puente cuelga flojo en el cañón, sin piso. Uno jala la soga de la cabecera
+   caminando hacia atrás y lo tensa; el otro, sobre el estribo del otro costado, sostiene el amarre con las dos manos.
+   Tenso y sostenido dos segundos y medio, queda amarrado, se teje el piso y aparece la cabecera → punto 2. Solo no se
+   puede: la soga queda a más de 4 m del amarre y, soltada, el puente se afloja antes de llegar.
+3. **Cruzarlo sin que se voltee**: el puente se mece con los que caminan encima (más rápido y más en el medio, más) y
+   se calma solo. De corrido se voltea a mitad de camino (con los dos encima, en menos de tres segundos) y bota a los
+   de encima al río; parándose cuando se mece mucho, se cruza → punto 3, en la otra orilla.
+4. **Los canales**: el agua sale del ojo de agua arriba de la tercera terraza, baja por la acequia madre y se va entera
+   por la primera bocatoma abierta, de arriba hacia abajo. Al llegar, la de arriba está abierta (su terraza ya está
+   regada) y las de abajo, secas: hay que cerrar la de arriba y abrir las de abajo (y cerrar la del medio para que el
+   agua llegue a la primera). Cinco segundos de agua riegan una terraza; con las tres regadas baja la puerta de arriba
+   → punto 4. Las terrazas se suben colgándose.
+5. **La llama carguera**: se la lleva de la rienda por el camino de piedra hasta el patio del tambo. Anda más despacio
+   que un muñeco: con la rienda tirante más de un segundo y medio se enoja, escupe al que la lleva (lo tumba), se echa y
+   se vuelve a su casa. También con el que se le viene encima por detrás. Llevándola a su paso (parando cuando la rienda
+   se pone tirante) llega, se queda contenta y aparece la meta → punto 5.
+
+El secreto, «un quipu escondido entre las piedras», está arriba del pedregal del fondo de la pampa (1.35 m, se trepa
+colgándose): entre las dos piedras grandes, la zona `secreto` (da el chullo). Es lo único claro del pedregal. El logro,
+«Tejedores», es armar el puente sin soltar la cuerda: trenzar la qeswa y tender el puente sin que nadie suelte su
+torcedor a medio trenzar ni la soga del puente tenso antes de amarrarlo (retomando del punto 1 en adelante ya no se
+puede). De noche no va la trampa del mecate: los torcedores quedan a 6 m, y la soga a más de 4 m del amarre.
+
+### `13-mina` (`?escena=nivel&nivel=mina`)
+
+El nivel 13 (TU-46): La mina, en Potosí (Bolivia). Túneles con vigas en el Cerro Rico, vagonetas, un pozo con su jaula,
+la galería del Tío (un diablito que quiere su ofrenda) y, al salir, el salar blanco que refleja el cielo. Los túneles
+son oscuros, pero siguen siendo siluetas sobre niebla clara: la única luz es blanca (las lámparas, las velas y el haz
+del sol). Estrena la vagoneta, la polea (la de El cafetal, para la jaula) y los espejos. Lo arma
+`scripts/niveles/mina.mjs` (`pnpm niveles`). Va de oeste a este: la galería de abajo (y = 0), la de arriba (2.2 m) y
+el salar (−3.4), cuesta abajo. Mide 104 m (de −52 a 52): cabe en la foto de la red sin correrlo. Cada misión termina
+en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **La vagoneta**, de a dos: la vía sigue derecho hasta un derrumbe y el cambio la manda por un desvío a la báscula
+   de la reja. Uno empuja la vagoneta caminando detrás de ella; el otro sostiene la palanca del cambio (vuelve sola al
+   soltarla), contra la pared del fondo. La vagoneta que llega a la báscula sube la reja → punto 1. Solo no se puede:
+   la palanca queda a más de 4 m de donde se empuja cuando la vagoneta pasa el cambio, y suelta, la vagoneta se para
+   enseguida. Derecho, se queda en el derrumbe y a los 3 s vuelve sola a su lugar.
+2. **El pozo**: la galería de arriba está a 2.2 m (no se trepa). La jaula sube con el gancho de dos poleas: uno se
+   cuelga de la manija de abajo (se salta) y el otro sube en la jaula → punto 2. Vacía, la jaula baja sola; el de
+   arriba se cuelga de la manija de arriba y sube al otro. Desde la jaula no se alcanza la manija de abajo.
+3. **La ofrenda del Tío**: la ofrenda está en su repisa. Hay que llevársela al Tío entre tres hileras de velas, en
+   zigzag: si pasa por una vela, ¡pum! (un susto: humo, la ofrenda vuelve a la repisa y el que la llevaba aparece
+   frente a ella). El Tío no se queda con la que alguien tiene en la mano: hay que dejársela suelta al alcance; se
+   pone contento, fuma y abre su puerta → punto 3.
+4. **Los espejos del salar**, de a dos: el sol entra por una grieta del fondo. Cada uno empuja el brazo de un espejo
+   hasta su tope y lo sostiene: el primero manda el haz hacia el segundo, y el segundo de vuelta al sol de piedra del
+   fondo, que sube la puerta de luz → punto 4. Solo no se puede: cada espejo vuelve al reposo al soltarlo, y el primero
+   solo no llega nunca al sol (queda al oeste de él).
+5. **La salida**: la vagoneta espera en la boca de la mina, con el freno puesto y el borde a ras del piso. Al meterse
+   los dos (o uno solo, a los 2 s) se suelta el freno y baja la cuesta por un puente de rieles sobre el barranco hasta
+   el salar → punto 5, la meta. Si queda abajo vacía sin que lleguen, vuelve sola a la boca.
+
+El secreto, «una pepita de plata en la galería vieja», está en una repisa de 1.4 m al fondo, entre la reja y el pozo
+(se trepa colgándose; la zona `secreto`, da la máscara del diablito). El logro, «Sin chispas», es salir de la mina sin
+explotar: llegar a la meta sin que la ofrenda pase nunca por las velas. Retomando un avance de después de la ofrenda no
+se gana (no se sabe si explotaron). Los bordes invisibles del lado de la cámara solo atajan a los muñecos, como en La
+garrucha. De noche no va la trampa del mecate: el que sostiene el cambio queda lejos de la vagoneta, uno sube en la
+jaula mientras el otro se cuelga abajo y los espejos están a 6 m.
+
+### `14-minga` (`?escena=nivel&nivel=minga`)
+
+El nivel 14 (TU-47): La minga, en Chiloé, Chile. Palafitos sobre la marea (de grises: siluetas, sin colores), el
+bosque mojado con sus nalcas, una iglesia de madera en la loma, un muelle y El Caleuche, el barco fantasma que en
+realidad anda de fiesta. Estrena la marea, mover una casa y los cabos de barco. Lo arma `scripts/niveles/minga.mjs`
+(`pnpm niveles`). Va de oeste a este y todo va corrido 52 m hacia −x (mide 116 m; la foto de la red, ±64). Cada
+misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **Los palafitos**: la marea de la caleta pasa 10 s abajo, sube en 3, se queda 6 tapando la playa y baja en 3. Con
+   la marea alta solo se salvan los corredores de los dos palafitos (se sube por sus rampas). Del camino al primer
+   palafito, de ahí al segundo y del segundo a la explanada: cada tramo alcanza en una bajamar, dos seguidos no. El que
+   se queda en la playa cae al agua y reaparece junto al compañero → punto 1, arriba de la explanada.
+2. **La minga**, de a dos: la casa va sobre un camino de troncos. Cada uno agarra la manija de un cabo y camina para
+   atrás; la casa anda solo con los dos cabos tirados, cada uno por uno distinto (solo, con uno o con los dos cabos en
+   las manos, no se mueve). Si uno tira torcido, la casa se corre y se sale de los troncos: se atasca un rato y los
+   vecinos la vuelven a poner. Cuando llega a su sitio se hunde la tranquera (2.6 m: no se trepa) → punto 2. Llevarla
+   sin que se salga nunca de los troncos da el logro, «A hombro».
+3. **La chalupa**, de a dos: está fondeada lejos del muelle (2.4 m de agua: no se salta) y sus dos cabos cuelgan de la
+   barandilla de la orilla. Cada uno lleva un cabo a su bita; las bitas están a 5 m una de otra, así que uno solo no
+   las alcanza. Con los dos a la vez, un segundo, se amarra, se arrima y se corre junto al muelle. Se baja a ella y se
+   la cruza hasta los brazos del ancla del Caleuche, que cuelga del otro lado → punto 3 (desde el muelle no se llega).
+4. **El ancla**: parados en sus brazos, la tripulación la sube hasta la borda; se pasa a la cubierta por el portalón →
+   punto 4. Sin nadie, la vuelven a bajar a buscar al otro.
+5. **La fiesta**: con los dos a bordo suena la música (24 compases, unos 19 s) y la cubierta se mece de lado a lado,
+   cada vez más (hasta 7°). Si uno se cae al agua (o se cuelga de la borda), se corta la música y empieza de nuevo.
+   Aguantando la canción entera, El Caleuche baja la plancha de la popa al muelle de la fiesta → punto 5, la meta.
+
+El secreto, «un curanto enterrado en la playa», es el montículo con hojas de nalca y vapor detrás del segundo
+palafito, junto al mar (la zona `secreto`; da las colitas): se llega solo con la marea baja, y el desvío come tiempo del
+último tramo. De noche no va la trampa del mecate: las bitas de la chalupa quedan a 5 m una de otra.
+
+### `15-pampa` (`?escena=nivel&nivel=pampa`)
+
+El nivel 15 (TU-48): La Pampa, Argentina. Llanura hasta el horizonte, alambrados, un ombú enorme, tranqueras y un
+molino (el del llano, girando al fondo del potrero); de noche anda La Luz Mala. Estrena el pampero (el viento), la
+tranquera y las boleadoras, más el chambergo, el pie de amigo, el candil y la Luz. Lo arma `scripts/niveles/pampa.mjs`
+(`pnpm niveles`). Va de oeste a este y va todo corrido 52 m hacia −x (mide 109 m: la foto de la red mide las
+posiciones en int16). Cada misión termina en un punto de control (`&punto=N` empieza en la misión N + 1):
+
+1. **Seguir a la Luz** por el bañado: una calzada de tierra que va en zigzag apenas bajo el agua (casi no se ve). La
+   Luz se para en cada vuelta y espera a que alguno llegue; en cuatro vueltas hay un ramal que se corta y a veces
+   (azar de semilla) se equivoca: se va titubeando sobre el agua honda, se da cuenta y vuelve. El que la sigue ahí se
+   cae al agua y reaparece junto al compañero → punto 1, en la otra orilla. Conviene que uno vaya adelante y el otro
+   una parada atrás.
+2. **La tranquera**, de a dos: el pampero la cierra de golpe. Uno la agarra de la manija y la sostiene abierta
+   caminando para atrás; el otro pasa y, del otro lado, corre el pasador (una palanca junto al poste de la bisagra),
+   que la traba abierta; el primero la suelta y pasa → punto 2. Pasar los dos sin que se cierre nunca da el logro,
+   «Contra el viento». Solo no se puede: al soltarla se cierra antes de llegar al hueco, y al que quedó en el medio lo
+   voltea para atrás.
+3. **El chambergo**: el viento le voló el sombrero al puestero y lo pasea por el potrero (de 1.1 a 3.1 m de alto). Se
+   descuelgan las boleadoras de su poste y se las tira saltando cuando el chambergo pasa bajo y cerca; enredado, cae y
+   el portón del puesto se abre → punto 3. Si erran, las boleadoras vuelven solas al poste.
+4. **El ombú**, de a dos: la horqueta está a 2.6 m (no se trepa). Uno se para al pie del tronco con los dos brazos
+   alzados (pie de amigo) y el otro se trepa a sus manos (1.1 m) y de ahí a la horqueta. Arriba empuja la palanca y
+   baja la rama gacha hasta el suelo: el otro sube caminando. Por la rama larga, en bajada, los dos cruzan la cañada
+   (6 m: no se salta) → punto 4. Solo no se puede: sin nadie que haga pie no hay escalón, y el que lo hace no lo pisa.
+5. **Encerrar a la Luz en el candil**: la Luz se posa en los postes del alambrado y salta de uno a otro; se espanta del
+   que se le acerca sin candil. Se descuelga el candil y se lo acerca con los brazos alzados a la Luz posada: queda
+   encerrada, el candil alumbra y aparece la meta → punto 5.
+
+El secreto, «un mate olvidado en el ombú», está en la copa de atrás: desde la horqueta se trepa 1.4 m colgándose y la
+zona `secreto` está arriba, junto al mate (da la boina). De noche no va la trampa del mecate: el que sostiene la
+tranquera queda en la punta de la manija, a más de 3 m del que pasa.
+
+### `16-medianoche` (`?escena=nivel&nivel=medianoche`)
+
+El nivel 16 (TU-49): La medianoche, en la Amazonía (Brasil), el último del juego. El viaje empezó en el patio de
+Tegucigalpa la mañana del 31 de diciembre y termina acá, a la medianoche: la selva inundada (el igapó), nenúfares
+gigantes, un río ancho y, al final, una playa con fuegos artificiales. Anda por ahí El Curupira, con los pies al revés.
+Es de noche (más oscura que la noche de tuerce). Estrena el nenúfar gigante, la montaria y los fuegos artificiales. Lo
+arma `scripts/niveles/medianoche.mjs` (`pnpm niveles`). Va de oeste a este, y va todo corrido 53 m hacia −x (mide
+120 m: la foto de la red mide las posiciones en int16). Cada misión termina en un punto de control (`&punto=N` empieza
+en la misión N + 1):
+
+1. **Las huellas del Curupira**: la trocha se parte dos veces entre el monte (no se trepa ni se pasa de una a otra). El
+   Curupira tiene los pies al revés: se fue por la trocha donde los dedos de sus huellas apuntan para acá (la de atrás
+   en la primera y la de adelante en la segunda). Las otras acaban en el agua, y el que llega al final se gana una
+   carcajada del Curupira, desde su tocón en el monte → punto 1.
+2. **El igarapé de los nenúfares**: cinco hojas gigantes cruzan el igarapé, con medio metro de agua entre una y otra. Se
+   cruza saltando de hoja en hoja, que flotan, se hunden un poco y se ladean con el que cae encima → punto 2.
+3. **La montaria**, de a dos: río arriba, contra la corriente (0.5 m/s), por un canal entre los árboles. Uno se para en
+   la proa y el otro en la popa, y reman alzando los brazos al mismo tiempo. Al mismo ritmo, la canoa sube derecho;
+   fuera de ritmo o con uno solo, la corriente no la deja avanzar → punto 3, en la tierra firme. La montaria vacía que
+   quedó lejos vuelve sola al muelle.
+4. **El árbol del Curupira**, de a dos: el Curupira espera junto al hoyo de un claro talado y lo señala. El arbolito
+   (un bloque de 9 kg, uno solo no lo mueve de su tocón) se lleva entre los dos, uno de cada lado, y se suelta sobre el
+   hoyo: queda plantado, el Curupira se alegra y baila, y el monte cerrado se hunde → punto 4. El Curupira se va a la
+   playa a ver los fuegos.
+5. **Los fuegos de Año Nuevo**, de a dos: en la playa hay tres castillos, cada uno con sus dos chisperos lejos uno del
+   otro (6 m el grande, 4.4 los otros). Se encienden agarrando los dos chisperos a la vez: las mechas arden hasta el
+   castillo y los cohetes estallan grandes sobre el río, en rojo y turquesa, con la cámara mirando el cielo. Nadie se
+   quema: la pareja los prende desde la punta de las mechas. El castillo grande trae la meta → punto 5, en la playa,
+   mirando los fuegos. Solo no se puede: con un chispero agarrado la mecha chispea y nada más.
+
+El secreto, «un delfín rosado en el recodo del río», está río arriba en el igarapé: desde la tercera hoja salen dos más
+hacia el recodo, hasta una playita donde el delfín sale a respirar (la zona `secreto`; da el pañuelo «capa»). Sin color
+nuevo: el delfín es lo único claro y brillante del agua. El logro, «Feliz año», es encender los tres castillos a la
+medianoche: menos de un minuto entre el primero y el último. Retomando en la meta, el castillo grande se enciende otra
+vez. De noche no va la trampa del mecate: los chisperos de cada castillo quedan a más de 4 m.
+
 ### `98-piezas` (`?escena=nivel&nivel=piezas`)
 
 Las piezas de juego, una tras otra. El patio (salida, tres huacales, dos apilados, y una plancha delante del rojo) →
@@ -838,5 +1147,3 @@ El patio (salida y un huacal de 8 kg) → un hueco de 2.5 m con un tablón angos
 punto 1 → una compuerta que el guion hunde al llegar al punto 1 → un escalón de 1.5 m para trepar colgándose (o de la
 mano del compañero) → punto 2 arriba → punto 3, la meta. El secreto está detrás de la meta, en la mata del rincón (da
 el peinado «Cresta»), y el logro, «Mudanza», es subir el huacal hasta arriba del escalón.
-
-<!-- El cafetal (TU-41) -->

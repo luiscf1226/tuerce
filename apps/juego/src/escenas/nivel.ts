@@ -33,6 +33,8 @@ import { armarNivel, cargarNivel, crearNivel, type GuionDeNivel, type Nivel, typ
 import { anotarTiempoAqui, crearReloj, formatearTiempo, marcarGanadoAqui, seMueve } from "../niveles/contrarreloj";
 import { NIVEL_INICIAL, NIVELES } from "../niveles/lista";
 import { crearNoche, leerNoche, type Noche } from "../niveles/noche";
+// La medianoche (TU-49)
+import type { Fuegos } from "../niveles/piezas-medianoche";
 import { avisarPremios } from "../ropero/aviso";
 import { vestuarioDe } from "../ropero/vestuario";
 import { crearJuego, crearSenas } from "../ui";
@@ -51,6 +53,9 @@ const DIRECCION_CAMARA = new THREE.Vector3(0.35, 0.42, 1);
 const VISTA_TODO = { desde: new THREE.Vector3(9, 10, 24), hacia: new THREE.Vector3(9, -0.5, 0), largo: 32 };
 /** Con `&vista=x,y,z`: a cuánto del punto queda la cámara. */
 const VISTA_PUNTO = 7;
+/** La medianoche (TU-49): con fuegos artificiales en el cielo, la cámara se aleja (m) y mira hacia arriba (radianes),
+ * con la pareja abajo, mirándolos desde la playa. */
+const MIRAR_AL_CIELO = { atras: 3, angulo: 0.3 };
 
 export type EscenaNivel = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
@@ -170,6 +175,8 @@ export function armarEscenaNivel(
       escena.fog.far = plano.niebla.lejos + 22 + atras;
     }
   }
+  // La medianoche (TU-49): los fuegos artificiales del nivel, que piden mirar al cielo
+  const fuegos = armado.piezasDeJuego.lista.filter((p): p is Fuegos => p.cual === "fuegos");
   const seguirConLaCamara = () =>
     camaraDeDos.seguir(munecos[0].partes.pelvis.translation(), munecos[1].partes.pelvis.translation());
 
@@ -272,10 +279,17 @@ export function armarEscenaNivel(
       if (reloj) marcador?.poner(reloj.pasos, reloj.llego);
       if (vistaTodo) return;
       camaraDeDos.dibujar(alfa);
+      // La medianoche (TU-49): con fuegos en el cielo (y la pantalla sin partir), la cámara se aleja y mira arriba
+      const cielo = camaraDeDos.partida ? 0 : Math.max(0, ...fuegos.map((f) => f.cielo));
+      if (cielo > 0.001) {
+        camara.translateZ(cielo * MIRAR_AL_CIELO.atras);
+        camara.rotateX(cielo * MIRAR_AL_CIELO.angulo);
+      }
       if (escena.fog instanceof THREE.Fog) {
         // La niebla espesa (TU-33) acorta la del nivel, pero no la de la cámara: los dos se siguen viendo
-        escena.fog.near = plano.niebla.cerca * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca;
-        escena.fog.far = plano.niebla.lejos * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca;
+        const atras = cielo * MIRAR_AL_CIELO.atras;
+        escena.fog.near = plano.niebla.cerca * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca + atras;
+        escena.fog.far = plano.niebla.lejos * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca + atras;
       }
     },
   };

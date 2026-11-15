@@ -302,6 +302,37 @@ export function crearNivel({ rapier, mundo, plano, armado, munecos, guion = {} }
     costal: (nombre) => deJuego("costal", nombre),
     guineo: (nombre) => deJuego("guineo", nombre),
     cipitio: (nombre) => deJuego("cipitio", nombre),
+    // El puente (TU-45)
+    qeswa: (nombre) => deJuego("qeswa", nombre),
+    chaka: (nombre) => deJuego("chaka", nombre),
+    bocatoma: (nombre) => deJuego("bocatoma", nombre),
+    anden: (nombre) => deJuego("anden", nombre),
+    carguera: (nombre) => deJuego("carguera", nombre),
+    // La mina (TU-46)
+    vagoneta: (nombre) => deJuego("vagoneta", nombre),
+    espejo: (nombre) => deJuego("espejo", nombre),
+    grieta: (nombre) => deJuego("grieta", nombre),
+    ofrenda: (nombre) => deJuego("ofrenda", nombre),
+    velas: (nombre) => deJuego("velas", nombre),
+    tio: (nombre) => deJuego("tio", nombre),
+    // La minga (TU-47)
+    minga: (nombre) => deJuego("minga", nombre),
+    chalupa: (nombre) => deJuego("chalupa", nombre),
+    ancla: (nombre) => deJuego("ancla", nombre),
+    caleuche: (nombre) => deJuego("caleuche", nombre),
+    // La medianoche (TU-49)
+    nenufar: (nombre) => deJuego("nenufar", nombre),
+    montaria: (nombre) => deJuego("montaria", nombre),
+    fuegos: (nombre) => deJuego("fuegos", nombre),
+    curupira: (nombre) => deJuego("curupira", nombre),
+    // La pampa (TU-48)
+    pampero: (nombre) => deJuego("pampero", nombre),
+    tranquera: (nombre) => deJuego("tranquera", nombre),
+    boleadoras: (nombre) => deJuego("boleadoras", nombre),
+    chambergo: (nombre) => deJuego("chambergo", nombre),
+    pieDeAmigo: (nombre) => deJuego("pie-de-amigo", nombre),
+    candil: (nombre) => deJuego("candil", nombre),
+    luzMala: (nombre) => deJuego("luz-mala", nombre),
     avance,
     premios,
     antes(entradas) {

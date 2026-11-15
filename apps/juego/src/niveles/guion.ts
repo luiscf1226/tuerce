@@ -8,12 +8,20 @@ import type { Muneco } from "../muneco";
 import type { Agua, Aguas } from "./agua";
 import type { Pieza } from "./armar";
 import type { Cadejo } from "./cadejo";
+// La minga (TU-47)
+import type { Caleuche } from "./caleuche";
 // El cafetal (TU-41)
 import type { Cipitio } from "./cipitio";
+// La medianoche (TU-49)
+import type { Curupira } from "./curupira";
 import type { Duende } from "./duende";
 import type { PlanoDeNivel } from "./formato";
+// El puente (TU-45)
+import type { Carguera } from "./llama";
 // Los canales (TU-42)
 import type { Llorona } from "./llorona";
+// La pampa (TU-48)
+import type { LuzMala } from "./luz-mala";
 import type { Murcielagos } from "./murcielagos";
 // La garrucha (TU-43)
 import type { Patasola } from "./patasola";
@@ -25,8 +33,17 @@ import type { Chinampa, Pinata, Trajinera } from "./piezas-canales";
 import type { Chiva, Garrucha, Palma } from "./piezas-garrucha";
 // El llano (TU-44)
 import type { Ganado, Hamaca, Molino, Saco } from "./piezas-llano";
+// La medianoche (TU-49)
+import type { Fuegos, Montaria, Nenufar } from "./piezas-medianoche";
+// La mina (TU-46)
+import type { Espejo, Grieta, Ofrenda, Vagoneta, Velas } from "./piezas-mina";
+// La minga (TU-47)
+import type { Ancla, Chalupa, Minga } from "./piezas-minga";
+// La pampa (TU-48)
+import type { Boleadoras, Candil, Chambergo, Pampero, PieDeAmigo, Tranquera } from "./piezas-pampa";
 import type { Hueso, Lampara, Tranca, Tronco } from "./piezas-pinar";
 import type { Balsa, Batea, Piedra, Tendedero } from "./piezas-poza";
+import type { Anden, Bocatoma, Chaka, Qeswa } from "./piezas-puente";
 // El Río Plátano (TU-28)
 import type { Palmera, Pipante, Puente } from "./piezas-rio";
 import type { Dresina, Grua, Racimo, Sombrero, Vagon } from "./piezas-tren";
@@ -38,6 +55,7 @@ import type { SinBueyes } from "./sin-bueyes";
 import type { Sisimite } from "./sisimite";
 import type { Sombreron } from "./sombreron";
 import type { Sucia } from "./sucia";
+import type { Tio } from "./tio";
 
 /** Lo que el guion ve del nivel en juego. */
 export interface NivelEnJuego {
@@ -141,6 +159,37 @@ export interface NivelEnJuego {
   costal(nombre: string): Costal;
   guineo(nombre: string): Guineo;
   cipitio(nombre: string): Cipitio;
+  /** Las piezas que estrena El puente de paja (TU-45, ver piezas-puente.ts y llama.ts). */
+  qeswa(nombre: string): Qeswa;
+  chaka(nombre: string): Chaka;
+  bocatoma(nombre: string): Bocatoma;
+  anden(nombre: string): Anden;
+  carguera(nombre: string): Carguera;
+  /** Las piezas que estrena La mina (TU-46, ver piezas-mina.ts y tio.ts). */
+  vagoneta(nombre: string): Vagoneta;
+  espejo(nombre: string): Espejo;
+  grieta(nombre: string): Grieta;
+  ofrenda(nombre: string): Ofrenda;
+  velas(nombre: string): Velas;
+  tio(nombre: string): Tio;
+  /** Las piezas que estrena La minga (TU-47, ver piezas-minga.ts y caleuche.ts). */
+  minga(nombre: string): Minga;
+  chalupa(nombre: string): Chalupa;
+  ancla(nombre: string): Ancla;
+  caleuche(nombre: string): Caleuche;
+  /** Las piezas que estrena La medianoche (TU-49, ver piezas-medianoche.ts y curupira.ts). */
+  nenufar(nombre: string): Nenufar;
+  montaria(nombre: string): Montaria;
+  fuegos(nombre: string): Fuegos;
+  curupira(nombre: string): Curupira;
+  /** Las piezas que estrena La pampa (TU-48, ver piezas-pampa.ts y luz-mala.ts). */
+  pampero(nombre: string): Pampero;
+  tranquera(nombre: string): Tranquera;
+  boleadoras(nombre: string): Boleadoras;
+  chambergo(nombre: string): Chambergo;
+  pieDeAmigo(nombre: string): PieDeAmigo;
+  candil(nombre: string): Candil;
+  luzMala(nombre: string): LuzMala;
 }
 
 export interface GuionDeNivel {

@@ -361,6 +361,105 @@ const TOMAS = [
   { archivo: "cafetal-5-portillo", ruta: "/?escena=nivel&nivel=cafetal&punto=4&j1=&j2=&vista=26,4.2,0&congelar=60" },
   { archivo: "cafetal-5-contento", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=27,5.4,-1&congelar=60" },
   { archivo: "cafetal-secreto", ruta: "/?escena=nivel&nivel=cafetal&punto=5&j1=&j2=&vista=35,6.4,-2.4&congelar=30" },
+  // El puente (TU-45): el nivel 12, Q'eswachaka (niveles/12-puente; va corrido 42 m hacia −x), entero y en la
+  // salida; 1. la qeswa entre sus dos torcedores; 2. la cabecera con la soga y el amarre, y el puente flojo colgando
+  // en el cañón; 3. el rojo cruzando el puente amarrado, que se mece; 4. las terrazas con la de arriba regada y las
+  // bocatomas, y las tres regadas; 5. la llama carguera delante de su corral, y contenta en el patio del tambo con
+  // la meta. Y el quipu del secreto, entre las piedras del pedregal
+  { archivo: "puente-entero", ruta: "/?escena=nivel&nivel=puente&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "puente-salida", ruta: "/?escena=nivel&nivel=puente&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "puente-1-qeswa", ruta: "/?escena=nivel&nivel=puente&j1=&j2=&vista=-35,1,-1.8&congelar=60" },
+  { archivo: "puente-2-tender", ruta: "/?escena=nivel&nivel=puente&punto=1&j1=&j2=&vista=-19.5,0.6,0&congelar=60" },
+  { archivo: "puente-3-cruzar", ruta: "/?escena=nivel&nivel=puente&punto=2&j1=andar:1&j2=&congelar=230" },
+  { archivo: "puente-4-terrazas", ruta: "/?escena=nivel&nivel=puente&punto=3&j1=&j2=&vista=10,1.8,-4.5&congelar=90" },
+  { archivo: "puente-4-regadas", ruta: "/?escena=nivel&nivel=puente&punto=4&j1=&j2=&vista=4,0.8,-4.5&congelar=90" },
+  { archivo: "puente-5-llama", ruta: "/?escena=nivel&nivel=puente&punto=4&j1=&j2=&vista=22.5,3.4,-1&congelar=60" },
+  { archivo: "puente-5-meta", ruta: "/?escena=nivel&nivel=puente&punto=5&j1=&j2=&vista=40,3.4,-1&congelar=60" },
+  { archivo: "puente-secreto", ruta: "/?escena=nivel&nivel=puente&j1=&j2=&vista=-31.7,1.6,-6.3&congelar=30" },
+  // La mina (TU-46): el nivel 13, entero y en la salida; 1. la vagoneta con el cambio, y el derrumbe y la reja; 2. el
+  // pozo con la jaula y sus poleas; 3. las velas con El Tío esperando, y contento con su ofrenda; 4. los espejos y el
+  // haz; 5. la vagoneta en la boca de la mina, y el salar; y la galería vieja con la pepita del secreto
+  { archivo: "mina-entero", ruta: "/?escena=nivel&nivel=mina&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "mina-salida", ruta: "/?escena=nivel&nivel=mina&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "mina-1-vagoneta", ruta: "/?escena=nivel&nivel=mina&j1=&j2=&vista=-41,1.2,0&congelar=60" },
+  { archivo: "mina-1-reja", ruta: "/?escena=nivel&nivel=mina&j1=&j2=&vista=-31,1.2,-0.4&congelar=60" },
+  { archivo: "mina-2-pozo", ruta: "/?escena=nivel&nivel=mina&punto=1&j1=&j2=&vista=-20,2.2,0&congelar=60" },
+  { archivo: "mina-3-velas", ruta: "/?escena=nivel&nivel=mina&punto=2&j1=&j2=&vista=-7,3.2,-0.5&congelar=60" },
+  { archivo: "mina-3-tio", ruta: "/?escena=nivel&nivel=mina&punto=3&j1=&j2=&vista=-2.6,3.2,-1.2&congelar=90" },
+  { archivo: "mina-4-espejos", ruta: "/?escena=nivel&nivel=mina&punto=3&j1=&j2=&vista=8,3.8,-0.6&congelar=60" },
+  { archivo: "mina-5-boca", ruta: "/?escena=nivel&nivel=mina&punto=4&j1=&j2=&vista=20.5,2.8,0.4&congelar=60" },
+  { archivo: "mina-5-salar", ruta: "/?escena=nivel&nivel=mina&punto=5&j1=&j2=&vista=45,-2.4,0.8&congelar=60" },
+  { archivo: "mina-secreto", ruta: "/?escena=nivel&nivel=mina&punto=1&j1=&j2=&vista=-24.6,1.8,-2.4&congelar=30" },
+  // La minga (TU-47): el nivel 14, Chiloé (niveles/14-minga; va corrido 52 m hacia −x), entero y en la salida;
+  // 1. los palafitos con la marea baja y con la marea alta; 2. la casa sobre los troncos con sus dos cabos, y ya en su
+  // sitio con la tranquera abierta; 3. la chalupa fondeada lejos del muelle, con los cabos colgando del poste, y
+  // amarrada; 4. los dos subiendo en el ancla del Caleuche; 5. la fiesta en la cubierta, y la plancha baja hasta la
+  // meta. Y el curanto enterrado del secreto, en la playa
+  { archivo: "minga-entero", ruta: "/?escena=nivel&nivel=minga&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "minga-salida", ruta: "/?escena=nivel&nivel=minga&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "minga-1-bajamar", ruta: "/?escena=nivel&nivel=minga&j1=&j2=&vista=-34,0.8,-0.6&congelar=60" },
+  { archivo: "minga-1-pleamar", ruta: "/?escena=nivel&nivel=minga&j1=&j2=&vista=-34,0.8,-0.6&congelar=960" },
+  { archivo: "minga-2-casa", ruta: "/?escena=nivel&nivel=minga&punto=1&j1=&j2=&vista=-1.6,2,0&congelar=60" },
+  { archivo: "minga-2-sitio", ruta: "/?escena=nivel&nivel=minga&punto=2&j1=&j2=&vista=6.5,2,0&congelar=120" },
+  { archivo: "minga-3-chalupa", ruta: "/?escena=nivel&nivel=minga&punto=2&j1=&j2=&vista=26,1,-1.8&congelar=60" },
+  { archivo: "minga-3-amarrada", ruta: "/?escena=nivel&nivel=minga&punto=3&j1=&j2=&vista=28,1,-2&congelar=30" },
+  { archivo: "minga-4-ancla", ruta: "/?escena=nivel&nivel=minga&punto=3&j1=&j2=&vista=29.4,2.4,-3.4&congelar=200" },
+  { archivo: "minga-5-fiesta", ruta: "/?escena=nivel&nivel=minga&punto=4&j1=&j2=&vista=36,4,-5.6&congelar=640" },
+  { archivo: "minga-5-meta", ruta: "/?escena=nivel&nivel=minga&punto=5&j1=&j2=&vista=49.5,3.2,-5.6&congelar=150" },
+  { archivo: "minga-secreto", ruta: "/?escena=nivel&nivel=minga&j1=&j2=&vista=-19,0.6,-2.4&congelar=30" },
+  // La medianoche (TU-49): el nivel 16, la Amazonía (niveles/16-medianoche; va corrido 53 m hacia −x), de noche,
+  // entero y en la salida; 1. las huellas al revés en la primera bifurcación, y el Curupira en su tocón; 2. los
+  // nenúfares del igarapé; 3. la montaria en el muelle, con sus remos; 4. el arbolito en su tocón, el hoyo y el
+  // Curupira que lo pide, y ya plantado con el monte abierto; 5. la playa con los tres castillos y sus chisperos, y los
+  // fuegos estallando sobre el río con la pareja mirándolos desde la meta. Y el delfín rosado del secreto, en el recodo
+  { archivo: "medianoche-entero", ruta: "/?escena=nivel&nivel=medianoche&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "medianoche-salida", ruta: "/?escena=nivel&nivel=medianoche&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "medianoche-1-huellas", ruta: "/?escena=nivel&nivel=medianoche&j1=&j2=&vista=-48,0.6,0&congelar=60" },
+  { archivo: "medianoche-1-curupira", ruta: "/?escena=nivel&nivel=medianoche&j1=&j2=&vista=-40.5,1.4,0&congelar=60" },
+  {
+    archivo: "medianoche-2-nenufares",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=1&j1=&j2=&vista=-18.6,0.4,0&congelar=60",
+  },
+  {
+    archivo: "medianoche-3-montaria",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=2&j1=&j2=&vista=-5,0.6,0&congelar=60",
+  },
+  {
+    archivo: "medianoche-4-arbol",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=3&j1=&j2=&vista=27,1,-0.5&congelar=60",
+  },
+  {
+    archivo: "medianoche-4-plantado",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=4&j1=&j2=&vista=30,1.2,-0.5&congelar=60",
+  },
+  {
+    archivo: "medianoche-5-playa",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=4&j1=&j2=&vista=48,1.2,-1&congelar=60",
+  },
+  { archivo: "medianoche-5-fuegos", ruta: "/?escena=nivel&nivel=medianoche&punto=5&j1=&j2=&congelar=330" },
+  {
+    archivo: "medianoche-secreto",
+    ruta: "/?escena=nivel&nivel=medianoche&punto=1&j1=&j2=&vista=-18.4,0.6,-6.6&congelar=300",
+  },
+  // La pampa (TU-48): el nivel 15 (niveles/15-pampa; va corrido 52 m hacia −x), entero y en la salida; 1. el bañado
+  // con la Luz esperando en la primera parada, y ya guiando por la calzada escondida; 2. la tranquera cerrada con el
+  // pampero soplando, y trabada abierta; 3. el chambergo volando sobre el potrero, y ya caído con el portón abierto;
+  // 4. el ombú con el pie de amigo al pie del tronco, y la rama gacha bajada; 5. la Luz posada en un poste y el
+  // candil en su gancho, la Luz encerrada en el candil y la meta. Y el mate del secreto, en la copa del ombú
+  { archivo: "pampa-entero", ruta: "/?escena=nivel&nivel=pampa&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "pampa-salida", ruta: "/?escena=nivel&nivel=pampa&j1=andar:0.6&j2=andar:0.6&congelar=120" },
+  { archivo: "pampa-1-banado", ruta: "/?escena=nivel&nivel=pampa&j1=&j2=&vista=-45,1,-0.5&congelar=60" },
+  { archivo: "pampa-1-luz", ruta: "/?escena=nivel&nivel=pampa&j1=andar:0.7&j2=&vista=-43,1,-1&congelar=420" },
+  { archivo: "pampa-2-tranquera", ruta: "/?escena=nivel&nivel=pampa&punto=1&j1=&j2=&vista=-12.5,1,0&congelar=200" },
+  { archivo: "pampa-2-trabada", ruta: "/?escena=nivel&nivel=pampa&punto=2&j1=&j2=&vista=-12.5,1,0&congelar=60" },
+  { archivo: "pampa-3-chambergo", ruta: "/?escena=nivel&nivel=pampa&punto=2&j1=&j2=&vista=3,1.8,0&congelar=200" },
+  { archivo: "pampa-3-porton", ruta: "/?escena=nivel&nivel=pampa&punto=3&j1=&j2=&vista=10,1,0&congelar=120" },
+  { archivo: "pampa-4-ombu", ruta: "/?escena=nivel&nivel=pampa&punto=3&j1=&j2=&vista=20,1.5,-0.5&congelar=60" },
+  { archivo: "pampa-4-rama", ruta: "/?escena=nivel&nivel=pampa&punto=4&j1=&j2=&vista=23,1.8,0&congelar=60" },
+  { archivo: "pampa-5-luz", ruta: "/?escena=nivel&nivel=pampa&punto=4&j1=&j2=&vista=40,1.2,-2&congelar=60" },
+  { archivo: "pampa-5-candil", ruta: "/?escena=nivel&nivel=pampa&punto=5&j1=&j2=&vista=37.5,1.2,-2.3&congelar=60" },
+  { archivo: "pampa-5-meta", ruta: "/?escena=nivel&nivel=pampa&punto=5&j1=&j2=&congelar=60" },
+  { archivo: "pampa-secreto", ruta: "/?escena=nivel&nivel=pampa&punto=4&j1=&j2=&vista=25,4,-1.9&congelar=30" },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

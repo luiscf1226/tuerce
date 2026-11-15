@@ -29,6 +29,21 @@ import { crearGuion as guionGarrucha } from "../../../../niveles/10-garrucha/gui
 // El llano (TU-44)
 import escenaLlano from "../../../../niveles/11-llano/escena.glb?url";
 import { crearGuion as guionLlano } from "../../../../niveles/11-llano/guion";
+// El puente (TU-45)
+import escenaPuente from "../../../../niveles/12-puente/escena.glb?url";
+import { crearGuion as guionPuente } from "../../../../niveles/12-puente/guion";
+// La mina (TU-46)
+import escenaMina from "../../../../niveles/13-mina/escena.glb?url";
+import { crearGuion as guionMina } from "../../../../niveles/13-mina/guion";
+// La minga (TU-47)
+import escenaMinga from "../../../../niveles/14-minga/escena.glb?url";
+import { crearGuion as guionMinga } from "../../../../niveles/14-minga/guion";
+// La pampa (TU-48)
+import escenaPampa from "../../../../niveles/15-pampa/escena.glb?url";
+import { crearGuion as guionPampa } from "../../../../niveles/15-pampa/guion";
+// La medianoche (TU-49)
+import escenaMedianoche from "../../../../niveles/16-medianoche/escena.glb?url";
+import { crearGuion as guionMedianoche } from "../../../../niveles/16-medianoche/guion";
 import escenaPiezas from "../../../../niveles/98-piezas/escena.glb?url";
 import { crearGuion as guionPiezas } from "../../../../niveles/98-piezas/guion";
 import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
@@ -136,6 +151,49 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     escena: escenaLlano,
     crearGuion: guionLlano,
     // Amarrados no: uno frena el molino lejos de las aspas, y la hamaca lanza a uno solo al otro lado del caño
+    sinTrampas: ["mecate"],
+  },
+  // El puente (TU-45): nivel 12, Q'eswachaka, Perú. La qeswa, el puente de paja, los canales y la llama carguera
+  puente: {
+    carpeta: "12-puente",
+    escena: escenaPuente,
+    crearGuion: guionPuente,
+    // Amarrados no: los torcedores de la qeswa quedan a 6 m, y la soga del puente a más de 4 m del amarre
+    sinTrampas: ["mecate"],
+  },
+  // La mina (TU-46): nivel 13, Potosí. La vagoneta y su cambio, el pozo con la polea, la ofrenda del Tío entre las
+  // velas, los espejos del salar y la bajada al salar
+  mina: {
+    carpeta: "13-mina",
+    escena: escenaMina,
+    crearGuion: guionMina,
+    // Amarrados no: el que sostiene el cambio queda a más de 4 m de la vagoneta, uno sube en la jaula mientras el
+    // otro se cuelga abajo, y los espejos están a 6 m
+    sinTrampas: ["mecate"],
+  },
+  // La minga (TU-47): nivel 14, Chiloé. La marea, la casa sobre troncos, la chalupa, el ancla y El Caleuche
+  minga: {
+    carpeta: "14-minga",
+    escena: escenaMinga,
+    crearGuion: guionMinga,
+    // Amarrados no: las bitas de la chalupa quedan a 5 m una de la otra, y el ancla sube a uno solo a la vez
+    sinTrampas: ["mecate"],
+  },
+  // La pampa (TU-48): nivel 15, La Pampa (Argentina). La Luz Mala, la tranquera, las boleadoras, el ombú y el candil
+  pampa: {
+    carpeta: "15-pampa",
+    escena: escenaPampa,
+    crearGuion: guionPampa,
+    // Amarrados no: el que sostiene la tranquera queda en la punta de la manija, a más de 3 m de donde pasa el otro
+    sinTrampas: ["mecate"],
+  },
+  // La medianoche (TU-49): nivel 16, la Amazonía (Brasil), el último. Las huellas del Curupira, los nenúfares
+  // gigantes, la montaria, el árbol del Curupira y los fuegos artificiales de Año Nuevo
+  medianoche: {
+    carpeta: "16-medianoche",
+    escena: escenaMedianoche,
+    crearGuion: guionMedianoche,
+    // Amarrados no: los dos chisperos de cada castillo de fuegos quedan a más de 4 m uno del otro
     sinTrampas: ["mecate"],
   },
 };

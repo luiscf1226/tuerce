@@ -16,8 +16,22 @@ import { leerPiezaDeLosCanales, PIEZAS_DE_LOS_CANALES, type PiezaDeLosCanalesEnP
 import { leerPiezaDeLaGarrucha, PIEZAS_DE_LA_GARRUCHA, type PiezaDeLaGarruchaEnPlano } from "./formato-garrucha";
 // El llano (TU-44)
 import { leerPiezaDelLlano, PIEZAS_DEL_LLANO, type PiezaDelLlanoEnPlano } from "./formato-llano";
+// La medianoche (TU-49)
+import {
+  leerPiezaDeLaMedianoche,
+  PIEZAS_DE_LA_MEDIANOCHE,
+  type PiezaDeLaMedianocheEnPlano,
+} from "./formato-medianoche";
+// La mina (TU-46)
+import { leerPiezaDeLaMina, PIEZAS_DE_LA_MINA, type PiezaDeLaMinaEnPlano } from "./formato-mina";
+// La minga (TU-47)
+import { leerPiezaDeLaMinga, PIEZAS_DE_LA_MINGA, type PiezaDeLaMingaEnPlano } from "./formato-minga";
+// La pampa (TU-48)
+import { leerPiezaDeLaPampa, PIEZAS_DE_LA_PAMPA, type PiezaDeLaPampaEnPlano } from "./formato-pampa";
 import { leerPiezaDelPinar, PIEZAS_DEL_PINAR, type PiezaDelPinarEnPlano } from "./formato-pinar";
 import { leerPiezaDeLaPoza, PIEZAS_DE_LA_POZA, type PiezaDeLaPozaEnPlano } from "./formato-poza";
+// El puente (TU-45)
+import { leerPiezaDelPuente, PIEZAS_DEL_PUENTE, type PiezaDelPuenteEnPlano } from "./formato-puente";
 // El Río Plátano (TU-28)
 import { leerPiezaDelRio, PIEZAS_DEL_RIO, type PiezaDelRioEnPlano } from "./formato-rio";
 import { leerPiezaDelTren, PIEZAS_DEL_TREN, type PiezaDelTrenEnPlano } from "./formato-tren";
@@ -61,6 +75,16 @@ export const PIEZAS = [
   ...PIEZAS_DE_LAS_TRENZAS,
   // El cafetal (TU-41)
   ...PIEZAS_DEL_CAFETAL,
+  // El puente (TU-45)
+  ...PIEZAS_DEL_PUENTE,
+  // La mina (TU-46)
+  ...PIEZAS_DE_LA_MINA,
+  // La minga (TU-47)
+  ...PIEZAS_DE_LA_MINGA,
+  // La medianoche (TU-49)
+  ...PIEZAS_DE_LA_MEDIANOCHE,
+  // La pampa (TU-48)
+  ...PIEZAS_DE_LA_PAMPA,
 ] as const;
 export type TipoDePieza = (typeof PIEZAS)[number];
 
@@ -168,7 +192,17 @@ export type PiezaDelPlano =
   // Las trenzas (TU-40)
   | PiezaDeLasTrenzasEnPlano
   // El cafetal (TU-41)
-  | PiezaDelCafetalEnPlano;
+  | PiezaDelCafetalEnPlano
+  // El puente (TU-45)
+  | PiezaDelPuenteEnPlano
+  // La mina (TU-46)
+  | PiezaDeLaMinaEnPlano
+  // La minga (TU-47)
+  | PiezaDeLaMingaEnPlano
+  // La medianoche (TU-49)
+  | PiezaDeLaMedianocheEnPlano
+  // La pampa (TU-48)
+  | PiezaDeLaPampaEnPlano;
 
 export interface PlanoDeNivel {
   /** Número del nivel (99 para el de prueba). */
@@ -433,6 +467,52 @@ function leerPieza(o: THREE.Object3D, extras: Extras, donde: string): PiezaDelPl
     case "guineo":
     case "cipitio":
       return leerPiezaDelCafetal(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // El puente (TU-45)
+    case "qeswa":
+    case "chaka":
+    case "bocatoma":
+    case "anden":
+    case "carguera":
+      return leerPiezaDelPuente(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // La mina (TU-46)
+    case "vagoneta":
+    case "espejo":
+    case "grieta":
+    case "ofrenda":
+    case "velas":
+    case "tio":
+      return leerPiezaDeLaMina(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // La minga (TU-47)
+    case "minga":
+    case "chalupa":
+    case "ancla":
+    case "caleuche":
+      return leerPiezaDeLaMinga(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // La medianoche (TU-49)
+    case "nenufar":
+    case "montaria":
+    case "fuegos":
+    case "curupira":
+      return leerPiezaDeLaMedianoche(cual, base, (clave, porDefecto, min, max) =>
+        leerEntre(extras, clave, donde, porDefecto, min, max),
+      );
+    // La pampa (TU-48)
+    case "pampero":
+    case "tranquera":
+    case "boleadoras":
+    case "chambergo":
+    case "pie-de-amigo":
+    case "candil":
+    case "luz-mala":
+      return leerPiezaDeLaPampa(cual, base, (clave, porDefecto, min, max) =>
         leerEntre(extras, clave, donde, porDefecto, min, max),
       );
   }
