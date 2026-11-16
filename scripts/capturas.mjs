@@ -5,6 +5,7 @@
 //   CAPTURAS_URL=https://… pnpm capturas  usa una vista previa ya publicada
 import { spawn, spawnSync } from "node:child_process";
 import { mkdir, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { createServer } from "node:net";
 import { join } from "node:path";
 import { chromium } from "playwright";
 
@@ -513,13 +514,29 @@ const mudo = (ruta) => `${ruta}${ruta.includes("?") ? "&" : "?"}mudo`;
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
 const SALIDA = "capturas";
-const PUERTO = 4173;
 
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
 // Chromium sin ventana no tiene GPU: SwiftShader dibuja WebGL por software.
 const ARGS = ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"];
 
+/** Un puerto libre que da el sistema: con un puerto fijo, si otro lo tenía ocupado, `vite preview` se moría y las
+ * capturas salían del servidor de otro (otra rama, otro agente) sin avisar. `CAPTURAS_PUERTO` fija uno. */
+async function puertoLibre() {
+  if (process.env.CAPTURAS_PUERTO) return Number(process.env.CAPTURAS_PUERTO);
+  return await new Promise((resolver, fallar) => {
+    const s = createServer();
+    s.once("error", fallar);
+    s.listen(0, "127.0.0.1", () => {
+      const direccion = s.address();
+      s.close(() =>
+        direccion && typeof direccion === "object" ? resolver(direccion.port) : fallar(new Error("sin puerto")),
+      );
+    });
+  });
+}
+
 async function servirJuego() {
+  const PUERTO = await puertoLibre();
   const build = spawnSync("pnpm", ["--filter", "tuerce-juego", "build"], { stdio: "inherit" });
   if (build.status !== 0) throw new Error("no se pudo construir el juego");
   const vite = spawn(
@@ -530,8 +547,13 @@ async function servirJuego() {
       stdio: "ignore",
     },
   );
+  let murio = false;
+  vite.once("exit", () => {
+    murio = true;
+  });
   const base = `http://127.0.0.1:${PUERTO}`;
   for (let i = 0; ; i++) {
+    if (murio) throw new Error(`vite preview no pudo usar el puerto ${PUERTO}`);
     try {
       if ((await fetch(base)).ok) break;
     } catch {}
