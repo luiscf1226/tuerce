@@ -29,6 +29,17 @@ describe("escena nivel", () => {
     for (const m of e.munecos) expect(m.partes.pelvis.translation().y).toBeGreaterThan(1.8);
   });
 
+  it("`&ganar=N` (para probar): en el paso N la pareja alcanza la meta sin caminar", async () => {
+    const e = await escenaDePrueba("j1=&j2=&ganar=5");
+    const avisos: number[] = [];
+    e.avance?.alCambiar((p) => avisos.push(p));
+    for (let i = 0; i < 5; i++) e.pasar();
+    expect(e.avance?.puntoDeControl()).toBe(0);
+    e.pasar();
+    expect(e.avance?.puntoDeControl()).toBe(e.avance?.meta);
+    expect(avisos).toEqual([e.avance?.meta]);
+  });
+
   it("contrarreloj: el reloj no arranca hasta que alguno se mueve", async () => {
     const e = await escenaDePrueba("j1=&j2=&contrarreloj");
     for (let i = 0; i < 60; i++) e.pasar();
