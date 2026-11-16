@@ -10,6 +10,6 @@ labels: [falla]
 
 **Qué esperaba:**
 
-**Cómo repetirlo:** <!-- nivel, escena (`?escena=…`), navegador, en el mismo lugar o en línea -->
+**Cómo repetirlo:** <!-- dirección (producción, vista previa pr-N o local), nivel y punto (`?escena=nivel&nivel=…&punto=N`), navegador, en el mismo lugar o en línea -->
 
 **Captura o video:**
