@@ -70,6 +70,7 @@ import {
   mostrarNivelGanado,
   type PanelDeMeta,
 } from "../ui/llegada";
+import type { AccionesDelNivel } from "../ui/menu";
 import { crearEscenaDos, type PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
 import { bajarNivel } from "./nivel";
@@ -87,6 +88,8 @@ export type EscenaDeDos = EscenaDeJuego & {
   readonly orientacion?: Orientacion;
   /** El sonido (TU-59). */
   readonly oido?: Oido;
+  /** Lo que ofrece la pausa sobre el nivel (TU-60), si la escena es un nivel. */
+  readonly pausa?: AccionesDelNivel;
 };
 /** Arma una escena de dos jugadores; `enRed` decide las entradas de cada paso (o que no se simule). */
 export type CrearEscenaDeDos = (
@@ -243,6 +246,13 @@ export function crearEscenaEnLinea(
         if (conexion.rol === "invitado") dos.oido?.mirarCon(() => sincronia?.muestra);
         if (avance && guardado) guardarAvance(avance, guardado, conexion.rol);
         rol = conexion.rol;
+        // La pausa (TU-60): «Volver al punto de control» lo decide el anfitrión, que simula; el invitado lo ve en
+        // las fotos. «Empezar el nivel de nuevo» no se ofrece en línea: los dos tendrían que irse juntos a la salida
+        // y el avance guardado de la pareja (src/red/avance.ts) los traería de vuelta al punto.
+        if (dos.pausa && avance) {
+          if (conexion.rol === "anfitrion") dos.pausa.volverAlPunto = () => avance.irA(avance.puntoDeControl());
+          else dos.pausa.nota = "Volver al punto de control lo decide tu pareja (pañuelo rojo).";
+        }
         if (avance && !reloj) {
           const historia = nivelDeLaHistoria(clave);
           if (historia) {

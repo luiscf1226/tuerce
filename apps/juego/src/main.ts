@@ -5,6 +5,7 @@ import { crearImagen } from "./imagen";
 import { crearBucle, PASOS_POR_SEGUNDO } from "./motor/bucle";
 import { crearMundo } from "./motor/fisica";
 import { prepararEscritorio } from "./ui/escritorio";
+import { prepararMenosMovimiento } from "./ui/opciones";
 import "./estilo.css";
 
 // Parámetros de la dirección:
@@ -17,6 +18,7 @@ const nombre = parametros.get("escena") ?? ESCENA_INICIAL;
 const congelar = Number(parametros.get("congelar") ?? Number.NaN);
 
 prepararEscritorio();
+prepararMenosMovimiento();
 
 async function arrancar() {
   // Las pantallas de la cuenta no son escenas de físicas: se cargan aparte para no meter Clerk en el juego.

@@ -508,6 +508,20 @@ const TOMAS = [
     archivo: "pista-noche",
     ruta: "/?escena=nivel&nivel=xibalba&punto=1&pista&noche=3&trampa=cruzados&j1=&j2=&congelar=170",
   },
+  // TU-60: la pausa sobre un nivel (volver al punto de control, empezar de nuevo, opciones), el panel de opciones,
+  // y la portada que retoma la historia en el punto de control donde la pareja se quedó en este navegador
+  { archivo: "pausa-nivel", ruta: "/?escena=nivel&nivel=pinar&punto=2&j1=&j2=&pausa&congelar=60" },
+  {
+    archivo: "pausa-opciones",
+    ruta: "/?escena=nivel&nivel=pinar&punto=2&j1=&j2=&pausa&congelar=60",
+    clic: "[data-abre=opciones]",
+  },
+  {
+    archivo: "menu-retomar",
+    ruta: "/?escena=dos&j1=&j2=&menu&congelar=60",
+    ganados: ["patio", "pinar"],
+    retomar: { poza: 2 },
+  },
 ];
 /** Todo se abre mudo (TU-59): el sonido no se graba y Chromium sin ventana no tiene por qué sonar. */
 const mudo = (ruta) => `${ruta}${ruta.includes("?") ? "&" : "?"}mudo`;
@@ -588,7 +602,8 @@ async function esperarListo(pagina) {
   await pagina.evaluate(() => document.fonts.ready);
 }
 
-/** Lo que guarda el navegador de una toma con `ganados`: lo mismo que deja el juego al ganar (niveles/contrarreloj.ts). */
+/** Lo que guarda el navegador de una toma con `ganados`: lo mismo que deja el juego al ganar (niveles/contrarreloj.ts);
+ * con `retomar`, también los puntos de control donde se quedaron (ui/historia.ts, TU-60). */
 const recuerdo = (toma) => ({
   cookies: [],
   origins: [
@@ -597,8 +612,9 @@ const recuerdo = (toma) => ({
       localStorage: [
         {
           name: "tuerce.contrarreloj",
-          value: JSON.stringify(Object.fromEntries(toma.ganados.map((nivel) => [nivel, { ganado: true }]))),
+          value: JSON.stringify(Object.fromEntries((toma.ganados ?? []).map((nivel) => [nivel, { ganado: true }]))),
         },
+        ...(toma.retomar ? [{ name: "tuerce:retomar", value: JSON.stringify(toma.retomar) }] : []),
       ],
     },
   ],
@@ -620,7 +636,10 @@ try {
   pagina.on("pageerror", (e) => errores.push(e.message));
   for (const toma of TOMAS) {
     // `ganados`: en un navegador aparte que recuerda esos niveles ganados (el menú los marca); `clic`: qué apretar
-    const aparte = toma.ganados ? await navegador.newContext({ viewport: TAMANO, storageState: recuerdo(toma) }) : null;
+    const aparte =
+      toma.ganados || toma.retomar
+        ? await navegador.newContext({ viewport: TAMANO, storageState: recuerdo(toma) })
+        : null;
     const enEsta = aparte ? await aparte.newPage() : pagina;
     if (aparte) enEsta.on("pageerror", (e) => errores.push(e.message));
     await enEsta.goto(servidor.base + mudo(toma.ruta));

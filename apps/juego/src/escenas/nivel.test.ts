@@ -104,6 +104,37 @@ describe("escena nivel", () => {
   });
 });
 
+describe("la pausa sobre el nivel (TU-60)", () => {
+  it("«Volver al punto de control» pone a los dos juntos en el último de la pareja, sin perder el avance", async () => {
+    const e = await escenaDePrueba("j1=andar:1,girar:-0.3&j2=andar:-1&punto=2");
+    for (let i = 0; i < 90; i++) e.pasar();
+    const lejos = e.munecos.map((m) => m.partes.pelvis.translation());
+    const volver = e.pausa.volverAlPunto;
+    if (!volver) throw new Error("la pausa no ofrece volver al punto");
+    volver();
+    for (let i = 0; i < 30; i++) e.pasar();
+    expect(e.avance?.puntoDeControl()).toBe(2);
+    const [rojo, turquesa] = e.munecos.map((m) => m.partes.pelvis.translation());
+    if (!rojo || !turquesa) throw new Error("sin muñecos");
+    // De vuelta arriba del escalón, uno al lado del otro (estaban caminando para lados distintos)
+    expect(Math.hypot(rojo.x - turquesa.x, rojo.z - turquesa.z)).toBeLessThan(2);
+    expect(rojo.y).toBeGreaterThan(1.8);
+    expect(turquesa.y).toBeGreaterThan(1.8);
+    expect(lejos.some((p, i) => Math.abs(p.x - (e.munecos[i]?.partes.pelvis.translation().x ?? 0)) > 0.5)).toBe(true);
+  });
+
+  it("sin pantalla no hay «Empezar de nuevo» (recarga la página), y en línea la pausa espera a en-linea.ts", async () => {
+    const e = await escenaDePrueba("j1=&j2=");
+    expect(e.pausa.empezarDeNuevo).toBeUndefined();
+    expect(e.pausa.puntoDeControl()).toBe(0);
+    const { rapier, mundo } = await crearMundo();
+    const plano = await leerDelDisco("99-prueba");
+    const enRed = armarEscenaNivel(rapier, mundo, plano, {}, new URLSearchParams("j1=&j2="), () => null);
+    expect(enRed.pausa.volverAlPunto).toBeUndefined();
+    expect(enRed.pausa.empezarDeNuevo).toBeUndefined();
+  });
+});
+
 describe("entrar y no perderse (TU-62)", () => {
   it("`&pista` enciende la luciérnaga en el primer paso jugando, y se apaga en la meta", async () => {
     const e = await escenaDePrueba("j1=&j2=&pista&ganar=20");
