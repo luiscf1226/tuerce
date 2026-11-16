@@ -52,7 +52,8 @@ const pareja = async (extra = "", escena = "red") => {
   const direccion = async (usuario) => {
     const pase = await firmarPase({ sala, usuario, vence }, SECRETO);
     const urlSala = encodeURIComponent(`${SALA}/sala/${sala}`);
-    return `${JUEGO}/?escena=${escena}&sala=${urlSala}&pase=${pase}${extra}`;
+    // Mudas (TU-59): las dos páginas son Chromium sin ventana
+    return `${JUEGO}/?escena=${escena}&sala=${urlSala}&pase=${pase}&mudo${extra}`;
   };
   return [await direccion("ana"), await direccion("beto")];
 };

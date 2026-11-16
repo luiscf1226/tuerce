@@ -56,6 +56,7 @@ import { crearSiguiente, type Siguiente } from "../red/siguiente";
 import { crearSincronia, type Medidas, type OrigenMundo, type Sincronia } from "../red/sincronia";
 import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
 import { completar } from "../ropero/vestuario";
+import type { Oido } from "../sonido";
 import { type DatosTabla, mostrarLlegada } from "../ui/contrarreloj";
 import { irConFundido } from "../ui/fundido";
 import type { Juego } from "../ui/juego";
@@ -84,6 +85,8 @@ export type EscenaDeDos = EscenaDeJuego & {
   readonly noche?: Noche;
   /** El cartel, el fundido y la luciérnaga (TU-62), si la escena es un nivel: esperan a que estén conectados. */
   readonly orientacion?: Orientacion;
+  /** El sonido (TU-59). */
+  readonly oido?: Oido;
 };
 /** Arma una escena de dos jugadores; `enRed` decide las entradas de cada paso (o que no se simule). */
 export type CrearEscenaDeDos = (
@@ -236,6 +239,8 @@ export function crearEscenaEnLinea(
               }
             : {}),
         });
+        // El sonido (TU-59): el invitado no simula, así que oye con el estado y los agarres que trae la foto
+        if (conexion.rol === "invitado") dos.oido?.mirarCon(() => sincronia?.muestra);
         if (avance && guardado) guardarAvance(avance, guardado, conexion.rol);
         rol = conexion.rol;
         if (avance && !reloj) {

@@ -39,7 +39,7 @@ const errores = [];
 async function abrir(contexto, ruta) {
   const pagina = await contexto.newPage();
   pagina.on("pageerror", (e) => errores.push(`${ruta}: ${e.message}`));
-  await pagina.goto(BASE + ruta);
+  await pagina.goto(`${BASE}${ruta}${ruta.includes("?") ? "&" : "?"}mudo`);
   await pagina.waitForFunction(() => window.__tuerce?.listo === true, null, { timeout: 60_000 });
   const aviso = await pagina
     .locator("pre.error")
@@ -187,7 +187,7 @@ try {
     const nivel = NIVELES_OLA_9[0];
     const [pa, pb] = await Promise.all(
       [a, b].map(async (pagina) => {
-        await pagina.goto(`${BASE}/?escena=en-linea&nivel=${nivel}`);
+        await pagina.goto(`${BASE}/?escena=en-linea&nivel=${nivel}&mudo`);
         await pagina.waitForFunction(() => ["directa", "repetidor"].includes(window.__enLinea?.estado ?? ""), null, {
           timeout: 60_000,
           polling: 100,

@@ -508,6 +508,8 @@ const TOMAS = [
     ruta: "/?escena=nivel&nivel=xibalba&punto=1&pista&noche=3&trampa=cruzados&j1=&j2=&congelar=170",
   },
 ];
+/** Todo se abre mudo (TU-59): el sonido no se graba y Chromium sin ventana no tiene por qué sonar. */
+const mudo = (ruta) => `${ruta}${ruta.includes("?") ? "&" : "?"}mudo`;
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
 const SALIDA = "capturas";
@@ -599,7 +601,7 @@ try {
     const aparte = toma.ganados ? await navegador.newContext({ viewport: TAMANO, storageState: recuerdo(toma) }) : null;
     const enEsta = aparte ? await aparte.newPage() : pagina;
     if (aparte) enEsta.on("pageerror", (e) => errores.push(e.message));
-    await enEsta.goto(servidor.base + toma.ruta);
+    await enEsta.goto(servidor.base + mudo(toma.ruta));
     await esperarListo(enEsta);
     if (toma.clic) await enEsta.click(toma.clic);
     await enEsta.screenshot({ path: join(SALIDA, `${toma.archivo}.png`) });
@@ -613,7 +615,7 @@ try {
   const grabando = await navegador.newContext({ viewport: TAMANO, recordVideo: { dir: carpetaVideo, size: TAMANO } });
   const enVivo = await grabando.newPage();
   enVivo.on("pageerror", (e) => errores.push(e.message));
-  await enVivo.goto(servidor.base + VIDEO.ruta);
+  await enVivo.goto(servidor.base + mudo(VIDEO.ruta));
   await esperarListo(enVivo);
   await dormir(VIDEO.segundos * 1000);
   const estado = await enVivo.evaluate(() => window.__tuerce);
