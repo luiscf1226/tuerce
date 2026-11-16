@@ -1,9 +1,9 @@
 // Un nivel con el formato nuevo (TU-11), para dos jugadores en el mismo lugar como la escena `dos`: la escena sale
-// de un .glb de niveles/ y su guion, con puntos de control y reaparición junto al compañero. Por ahora están el de
-// prueba (niveles/99-prueba) y el de las piezas de juego (niveles/98-piezas).
+// de un .glb de niveles/ y su guion, con puntos de control y reaparición junto al compañero. Están los 17 de la
+// historia (niveles/00-patio a 16-medianoche, en orden en src/niveles/orden.ts) y dos de prueba (98-piezas, 99-prueba).
 //
 // Parámetros (además de los de `dos`: `&j1=`, `&j2=`, `&ayuda`, `&menu`):
-//   &nivel=prueba    qué nivel abrir: `patio`, `prueba` o `piezas` (ver src/niveles/lista.ts)
+//   &nivel=patio     qué nivel abrir (ver src/niveles/lista.ts); sin él, El patio
 //   &punto=N         empieza en ese punto de control, como al retomar un avance guardado
 //   &vista=todo      la cámara quieta, lejos, mirando el nivel entero (para las capturas)
 //   &vista=x,y,z     la cámara quieta mirando ese punto desde la dirección de siempre (el nido del secreto)

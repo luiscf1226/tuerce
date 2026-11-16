@@ -1,5 +1,5 @@
 // Jugar en línea (TU-21): un nivel para dos (la escena `nivel`, TU-11), pero cada uno en su casa.
-// `?escena=en-linea` juega el nivel que pida `&nivel=` (el de prueba si no pide ninguno); `&base=dos` juega la
+// `?escena=en-linea` juega el nivel que pida `&nivel=` (El patio si no pide ninguno); `&base=dos` juega la
 // escena `dos`, sin puntos de control (ver `abrirEscenaEnLinea`).
 //
 //   1. Entra con la cuenta (Clerk y Convex, como `invitar`) y toma la pareja más reciente (`misParejas`). Si no hay,
@@ -13,7 +13,8 @@
 //      entrar a la sala se lee de Convex el último que alcanzó la pareja y los muñecos arrancan ahí; después, el
 //      anfitrión guarda cada punto nuevo (src/red/avance.ts). Si uno se cae o recarga, el otro ve «tu pareja se
 //      fue» y al volver siguen donde estaban: cada uno conserva su rol, y si el que vuelve es el anfitrión, el
-//      invitado le devuelve el mundo (src/red/sincronia.ts). Si se fueron los dos, se retoma del punto guardado.
+//      invitado le devuelve el mundo (src/red/sincronia.ts). Si se fueron los dos, se retoma del punto guardado;
+//      un nivel ya ganado empieza otra vez desde la salida (TU-58).
 //   6. Contrarreloj (TU-32, `&contrarreloj`): solo en un nivel que la pareja ya ganó (Convex lo sabe por
 //      `ganarNivel`, que el anfitrión manda al llegar a la meta). Se corre desde la salida, sin retomar ni guardar
 //      puntos de control. El reloj lo cuenta el anfitrión y viaja en las fotos; al llegar, el anfitrión registra el
