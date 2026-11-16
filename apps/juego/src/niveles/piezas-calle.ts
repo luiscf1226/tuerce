@@ -1075,8 +1075,8 @@ export interface Tramo {
   readonly y1?: number;
 }
 
-/** El empedrado (solo imagen): piedras bola apenas asomadas sobre el suelo, en filas corridas, un poco más oscuras
- * que el suelo. Todas en una sola malla. */
+/** El empedrado (solo imagen): piedras bola apenas asomadas sobre el suelo, en filas corridas, más oscuras que la
+ * tierra de abajo (TU-61, niveles/vestido.ts), como en docs/arte/13-carreta. Todas en una sola malla. */
 export function crearEmpedrado(tramos: readonly Tramo[], paso = 0.26): THREE.InstancedMesh {
   let s = 12345;
   const azar = () => {
@@ -1107,7 +1107,7 @@ export function crearEmpedrado(tramos: readonly Tramo[], paso = 0.26): THREE.Ins
       }
     }
   }
-  const color = new THREE.Color(COLORES.niebla).multiplyScalar(0.5);
+  const color = new THREE.Color(COLORES.niebla).multiplyScalar(0.13);
   const malla = new THREE.InstancedMesh(
     new THREE.SphereGeometry(1, 8, 5),
     new THREE.MeshStandardMaterial({ name: "empedrado", color, roughness: 1, metalness: 0 }),
