@@ -20,6 +20,10 @@
 //       [0x50 «P»]                      anfitrión → invitado: «volví sin mundo, ¿tenés el de antes?»
 //       [0x4d «M»] y lo mismo que una foto   invitado → anfitrión: la última foto que le llegó, para retomar ahí
 //       [0x4e «N»]                      invitado → anfitrión: «no tengo nada» (él también acaba de llegar)
+//
+//   · Siguiente nivel (TU-57, canal fiable, ver siguiente.ts):
+//       [0x53 «S»] [nivel u8]           anfitrión → invitado: «vamos a este nivel» (su número en la historia)
+//       [0x56 «V»] [nivel u8]           invitado → anfitrión: «voy» (o «ya estoy»)
 import { type EntradaJugador, GESTOS } from "../entrada/mandos";
 import type { EstadoMuneco } from "../muneco";
 
@@ -28,6 +32,8 @@ export const TIPO_FOTO = 0x46;
 export const TIPO_PEDIR_MUNDO = 0x50;
 export const TIPO_MUNDO = 0x4d;
 export const TIPO_SIN_MUNDO = 0x4e;
+export const TIPO_SIGUIENTE = 0x53;
+export const TIPO_VOY = 0x56;
 
 /** Cuántas entradas viajan en cada paquete: la nueva y las dos anteriores. */
 export const REDUNDANCIA = 3;
@@ -206,6 +212,17 @@ export function leerEntradas(datos: ArrayBuffer): EntradaNumerada[] | null {
 /** Un paquete de un solo byte: `TIPO_PEDIR_MUNDO` o `TIPO_SIN_MUNDO`. */
 export function escribirAviso(tipo: typeof TIPO_PEDIR_MUNDO | typeof TIPO_SIN_MUNDO): ArrayBuffer {
   return new Uint8Array([tipo]).buffer;
+}
+
+/** El pedido de pasar a otro nivel (`TIPO_SIGUIENTE`) o su respuesta (`TIPO_VOY`), con el número del nivel. */
+export function escribirSiguiente(tipo: typeof TIPO_SIGUIENTE | typeof TIPO_VOY, nivel: number): ArrayBuffer {
+  return new Uint8Array([tipo, nivel]).buffer;
+}
+
+/** El número del nivel de un `TIPO_SIGUIENTE` o `TIPO_VOY`, o null si no es uno de esos o viene mal. */
+export function leerSiguiente(datos: ArrayBuffer, tipo: typeof TIPO_SIGUIENTE | typeof TIPO_VOY): number | null {
+  if (datos.byteLength !== 2 || tipoDe(datos) !== tipo) return null;
+  return new DataView(datos).getUint8(1);
 }
 
 /** Qué tipo de paquete es (su primer byte), o `undefined` si viene vacío. */
