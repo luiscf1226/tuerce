@@ -11,15 +11,21 @@ import {
   crearRoca,
   crearTroncoCaido,
   materialCorteza,
+  materialSuelo,
   materialTela,
   type Niebla,
   vestirDeDia,
 } from "../imagen";
+import { crearPrimerPlano } from "../imagen/primer-plano";
+import { crearSombras, type FuenteDeSombra, type Sombras } from "../imagen/sombras";
+import { DATOS_DE_SUELO, type Suelo, uvDelMundo } from "../imagen/suelos";
 import type { Rapier } from "../motor/fisica";
+import type { Muneco } from "../muneco";
 // El agua (TU-24)
 import { type Aguas, armarAguas } from "./agua";
 import { type Adorno, cajaLocal, type Material, type PlanoDeNivel, rumboDe, type Solido } from "./formato";
 import { armarPiezas, type PiezasDeJuego } from "./piezas";
+import { type Vestido, vestidoDe } from "./vestido";
 
 /** Un sólido del nivel ya armado: su nodo y su colisionador (y su cuerpo, si se mueve). */
 export interface Pieza {
@@ -40,25 +46,35 @@ export interface NivelArmado {
   pieza(nombre: string): Pieza | undefined;
   /** Las zonas de agua (TU-24, ver agua.ts). */
   readonly aguas: Aguas;
+  /** Cómo se viste (TU-61): la textura del suelo y el primer plano (ver vestido.ts). */
+  readonly vestido: Vestido;
+  /** Las sombras de contacto de las piezas sueltas grandes y de lo que se sume con `sombrear`. */
+  readonly sombras: Sombras;
+  /** Las plantas oscuras del primer plano (con `&vista=todo` se esconden). */
+  readonly primerPlano: THREE.Object3D;
+  /** Suma la sombra de contacto de los muñecos. */
+  sombrear(munecos: readonly Muneco[]): void;
   /** Anota dónde quedó cada pieza que se mueve. Va después de cada `mundo.step()`. */
   guardar(): void;
   /** Mueve las piezas entre el paso anterior y el actual (`alfa` de 0 a 1) y corre la niebla. */
   dibujar(alfa: number, segundos: number): void;
 }
 
+/** El rayo de las sombras no ve a los muñecos (grupos de choque 1 y 2, como el de la cámara en camara/despejado.ts). */
+const SIN_MUNECOS = ((1 << 16) | (0xffff & ~0b110)) >>> 0;
+/** Las piezas sueltas más angostas que esto (m) no llevan sombra de contacto: astillas, eslabones de los bejucos. */
+const SOMBRA_DESDE = 0.3;
+/** A cuánto de los pies queda la pelvis de un muñeco de pie (m, ver muneco/ajustes.ts). */
+const PELVIS_SOBRE_LOS_PIES = 0.48;
+
 /** Un material por nombre, compartido por todas las piezas del nivel. */
-function crearMateriales(): (cual: Material) => THREE.Material {
-  const hechos = new Map<Material, THREE.Material>();
-  const hacer = (cual: Material): THREE.Material => {
+function crearMateriales(suelo: Suelo): (cual: Material) => THREE.Material | THREE.Material[] {
+  const hechos = new Map<Material, THREE.Material | THREE.Material[]>();
+  const hacer = (cual: Material): THREE.Material | THREE.Material[] => {
     switch (cual) {
-      // El suelo casi del color de la niebla, como el claro de la escena `dos`: así las siluetas se leen encima
+      // El suelo con la textura de su lugar, en grises medios: más oscuro que la niebla, más claro que las siluetas
       case "suelo":
-        return new THREE.MeshStandardMaterial({
-          name: "suelo",
-          color: new THREE.Color(COLORES.niebla).multiplyScalar(0.8),
-          roughness: 1,
-          metalness: 0,
-        });
+        return materialSuelo(suelo);
       case "tela":
         return materialTela(COLORES.silueta, { repetir: 2, pelusa: false });
       case "corteza":
@@ -159,7 +175,8 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
   const escena = new THREE.Scene();
   vestirDeDia(escena, plano.niebla);
   escena.add(plano.raiz);
-  const material = crearMateriales();
+  const vestido = vestidoDe(plano.numero);
+  const material = crearMateriales(vestido.suelo);
 
   // Lo que no es imagen (zonas, salidas, marcas de niebla y de adornos) no se dibuja
   plano.raiz.traverse((o) => {
@@ -177,13 +194,21 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
     ahoraQ: THREE.Quaternion;
   }[] = [];
   for (const s of plano.solidos) {
-    // La imagen: todas las mallas del sólido con el material del juego
+    const forma = formaDe(rapier, s, s.cuerpo === "fijo").setFriction(s.rozamiento);
+    // La imagen: todas las mallas del sólido con el material del juego. El suelo, con su textura en metros del mundo
     s.objeto.traverse((o) => {
-      if (o instanceof THREE.Mesh) o.material = material(s.material);
+      if (!(o instanceof THREE.Mesh)) return;
+      o.material = material(s.material);
+      if (s.material === "suelo") {
+        o.geometry = uvDelMundo(
+          o.geometry as THREE.BufferGeometry,
+          o.matrixWorld,
+          DATOS_DE_SUELO[vestido.suelo].metros,
+        );
+      }
     });
     if (s.invisible) s.objeto.visible = false;
 
-    const forma = formaDe(rapier, s, s.cuerpo === "fijo").setFriction(s.rozamiento);
     if (s.cuerpo === "fijo") {
       piezas.push({ nombre: s.nombre, objeto: s.objeto, cuerpo: null, colisionador: mundo.createCollider(forma) });
       continue;
@@ -231,6 +256,57 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
   );
   escena.add(niebla.grupo);
 
+  // Las sombras de contacto (TU-61): un rayo hacia abajo que no ve a los muñecos ni las zonas
+  const sombras = crearSombras();
+  escena.add(sombras.grupo);
+  const rayo = new rapier.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
+  const tirarRayo = (cuerpo: RAPIER.RigidBody | null) => (origen: THREE.Vector3, largo: number) => {
+    rayo.origin = { x: origen.x, y: origen.y, z: origen.z };
+    const golpe = mundo.castRayAndGetNormal(
+      rayo,
+      largo,
+      true,
+      rapier.QueryFilterFlags.EXCLUDE_SENSORS,
+      SIN_MUNECOS,
+      undefined,
+      cuerpo ?? undefined,
+    );
+    return golpe ? { distancia: golpe.timeOfImpact, normal: golpe.normal } : null;
+  };
+  const caja = new THREE.Box3();
+  const tamano = new THREE.Vector3();
+  for (const p of piezas) {
+    if (!p.cuerpo?.isDynamic() || !p.objeto.visible) continue;
+    caja.setFromObject(p.objeto).getSize(tamano);
+    const ancho = Math.max(tamano.x, tamano.z);
+    if (ancho < SOMBRA_DESDE) continue;
+    const { objeto } = p;
+    let radio: readonly [number, number] = [0, 0];
+    let pie = 0;
+    sombras.agregar({
+      origen(salida) {
+        if (!objeto.visible) return null;
+        objeto.updateMatrixWorld(true);
+        caja.setFromObject(objeto);
+        caja.getSize(tamano);
+        radio = [Math.max(tamano.x * 0.6, 0.15), Math.max(tamano.z * 0.6, 0.15)];
+        pie = Math.min(0.1, tamano.y / 2);
+        return caja.getCenter(salida).setY(caja.min.y + pie);
+      },
+      pie: () => pie,
+      radio: () => radio,
+      oscuridad: 0.6,
+      rayo: tirarRayo(p.cuerpo),
+    });
+  }
+
+  const primerPlano = crearPrimerPlano({
+    abajo: vestido.abajo,
+    arriba: vestido.arriba,
+    semilla: plano.numero + 3,
+  }).grupo;
+  escena.add(primerPlano);
+
   return {
     escena,
     piezas,
@@ -238,6 +314,21 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
     piezasDeJuego,
     aguas,
     pieza: (nombre) => piezas.find((p) => p.nombre === nombre),
+    vestido,
+    sombras,
+    primerPlano,
+    sombrear(munecos) {
+      for (const m of munecos) {
+        const fuente: FuenteDeSombra = {
+          origen: (salida) => salida.copy(m.partes.pelvis.translation()),
+          pie: PELVIS_SOBRE_LOS_PIES,
+          radio: [0.4, 0.34],
+          oscuridad: 0.7,
+          rayo: tirarRayo(null),
+        };
+        sombras.agregar(fuente);
+      }
+    },
     guardar() {
       for (const q of moviles) {
         if (!q.pieza.cuerpo) continue;
@@ -257,6 +348,7 @@ export function armarNivel(rapier: Rapier, mundo: RAPIER.World, plano: PlanoDeNi
       piezasDeJuego.dibujar(alfa);
       aguas.dibujar(alfa, segundos);
       niebla.mover(segundos);
+      sombras.actualizar();
     },
   };
 }

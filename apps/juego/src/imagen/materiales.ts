@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { COLORES } from "../escenas/colores";
 import { COLOR_PANUELO, type Panuelo } from "./paleta";
+import { costadoDe, DATOS_DE_SUELO, pintarSuelo, type Suelo } from "./suelos";
 import {
   type Lamina,
   nubeDeNiebla,
@@ -108,6 +109,33 @@ export function materialCorteza(color: THREE.ColorRepresentation = COLORES.silue
     metalness: 0,
   });
 }
+
+/**
+ * El suelo de un nivel (TU-61) con la textura de su lugar: dos materiales, el de las caras de arriba y el de los
+ * costados (ver `uvDelMundo` en suelos.ts, que arma los dos grupos). Piden mallas con coordenadas en metros del mundo
+ * y color por vértice, así la textura no se estira y los costados quedan más oscuros.
+ */
+export function materialSuelo(cual: Suelo): [THREE.MeshStandardMaterial, THREE.MeshStandardMaterial] {
+  const datos = DATOS_DE_SUELO[cual];
+  const hacer = (textura: Suelo | "corte", nombre: string) => {
+    const tela = () => {
+      suelos[textura] ??= pintarSuelo(textura);
+      return suelos[textura];
+    };
+    return new THREE.MeshStandardMaterial({
+      name: nombre,
+      color: new THREE.Color().setScalar(datos.tono),
+      map: compartida(`suelo-${textura}-color`, () => aTextura(tela().color, { srgb: true })),
+      bumpMap: compartida(`suelo-${textura}-relieve`, () => aTextura(tela().relieve)),
+      bumpScale: datos.relieve,
+      roughness: 1,
+      metalness: 0,
+      vertexColors: true,
+    });
+  };
+  return [hacer(cual, `suelo-${cual}`), hacer(costadoDe(cual), `suelo-${cual}-costado`)];
+}
+const suelos: Partial<Record<Suelo | "corte", Tela>> = {};
 
 /** El pañuelo de cada muñeco: la misma tela, pero con su color. Se ve de los dos lados. */
 export function materialPanuelo(cual: Panuelo, opciones: OpcionesTela = {}) {

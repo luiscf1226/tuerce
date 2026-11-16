@@ -134,6 +134,7 @@ export function armarEscenaNivel(
   };
   const jugadores = [vestir(0, "rojo"), vestir(1, "turquesa")] as const;
   const munecos = [jugadores[0].muneco, jugadores[1].muneco] as const;
+  armado.sombrear(munecos); // la sombra de contacto (TU-61)
   const nivel = crearNivel({ rapier, mundo, plano, armado, munecos, guion });
 
   const controles = crearControles({ parametros });
@@ -183,6 +184,7 @@ export function armarEscenaNivel(
     }
   }
   if (vistaTodo) {
+    armado.primerPlano.visible = vistaPunto !== null; // el nivel entero se ve sin plantas delante (TU-61)
     // Desde lejos, la niebla se corre para que el nivel entero se lea
     if (escena.fog instanceof THREE.Fog) {
       const atras = VISTA_TODO.desde.z * (lejos - 1);
