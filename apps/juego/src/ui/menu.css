@@ -13,6 +13,8 @@
   --cuerpo: "Karla", "Segoe UI", system-ui, sans-serif;
   position: fixed;
   inset: 0;
+  /* Encima de todo lo demás (la llegada, contrarreloj.css, va en 6): la pausa se abre también sobre ella */
+  z-index: 7;
   display: grid;
   place-items: center;
   padding: 16px;

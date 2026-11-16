@@ -121,6 +121,8 @@ function abrir(panel: HTMLElement, clase: string): void {
   const apretar = () => {
     const activo = document.activeElement as HTMLElement | null;
     if (activo && panel.contains(activo)) activo.click();
+    // Al cerrar la pausa el foco quedó en el menú: el primer botón lo trae de vuelta, sin apretar nada
+    else elegibles()[0]?.focus({ preventScroll: true });
   };
   elegibles()[0]?.focus({ preventScroll: true });
   /** Si el menú de pausa está abierto, los botones son de él. */
