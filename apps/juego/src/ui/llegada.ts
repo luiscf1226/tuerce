@@ -63,7 +63,7 @@ export function accionesDeLaMeta(fin: FinDeNivel, alSiguiente?: () => void): Acc
   return [siguiente, { texto: "Menú", href: MENU }];
 }
 
-/** «Lo que sigue: El pinar · Honduras». */
+/** «Lo que sigue: El pinar · La Esperanza, Honduras». */
 export function loQueSigue(siguiente: NivelDeLaHistoria): string {
   return `Lo que sigue: ${siguiente.titulo} · ${siguiente.lugar}`;
 }

@@ -1,8 +1,9 @@
 // La escena `nivel` con el nivel de prueba leído del disco: se arma, expone su avance (TU-22) y reaparece.
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { crearMundo } from "../motor/fisica";
 import { NIVELES } from "../niveles/lista";
 import { leerDelDisco } from "../niveles/prueba";
+import { LLAVE_RETOMAR } from "../ui/historia";
 import { armarEscenaNivel } from "./nivel";
 
 async function escenaDePrueba(parametros: string) {
@@ -101,5 +102,88 @@ describe("escena nivel", () => {
     e.vestir(0, { panuelo: "capa", sombrero: "puntudo", peinado: "ninguno", mascara: "jade" });
     for (let i = 0; i < 3; i++) e.pasar();
     e.dibujar(1);
+  });
+});
+
+describe("retomar aquí (TU-60)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("un punto guardado que ya es la meta (de una versión vieja del nivel) se olvida y se empieza en la salida", async () => {
+    const guardado = new Map<string, string>();
+    vi.stubGlobal("localStorage", {
+      getItem: (llave: string) => guardado.get(llave) ?? null,
+      setItem: (llave: string, valor: string) => void guardado.set(llave, valor),
+      removeItem: (llave: string) => void guardado.delete(llave),
+    });
+    const meta = (await escenaDePrueba("j1=&j2=")).avance?.meta ?? 0;
+    guardado.set(LLAVE_RETOMAR, JSON.stringify({ prueba: meta + 2 }));
+    const e = await escenaDePrueba(`j1=&j2=&nivel=prueba&punto=${meta + 2}`);
+    for (let i = 0; i < 5; i++) e.pasar();
+    expect(e.avance?.puntoDeControl()).toBe(0);
+    expect(JSON.parse(guardado.get(LLAVE_RETOMAR) ?? "{}")).toEqual({});
+  });
+
+  it("un `&punto=` que no viene de lo guardado se respeta aunque sea la meta (las capturas)", async () => {
+    const meta = (await escenaDePrueba("j1=&j2=")).avance?.meta ?? 0;
+    const e = await escenaDePrueba(`j1=&j2=&nivel=prueba&punto=${meta}`);
+    for (let i = 0; i < 5; i++) e.pasar();
+    expect(e.avance?.puntoDeControl()).toBe(meta);
+  });
+});
+
+describe("la pausa sobre el nivel (TU-60)", () => {
+  it("«Volver al punto de control» pone a los dos juntos en el último de la pareja, sin perder el avance", async () => {
+    const e = await escenaDePrueba("j1=andar:1,girar:-0.3&j2=andar:-1&punto=2");
+    for (let i = 0; i < 90; i++) e.pasar();
+    const lejos = e.munecos.map((m) => m.partes.pelvis.translation());
+    const volver = e.pausa.volverAlPunto;
+    if (!volver) throw new Error("la pausa no ofrece volver al punto");
+    volver();
+    for (let i = 0; i < 30; i++) e.pasar();
+    expect(e.avance?.puntoDeControl()).toBe(2);
+    const [rojo, turquesa] = e.munecos.map((m) => m.partes.pelvis.translation());
+    if (!rojo || !turquesa) throw new Error("sin muñecos");
+    // De vuelta arriba del escalón, uno al lado del otro (estaban caminando para lados distintos)
+    expect(Math.hypot(rojo.x - turquesa.x, rojo.z - turquesa.z)).toBeLessThan(2);
+    expect(rojo.y).toBeGreaterThan(1.8);
+    expect(turquesa.y).toBeGreaterThan(1.8);
+    expect(lejos.some((p, i) => Math.abs(p.x - (e.munecos[i]?.partes.pelvis.translation().x ?? 0)) > 0.5)).toBe(true);
+  });
+
+  it("sin pantalla no hay «Empezar de nuevo» (recarga la página), y en línea la pausa espera a en-linea.ts", async () => {
+    const e = await escenaDePrueba("j1=&j2=");
+    expect(e.pausa.empezarDeNuevo).toBeUndefined();
+    expect(e.pausa.puntoDeControl()).toBe(0);
+    const { rapier, mundo } = await crearMundo();
+    const plano = await leerDelDisco("99-prueba");
+    const enRed = armarEscenaNivel(rapier, mundo, plano, {}, new URLSearchParams("j1=&j2="), () => null);
+    expect(enRed.pausa.volverAlPunto).toBeUndefined();
+    expect(enRed.pausa.empezarDeNuevo).toBeUndefined();
+  });
+});
+
+describe("entrar y no perderse (TU-62)", () => {
+  it("`&pista` enciende la luciérnaga en el primer paso jugando, y se apaga en la meta", async () => {
+    const e = await escenaDePrueba("j1=&j2=&pista&ganar=20");
+    e.pasar();
+    expect(e.orientacion.pista.encendida).toBe(true);
+    for (let i = 0; i < 25; i++) e.pasar();
+    e.dibujar(0.5);
+    expect(e.orientacion.pista.encendida).toBe(false);
+  });
+
+  it("en línea, la cuenta de la pista espera a que estén conectados", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const plano = await leerDelDisco("99-prueba");
+    const guion = NIVELES.prueba?.crearGuion() ?? {};
+    const e = armarEscenaNivel(rapier, mundo, plano, guion, new URLSearchParams("j1=&j2=&pista"), () => null);
+    expect(e.orientacion.conectados).toBe(false);
+    for (let i = 0; i < 5; i++) e.pasar();
+    expect(e.orientacion.pista.encendida).toBe(false);
+    e.orientacion.conectados = true;
+    e.pasar();
+    expect(e.orientacion.pista.encendida).toBe(true);
   });
 });

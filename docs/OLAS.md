@@ -116,3 +116,12 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-56 · Menú de la historia y de los niveles
 - TU-57 · Meta, siguiente nivel y el final
 - TU-58 · En línea: elegir nivel y volver a empezar
+
+## Ola 11 · Que se sienta y se vea
+
+**Vas a ver:** El juego con sonido (pasos, golpes, piezas, ambiente de cada nivel y música en el menú); suelos con textura, sombras y plantas en primer plano; un cartel al entrar a cada nivel, fundidos en niebla y una luz que guía si la pareja se traba; la pausa con volver al punto de control, empezar de nuevo y opciones.
+
+- TU-59 · Sonido
+- TU-60 · Pausa, opciones y retomar aquí
+- TU-61 · La imagen de los niveles: suelos, sombras y primer plano
+- TU-62 · Entrar a un nivel y no perderse

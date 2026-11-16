@@ -11,13 +11,13 @@ export interface NivelDeLaHistoria {
 }
 
 export const HISTORIA: readonly NivelDeLaHistoria[] = [
-  { clave: "patio", numero: 0, titulo: "El patio", lugar: "Honduras" },
-  { clave: "pinar", numero: 1, titulo: "El pinar", lugar: "Honduras" },
-  { clave: "poza", numero: 2, titulo: "La poza", lugar: "Honduras" },
-  { clave: "calle", numero: 3, titulo: "La calle empedrada", lugar: "Honduras" },
-  { clave: "xibalba", numero: 4, titulo: "Xibalbá", lugar: "Honduras" },
-  { clave: "tren", numero: 5, titulo: "El tren bananero", lugar: "Honduras" },
-  { clave: "rio", numero: 6, titulo: "Río Plátano", lugar: "Honduras" },
+  { clave: "patio", numero: 0, titulo: "El patio", lugar: "Tegucigalpa, Honduras" },
+  { clave: "pinar", numero: 1, titulo: "El pinar", lugar: "La Esperanza, Honduras" },
+  { clave: "poza", numero: 2, titulo: "La poza", lugar: "Río Guayape, Honduras" },
+  { clave: "calle", numero: 3, titulo: "La calle empedrada", lugar: "Comayagua, Honduras" },
+  { clave: "xibalba", numero: 4, titulo: "Xibalbá", lugar: "Copán, Honduras" },
+  { clave: "tren", numero: 5, titulo: "El tren bananero", lugar: "El Progreso, Honduras" },
+  { clave: "rio", numero: 6, titulo: "Río Plátano", lugar: "La Mosquitia, Honduras" },
   { clave: "trenzas", numero: 7, titulo: "Las trenzas", lugar: "Antigua, Guatemala" },
   { clave: "cafetal", numero: 8, titulo: "El cafetal", lugar: "Izalco, El Salvador" },
   { clave: "canales", numero: 9, titulo: "Los canales", lugar: "Xochimilco, México" },

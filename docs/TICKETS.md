@@ -105,3 +105,12 @@ Un ticket por nivel.
 | TU-56 | Menú de la historia y de los niveles | Desde el menú de inicio se juega la historia (empieza en El patio o sigue en el próximo nivel sin ganar) o se elige cualquiera de los 17 niveles; noche y contrarreloj abren niveles de verdad. | M | — |
 | TU-57 | Meta, siguiente nivel y el final | Al llegar a la meta, «Nivel ganado» con «Siguiente nivel» y «Menú», aquí y en línea (los dos pasan juntos); después de La medianoche, el final de Año Nuevo con créditos. | M | — |
 | TU-58 | En línea: elegir nivel y volver a empezar | Después de juntarse la pareja elige el nivel o sigue la historia; un nivel ganado se vuelve a jugar desde la salida; «Volver al menú» en la cuenta; tablas solo con los 17 niveles. | M | — |
+
+## Fase 8 · Que se sienta y se vea
+
+| Id | Ticket | Listo cuando | Tamaño | Depende de |
+|---|---|---|---|---|
+| TU-59 | Sonido | Cada acción de los muñecos suena (pasos según el suelo, saltar, caer y golpearse, agarrar y soltar, chapotear), las piezas suenan (palanca, plancha, campana, huacal que cae, compuerta), cada nivel tiene su ambiente y el menú su música suave; todo hecho con Web Audio dentro del juego, sin archivos de terceros; `?mudo` lo apaga. | G | — |
+| TU-60 | Pausa, opciones y retomar aquí | La pausa tiene «Volver al punto de control» y «Empezar el nivel de nuevo»; «Opciones» (desde el inicio y la pausa) con volumen general, de efectos y de música, pantalla completa y «menos movimiento», guardado en este navegador; «Seguir la historia» retoma el nivel en el último punto de control alcanzado aquí. | M | TU-59 |
+| TU-61 | La imagen de los niveles: suelos, sombras y primer plano | Los suelos dejan de ser planos blancos: cada nivel tiene la textura de su lugar en grises; muñecos y piezas proyectan una sombra de contacto suave; hay plantas y ramas oscuras en primer plano como en `docs/arte/11-*` y `13-*`; sin bajar de 60 pasos por segundo. | G | — |
+| TU-62 | Entrar a un nivel y no perderse | Al entrar a un nivel, un cartel con número, nombre y lugar que se va solo; fundido en niebla entre niveles y al reaparecer; si la pareja pasa 2 minutos sin llegar al próximo punto de control, una luz suave sin texto señala hacia dónde seguir; igual aquí y en línea. | M | — |

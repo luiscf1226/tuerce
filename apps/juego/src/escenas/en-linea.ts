@@ -56,7 +56,9 @@ import { crearSiguiente, type Siguiente } from "../red/siguiente";
 import { crearSincronia, type Medidas, type OrigenMundo, type Sincronia } from "../red/sincronia";
 import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
 import { completar } from "../ropero/vestuario";
+import type { Oido } from "../sonido";
 import { type DatosTabla, mostrarLlegada } from "../ui/contrarreloj";
+import { irConFundido } from "../ui/fundido";
 import type { Juego } from "../ui/juego";
 import {
   accionesDeLaMeta,
@@ -68,9 +70,11 @@ import {
   mostrarNivelGanado,
   type PanelDeMeta,
 } from "../ui/llegada";
+import type { AccionesDelNivel } from "../ui/menu";
 import { crearEscenaDos, type PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
 import { bajarNivel } from "./nivel";
+import type { Orientacion } from "./orientacion";
 import type { AvanceDeNivel, PremiosDeNivel, Vestir } from "./tipos";
 import "./en-linea.css";
 
@@ -80,6 +84,12 @@ export type EscenaDeDos = EscenaDeJuego & {
   readonly vestir?: Vestir;
   /** La Noche de tuerce (TU-33), si la escena es un nivel. */
   readonly noche?: Noche;
+  /** El cartel, el fundido y la luciérnaga (TU-62), si la escena es un nivel: esperan a que estén conectados. */
+  readonly orientacion?: Orientacion;
+  /** El sonido (TU-59). */
+  readonly oido?: Oido;
+  /** Lo que ofrece la pausa sobre el nivel (TU-60), si la escena es un nivel. */
+  readonly pausa?: AccionesDelNivel;
 };
 /** Arma una escena de dos jugadores; `enRed` decide las entradas de cada paso (o que no se simule). */
 export type CrearEscenaDeDos = (
@@ -232,8 +242,18 @@ export function crearEscenaEnLinea(
               }
             : {}),
         });
+        // El sonido (TU-59): el invitado no simula, así que oye con el estado y los agarres que trae la foto
+        if (conexion.rol === "invitado") dos.oido?.mirarCon(() => sincronia?.muestra);
         if (avance && guardado) guardarAvance(avance, guardado, conexion.rol);
         rol = conexion.rol;
+        // La pausa (TU-60): «Volver al punto de control» lo decide el anfitrión, que simula; el invitado lo ve en
+        // las fotos. «Empezar el nivel de nuevo» no se ofrece en línea: los dos tendrían que irse juntos a la salida
+        // y el avance guardado de la pareja (src/red/avance.ts) los traería de vuelta al punto.
+        // En el contrarreloj no: volver al punto en plena carrera es un atajo
+        if (dos.pausa && avance && !reloj) {
+          if (conexion.rol === "anfitrion") dos.pausa.volverAlPunto = () => avance.irA(avance.puntoDeControl());
+          else dos.pausa.nota = "Volver al punto de control lo decide tu pareja (pañuelo rojo).";
+        }
         if (avance && !reloj) {
           const historia = nivelDeLaHistoria(clave);
           if (historia) {
@@ -243,7 +263,7 @@ export function crearEscenaEnLinea(
               actual: historia.numero,
               ir: (numero) => {
                 const destino = HISTORIA.find((n) => n.numero === numero);
-                if (destino) location.assign(direccionDelNivel(destino.clave, true, parametros));
+                if (destino) irConFundido(direccionDelNivel(destino.clave, true, parametros));
               },
               alSeguir: () => panel?.nota("Tu pareja eligió seguir: ¡vamos!"),
             });
@@ -266,6 +286,7 @@ export function crearEscenaEnLinea(
         const mostrar = (estado: EstadoRed) => {
           prueba.estado = estado;
           jugando = estado === "directa" || estado === "repetidor";
+          if (dos.orientacion) dos.orientacion.conectados = jugando;
           ui.estado(conexion.rol, estado);
         };
         mostrar(conexion.estado);

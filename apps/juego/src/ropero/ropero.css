@@ -221,3 +221,7 @@
     animation: none;
   }
 }
+/* «Menos movimiento» de las Opciones (TU-60) */
+.menos-movimiento .premio {
+  animation: none;
+}

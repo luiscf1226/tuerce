@@ -290,3 +290,116 @@
   background: var(--turquesa);
   transform: rotate(16deg);
 }
+/* Las Opciones (TU-60): tres volúmenes y dos ajustes de sí o no */
+.menu-panel.con-opciones {
+  width: min(440px, 100%);
+}
+.menu-subtitulo {
+  margin: 0 0 -6px;
+  font: 600 18px / 1.1 var(--display);
+}
+.menu-volumenes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 -8px;
+}
+.menu-capa .menu-volumen {
+  display: grid;
+  grid-template-columns: 5.2em 1fr 2.4em;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.menu-capa .menu-volumen:hover,
+.menu-capa .menu-volumen:focus-within {
+  background: rgb(35 35 33 / 0.06);
+}
+.menu-volumen .nombre {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--tinta-suave);
+}
+.menu-volumen .valor {
+  font: 800 15px / 1 var(--cuerpo);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+/* El deslizador: hilo firme hasta el valor y costura punteada en lo que falta; el botón, un nudo oscuro */
+.menu-capa .deslizador {
+  --lleno: 50%;
+  --hilo: linear-gradient(90deg, var(--honda) 0 var(--lleno), transparent var(--lleno));
+  --costura: repeating-linear-gradient(90deg, var(--tinta) 0 6px, transparent 6px 11px);
+  appearance: none;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.menu-capa .deslizador:focus {
+  outline: none;
+}
+.menu-capa .deslizador::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background:
+    var(--hilo),
+    var(--costura) center / 100% 2px no-repeat;
+}
+.menu-capa .deslizador::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background:
+    var(--hilo),
+    var(--costura) center / 100% 2px no-repeat;
+}
+.menu-capa .deslizador::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--honda);
+  box-shadow: 0 0 0 3px var(--niebla-clara);
+}
+.menu-capa .deslizador::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--honda);
+  box-shadow: 0 0 0 3px var(--niebla-clara);
+}
+.menu-capa .deslizador:focus-visible::-webkit-slider-thumb,
+.menu-capa .deslizador:focus::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 3px var(--niebla-clara),
+    0 0 0 6px var(--honda);
+}
+.menu-capa .deslizador:focus::-moz-range-thumb {
+  box-shadow:
+    0 0 0 3px var(--niebla-clara),
+    0 0 0 6px var(--honda);
+}
+.menu-ajuste .menu-nota {
+  color: var(--tinta);
+}
+.menu-ajuste .menu-nota .detalle {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--tinta-suave);
+}
+.menu-capa .boton.interruptor {
+  flex: 0 0 auto;
+  min-width: 5.4em;
+}
+/* En la pausa, la línea chica de «Volver al punto de control» */
+.menu-capa .boton.con-sub:not(.boton-fuerte) small {
+  opacity: 0.6;
+}
