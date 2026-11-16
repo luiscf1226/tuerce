@@ -202,7 +202,7 @@ try {
 
   // e) En línea: cada uno maneja su muñeco con una entrada fija y los dos ven moverse a los dos. La escena en
   // línea pesa (dos muñecos dibujados por software en la máquina de la revisión): se le da más tiempo a lo directo.
-  const [urlE, urlF] = await pareja("&espera=15000", "en-linea");
+  const [urlE, urlF] = await pareja("&nivel=prueba&espera=15000", "en-linea");
   const e = await abrir(`${urlE}&j1=andar:1,girar:-0.3`);
   await e.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
   const f = await abrir(`${urlF}&j1=andar:1,girar:0.4`);
@@ -291,7 +291,7 @@ try {
   await Promise.all([e.close(), f.close()]);
 
   // Sin lo directo no hay voz: el botón lo dice y no se puede apretar.
-  const [urlG, urlH] = await pareja("&forzar=repetidor&espera=1500", "en-linea");
+  const [urlG, urlH] = await pareja("&nivel=prueba&forzar=repetidor&espera=1500", "en-linea");
   const g = await abrir(urlG);
   await g.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
   const h = await abrir(urlH);
@@ -302,7 +302,7 @@ try {
 
   // g) Reconexión: el invitado anda hasta alejarse; recarga (quieto) y su muñeco sigue donde estaba; después recarga
   // el anfitrión y, con el mundo que le devuelve el invitado, los dos muñecos siguen donde estaban.
-  const [urlI, urlJ] = await pareja("&espera=15000", "en-linea");
+  const [urlI, urlJ] = await pareja("&nivel=prueba&espera=15000", "en-linea");
   const i = await abrir(urlI);
   await i.waitForFunction(() => window.__enLinea?.rol, null, { timeout: 30_000 });
   let j = await abrir(`${urlJ}&j1=andar:1,girar:0.3`);

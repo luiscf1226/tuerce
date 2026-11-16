@@ -1,5 +1,5 @@
 // Jugar en línea (TU-21): un nivel para dos (la escena `nivel`, TU-11), pero cada uno en su casa.
-// `?escena=en-linea` juega el nivel que pida `&nivel=` (el de prueba si no pide ninguno); `&base=dos` juega la
+// `?escena=en-linea` juega el nivel que pida `&nivel=` (El patio si no pide ninguno); `&base=dos` juega la
 // escena `dos`, sin puntos de control (ver `abrirEscenaEnLinea`).
 //
 //   1. Entra con la cuenta (Clerk y Convex, como `invitar`) y toma la pareja más reciente (`misParejas`). Si no hay,
@@ -13,7 +13,8 @@
 //      entrar a la sala se lee de Convex el último que alcanzó la pareja y los muñecos arrancan ahí; después, el
 //      anfitrión guarda cada punto nuevo (src/red/avance.ts). Si uno se cae o recarga, el otro ve «tu pareja se
 //      fue» y al volver siguen donde estaban: cada uno conserva su rol, y si el que vuelve es el anfitrión, el
-//      invitado le devuelve el mundo (src/red/sincronia.ts). Si se fueron los dos, se retoma del punto guardado.
+//      invitado le devuelve el mundo (src/red/sincronia.ts). Si se fueron los dos, se retoma del punto guardado;
+//      un nivel ya ganado empieza otra vez desde la salida (TU-58).
 //   6. Contrarreloj (TU-32, `&contrarreloj`): solo en un nivel que la pareja ya ganó (Convex lo sabe por
 //      `ganarNivel`, que el anfitrión manda al llegar a la meta). Se corre desde la salida, sin retomar ni guardar
 //      puntos de control. El reloj lo cuenta el anfitrión y viaja en las fotos; al llegar, el anfitrión registra el
@@ -25,6 +26,11 @@
 //      dos miran lo guardado para avisarlo (src/red/premios.ts).
 //   7. Noche de tuerce (TU-33, `&noche`): la trampa la elige el anfitrión con su semilla y viaja en las fotos; el
 //      invitado pone la misma, aunque haya abierto de día (src/niveles/noche.ts).
+//   8. La meta (TU-57), fuera del contrarreloj: cuando la pareja llega (el invitado lo sabe por el punto de control
+//      de las fotos), los dos ven «Nivel ganado» y su muñeco deja de recibir entrada. «Siguiente nivel» lo aprieta el
+//      anfitrión: le avisa al invitado, el invitado contesta y se va primero, y el anfitrión lo sigue
+//      (src/red/siguiente.ts). Al invitado el botón le dice que lo decide su pareja. Después de La medianoche, los
+//      dos ven el final y vuelven al menú cada uno.
 //
 // Para probar sin Convex (solo en desarrollo): `?escena=en-linea&sala=<url de la sala>&pase=<pase>`, como la
 // pantalla `red` (ver scripts/prueba-red.mjs). También valen `forzar=repetidor` y `espera=<ms>`, y las entradas
@@ -34,21 +40,34 @@ import type { ConvexClient } from "convex/browser";
 import type { api as Api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
 import { VESTUARIO_INICIAL } from "../../../../convex/premios";
-import { juntarEntradas } from "../entrada/mandos";
+import { entradaQuieta, juntarEntradas } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import type { Rapier } from "../motor/fisica";
 import type { Muneco } from "../muneco";
 import { formatearTiempo } from "../niveles/contrarreloj";
+import { NIVEL_INICIAL } from "../niveles/lista";
 import { type Noche, numeroDeTrampa, trampaDeNumero } from "../niveles/noche";
+import { HISTORIA, nivelDeLaHistoria } from "../niveles/orden";
 import { oirSolo } from "../niveles/silbido-audio";
 import { type Conexion, conectar, type EstadoRed, type Rol } from "../red";
 import { type Guardado, guardarAvance, retomarAvance } from "../red/avance";
 import { sincronizarPremios } from "../red/premios";
+import { crearSiguiente, type Siguiente } from "../red/siguiente";
 import { crearSincronia, type Medidas, type OrigenMundo, type Sincronia } from "../red/sincronia";
 import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
 import { completar } from "../ropero/vestuario";
 import { type DatosTabla, mostrarLlegada } from "../ui/contrarreloj";
 import type { Juego } from "../ui/juego";
+import {
+  accionesDeLaMeta,
+  direccionDelNivel,
+  esperaDelPanel,
+  finDeNivel,
+  loQueSigue,
+  mostrarFinal,
+  mostrarNivelGanado,
+  type PanelDeMeta,
+} from "../ui/llegada";
 import { crearEscenaDos, type PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
 import { bajarNivel } from "./nivel";
@@ -95,6 +114,10 @@ export interface EstadoEnLinea {
   readonly reloj?: number;
   /** La voz: en qué anda y cuántas pistas de audio del otro llegaron. */
   voz?: Pick<Voz, "estado" | "pistasRemotas">;
+  /** El panel de la meta que se ve (TU-57): «Nivel ganado» o el final. */
+  llegada?: "nivel" | "final";
+  /** El número del nivel al que van, si el anfitrión ya eligió «Siguiente nivel». */
+  readonly siguiente?: number;
 }
 
 declare global {
@@ -133,10 +156,20 @@ export function crearEscenaEnLinea(
   let jugando = false;
   /** El tiempo con que terminó la carrera: si el reloj del anfitrión vuelve a empezar, arrancó otra. */
   let final: number | undefined;
+  // La meta (TU-57): el paso en que llegaron, el panel (desde ahí el muñeco propio no recibe entrada) y el aviso de
+  // pasar juntos al nivel siguiente
+  const clave = parametros.get("nivel") ?? NIVEL_INICIAL;
+  const fin = finDeNivel(clave);
+  let pasos = 0;
+  let llegaronEn: number | undefined;
+  let conElPanel = false;
+  let panel: PanelDeMeta | undefined;
+  let siguiente: Siguiente | undefined;
+  let rol: Rol | undefined;
   const dos = crearBase(rapier, mundo, parametros, (locales) => {
     if (!sincronia || !jugando) return null;
     // Todos los controles de esta máquina (teclado de los dos lados y mandos) manejan el muñeco propio
-    return sincronia.paso(juntarEntradas(locales[0], locales[1]));
+    return sincronia.paso(conElPanel ? entradaQuieta() : juntarEntradas(locales[0], locales[1]));
   });
   // En línea no hay menú de inicio («jugar aquí de a dos»): se entra jugando. La pausa es de cada pantalla: tapa
   // la propia y deja de mandar botones, pero las físicas siguen, porque si el anfitrión las parara al otro se le
@@ -158,6 +191,9 @@ export function crearEscenaEnLinea(
     },
     get reloj() {
       return reloj?.pasos;
+    },
+    get siguiente() {
+      return siguiente?.yendo;
     },
     munecos: () =>
       dos.munecos.map((m) => {
@@ -197,6 +233,27 @@ export function crearEscenaEnLinea(
             : {}),
         });
         if (avance && guardado) guardarAvance(avance, guardado, conexion.rol);
+        rol = conexion.rol;
+        if (avance && !reloj) {
+          const historia = nivelDeLaHistoria(clave);
+          if (historia) {
+            siguiente = crearSiguiente({
+              rol: conexion.rol,
+              enlace: conexion,
+              actual: historia.numero,
+              ir: (numero) => {
+                const destino = HISTORIA.find((n) => n.numero === numero);
+                if (destino) location.assign(direccionDelNivel(destino.clave, true, parametros));
+              },
+              alSeguir: () => panel?.nota("Tu pareja eligió seguir: ¡vamos!"),
+            });
+          }
+          avance.alCambiar((punto) => {
+            if (punto >= meta) llegaronEn ??= pasos;
+          });
+          // El anfitrión que retoma un nivel ya ganado arranca en la meta (el invitado lo sabrá por las fotos)
+          if (avance.puntoDeControl() >= meta) llegaronEn = pasos;
+        }
         if (reloj && carrera) {
           reloj.alLlegar((pasos) => {
             final = pasos;
@@ -223,6 +280,31 @@ export function crearEscenaEnLinea(
       });
   }
 
+  /** El panel de la meta: «Nivel ganado» (el siguiente lo elige el anfitrión) o, después de La medianoche, el final. */
+  function mostrarLaMeta(rol: Rol): void {
+    conElPanel = true;
+    if (typeof document === "undefined") return;
+    if (fin.cual === "final") {
+      prueba.llegada = "final";
+      mostrarFinal();
+      return;
+    }
+    prueba.llegada = "nivel";
+    const anfitrion = rol === "anfitrion";
+    let nota = fin.cual === "siguiente" ? loQueSigue(fin.siguiente) : "";
+    if (fin.cual === "siguiente" && !anfitrion) nota += ". Elige tu pareja (pañuelo rojo).";
+    if (siguiente?.yendo !== undefined && !anfitrion) nota = "Tu pareja eligió seguir: ¡vamos!";
+    panel = mostrarNivelGanado({
+      nombre: nivelDeLaHistoria(clave)?.titulo ?? "Llegaron a la meta",
+      nota,
+      acciones: accionesDeLaMeta(fin, () => {
+        if (fin.cual !== "siguiente") return;
+        if (!anfitrion) panel?.nota("Lo decide tu pareja (pañuelo rojo).");
+        else if (siguiente?.pedir(fin.siguiente.numero)) panel?.nota("Esperando a tu pareja…");
+      }),
+    });
+  }
+
   return {
     nombre: "en-linea",
     escena: dos.escena,
@@ -235,6 +317,10 @@ export function crearEscenaEnLinea(
     pasar() {
       dos.pasar();
       if (jugando) sincronia?.despues();
+      pasos++;
+      if (!conElPanel && rol && llegaronEn !== undefined && pasos - llegaronEn >= esperaDelPanel(fin))
+        mostrarLaMeta(rol);
+      siguiente?.paso();
       if (final !== undefined && reloj && reloj.pasos < final && typeof location !== "undefined") location.reload();
     },
     dibujar: (alfa) => dos.dibujar(alfa),

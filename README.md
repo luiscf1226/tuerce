@@ -16,7 +16,7 @@ pañuelos (rojo y turquesa) como único color. La referencia obligatoria son `do
 
 | Carpeta         | Qué es                                                                                | Estado                                                                                 |
 | --------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `apps/juego/`   | El juego: TypeScript, Three.js, Rapier y Vite                                         | Los 17 niveles (0 a 16) jugables de a dos aquí o en línea, menú, ropero y contrarreloj |
+| `apps/juego/`   | El juego: TypeScript, Three.js, Rapier y Vite                                         | Los 17 niveles desde el menú, de la historia al final, aquí o en línea; ropero y tabla |
 | `convex/`       | Datos: esquema, Clerk y funciones de usuario                                          | Proyecto `tuerce` con desarrollo, vista previa y producción                            |
 | `workers/sala/` | Sala de dos (Cloudflare Durable Object): presenta a los jugadores y hace de repetidor | En producción (`tuerce-sala`), con pase firmado por Convex y TURN de Cloudflare        |
 | `scripts/`      | Capturas automáticas y lo que corre la revisión                                       | `pnpm capturas`                                                                        |
@@ -45,7 +45,8 @@ Cómo se separan desarrollo, vista previa y producción, y dónde vive cada llav
 
 ## Lo que sigue
 
-Las olas 0 a 9 están en `main` y en producción. Queda la prueba con cinco parejas (TU-16, la juegan personas), la
-instancia de producción de Clerk cuando haya dominio propio y proteger `main` (pide GitHub Pro o el repo público);
-ver `docs/ENTORNOS.md`. Cada ola nueva se hace con la skill `ola`: varios agentes en paralelo, todo se junta en una
-rama `ola-N` y se entrega con vista previa, capturas y un pull request; con «full send» se une a `main`.
+Las olas 0 a 10 están en `main` y en producción (`pnpm prueba:produccion` lo revisa). Queda la prueba con cinco
+parejas (TU-16, la juegan personas), la instancia de producción de Clerk cuando haya dominio propio y proteger `main`
+(pide GitHub Pro o el repo público); ver `docs/ENTORNOS.md`. Cada ola nueva se hace con la skill `ola`: varios agentes
+en paralelo, todo se junta en una rama `ola-N` y se entrega con vista previa, capturas y un pull request; con «full
+send» se une a `main`.

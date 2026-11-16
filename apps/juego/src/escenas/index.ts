@@ -35,7 +35,7 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
     mano: crearEscenaMano,
     // En línea (TU-21, TU-22): un nivel con el otro jugador en su casa; guarda y retoma el avance de la pareja.
     "en-linea": abrirEscenaEnLinea,
-    // Un nivel con el formato nuevo (TU-11): escena glTF, guion y puntos de control. `&nivel=prueba` por ahora.
+    // Un nivel con el formato nuevo (TU-11): escena glTF, guion y puntos de control. `&nivel=<clave>`, El patio si no hay.
     nivel: crearEscenaNivel,
     // El ropero (TU-29): los dos muñecos con sus prendas y el panel para elegir; `&vitrina=1|2` las muestra todas.
     ropero: crearEscenaRopero,

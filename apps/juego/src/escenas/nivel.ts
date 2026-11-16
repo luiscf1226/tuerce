@@ -1,9 +1,9 @@
 // Un nivel con el formato nuevo (TU-11), para dos jugadores en el mismo lugar como la escena `dos`: la escena sale
-// de un .glb de niveles/ y su guion, con puntos de control y reaparición junto al compañero. Por ahora están el de
-// prueba (niveles/99-prueba) y el de las piezas de juego (niveles/98-piezas).
+// de un .glb de niveles/ y su guion, con puntos de control y reaparición junto al compañero. Están los 17 de la
+// historia (niveles/00-patio a 16-medianoche, en orden en src/niveles/orden.ts) y dos de prueba (98-piezas, 99-prueba).
 //
 // Parámetros (además de los de `dos`: `&j1=`, `&j2=`, `&ayuda`, `&menu`):
-//   &nivel=prueba    qué nivel abrir: `patio`, `prueba` o `piezas` (ver src/niveles/lista.ts)
+//   &nivel=patio     qué nivel abrir (ver src/niveles/lista.ts); sin él, El patio
 //   &punto=N         empieza en ese punto de control, como al retomar un avance guardado
 //   &vista=todo      la cámara quieta, lejos, mirando el nivel entero (para las capturas)
 //   &vista=x,y,z     la cámara quieta mirando ese punto desde la dirección de siempre (el nido del secreto)
@@ -12,6 +12,13 @@
 //                    ver en-linea.ts). `&punto` solo vale en el mismo lugar, para probar.
 //   &noche[=semilla] Noche de tuerce (TU-33): de noche y con una trampa sorpresa; `&trampa=<nombre>` la fuerza
 //                    (ver src/niveles/noche.ts). En línea la elige el anfitrión y el invitado la recibe en las fotos.
+//   &ganar=N         para probar (en desarrollo, o con `?congelar=` para las capturas): en el paso N la pareja
+//                    alcanza la meta sin caminar hasta ahí, como si llegara (en La medianoche se encienden los fuegos);
+//                    con `&punto=` la meta, cuenta como llegar ahí mismo
+//
+// La meta (TU-57): fuera del contrarreloj, un rato después de llegar aparece «Nivel ganado» con «Siguiente nivel» y
+// «Menú» (src/ui/llegada.ts) y los muñecos dejan de recibir entrada; después de La medianoche, el final. En línea
+// lo muestra en-linea.ts.
 //
 // El secreto y el logro del nivel (TU-29) se avisan arriba al centro (src/ropero/aviso.ts); en línea, además, se
 // guardan en Convex.
@@ -39,6 +46,14 @@ import { avisarPremios } from "../ropero/aviso";
 import { vestuarioDe } from "../ropero/vestuario";
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
+import {
+  accionesDeLaMeta,
+  esperaDelPanel,
+  finDeNivel,
+  loQueSigue,
+  mostrarFinal,
+  mostrarNivelGanado,
+} from "../ui/llegada";
 import { crearInterfaz } from "../ui/menu";
 import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
@@ -205,11 +220,33 @@ export function armarEscenaNivel(
   // Contrarreloj (TU-32): desde la salida. Llegar a la meta gana el nivel (y abre su contrarreloj) y para el reloj
   const clave = parametros.get("nivel") ?? NIVEL_INICIAL;
   const reloj = parametros.has("contrarreloj") ? crearReloj() : undefined;
+  // La meta (TU-57): en el mismo lugar y fuera del contrarreloj, el panel «Nivel ganado» (o el final) un rato después
+  const fin = finDeNivel(clave);
+  const conPanel = !enRed && conPantalla && !reloj;
+  /** El paso en que llegaron a la meta, y si ya se mostró el panel (desde ahí los muñecos no reciben entrada). */
+  let llegaronEn: number | undefined;
+  let conElPanel = false;
   nivel.avance.alCambiar((alcanzado) => {
     if (alcanzado < nivel.avance.meta) return;
     reloj?.llegar();
     if (!enRed && conPantalla) marcarGanadoAqui(clave);
+    llegaronEn ??= pasos;
   });
+  const mostrarLaMeta = () => {
+    conElPanel = true;
+    if (fin.cual === "final") mostrarFinal();
+    else
+      mostrarNivelGanado({
+        nombre: plano.nombre,
+        nota: fin.cual === "siguiente" ? loQueSigue(fin.siguiente) : "",
+        acciones: accionesDeLaMeta(fin),
+      });
+  };
+  const ganar = Number(parametros.get("ganar"));
+  const ganarEn =
+    !enRed && parametros.has("ganar") && Number.isFinite(ganar) && (import.meta.env.DEV || parametros.has("congelar"))
+      ? ganar
+      : undefined;
   const marcador = reloj && conPantalla ? crearMarcador(`Contrarreloj · ${plano.nombre}`) : undefined;
   if (reloj && conPantalla && !enRed) {
     reloj.alLlegar((pasos) => {
@@ -226,11 +263,11 @@ export function armarEscenaNivel(
     });
   }
 
+  let pasos = 0;
   const punto = Number(parametros.get("punto"));
   if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
   seguirConLaCamara();
 
-  let pasos = 0;
   return {
     nombre: "nivel",
     escena,
@@ -247,7 +284,13 @@ export function armarEscenaNivel(
     vestir: (jugador, vestuario) => jugadores[jugador].malla.vestir(vestuario),
     noche,
     pasar() {
-      const leidas = noche.entradas(juego.atienden ? controles.leer() : quietas);
+      if (pasos === ganarEn) {
+        nivel.avance.retomar(nivel.avance.meta);
+        llegaronEn ??= pasos; // también si ya estaban en la meta (`&punto=` la meta)
+      }
+      if (conPanel && !conElPanel && llegaronEn !== undefined && pasos - llegaronEn >= esperaDelPanel(fin))
+        mostrarLaMeta();
+      const leidas = noche.entradas(juego.atienden && !conElPanel ? controles.leer() : quietas);
       const entradas = enRed ? enRed(leidas) : leidas;
       if (entradas) {
         const rojo = senas.entrada(0, entradas[0]);

@@ -97,3 +97,11 @@ Un ticket por nivel.
 | Id | Ticket | Listo cuando | Tamaño | Depende de |
 |---|---|---|---|---|
 | TU-35 | Versión de escritorio | El mismo juego empacado para Steam, con mandos. | G | — |
+
+## Fase 7 · La historia completa
+
+| Id | Ticket | Listo cuando | Tamaño | Depende de |
+|---|---|---|---|---|
+| TU-56 | Menú de la historia y de los niveles | Desde el menú de inicio se juega la historia (empieza en El patio o sigue en el próximo nivel sin ganar) o se elige cualquiera de los 17 niveles; noche y contrarreloj abren niveles de verdad. | M | — |
+| TU-57 | Meta, siguiente nivel y el final | Al llegar a la meta, «Nivel ganado» con «Siguiente nivel» y «Menú», aquí y en línea (los dos pasan juntos); después de La medianoche, el final de Año Nuevo con créditos. | M | — |
+| TU-58 | En línea: elegir nivel y volver a empezar | Después de juntarse la pareja elige el nivel o sigue la historia; un nivel ganado se vuelve a jugar desde la salida; «Volver al menú» en la cuenta; tablas solo con los 17 niveles. | M | — |

@@ -108,3 +108,11 @@ Una ola = varios tickets en paralelo, una rama `ola-N`, una vista previa y una a
 - TU-47 · Nivel 14 · La minga
 - TU-48 · Nivel 15 · La pampa
 - TU-49 · Nivel 16 · La medianoche
+
+## Ola 10 · La historia completa
+
+**Vas a ver:** Desde el menú, la historia del patio a la medianoche (o cualquier nivel), al llegar a la meta el siguiente nivel, el final de Año Nuevo después de La medianoche, y lo mismo en línea con tu pareja.
+
+- TU-56 · Menú de la historia y de los niveles
+- TU-57 · Meta, siguiente nivel y el final
+- TU-58 · En línea: elegir nivel y volver a empezar
