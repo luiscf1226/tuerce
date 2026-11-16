@@ -17,6 +17,11 @@ export interface Guardado {
 /**
  * Lee lo guardado y, si es más adelante que donde está la escena, pone ahí a los dos muñecos. Devuelve el punto de
  * control en que quedó. Si no se puede leer (sin red, Convex caído) se juega desde donde está: no es para trabar.
+ *
+ * Un nivel ya ganado (lo guardado es la meta) no se retoma: volver a abrirlo es jugarlo otra vez desde la salida. Los
+ * dos de la pareja leen lo mismo de Convex, así que los dos arrancan en la salida y no hace falta ponerse de acuerdo.
+ * Como el guardado solo avanza, la meta queda guardada mientras lo vuelven a jugar: si lo dejan a medias, la próxima
+ * vez también empiezan desde la salida.
  */
 export async function retomarAvance(avance: AvanceDeNivel, guardado: Guardado): Promise<number> {
   let leido = 0;
@@ -25,14 +30,16 @@ export async function retomarAvance(avance: AvanceDeNivel, guardado: Guardado): 
   } catch (error) {
     console.warn("Tuerce · avance: no se pudo leer el avance guardado; se arranca desde acá", error);
   }
-  if (Number.isInteger(leido) && leido > avance.puntoDeControl()) avance.irA(leido);
-  // Ya habían llegado a la meta: se vuelve a guardar que ganaron (no repite nada), por si aquella vez no se pudo o el
-  // avance es de antes del contrarreloj. Si no, ese nivel nunca abriría su contrarreloj.
-  if (guardado.ganar && avance.meta > 0 && avance.puntoDeControl() >= avance.meta) {
-    guardado.ganar(avance.nivel).catch((error: unknown) => {
+  if (!Number.isInteger(leido)) leido = 0;
+  if (avance.meta > 0 && leido >= avance.meta) {
+    // Ya habían llegado a la meta: se vuelve a guardar que ganaron (no repite nada), por si aquella vez no se pudo o
+    // el avance es de antes del contrarreloj. Si no, ese nivel nunca abriría su contrarreloj.
+    guardado.ganar?.(avance.nivel).catch((error: unknown) => {
       console.warn("Tuerce · avance: no se pudo guardar que ganaron el nivel", error);
     });
+    return avance.puntoDeControl();
   }
+  if (leido > avance.puntoDeControl()) avance.irA(leido);
   return avance.puntoDeControl();
 }
 

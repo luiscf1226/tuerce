@@ -5,6 +5,7 @@ import type { Clerk as ClerkTipo } from "@clerk/clerk-js";
 import { ConvexClient } from "convex/browser";
 import { api } from "../../../../convex/_generated/api";
 import { type EstadoTuerce, publicarEstado } from "../estado";
+import "./sesion.css";
 
 const llave = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const urlConvex = import.meta.env.VITE_CONVEX_URL;
@@ -41,7 +42,8 @@ async function tokenParaConvex(clerk: ClerkTipo, renovar: boolean): Promise<stri
   }
 }
 
-/** El panel claro de las pantallas de cuenta: título, un mensaje y la caja donde Clerk dibuja lo suyo. */
+/** El panel claro de las pantallas de cuenta: el enlace para volver al menú, el título, un mensaje y la caja donde
+ * Clerk dibuja lo suyo. */
 export interface Panel {
   estado: EstadoTuerce;
   panel: HTMLElement;
@@ -53,6 +55,11 @@ export function crearPanel(escena: string): Panel {
   const estado = publicarEstado({ escena, listo: false, pasosTotales: 0, pasosPorSegundo: 0 });
   const panel = document.body.appendChild(document.createElement("main"));
   panel.className = "entrar";
+  // Arriba de todo, para que se vea aunque la pantalla sea larga (la de tablas)
+  const volver = panel.appendChild(document.createElement("a"));
+  volver.className = "volver-menu";
+  volver.href = "/";
+  volver.textContent = "Volver al menú";
   const titulo = panel.appendChild(document.createElement("h1"));
   titulo.textContent = "Tuerce";
   const mensaje = panel.appendChild(document.createElement("p"));
