@@ -2,8 +2,10 @@
 // volumen y qué paneo le toca a cada jugador) y la tonada (`notaEn`). Una voz por jugador, las dos en la misma tonada:
 // un silbido (una onda seno con su vibrato) que pasa por su volumen y su paneo.
 //
-// Donde no hay audio (las pruebas de Node, un navegador sin Web Audio) no hace nada. El navegador no deja sonar nada
-// hasta que el jugador toca algo: la primera tecla o el primer toque lo despiertan.
+// Suena por el canal de efectos de la salida del juego (src/sonido, TU-59): el mismo AudioContext que todo lo demás,
+// que nace con el primer gesto del jugador y que `?mudo` no crea nunca. Antes de eso, o donde no hay audio (las
+// pruebas de Node, un navegador sin Web Audio), no hace nada.
+import { salidaDelJuego } from "../sonido/global";
 import { notaEn, type Silbido } from "./silbido";
 
 export interface AudioDelSilbido {
@@ -28,41 +30,36 @@ export function oirSolo(jugador: 0 | 1 | null): void {
   soloOye = jugador;
 }
 
-/** El audio del silbido, si hay Web Audio; si no, uno que no hace nada. */
+/** El audio del silbido, si hay Web Audio; si no, uno que no hace nada. Las voces se arman al despertar la salida. */
 export function crearAudioDelSilbido(voces = 2): AudioDelSilbido {
-  const Contexto = typeof window === "undefined" ? undefined : window.AudioContext;
-  if (!Contexto) return NADA;
-  let contexto: AudioContext;
-  try {
-    contexto = new Contexto();
-  } catch {
-    return NADA;
-  }
-  const despertar = () => {
-    if (contexto.state === "suspended") contexto.resume().catch(() => {});
-  };
-  window.addEventListener("keydown", despertar);
-  window.addEventListener("pointerdown", despertar);
-
-  const salidas = Array.from({ length: voces }, () => {
-    const silbido = contexto.createOscillator();
-    silbido.type = "sine";
-    const vibrato = contexto.createOscillator();
-    vibrato.frequency.value = VIBRATO.ritmo;
-    const hondo = contexto.createGain();
-    hondo.gain.value = VIBRATO.hondo;
-    vibrato.connect(hondo).connect(silbido.frequency);
-    const volumen = contexto.createGain();
-    volumen.gain.value = 0;
-    const paneo = contexto.createStereoPanner();
-    silbido.connect(volumen).connect(paneo).connect(contexto.destination);
-    silbido.start();
-    vibrato.start();
-    return { silbido, vibrato, volumen, paneo };
+  const salida = salidaDelJuego();
+  if (salida.muda) return NADA;
+  let contexto: AudioContext | undefined;
+  let salidas: { silbido: OscillatorNode; vibrato: OscillatorNode; volumen: GainNode; paneo: StereoPannerNode }[] = [];
+  const dejar = salida.alDespertar((c) => {
+    contexto = c.contexto;
+    const ctx = c.contexto;
+    salidas = Array.from({ length: voces }, () => {
+      const silbido = ctx.createOscillator();
+      silbido.type = "sine";
+      const vibrato = ctx.createOscillator();
+      vibrato.frequency.value = VIBRATO.ritmo;
+      const hondo = ctx.createGain();
+      hondo.gain.value = VIBRATO.hondo;
+      vibrato.connect(hondo).connect(silbido.frequency);
+      const volumen = ctx.createGain();
+      volumen.gain.value = 0;
+      const paneo = ctx.createStereoPanner();
+      silbido.connect(volumen).connect(paneo).connect(c.efectos);
+      silbido.start();
+      vibrato.start();
+      return { silbido, vibrato, volumen, paneo };
+    });
   });
 
   return {
     poner(t, lista) {
+      if (!contexto) return;
       const ahora = contexto.currentTime;
       const nota = notaEn(t);
       // Cada nota entra y sale suave, como el aire de un silbido
@@ -76,13 +73,13 @@ export function crearAudioDelSilbido(voces = 2): AudioDelSilbido {
       }
     },
     cerrar() {
-      window.removeEventListener("keydown", despertar);
-      window.removeEventListener("pointerdown", despertar);
+      dejar();
       for (const s of salidas) {
         s.silbido.stop();
         s.vibrato.stop();
+        s.paneo.disconnect();
       }
-      contexto.close().catch(() => {});
+      salidas = [];
     },
   };
 }

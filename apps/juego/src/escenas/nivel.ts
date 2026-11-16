@@ -44,6 +44,7 @@ import { crearNoche, leerNoche, type Noche } from "../niveles/noche";
 import type { Fuegos } from "../niveles/piezas-medianoche";
 import { avisarPremios } from "../ropero/aviso";
 import { vestuarioDe } from "../ropero/vestuario";
+import { crearOido, cuerposQueSuenan, type Oido, sueloDelMaterial } from "../sonido";
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
 import {
@@ -79,6 +80,8 @@ export type EscenaNivel = EscenaDeJuego & {
   readonly vestir: Vestir;
   /** La Noche de tuerce (TU-33): de día mientras no tenga trampa. */
   readonly noche: Noche;
+  /** El sonido (TU-59). */
+  readonly oido: Oido;
 };
 
 /** Baja el .glb del nivel que pide la dirección (`&nivel=`) y devuelve cómo armar su escena. */
@@ -263,6 +266,21 @@ export function armarEscenaNivel(
     });
   }
 
+  // El sonido (TU-59): lo que pisa cada uno según el material de cada sólido, las piezas y el ambiente del nivel
+  const oido = crearOido({
+    munecos,
+    cuerpos: cuerposQueSuenan(armado),
+    aguas: armado.aguas,
+    pisables: [
+      ...plano.solidos.map((s) => ({ objeto: s.objeto, suelo: sueloDelMaterial(s.material, clave) })),
+      ...armado.piezasDeJuego.solidas.map((p) => ({ objeto: p.objeto, suelo: "madera" as const })),
+    ],
+    suelo: sueloDelMaterial("suelo", clave),
+    ambiente: clave,
+    deNoche: () => noche.trampa !== undefined,
+    juego,
+  });
+
   let pasos = 0;
   const punto = Number(parametros.get("punto"));
   if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
@@ -283,6 +301,7 @@ export function armarEscenaNivel(
     premios: nivel.premios,
     vestir: (jugador, vestuario) => jugadores[jugador].malla.vestir(vestuario),
     noche,
+    oido,
     pasar() {
       if (pasos === ganarEn) {
         nivel.avance.retomar(nivel.avance.meta);
@@ -310,6 +329,7 @@ export function armarEscenaNivel(
       jugadores[1].malla.guardar();
       armado.guardar();
       seguirConLaCamara();
+      oido.pasar();
       pasos++;
     },
     dibujar(alfa) {

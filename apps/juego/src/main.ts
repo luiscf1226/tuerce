@@ -11,6 +11,7 @@ import "./estilo.css";
 //   ?escena=<nombre>   qué escena abrir (ver src/escenas/index.ts); `entrar`, `invitar` y `buscar` son pantallas de la cuenta
 //   ?congelar=<pasos>  corre exactamente esos pasos de físicas y se detiene; para capturas que siempre salen igual
 //   ?depurar           muestra los pasos de físicas por segundo
+//   ?mudo              sin sonido, y la pestaña sigue muda al navegar (src/sonido); `congelar` también es mudo
 const parametros = new URLSearchParams(location.search);
 const nombre = parametros.get("escena") ?? ESCENA_INICIAL;
 const congelar = Number(parametros.get("congelar") ?? Number.NaN);
