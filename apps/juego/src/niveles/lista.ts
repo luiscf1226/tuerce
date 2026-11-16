@@ -50,6 +50,7 @@ import escenaPrueba from "../../../../niveles/99-prueba/escena.glb?url";
 import { crearGuion as guionPrueba } from "../../../../niveles/99-prueba/guion";
 import type { GuionDeNivel } from "./guion";
 import type { NombreTrampa } from "./noche";
+import { PRIMER_NIVEL } from "./orden";
 
 export interface DatosDeNivel {
   /** La carpeta en niveles/ (las pruebas leen el .glb de ahí). */
@@ -197,4 +198,6 @@ export const NIVELES: Record<string, DatosDeNivel> = {
     sinTrampas: ["mecate"],
   },
 };
-export const NIVEL_INICIAL = "prueba";
+// Sin `&nivel=` se juega el primero de la historia (TU-56): lo que abren «Invitar» y «Buscar» en línea. El de prueba
+// se pide con `&nivel=prueba`.
+export const NIVEL_INICIAL = PRIMER_NIVEL;
