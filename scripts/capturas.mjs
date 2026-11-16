@@ -88,7 +88,7 @@ const TOMAS = [
     archivo: "contrarreloj-llegada",
     ruta: "/?escena=nivel&nivel=prueba&contrarreloj&punto=2&j1=andar:1&j2=andar:1&congelar=215",
   },
-  { archivo: "contrarreloj-tabla", ruta: "/?escena=tabla&nivel=prueba&ejemplo" },
+  { archivo: "contrarreloj-tabla", ruta: "/?escena=tabla&nivel=patio&ejemplo" },
   // TU-29: el ropero. Los dos con lo del principio (el rojo con su sombrero, el turquesa con sus trenzas) y el panel
   // para elegir; una cuenta de ejemplo con lo ganado y los logros; las dos vitrinas con todas las prendas; los dos
   // con prendas ganadas en el nivel; y el turquesa que encuentra el secreto del nivel de prueba detrás de la meta
