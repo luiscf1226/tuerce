@@ -1,6 +1,7 @@
 // El avance de la PAREJA en cada nivel (TU-22): el último punto de control que alcanzaron juntos. Lo escribe el
 // anfitrión cada vez que llegan a uno nuevo (ver apps/juego/src/escenas/en-linea.ts); al volver a jugar se lee y la
-// pareja arranca ahí. Solo avanza: un punto de control más chico que el guardado no lo pisa (pasa si el anfitrión
+// pareja arranca ahí, salvo que sea la meta: un nivel ganado se vuelve a jugar desde la salida (apps/juego/src/red/
+// avance.ts). Solo avanza: un punto de control más chico que el guardado no lo pisa (pasa si el anfitrión
 // empezó de cero y vuelve a cruzar los primeros, o si llegan dos avisos desordenados).
 import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";

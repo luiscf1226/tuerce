@@ -5,6 +5,7 @@ import type { FunctionReturnType } from "convex/server";
 import { ConvexError } from "convex/values";
 import { api } from "../../../../convex/_generated/api";
 import { LATIDO_MS } from "../../../../convex/regiones";
+import { montarJugar } from "./jugar";
 import { NOMBRE_REGION, REGIONES, type Region, regionDetectada } from "./region";
 import { abrirSesion, crearPanel } from "./sesion";
 import "./invitar.css";
@@ -67,10 +68,7 @@ export function montarBuscar(convex: ConvexClient, padre: HTMLElement, estado: {
   const listos = elemento(seccion, "p", "listos");
   listos.hidden = true;
   // Ya juntos, a jugar: la escena en línea toma la pareja más reciente y le pide a Convex el pase de su sala
-  const jugar = elemento(seccion, "a", "jugar");
-  jugar.href = "?escena=en-linea";
-  jugar.textContent = "Jugar en línea";
-  jugar.hidden = true;
+  const jugar = montarJugar(convex, seccion);
   const otraVez = elemento(seccion, "button");
   otraVez.type = "button";
   otraVez.textContent = "Buscar otra vez";
@@ -110,7 +108,8 @@ export function montarBuscar(convex: ConvexClient, padre: HTMLElement, estado: {
     pista.hidden = actual !== null;
     esperando.hidden = actual?.estado !== "esperando";
     listos.hidden = actual?.estado !== "emparejados";
-    jugar.hidden = listos.hidden;
+    if (actual?.estado === "emparejados") jugar.mostrar(actual.parejaId);
+    else jugar.esconder();
     otraVez.hidden = actual?.estado !== "emparejados";
     if (actual?.estado === "esperando") {
       selector.value = actual.region;

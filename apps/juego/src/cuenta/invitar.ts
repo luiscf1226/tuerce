@@ -3,6 +3,8 @@
 import type { ConvexClient } from "convex/browser";
 import { ConvexError } from "convex/values";
 import { api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
+import { montarJugar } from "./jugar";
 import { abrirSesion, crearPanel } from "./sesion";
 import "./invitar.css";
 
@@ -73,20 +75,17 @@ export function montarInvitar(
   const listos = elemento(seccion, "p", "listos");
   listos.hidden = true;
   // Ya juntos, a jugar: la escena en línea toma la pareja más reciente y le pide a Convex el pase de su sala
-  const jugar = elemento(seccion, "a", "jugar");
-  jugar.href = "?escena=en-linea";
-  jugar.textContent = "Jugar en línea";
-  jugar.hidden = true;
+  const jugar = montarJugar(convex, seccion);
   const buscar = elemento(seccion, "a", "otra-forma");
   buscar.href = "?escena=buscar";
   buscar.textContent = "¿No tenés con quién? Buscar pareja en tu región";
 
   let dejarDeMirar: (() => void) | undefined;
 
-  const yaSonPareja = (nombres: readonly [string, string]) => {
+  const yaSonPareja = (parejaId: Id<"parejas">, nombres: readonly [string, string]) => {
     listos.textContent = `Ya son pareja: ${nombres[0]} y ${nombres[1]}`;
     listos.hidden = false;
-    jugar.hidden = listos.hidden;
+    jugar.mostrar(parejaId);
     aviso.textContent = "";
     crear.hidden = true;
     formulario.hidden = true;
@@ -104,7 +103,7 @@ export function montarInvitar(
     aviso.textContent = "Pasale el código o el enlace a la otra persona.";
     dejarDeMirar?.();
     dejarDeMirar = convex.onUpdate(api.invitaciones.estadoInvitacion, { codigo }, (estadoInv) => {
-      if (estadoInv?.pareja) yaSonPareja(estadoInv.pareja.nombres);
+      if (estadoInv?.pareja) yaSonPareja(estadoInv.pareja.parejaId, estadoInv.pareja.nombres);
     });
   };
 
@@ -112,7 +111,7 @@ export function montarInvitar(
     aviso.textContent = "Uniéndote…";
     try {
       const pareja = await convex.mutation(api.invitaciones.aceptarInvitacion, { codigo });
-      if (pareja.ok) yaSonPareja(pareja.nombres);
+      if (pareja.ok) yaSonPareja(pareja._id, pareja.nombres);
       else aviso.textContent = pareja.motivo;
     } catch (error) {
       aviso.textContent = mensajeDeError(error);
@@ -154,7 +153,7 @@ export function montarInvitar(
       campo.value = codigoDelEnlace;
       try {
         const conocida = await convex.query(api.invitaciones.estadoInvitacion, { codigo: codigoDelEnlace });
-        if (conocida?.pareja) yaSonPareja(conocida.pareja.nombres);
+        if (conocida?.pareja) yaSonPareja(conocida.pareja.parejaId, conocida.pareja.nombres);
         else if (conocida && conocida.vence <= Date.now()) aviso.textContent = "Ese código ya venció: creá uno nuevo.";
         else if (conocida) mostrarMia(conocida.codigo, conocida.vence);
         else await aceptar(codigoDelEnlace);

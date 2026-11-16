@@ -52,17 +52,34 @@ afterEach(() => {
 describe("retomar el avance", () => {
   it("pone a la pareja en el punto de control guardado de ese nivel", async () => {
     const { avance, irA } = nivelDeMentira(1);
-    const { guardado } = guardadoDeMentira({ 1: 3, 0: 5 });
-    expect(await retomarAvance(avance, guardado)).toBe(3);
+    const { guardado } = guardadoDeMentira({ 1: 2, 0: 1 });
+    expect(await retomarAvance(avance, guardado)).toBe(2);
     expect(guardado.leer).toHaveBeenCalledWith(1);
-    expect(irA).toHaveBeenCalledExactlyOnceWith(3);
+    expect(irA).toHaveBeenCalledExactlyOnceWith(2);
+  });
+
+  it("un nivel ganado (lo guardado es la meta) se vuelve a jugar desde la salida", async () => {
+    for (const leido of [3, 4]) {
+      const { avance, irA } = nivelDeMentira(1);
+      expect(await retomarAvance(avance, guardadoDeMentira({ 1: leido }).guardado)).toBe(0);
+      expect(irA).not.toHaveBeenCalled();
+    }
+    // Los dos de la pareja leen lo mismo: los dos arrancan en la salida
+    const anfitrion = nivelDeMentira(1);
+    const invitado = nivelDeMentira(1);
+    const { guardado } = guardadoDeMentira({ 1: 3 });
+    expect(await retomarAvance(anfitrion.avance, guardado)).toBe(await retomarAvance(invitado.avance, guardado));
+    // A un punto antes de la meta, en cambio, sí se retoma
+    const amedias = nivelDeMentira(1);
+    expect(await retomarAvance(amedias.avance, guardadoDeMentira({ 1: 2 }).guardado)).toBe(2);
+    expect(amedias.irA).toHaveBeenCalledExactlyOnceWith(2);
   });
 
   it("si lo guardado ya es la meta, vuelve a guardar que ganaron (un avance de antes del contrarreloj)", async () => {
     const ganar = vi.fn(async () => {});
     const { avance } = nivelDeMentira(99);
     const { guardado } = guardadoDeMentira({ 99: 3 });
-    expect(await retomarAvance(avance, { ...guardado, ganar })).toBe(3);
+    expect(await retomarAvance(avance, { ...guardado, ganar })).toBe(0);
     expect(ganar).toHaveBeenCalledExactlyOnceWith(99);
     // A mitad de camino, no
     const otro = nivelDeMentira(99);

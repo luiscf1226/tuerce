@@ -1,0 +1,12 @@
+/* Lo que comparten las pantallas de la cuenta (el panel `.entrar` está en estilo.css). La página no se desplaza
+ * (estilo.css): el panel sí, para las pantallas largas (las 17 tablas, la lista de niveles). `safe` deja el
+ * principio a la vista cuando no entra todo. */
+.entrar {
+  height: 100%;
+  overflow-y: auto;
+  align-content: safe center;
+}
+.entrar > .volver-menu {
+  color: #2a2a2a;
+  font-size: 14px;
+}
