@@ -52,19 +52,42 @@ const TOMAS = [
   // TU-15: el menú de inicio sobre la escena viva (`menu` lo muestra aunque la entrada sea fija), los dos
   // señalando (la marca del turquesa queda en el tronco caído), y uno encogiéndose de hombros mientras el otro festeja
   { archivo: "dos-menu", ruta: "/?escena=dos&j1=&j2=&menu&congelar=60" },
+  // TU-56: la historia y los niveles. Con el patio y el pinar ganados en este navegador, la portada sigue en la poza;
+  // el panel con los 17 (los ganados con los dos pañuelos), el de los que se pueden correr contra el reloj, y el
+  // menú sobre un nivel abierto desde el panel
+  { archivo: "menu-historia", ruta: "/?escena=dos&j1=&j2=&menu&congelar=60", ganados: ["patio", "pinar"] },
+  {
+    archivo: "menu-niveles",
+    ruta: "/?escena=dos&j1=&j2=&menu&congelar=60",
+    ganados: ["patio", "pinar"],
+    clic: "[data-abre=niveles]",
+  },
+  {
+    archivo: "menu-contrarreloj",
+    ruta: "/?escena=dos&j1=&j2=&menu&congelar=60",
+    ganados: ["patio", "pinar", "prueba"],
+    clic: "[data-abre=contrarreloj]",
+  },
+  { archivo: "menu-nivel", ruta: "/?escena=nivel&nivel=poza&j1=&j2=&menu&congelar=60" },
   { archivo: "dos-senalando", ruta: "/?escena=dos&j1=senalar,girar:-0.3&j2=senalar,girar:0.3&congelar=90" },
   { archivo: "dos-festejando", ruta: "/?escena=dos&j1=gesto:encoger&j2=gesto:festejar&congelar=80" },
   // TU-11: el nivel de prueba, armado con el formato nuevo (niveles/99-prueba): entero desde lejos y la salida. El
   // turquesa se cae del patio y reaparece junto al rojo; retomando desde el punto 1 la compuerta ya está hundida
-  { archivo: "nivel-entero", ruta: "/?escena=nivel&j1=&j2=&vista=todo&congelar=60" },
-  { archivo: "nivel-salida", ruta: "/?escena=nivel&j1=&j2=&congelar=60" },
-  { archivo: "nivel-cayendo", ruta: "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=268" },
-  { archivo: "nivel-reaparece", ruta: "/?escena=nivel&j1=&j2=andar:1,girar:-0.15&congelar=330" },
-  { archivo: "nivel-compuerta", ruta: "/?escena=nivel&punto=1&j1=andar:1&j2=andar:1&congelar=150" },
+  { archivo: "nivel-entero", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=&vista=todo&congelar=60" },
+  { archivo: "nivel-salida", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=&congelar=60" },
+  { archivo: "nivel-cayendo", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=andar:1,girar:-0.15&congelar=268" },
+  { archivo: "nivel-reaparece", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=andar:1,girar:-0.15&congelar=330" },
+  { archivo: "nivel-compuerta", ruta: "/?escena=nivel&nivel=prueba&punto=1&j1=andar:1&j2=andar:1&congelar=150" },
   // TU-32: el contrarreloj. El reloj corriendo arriba (arranca cuando se mueven: 2,5 s), la llegada a la meta desde
   // el punto 2 (en el mismo lugar, sin tabla) y la tabla de parejas con datos de mentira (sin cuenta ni red)
-  { archivo: "contrarreloj-corriendo", ruta: "/?escena=nivel&contrarreloj&j1=andar:1&j2=andar:1&congelar=150" },
-  { archivo: "contrarreloj-llegada", ruta: "/?escena=nivel&contrarreloj&punto=2&j1=andar:1&j2=andar:1&congelar=215" },
+  {
+    archivo: "contrarreloj-corriendo",
+    ruta: "/?escena=nivel&nivel=prueba&contrarreloj&j1=andar:1&j2=andar:1&congelar=150",
+  },
+  {
+    archivo: "contrarreloj-llegada",
+    ruta: "/?escena=nivel&nivel=prueba&contrarreloj&punto=2&j1=andar:1&j2=andar:1&congelar=215",
+  },
   { archivo: "contrarreloj-tabla", ruta: "/?escena=tabla&nivel=prueba&ejemplo" },
   // TU-29: el ropero. Los dos con lo del principio (el rojo con su sombrero, el turquesa con sus trenzas) y el panel
   // para elegir; una cuenta de ejemplo con lo ganado y los logros; las dos vitrinas con todas las prendas; los dos
@@ -75,9 +98,12 @@ const TOMAS = [
   { archivo: "ropero-vitrina-2", ruta: "/?escena=ropero&vitrina=2&congelar=60" },
   {
     archivo: "nivel-con-prendas",
-    ruta: "/?escena=nivel&j1=&j2=&ropa1=sombrero:puntudo,mascara:diablito,panuelo:capa&ropa2=peinado:colitas,mascara:guacamaya,panuelo:lazo&congelar=60",
+    ruta: "/?escena=nivel&nivel=prueba&j1=&j2=&ropa1=sombrero:puntudo,mascara:diablito,panuelo:capa&ropa2=peinado:colitas,mascara:guacamaya,panuelo:lazo&congelar=60",
   },
-  { archivo: "nivel-secreto", ruta: "/?escena=nivel&punto=2&j1=andar:0.5&j2=andar:1,girar:0.06&congelar=252" },
+  {
+    archivo: "nivel-secreto",
+    ruta: "/?escena=nivel&nivel=prueba&punto=2&j1=andar:0.5&j2=andar:1,girar:0.06&congelar=252",
+  },
   // TU-12: las piezas de juego (niveles/98-piezas), entero y en la salida. El rojo pisa la plancha y baja la compuerta;
   // el turquesa empuja la palanca y el rojo pasa; el rojo se columpia en un bejuco sobre la quebrada (los brazos se
   // alzan en el paso 15: al reaparecer en un punto no se agarra con el botón ya apretado); el rojo sube al balancín
@@ -151,9 +177,15 @@ const TOMAS = [
     archivo: "noche-amarrados",
     ruta: "/?escena=nivel&nivel=piezas&noche=7&trampa=mecate&j1=andar:1,girar:-0.15&j2=&congelar=200",
   },
-  { archivo: "noche-niebla", ruta: "/?escena=nivel&noche=3&trampa=niebla&j1=andar:1&j2=andar:1&congelar=120" },
-  { archivo: "noche-luna", ruta: "/?escena=nivel&noche=1&trampa=luna&j1=saltar@30&j2=saltar@36&congelar=75" },
-  { archivo: "noche-menu", ruta: "/?escena=nivel&noche=5&j1=&j2=&menu&congelar=60" },
+  {
+    archivo: "noche-niebla",
+    ruta: "/?escena=nivel&nivel=prueba&noche=3&trampa=niebla&j1=andar:1&j2=andar:1&congelar=120",
+  },
+  {
+    archivo: "noche-luna",
+    ruta: "/?escena=nivel&nivel=prueba&noche=1&trampa=luna&j1=saltar@30&j2=saltar@36&congelar=75",
+  },
+  { archivo: "noche-menu", ruta: "/?escena=nivel&nivel=prueba&noche=5&j1=&j2=&menu&congelar=60" },
   // TU-24: el nivel 2, La poza (niveles/02-poza), entero y en la salida (los troncos en sus caballetes); 1. la balsa
   // amarrada junto al muelle, con los dos a bordo; 2. remando río arriba; 3. el chorro de la represa y, abierta la
   // compuerta, cortado; 4. los dos bajando por el tendedero; 5. las piedras de la isla y la boca, y la poza seca;
@@ -517,6 +549,22 @@ async function esperarListo(pagina) {
   await pagina.evaluate(() => document.fonts.ready);
 }
 
+/** Lo que guarda el navegador de una toma con `ganados`: lo mismo que deja el juego al ganar (niveles/contrarreloj.ts). */
+const recuerdo = (toma) => ({
+  cookies: [],
+  origins: [
+    {
+      origin: new URL(servidor.base).origin,
+      localStorage: [
+        {
+          name: "tuerce.contrarreloj",
+          value: JSON.stringify(Object.fromEntries(toma.ganados.map((nivel) => [nivel, { ganado: true }]))),
+        },
+      ],
+    },
+  ],
+});
+
 const servidor = process.env.CAPTURAS_URL
   ? { base: process.env.CAPTURAS_URL.replace(/\/$/, ""), cerrar: () => {} }
   : await servirJuego();
@@ -532,9 +580,15 @@ try {
   const pagina = await contexto.newPage();
   pagina.on("pageerror", (e) => errores.push(e.message));
   for (const toma of TOMAS) {
-    await pagina.goto(servidor.base + toma.ruta);
-    await esperarListo(pagina);
-    await pagina.screenshot({ path: join(SALIDA, `${toma.archivo}.png`) });
+    // `ganados`: en un navegador aparte que recuerda esos niveles ganados (el menú los marca); `clic`: qué apretar
+    const aparte = toma.ganados ? await navegador.newContext({ viewport: TAMANO, storageState: recuerdo(toma) }) : null;
+    const enEsta = aparte ? await aparte.newPage() : pagina;
+    if (aparte) enEsta.on("pageerror", (e) => errores.push(e.message));
+    await enEsta.goto(servidor.base + toma.ruta);
+    await esperarListo(enEsta);
+    if (toma.clic) await enEsta.click(toma.clic);
+    await enEsta.screenshot({ path: join(SALIDA, `${toma.archivo}.png`) });
+    await aparte?.close();
     resumen.tomas.push({ ...toma, imagen: `${toma.archivo}.png` });
     console.log(`  imagen  ${toma.archivo}.png`);
   }
