@@ -1084,6 +1084,8 @@ export function crearEmpedrado(tramos: readonly Tramo[], paso = 0.26): THREE.Ins
     return s / 2147483647;
   };
   const piedras: THREE.Matrix4[] = [];
+  /** Cuánto más clara u oscura sale cada piedra. */
+  const tonos: number[] = [];
   const q = new THREE.Quaternion();
   const escala = new THREE.Vector3();
   const donde = new THREE.Vector3();
@@ -1102,21 +1104,26 @@ export function crearEmpedrado(tramos: readonly Tramo[], paso = 0.26): THREE.Ins
         q.setFromAxisAngle(ARRIBA, azar() * Math.PI).premultiply(
           new THREE.Quaternion().setFromAxisAngle(EJE_Z, pendiente),
         );
-        escala.set(paso * (0.4 + azar() * 0.12), 0.035, paso * (0.36 + azar() * 0.1));
+        // Redondas y de tamaños distintos, apenas abombadas: si son todas iguales y chatas parecen monedas
+        escala.set(paso * (0.4 + azar() * 0.16), 0.04 + azar() * 0.025, paso * (0.36 + azar() * 0.14));
         piedras.push(new THREE.Matrix4().compose(donde.set(x, y + 0.005, z), q, escala));
+        tonos.push(0.7 + azar() * 0.5);
       }
     }
   }
   const color = new THREE.Color(COLORES.niebla).multiplyScalar(0.13);
   const malla = new THREE.InstancedMesh(
-    new THREE.SphereGeometry(1, 8, 5),
+    new THREE.SphereGeometry(1, 14, 6),
     new THREE.MeshStandardMaterial({ name: "empedrado", color, roughness: 1, metalness: 0 }),
     piedras.length,
   );
   malla.name = "empedrado";
+  const tono = new THREE.Color();
   piedras.forEach((m, i) => {
     malla.setMatrixAt(i, m);
+    malla.setColorAt(i, tono.setScalar(tonos[i] ?? 1));
   });
   malla.instanceMatrix.needsUpdate = true;
+  if (malla.instanceColor) malla.instanceColor.needsUpdate = true;
   return malla;
 }
