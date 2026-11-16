@@ -64,8 +64,10 @@ entorno) y la llave TURN «tuerce-sala» de Cloudflare Realtime está en las dos
 
 - **Clerk en producción**: crear la instancia de producción cuando haya dominio (por ejemplo `tuerce.lcfapps.com`),
   cambiar `VITE_CLERK_PUBLISHABLE_KEY_PROD` y `CLERK_JWT_ISSUER_DOMAIN` en `produccion`.
-- **Proteger `main`** (TU-54): el repo ya es público, así que GitHub permite la regla. Activarla pide permiso de
-  administrador del repo (Luis); los agentes no lo tienen. Una sola vez, con `gh` autenticado como Luis:
+- **Proteger `main`** (TU-54): el repo es privado y la cuenta está en el plan gratis, y GitHub no deja poner reglas
+  de rama ahí (la API responde 403 «Upgrade to GitHub Pro or make this repository public»; probado el 16 de
+  noviembre de 2026). Mientras tanto la regla se cumple por costumbre: todo entra por pull request con la revisión
+  en verde (`AGENTS.md`). Con GitHub Pro o el repo público, una sola vez y con `gh` autenticado como Luis:
 
   ```bash
   gh api -X PUT repos/luiscf1226/tuerce/branches/main/protection --input docs/proteccion-main.json

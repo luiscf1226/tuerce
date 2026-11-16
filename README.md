@@ -16,11 +16,11 @@ pañuelos (rojo y turquesa) como único color. La referencia obligatoria son `do
 
 | Carpeta         | Qué es                                                                                | Estado                                                                                 |
 | --------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `apps/juego/`   | El juego: TypeScript, Three.js, Rapier y Vite                                         | Base lista: físicas a 60 pasos fijos por segundo, escena de prueba y entrada con Clerk |
+| `apps/juego/`   | El juego: TypeScript, Three.js, Rapier y Vite                                         | Los 17 niveles (0 a 16) jugables de a dos aquí o en línea, menú, ropero y contrarreloj |
 | `convex/`       | Datos: esquema, Clerk y funciones de usuario                                          | Proyecto `tuerce` con desarrollo, vista previa y producción                            |
-| `workers/sala/` | Sala de dos (Cloudflare Durable Object): presenta a los jugadores y hace de repetidor | Funciona en local; sin pase firmado ni TURN todavía                                    |
+| `workers/sala/` | Sala de dos (Cloudflare Durable Object): presenta a los jugadores y hace de repetidor | En producción (`tuerce-sala`), con pase firmado por Convex y TURN de Cloudflare        |
 | `scripts/`      | Capturas automáticas y lo que corre la revisión                                       | `pnpm capturas`                                                                        |
-| `niveles/`      | Escenas y guiones de cada nivel                                                       | Vacío                                                                                  |
+| `niveles/`      | Escenas y guiones de cada nivel                                                       | Del 00-patio al 16-medianoche, más 98-piezas y 99-prueba                               |
 | `prototipo/`    | La propuesta con la demo 2D para dos                                                  | Con la imagen nueva (niebla, siluetas de trapo); un solo HTML que se abre directo      |
 | `docs/`         | Plan, generador, arte y entornos                                                      | `docs/generador/tuerce.mjs` regenera el plan                                           |
 
@@ -45,6 +45,7 @@ Cómo se separan desarrollo, vista previa y producción, y dónde vive cada llav
 
 ## Lo que sigue
 
-La ola 1: el muñeco caminando con el look de las imágenes de referencia. Cada ola se hace con la skill `ola`:
-varios agentes en paralelo, todo se junta en una rama `ola-N` y se entrega con vista previa, capturas y un pull
-request; con «full send» se une a `main`.
+Las olas 0 a 9 están en `main` y en producción. Queda la prueba con cinco parejas (TU-16, la juegan personas), la
+instancia de producción de Clerk cuando haya dominio propio y proteger `main` (pide GitHub Pro o el repo público);
+ver `docs/ENTORNOS.md`. Cada ola nueva se hace con la skill `ola`: varios agentes en paralelo, todo se junta en una
+rama `ola-N` y se entrega con vista previa, capturas y un pull request; con «full send» se une a `main`.
