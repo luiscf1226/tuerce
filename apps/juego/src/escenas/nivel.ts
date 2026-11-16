@@ -15,6 +15,10 @@
 //   &ganar=N         para probar (en desarrollo, o con `?congelar=` para las capturas): en el paso N la pareja
 //                    alcanza la meta sin caminar hasta ahí, como si llegara (en La medianoche se encienden los fuegos);
 //                    con `&punto=` la meta, cuenta como llegar ahí mismo
+//   &pista           la luciérnaga que señala hacia dónde seguir, sin esperar los 2 minutos (TU-62)
+//
+// Al entrar (TU-62): el cartel con el número, el nombre y el lugar del nivel, el fundido en niebla al abrirlo y al
+// reaparecer, y la luciérnaga si pasan 2 minutos sin llegar al próximo punto de control (escenas/orientacion.ts).
 //
 // La meta (TU-57): fuera del contrarreloj, un rato después de llegar aparece «Nivel ganado» con «Siguiente nivel» y
 // «Menú» (src/ui/llegada.ts) y los muñecos dejan de recibir entrada; después de La medianoche, el final. En línea
@@ -46,8 +50,10 @@ import { avisarPremios } from "../ropero/aviso";
 import { vestuarioDe } from "../ropero/vestuario";
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
+import { irConFundido } from "../ui/fundido";
 import {
   accionesDeLaMeta,
+  direccionDelNivel,
   esperaDelPanel,
   finDeNivel,
   loQueSigue,
@@ -59,6 +65,7 @@ import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
+import { crearOrientacion, type Orientacion } from "./orientacion";
 import type { AvanceDeNivel, Vestir } from "./tipos";
 
 /** La cámara: hacia dónde queda de lo que mira, un poco más alta que en `dos` para ver los huecos. */
@@ -79,6 +86,8 @@ export type EscenaNivel = EscenaDeJuego & {
   readonly vestir: Vestir;
   /** La Noche de tuerce (TU-33): de día mientras no tenga trampa. */
   readonly noche: Noche;
+  /** El cartel, el fundido y la luciérnaga (TU-62). */
+  readonly orientacion: Orientacion;
 };
 
 /** Baja el .glb del nivel que pide la dirección (`&nivel=`) y devuelve cómo armar su escena. */
@@ -192,6 +201,18 @@ export function armarEscenaNivel(
   }
   // La medianoche (TU-49): los fuegos artificiales del nivel, que piden mirar al cielo
   const fuegos = armado.piezasDeJuego.lista.filter((p): p is Fuegos => p.cual === "fuegos");
+  // Entrar a un nivel y no perderse (TU-62)
+  const orientacion = crearOrientacion({
+    escena,
+    plano,
+    clave: parametros.get("nivel") ?? NIVEL_INICIAL,
+    avance: nivel.avance,
+    munecos,
+    ...(vistaTodo ? {} : { camaraDeDos }),
+    parametros,
+    conPantalla,
+    enRed: enRed !== undefined,
+  });
   const seguirConLaCamara = () =>
     camaraDeDos.seguir(munecos[0].partes.pelvis.translation(), munecos[1].partes.pelvis.translation());
 
@@ -232,6 +253,8 @@ export function armarEscenaNivel(
     if (!enRed && conPantalla) marcarGanadoAqui(clave);
     llegaronEn ??= pasos;
   });
+  const siguienteConFundido =
+    fin.cual === "siguiente" ? () => irConFundido(direccionDelNivel(fin.siguiente.clave, false)) : undefined;
   const mostrarLaMeta = () => {
     conElPanel = true;
     if (fin.cual === "final") mostrarFinal();
@@ -239,7 +262,8 @@ export function armarEscenaNivel(
       mostrarNivelGanado({
         nombre: plano.nombre,
         nota: fin.cual === "siguiente" ? loQueSigue(fin.siguiente) : "",
-        acciones: accionesDeLaMeta(fin),
+        // Al siguiente, por la niebla (TU-62)
+        acciones: accionesDeLaMeta(fin, siguienteConFundido),
       });
   };
   const ganar = Number(parametros.get("ganar"));
@@ -283,6 +307,7 @@ export function armarEscenaNivel(
     premios: nivel.premios,
     vestir: (jugador, vestuario) => jugadores[jugador].malla.vestir(vestuario),
     noche,
+    orientacion,
     pasar() {
       if (pasos === ganarEn) {
         nivel.avance.retomar(nivel.avance.meta);
@@ -310,6 +335,7 @@ export function armarEscenaNivel(
       jugadores[1].malla.guardar();
       armado.guardar();
       seguirConLaCamara();
+      orientacion.pasar(juego.atienden && !conElPanel);
       pasos++;
     },
     dibujar(alfa) {
@@ -334,6 +360,8 @@ export function armarEscenaNivel(
         escena.fog.near = plano.niebla.cerca * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca + atras;
         escena.fog.far = plano.niebla.lejos * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca + atras;
       }
+      // Con la cámara ya puesta: el cartel, la niebla del fundido y la luciérnaga en el cuadro (TU-62)
+      orientacion.dibujar(alfa);
     },
   };
 }

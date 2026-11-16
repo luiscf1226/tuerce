@@ -492,6 +492,21 @@ const TOMAS = [
   { archivo: "pampa-5-candil", ruta: "/?escena=nivel&nivel=pampa&punto=5&j1=&j2=&vista=37.5,1.2,-2.3&congelar=60" },
   { archivo: "pampa-5-meta", ruta: "/?escena=nivel&nivel=pampa&punto=5&j1=&j2=&congelar=60" },
   { archivo: "pampa-secreto", ruta: "/?escena=nivel&nivel=pampa&punto=4&j1=&j2=&vista=25,4,-1.9&congelar=30" },
+  // TU-62: entrar a un nivel y no perderse. El cartel con el número, el nombre y el lugar mientras la escena sale de
+  // la niebla (y de noche, con el de la trampa abajo); el turquesa se cae del nivel de prueba y la niebla sube
+  // mientras cae y se levanta al reaparecer; y la luciérnaga que, tras 2 minutos sin llegar al próximo punto de
+  // control, vuela hacia allá (`&pista` la enciende sin esperar), de día y de noche
+  { archivo: "cartel-calle", ruta: "/?escena=nivel&nivel=calle&j1=&j2=&congelar=40" },
+  { archivo: "cartel-medianoche", ruta: "/?escena=nivel&nivel=medianoche&j1=&j2=&congelar=120" },
+  { archivo: "cartel-noche", ruta: "/?escena=nivel&nivel=pinar&noche=4&trampa=cruzados&j1=&j2=&congelar=90" },
+  { archivo: "fundido-cayendo", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=andar:1,girar:-0.15&congelar=296" },
+  { archivo: "fundido-reaparece", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=andar:1,girar:-0.15&congelar=306" },
+  { archivo: "pista-calle", ruta: "/?escena=nivel&nivel=calle&punto=1&pista&j1=&j2=&congelar=170" },
+  { archivo: "pista-tren", ruta: "/?escena=nivel&nivel=tren&punto=2&pista&j1=&j2=&congelar=170" },
+  {
+    archivo: "pista-noche",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=1&pista&noche=3&trampa=cruzados&j1=&j2=&congelar=170",
+  },
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };

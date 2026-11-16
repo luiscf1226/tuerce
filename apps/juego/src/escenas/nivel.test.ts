@@ -103,3 +103,27 @@ describe("escena nivel", () => {
     e.dibujar(1);
   });
 });
+
+describe("entrar y no perderse (TU-62)", () => {
+  it("`&pista` enciende la luciérnaga en el primer paso jugando, y se apaga en la meta", async () => {
+    const e = await escenaDePrueba("j1=&j2=&pista&ganar=20");
+    e.pasar();
+    expect(e.orientacion.pista.encendida).toBe(true);
+    for (let i = 0; i < 25; i++) e.pasar();
+    e.dibujar(0.5);
+    expect(e.orientacion.pista.encendida).toBe(false);
+  });
+
+  it("en línea, la cuenta de la pista espera a que estén conectados", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const plano = await leerDelDisco("99-prueba");
+    const guion = NIVELES.prueba?.crearGuion() ?? {};
+    const e = armarEscenaNivel(rapier, mundo, plano, guion, new URLSearchParams("j1=&j2=&pista"), () => null);
+    expect(e.orientacion.conectados).toBe(false);
+    for (let i = 0; i < 5; i++) e.pasar();
+    expect(e.orientacion.pista.encendida).toBe(false);
+    e.orientacion.conectados = true;
+    e.pasar();
+    expect(e.orientacion.pista.encendida).toBe(true);
+  });
+});

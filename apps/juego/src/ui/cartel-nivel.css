@@ -1,0 +1,81 @@
+/* El cartel al entrar a un nivel (TU-62): letras oscuras envueltas en niebla clara, con la letra del menú (Fraunces y
+   Karla). Sin tarjeta: un jirón de niebla detrás se funde con la escena, y se leen también sobre lo oscuro y de noche.
+   Solo modo claro y sin color. */
+.cartel-nivel {
+  --tinta: #232321;
+  --tinta-suave: #5a5a56;
+  --honda: #1a1a1a;
+  --raya: rgb(35 35 33 / 0.32);
+  --display: "Fraunces", "Georgia", serif;
+  --cuerpo: "Karla", "Segoe UI", system-ui, sans-serif;
+  --bruma: rgb(240 240 237 / 0.9);
+  --corrido: 0px;
+  position: fixed;
+  top: 6%;
+  left: 50%;
+  /* Debajo de la meta (6) y del menú (7) */
+  z-index: 4;
+  width: min(620px, calc(100vw - 32px));
+  padding: 26px 40px 30px;
+  box-sizing: border-box;
+  transform: translate(-50%, calc(var(--corrido) * -1));
+  text-shadow:
+    0 0 3px var(--bruma),
+    0 0 14px var(--bruma);
+  color: var(--tinta);
+  font: 400 16px / 1.4 var(--cuerpo);
+  text-align: center;
+  pointer-events: none;
+}
+/* Detrás de las letras, un jirón de niebla: la escena se borronea y se aclara, y el borde se pierde. Así se leen
+   también encima de un sombrero o de una pared oscura */
+.cartel-nivel::before {
+  content: "";
+  position: absolute;
+  inset: -6px -30px;
+  z-index: -1;
+  background: rgb(240 240 237 / 0.55);
+  backdrop-filter: blur(6px);
+  mask-image: radial-gradient(closest-side, #000 45%, rgb(0 0 0 / 0.6) 70%, transparent);
+}
+.cartel-nivel p {
+  margin: 0;
+}
+/* El número entre dos costuras cortas, como la ceja del menú */
+.cartel-nivel-numero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--tinta-suave);
+}
+.cartel-nivel-numero::before,
+.cartel-nivel-numero::after {
+  content: "";
+  width: 34px;
+  border-top: 2px dashed var(--raya);
+  filter: drop-shadow(0 0 4px var(--bruma));
+}
+.cartel-nivel h2 {
+  margin: 4px 0 6px;
+  font: 800 48px / 1.02 var(--display);
+  letter-spacing: -0.02em;
+  color: var(--honda);
+}
+.cartel-nivel-lugar {
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  color: var(--tinta-suave);
+}
+@media (max-width: 520px) {
+  .cartel-nivel {
+    padding: 18px 16px 22px;
+  }
+  .cartel-nivel h2 {
+    font-size: 34px;
+  }
+}

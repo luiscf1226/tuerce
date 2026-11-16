@@ -49,7 +49,12 @@ describe("el panel de niveles", () => {
     const niveles = nivelesDeLaHistoria(["pinar", "prueba"]);
     expect(niveles).toHaveLength(17);
     expect(niveles.map((n) => n.numero)).toEqual([...Array(17).keys()]);
-    expect(niveles[1]).toMatchObject({ clave: "pinar", titulo: "El pinar", lugar: "Honduras", ganado: true });
+    expect(niveles[1]).toMatchObject({
+      clave: "pinar",
+      titulo: "El pinar",
+      lugar: "La Esperanza, Honduras",
+      ganado: true,
+    });
     expect(niveles.filter((n) => n.ganado).map((n) => n.clave)).toEqual(["pinar"]);
     expect(numeroConCeros(niveles[16]?.numero ?? -1)).toBe("16");
     expect(numeroConCeros(0)).toBe("00");

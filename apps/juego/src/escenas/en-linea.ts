@@ -57,6 +57,7 @@ import { crearSincronia, type Medidas, type OrigenMundo, type Sincronia } from "
 import { crearVoz, type EstadoVoz, type Voz } from "../red/voz";
 import { completar } from "../ropero/vestuario";
 import { type DatosTabla, mostrarLlegada } from "../ui/contrarreloj";
+import { irConFundido } from "../ui/fundido";
 import type { Juego } from "../ui/juego";
 import {
   accionesDeLaMeta,
@@ -71,6 +72,7 @@ import {
 import { crearEscenaDos, type PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
 import { bajarNivel } from "./nivel";
+import type { Orientacion } from "./orientacion";
 import type { AvanceDeNivel, PremiosDeNivel, Vestir } from "./tipos";
 import "./en-linea.css";
 
@@ -80,6 +82,8 @@ export type EscenaDeDos = EscenaDeJuego & {
   readonly vestir?: Vestir;
   /** La Noche de tuerce (TU-33), si la escena es un nivel. */
   readonly noche?: Noche;
+  /** El cartel, el fundido y la luciérnaga (TU-62), si la escena es un nivel: esperan a que estén conectados. */
+  readonly orientacion?: Orientacion;
 };
 /** Arma una escena de dos jugadores; `enRed` decide las entradas de cada paso (o que no se simule). */
 export type CrearEscenaDeDos = (
@@ -243,7 +247,7 @@ export function crearEscenaEnLinea(
               actual: historia.numero,
               ir: (numero) => {
                 const destino = HISTORIA.find((n) => n.numero === numero);
-                if (destino) location.assign(direccionDelNivel(destino.clave, true, parametros));
+                if (destino) irConFundido(direccionDelNivel(destino.clave, true, parametros));
               },
               alSeguir: () => panel?.nota("Tu pareja eligió seguir: ¡vamos!"),
             });
@@ -266,6 +270,7 @@ export function crearEscenaEnLinea(
         const mostrar = (estado: EstadoRed) => {
           prueba.estado = estado;
           jugando = estado === "directa" || estado === "repetidor";
+          if (dos.orientacion) dos.orientacion.conectados = jugando;
           ui.estado(conexion.rol, estado);
         };
         mostrar(conexion.estado);
