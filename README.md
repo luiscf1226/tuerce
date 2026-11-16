@@ -6,6 +6,7 @@ rellenos de trapos cruzan Latinoamérica resolviendo rompecabezas a puro agarró
 **Cómo se ve:** como Limbo en clave clara. Siluetas oscuras sobre niebla luminosa, solo modo claro, y los dos
 pañuelos (rojo y turquesa) como único color. La referencia obligatoria son `docs/arte/11-pinar` a `14-personajes`.
 
+- **Jugar (producción, siempre la última versión de `main`):** https://tuerce.luiscf1226.workers.dev
 - **Propuesta con demo jugable:** https://claude.ai/artifact/P9kmTojq7XBSg4m3vTfWmZ (copia en `prototipo/`)
 - **Plan (requerimientos, arquitectura y los 17 niveles con sus 91 misiones):** `docs/plan.html` · https://claude.ai/artifact/QVzT8avdwoipVvDm2Leg1z
 - **Arte de referencia:** `docs/arte/11-*` a `14-*` (generado con IA). `docs/arte/descartado/` guarda el estilo de colores que se descartó.

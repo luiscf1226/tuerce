@@ -64,6 +64,13 @@ entorno) y la llave TURN «tuerce-sala» de Cloudflare Realtime está en las dos
 
 - **Clerk en producción**: crear la instancia de producción cuando haya dominio (por ejemplo `tuerce.lcfapps.com`),
   cambiar `VITE_CLERK_PUBLISHABLE_KEY_PROD` y `CLERK_JWT_ISSUER_DOMAIN` en `produccion`.
-- **Proteger `main`**: GitHub no permite reglas de rama en repos privados del plan gratis. Con GitHub Pro (o el repo
-  público) se activa «solo por pull request con la revisión en verde» con:
-  `gh api -X PUT repos/luiscf1226/tuerce/branches/main/protection --input docs/proteccion-main.json`.
+- **Proteger `main`** (TU-54): el repo ya es público, así que GitHub permite la regla. Activarla pide permiso de
+  administrador del repo (Luis); los agentes no lo tienen. Una sola vez, con `gh` autenticado como Luis:
+
+  ```bash
+  gh api -X PUT repos/luiscf1226/tuerce/branches/main/protection --input docs/proteccion-main.json
+  ```
+
+  O a mano: Settings → Branches → Add branch protection rule → `main` → «Require a pull request before merging» y
+  «Require status checks to pass» con el check `revisión` (y «Require branches to be up to date»). Sin force push ni
+  borrar la rama. `enforce_admins: false` deja a Luis unir de urgencia si hace falta.

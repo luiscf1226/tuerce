@@ -1,1 +1,8 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Jugar la última versión
+    url: https://tuerce.luiscf1226.workers.dev
+    about: Producción, con lo último de main. Si algo falla ahí, abrí «Algo no funciona».
+  - name: El plan completo
+    url: https://github.com/luiscf1226/tuerce/blob/main/docs/plan.html
+    about: Requerimientos, arquitectura y los niveles. Los tickets salen de docs/TICKETS.md.
