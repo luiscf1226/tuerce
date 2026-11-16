@@ -58,7 +58,7 @@ import { crearOido, cuerposQueSuenan, type Oido, sueloDelMaterial } from "../son
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
 import { irConFundido } from "../ui/fundido";
-import { borrarPuntoAqui, direccionDesdeLaSalida, guardarPuntoAqui } from "../ui/historia";
+import { borrarPuntoAqui, direccionDesdeLaSalida, guardarPuntoAqui, puntosGuardadosAqui } from "../ui/historia";
 import {
   accionesDeLaMeta,
   direccionDelNivel,
@@ -166,9 +166,17 @@ export function armarEscenaNivel(
   const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
   // La pausa sobre el nivel (TU-60). En línea no ofrece nada hasta que en-linea.ts sepa quién es el anfitrión
   const pausa: AccionesDelNivel = { puntoDeControl: () => nivel.avance.puntoDeControl() };
-  if (!enRed) {
+  // En el contrarreloj no: volver al punto en plena carrera es un atajo
+  if (!enRed && !parametros.has("contrarreloj")) {
     pausa.volverAlPunto = () => avance.irA(nivel.avance.puntoDeControl());
-    if (conPantalla) pausa.empezarDeNuevo = () => irConFundido(direccionDesdeLaSalida(location.search));
+  }
+  if (!enRed && conPantalla) {
+    // Empezar de nuevo también olvida el punto guardado: si se van antes del primero, «Seguir la historia» no los
+    // devuelve al punto viejo
+    pausa.empezarDeNuevo = () => {
+      borrarPuntoAqui(clave);
+      irConFundido(direccionDesdeLaSalida(location.search));
+    };
   }
   const interfaz = conPantalla ? crearInterfaz(juego, controles, pausa) : undefined;
   if (conPantalla) avisarPremios(nivel.premios);
@@ -268,7 +276,13 @@ export function armarEscenaNivel(
   let llegaronEn: number | undefined;
   let conElPanel = false;
   // Retomar aquí (TU-60): jugando de día y sin reloj en este navegador (las capturas, con `?congelar`, no dejan rastro)
-  const guardaElPunto = !enRed && conPantalla && !reloj && !parametros.has("noche") && !parametros.has("congelar");
+  const guardaElPunto =
+    !enRed &&
+    conPantalla &&
+    !reloj &&
+    !parametros.has("noche") &&
+    !parametros.has("trampa") &&
+    !parametros.has("congelar");
   nivel.avance.alCambiar((alcanzado) => {
     if (guardaElPunto) {
       if (alcanzado >= nivel.avance.meta) borrarPuntoAqui(clave);
@@ -329,7 +343,14 @@ export function armarEscenaNivel(
   });
 
   let pasos = 0;
-  const punto = Number(parametros.get("punto"));
+  let punto = Number(parametros.get("punto"));
+  // Un punto guardado aquí que ya es la meta o no existe (de una versión vieja del nivel, con más puntos) dejaría a
+  // la pareja en la meta sin «Nivel ganado» y sin borrarlo: se olvida y se empieza en la salida. Un `&punto=` que
+  // no viene de lo guardado (las capturas, `&ganar=`) se respeta
+  if (punto >= nivel.avance.meta && puntosGuardadosAqui()[clave] === punto) {
+    borrarPuntoAqui(clave);
+    punto = 0;
+  }
   if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
   seguirConLaCamara();
   // `&pausa`: ya en el punto de control, para que la pausa diga cuál es

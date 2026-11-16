@@ -1,8 +1,9 @@
 // La escena `nivel` con el nivel de prueba leído del disco: se arma, expone su avance (TU-22) y reaparece.
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { crearMundo } from "../motor/fisica";
 import { NIVELES } from "../niveles/lista";
 import { leerDelDisco } from "../niveles/prueba";
+import { LLAVE_RETOMAR } from "../ui/historia";
 import { armarEscenaNivel } from "./nivel";
 
 async function escenaDePrueba(parametros: string) {
@@ -101,6 +102,34 @@ describe("escena nivel", () => {
     e.vestir(0, { panuelo: "capa", sombrero: "puntudo", peinado: "ninguno", mascara: "jade" });
     for (let i = 0; i < 3; i++) e.pasar();
     e.dibujar(1);
+  });
+});
+
+describe("retomar aquí (TU-60)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("un punto guardado que ya es la meta (de una versión vieja del nivel) se olvida y se empieza en la salida", async () => {
+    const guardado = new Map<string, string>();
+    vi.stubGlobal("localStorage", {
+      getItem: (llave: string) => guardado.get(llave) ?? null,
+      setItem: (llave: string, valor: string) => void guardado.set(llave, valor),
+      removeItem: (llave: string) => void guardado.delete(llave),
+    });
+    const meta = (await escenaDePrueba("j1=&j2=")).avance?.meta ?? 0;
+    guardado.set(LLAVE_RETOMAR, JSON.stringify({ prueba: meta + 2 }));
+    const e = await escenaDePrueba(`j1=&j2=&nivel=prueba&punto=${meta + 2}`);
+    for (let i = 0; i < 5; i++) e.pasar();
+    expect(e.avance?.puntoDeControl()).toBe(0);
+    expect(JSON.parse(guardado.get(LLAVE_RETOMAR) ?? "{}")).toEqual({});
+  });
+
+  it("un `&punto=` que no viene de lo guardado se respeta aunque sea la meta (las capturas)", async () => {
+    const meta = (await escenaDePrueba("j1=&j2=")).avance?.meta ?? 0;
+    const e = await escenaDePrueba(`j1=&j2=&nivel=prueba&punto=${meta}`);
+    for (let i = 0; i < 5; i++) e.pasar();
+    expect(e.avance?.puntoDeControl()).toBe(meta);
   });
 });
 

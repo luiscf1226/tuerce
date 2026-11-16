@@ -249,7 +249,8 @@ export function crearEscenaEnLinea(
         // La pausa (TU-60): «Volver al punto de control» lo decide el anfitrión, que simula; el invitado lo ve en
         // las fotos. «Empezar el nivel de nuevo» no se ofrece en línea: los dos tendrían que irse juntos a la salida
         // y el avance guardado de la pareja (src/red/avance.ts) los traería de vuelta al punto.
-        if (dos.pausa && avance) {
+        // En el contrarreloj no: volver al punto en plena carrera es un atajo
+        if (dos.pausa && avance && !reloj) {
           if (conexion.rol === "anfitrion") dos.pausa.volverAlPunto = () => avance.irA(avance.puntoDeControl());
           else dos.pausa.nota = "Volver al punto de control lo decide tu pareja (pañuelo rojo).";
         }

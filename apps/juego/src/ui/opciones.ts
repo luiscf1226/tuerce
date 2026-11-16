@@ -84,7 +84,7 @@ export function filasDeOpciones(repintar: (enfocar: string) => void): HTMLElemen
     filas.push(
       filaDeAjuste(
         "Pantalla completa",
-        enEscritorio ? "También con F11" : "Esc la deja",
+        enEscritorio ? "También con F11" : "Se sale con Esc",
         "pantalla",
         enPantallaCompleta(),
         () => {
@@ -97,7 +97,7 @@ export function filasDeOpciones(repintar: (enfocar: string) => void): HTMLElemen
   const ajustes = ajustesDelJuego();
   const menos = ajustes.ajustes().menosMovimiento;
   filas.push(
-    filaDeAjuste("Menos movimiento", "Sin sacudidas ni fundidos largos", "menos-movimiento", menos, () => {
+    filaDeAjuste("Menos movimiento", "Fundidos cortos y avisos quietos", "menos-movimiento", menos, () => {
       ajustes.fijar("menosMovimiento", !menos);
       repintar('[data-ajuste="menos-movimiento"]');
     }),

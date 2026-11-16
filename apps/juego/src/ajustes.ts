@@ -1,7 +1,7 @@
 // Los ajustes de este navegador que no son el volumen (TU-60): por ahora, «menos movimiento». Los volúmenes los
 // guarda el sonido (src/sonido/mezcla.ts, `tuerce:volumenes`); esto va aparte en `tuerce:ajustes`.
 //
-//   menos movimiento   sin sacudidas y con los fundidos y el cartel de TU-62 cortos (ui/fundido.ts,
+//   menos movimiento   los fundidos y el cartel de TU-62 cortos (ui/fundido.ts,
 //                      ui/cartel-nivel.ts) y sin las animaciones de los avisos (la clase `menos-movimiento` de la
 //                      página, ver estilo.css). Quien nunca lo tocó arranca con lo que pide su sistema
 //                      (`prefers-reduced-motion`).
@@ -77,7 +77,7 @@ export function ajustesDelJuego(): Ajustador {
   return delJuego;
 }
 
-/** Si va con menos movimiento: sin sacudidas ni fundidos largos. */
+/** Si va con menos movimiento: fundidos cortos y avisos quietos. */
 export function menosMovimiento(): boolean {
   return ajustesDelJuego().ajustes().menosMovimiento;
 }

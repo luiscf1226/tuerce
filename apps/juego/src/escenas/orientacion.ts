@@ -26,10 +26,10 @@ const SALTO = 2;
 const CAPA = { rojo: 29, turquesa: 30 } as const;
 /** La luz de la luciérnaga: el punto, el halo y lo que alumbra alrededor. */
 const LUCIERNAGA = {
-  /** El punto blanco y el halo apenas tibio: los pañuelos son el único color del juego, así que la luz se lee por su
-   * brillo y por lo que alumbra, no por su tono. */
+  /** Blanca: los pañuelos son el único color del juego, así que la luz se lee por su brillo y por lo que alumbra,
+   * no por su tono. */
   color: 0xffffff,
-  colorHalo: 0xfff4e4,
+  colorHalo: 0xffffff,
   /** Lado del halo (metros). */
   halo: 0.9,
   /** Lado del punto del medio (metros). */
