@@ -29,6 +29,8 @@ export function textoDelCartel(clave: string): TextoDelCartel | null {
 /** Cuándo se ve el cartel, en pasos jugando: entra mientras se levanta la niebla de la entrada, se queda unos
  * cuatro segundos y se va. */
 export const TIEMPOS_CARTEL = { entra: 10, entero: 40, seVa: 250, fuera: 295 } as const;
+/** Con menos movimiento (TU-60): aparece y se va casi de una, y se queda un poco menos. */
+export const TIEMPOS_CARTEL_CORTO = { entra: 4, entero: 10, seVa: 200, fuera: 208 } as const;
 
 const suave = (t: number) => {
   const x = Math.min(1, Math.max(0, t));
@@ -36,8 +38,8 @@ const suave = (t: number) => {
 };
 
 /** Cuánto se ve el cartel `pasos` después de empezar a jugar: de 0 (no está) a 1. */
-export function visibilidadDelCartel(pasos: number): number {
-  const { entra, entero, seVa, fuera } = TIEMPOS_CARTEL;
+export function visibilidadDelCartel(pasos: number, corto = false): number {
+  const { entra, entero, seVa, fuera } = corto ? TIEMPOS_CARTEL_CORTO : TIEMPOS_CARTEL;
   if (pasos <= entra || pasos >= fuera) return 0;
   if (pasos < entero) return suave((pasos - entra) / (entero - entra));
   if (pasos <= seVa) return 1;
@@ -47,8 +49,9 @@ export function visibilidadDelCartel(pasos: number): number {
 // ── En la página ────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface CartelDelNivel {
-  /** Cuánto se ve (0 a 1); en 0 sale de la página. Solo toca la página si cambió algo. */
-  poner(visibilidad: number): void;
+  /** Cuánto se ve (0 a 1); en 0 sale de la página. Solo toca la página si cambió algo. `quieto`: sin correrse
+   * (menos movimiento, TU-60). */
+  poner(visibilidad: number, quieto?: boolean): void;
 }
 
 /** Pone el cartel (todavía sin verse) arriba al centro. */
@@ -71,7 +74,7 @@ export function crearCartelDelNivel(texto: TextoDelCartel): CartelDelNivel {
   lugar.setAttribute("aria-hidden", "true");
   let antes = -1;
   return {
-    poner(visibilidad) {
+    poner(visibilidad, quieto = false) {
       const v = Math.round(visibilidad * 1000) / 1000;
       if (v === antes) return;
       antes = v;
@@ -82,7 +85,7 @@ export function crearCartelDelNivel(texto: TextoDelCartel): CartelDelNivel {
       if (!cartel.isConnected) document.body.appendChild(cartel);
       cartel.style.opacity = String(v);
       // Baja un poquito al entrar y sube al irse, como si la niebla lo trajera y se lo llevara
-      cartel.style.setProperty("--corrido", `${((1 - v) * 10).toFixed(2)}px`);
+      cartel.style.setProperty("--corrido", `${quieto ? "0" : ((1 - v) * 10).toFixed(2)}px`);
     },
   };
 }

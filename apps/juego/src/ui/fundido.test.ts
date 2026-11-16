@@ -4,7 +4,9 @@ import {
   CAIDA,
   CAYENDO,
   FUNDIDO_ENTRADA,
+  FUNDIDO_ENTRADA_CORTO,
   FUNDIDO_REAPARECER,
+  FUNDIDO_REAPARECER_CORTO,
   fundidoDeCaida,
   fundidoDeEntrada,
   fundidoTrasReaparecer,
@@ -51,5 +53,17 @@ describe("el fundido", () => {
   it("la entrada tapa las dos vistas", () => {
     expect(nieblaDeLasVistas(0, 0, 1, 1)).toEqual([1, 1]);
     expect(nieblaDeLasVistas(0, 0.2, 0, 0.6)).toEqual([0.6, 0.6]);
+  });
+});
+
+describe("con menos movimiento (TU-60)", () => {
+  it("los fundidos de entrada y de reaparecer son cortos", () => {
+    expect(FUNDIDO_ENTRADA_CORTO).toBeLessThan(FUNDIDO_ENTRADA / 3);
+    expect(FUNDIDO_REAPARECER_CORTO).toBeLessThan(FUNDIDO_REAPARECER / 3);
+    expect(fundidoDeEntrada(0, true)).toBe(1);
+    expect(fundidoDeEntrada(FUNDIDO_ENTRADA_CORTO, true)).toBe(0);
+    expect(fundidoDeEntrada(FUNDIDO_ENTRADA_CORTO)).toBeGreaterThan(0.5);
+    expect(fundidoTrasReaparecer(0, true)).toBe(PICO);
+    expect(fundidoTrasReaparecer(FUNDIDO_REAPARECER_CORTO, true)).toBe(0);
   });
 });

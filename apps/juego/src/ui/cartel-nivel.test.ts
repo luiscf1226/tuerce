@@ -1,7 +1,7 @@
 // El cartel al entrar a un nivel (TU-62): el texto, de la historia, y cuánto se ve en cada paso.
 import { describe, expect, it } from "vitest";
 import { HISTORIA } from "../niveles/orden";
-import { TIEMPOS_CARTEL, textoDelCartel, visibilidadDelCartel } from "./cartel-nivel";
+import { TIEMPOS_CARTEL, TIEMPOS_CARTEL_CORTO, textoDelCartel, visibilidadDelCartel } from "./cartel-nivel";
 
 describe("el texto del cartel", () => {
   it("número con ceros, nombre y lugar, como en el menú", () => {
@@ -53,5 +53,16 @@ describe("cuánto se ve", () => {
   it("dura unos cuatro segundos de juego", () => {
     expect(TIEMPOS_CARTEL.fuera / 60).toBeGreaterThan(4);
     expect(TIEMPOS_CARTEL.fuera / 60).toBeLessThan(6);
+  });
+});
+
+describe("el cartel con menos movimiento (TU-60)", () => {
+  it("aparece y se va casi de una", () => {
+    const { entra, entero, seVa, fuera } = TIEMPOS_CARTEL_CORTO;
+    expect(entero - entra).toBeLessThan((TIEMPOS_CARTEL.entero - TIEMPOS_CARTEL.entra) / 3);
+    expect(fuera - seVa).toBeLessThan((TIEMPOS_CARTEL.fuera - TIEMPOS_CARTEL.seVa) / 3);
+    expect(visibilidadDelCartel(entero, true)).toBe(1);
+    expect(visibilidadDelCartel(fuera, true)).toBe(0);
+    expect(visibilidadDelCartel(entero)).toBeLessThan(1);
   });
 });

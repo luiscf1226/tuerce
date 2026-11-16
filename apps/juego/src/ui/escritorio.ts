@@ -10,6 +10,30 @@ export function salirDelJuego(): void {
   void invoke("salir");
 }
 
+/** Si se puede pedir la pantalla completa desde las Opciones (TU-60): en el escritorio con el comando de la ventana,
+ * en el navegador con la Fullscreen API (que algunos, como Safari en el teléfono, no tienen). */
+export function hayPantallaCompleta(): boolean {
+  return enEscritorio || (typeof document !== "undefined" && document.fullscreenEnabled === true);
+}
+
+/** Si está en pantalla completa, en el navegador; en el escritorio no se sabe desde aquí (undefined). */
+export function enPantallaCompleta(): boolean | undefined {
+  if (enEscritorio) return undefined;
+  return typeof document !== "undefined" && document.fullscreenElement !== null;
+}
+
+/** Entra o sale de la pantalla completa. */
+export function alternarPantallaCompleta(): void {
+  if (enEscritorio) {
+    void invoke("alternar_pantalla_completa");
+    return;
+  }
+  const pedido = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  pedido.catch(() => {
+    // El navegador puede negarla (sin gesto, o en un marco): se sigue en la ventana
+  });
+}
+
 /** Se llama una vez al arrancar, en cualquier escena. */
 export function prepararEscritorio(): void {
   if (!enEscritorio) return;

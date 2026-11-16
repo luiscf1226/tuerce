@@ -8,7 +8,9 @@
 //   &pista       la luciérnaga desde el principio, sin esperar los 2 minutos (para las capturas y para probar)
 // Sin cartel con `&punto=` (se retoma a mitad del nivel), `&vista=` (la cámara quieta de las capturas) ni
 // `&contrarreloj` (la carrera ya lleva el nombre arriba). Con `&vista=` tampoco hay fundido.
+// Con «menos movimiento» (las Opciones, TU-60) los fundidos y el cartel son cortos y el cartel no se corre.
 import * as THREE from "three";
+import { menosMovimiento } from "../ajustes";
 import type { CamaraDeDos } from "../camara";
 import { PASO } from "../motor/bucle";
 import type { Muneco } from "../muneco";
@@ -104,6 +106,7 @@ export function crearOrientacion(o: OpcionesOrientacion): Orientacion {
   const medio = new THREE.Vector3();
 
   const pasarFundido = () => {
+    const corto = menosMovimiento();
     for (const j of [0, 1] as const) {
       const p = munecos[j].partes.pelvis.translation();
       const vy = (p.y - antes[j].y) / PASO;
@@ -112,9 +115,9 @@ export function crearOrientacion(o: OpcionesOrientacion): Orientacion {
       caida[j] = pasos > 0 ? fundidoDeCaida(p.y, plano.vacio, vy) : 0;
       antes[j].set(p.x, p.y, p.z);
     }
-    const de = (j: 0 | 1) => Math.max(caida[j] ?? 0, fundidoTrasReaparecer(desdeQueReaparecio[j] ?? 0));
+    const de = (j: 0 | 1) => Math.max(caida[j] ?? 0, fundidoTrasReaparecer(desdeQueReaparecio[j] ?? 0, corto));
     niebla.antes = niebla.ahora;
-    niebla.ahora = [de(0), de(1), fundidoDeEntrada(pasos + 1)];
+    niebla.ahora = [de(0), de(1), fundidoDeEntrada(pasos + 1, corto)];
   };
 
   const pasarLuciernaga = () => {
@@ -160,7 +163,8 @@ export function crearOrientacion(o: OpcionesOrientacion): Orientacion {
       pasos++;
     },
     dibujar(alfa) {
-      cartel?.poner(visibilidadDelCartel(pasosJugando));
+      const corto = menosMovimiento();
+      cartel?.poner(visibilidadDelCartel(pasosJugando, corto), corto);
       const entre = (i: number) => lerp(niebla.antes[i] ?? 0, niebla.ahora[i] ?? 0, alfa);
       cortinas?.poner(entre(0), entre(1), entre(2));
       if (luciernaga) {

@@ -10,15 +10,22 @@
 //
 // Las curvas son de pasos de físicas, no del reloj: con `?congelar=N` la imagen sale igual siempre. Las dibuja
 // escenas/orientacion.ts; aquí no se toca la página salvo en `irConFundido`.
+//
+// Con «menos movimiento» (las Opciones, TU-60, src/ajustes.ts) los fundidos son cortos (`corto`).
+import { menosMovimiento } from "../ajustes";
 
 /** Pasos que tarda la escena en salir de la niebla al abrir un nivel. */
 export const FUNDIDO_ENTRADA = 54;
+/** Lo mismo con menos movimiento. */
+export const FUNDIDO_ENTRADA_CORTO = 14;
 /** Metros sobre el vacío del nivel desde donde empieza a subir la niebla al caer. */
 export const CAIDA = 2.5;
 /** Velocidad hacia abajo (m/s) desde la que cuenta como caída: parado en lo más bajo del nivel no hay niebla. */
 export const CAYENDO = 1.5;
 /** Pasos que tarda en levantarse la niebla después de reaparecer. */
 export const FUNDIDO_REAPARECER = 45;
+/** Lo mismo con menos movimiento. */
+export const FUNDIDO_REAPARECER_CORTO = 12;
 /** Lo más espesa que se pone la niebla de un jugador (de 0 a 1). */
 export const PICO = 0.88;
 /** Con la pantalla sin partir, la niebla de uno se ve así de suave: el otro sigue jugando en la misma imagen. */
@@ -29,9 +36,10 @@ const suave = (t: number) => {
   return x * x * (3 - 2 * x);
 };
 
-/** Cuánta niebla hay `pasos` después de abrir el nivel: 1 al principio, 0 desde `FUNDIDO_ENTRADA`. */
-export function fundidoDeEntrada(pasos: number): number {
-  return 1 - suave(pasos / FUNDIDO_ENTRADA);
+/** Cuánta niebla hay `pasos` después de abrir el nivel: 1 al principio, 0 desde `FUNDIDO_ENTRADA` (o
+ * `FUNDIDO_ENTRADA_CORTO` si es `corto`). */
+export function fundidoDeEntrada(pasos: number, corto = false): number {
+  return 1 - suave(pasos / (corto ? FUNDIDO_ENTRADA_CORTO : FUNDIDO_ENTRADA));
 }
 
 /** Cuánta niebla hay mientras uno cae: 0 lejos del vacío o sin ir para abajo, `PICO` al llegar al vacío. */
@@ -40,10 +48,11 @@ export function fundidoDeCaida(altura: number, vacio: number, velocidadVertical:
   return PICO * suave((vacio + CAIDA - altura) / CAIDA);
 }
 
-/** Cuánta niebla hay `pasos` después de reaparecer: `PICO` al reaparecer, 0 desde `FUNDIDO_REAPARECER`. */
-export function fundidoTrasReaparecer(pasos: number): number {
+/** Cuánta niebla hay `pasos` después de reaparecer: `PICO` al reaparecer, 0 desde `FUNDIDO_REAPARECER` (o
+ * `FUNDIDO_REAPARECER_CORTO` si es `corto`). */
+export function fundidoTrasReaparecer(pasos: number, corto = false): number {
   if (pasos < 0) return 0;
-  return PICO * (1 - suave(pasos / FUNDIDO_REAPARECER));
+  return PICO * (1 - suave(pasos / (corto ? FUNDIDO_REAPARECER_CORTO : FUNDIDO_REAPARECER)));
 }
 
 /**
@@ -64,15 +73,17 @@ export function nieblaDeLasVistas(
 
 // ── En la página ────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Cuánto tarda la página en irse a la niebla antes de cambiar de nivel (ms). */
+/** Cuánto tarda la página en irse a la niebla antes de cambiar de nivel (ms), y con menos movimiento. */
 const SALIDA_MS = 550;
+const SALIDA_CORTA_MS = 140;
 
-/** Funde la página a la niebla y se va a `direccion` (el nivel siguiente). */
+/** Funde la página a la niebla y se va a `direccion` (el nivel siguiente, o el mismo desde la salida). */
 export function irConFundido(direccion: string): void {
   if (typeof document === "undefined" || document.querySelector(".fundido-salida")) {
     location.assign(direccion);
     return;
   }
+  const ms = menosMovimiento() ? SALIDA_CORTA_MS : SALIDA_MS;
   const velo = document.body.appendChild(document.createElement("div"));
   velo.className = "fundido-salida";
   velo.setAttribute("aria-hidden", "true");
@@ -82,12 +93,12 @@ export function irConFundido(direccion: string): void {
     zIndex: "20",
     background: "#dcdcd8",
     opacity: "0",
-    transition: `opacity ${SALIDA_MS}ms ease-in`,
+    transition: `opacity ${ms}ms ease-in`,
     pointerEvents: "none",
   });
   // Un cuadro después, para que la transición arranque desde 0
   requestAnimationFrame(() => {
     velo.style.opacity = "1";
   });
-  setTimeout(() => location.assign(direccion), SALIDA_MS + 30);
+  setTimeout(() => location.assign(direccion), ms + 30);
 }

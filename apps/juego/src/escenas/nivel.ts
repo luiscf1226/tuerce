@@ -16,6 +16,12 @@
 //                    alcanza la meta sin caminar hasta ahí, como si llegara (en La medianoche se encienden los fuegos);
 //                    con `&punto=` la meta, cuenta como llegar ahí mismo
 //   &pista           la luciérnaga que señala hacia dónde seguir, sin esperar los 2 minutos (TU-62)
+//   &pausa           abre en la pausa (para las capturas de la pausa y las opciones, TU-60)
+//
+// La pausa (TU-60): «Volver al punto de control» pone a los dos juntos en el último de la pareja y «Empezar el nivel
+// de nuevo» lo vuelve a abrir desde la salida, por la niebla. Retomar aquí: cada punto de control que la pareja
+// alcanza jugando en este navegador (no en el contrarreloj ni de noche) queda guardado para «Seguir la historia», y
+// al ganar el nivel se borra (ui/historia.ts). En línea, en-linea.ts decide qué ofrece la pausa.
 //
 // Al entrar (TU-62): el cartel con el número, el nombre y el lugar del nivel, el fundido en niebla al abrirlo y al
 // reaparecer, y la luciérnaga si pasan 2 minutos sin llegar al próximo punto de control (escenas/orientacion.ts).
@@ -52,6 +58,7 @@ import { crearOido, cuerposQueSuenan, type Oido, sueloDelMaterial } from "../son
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
 import { irConFundido } from "../ui/fundido";
+import { borrarPuntoAqui, direccionDesdeLaSalida, guardarPuntoAqui } from "../ui/historia";
 import {
   accionesDeLaMeta,
   direccionDelNivel,
@@ -61,7 +68,7 @@ import {
   mostrarFinal,
   mostrarNivelGanado,
 } from "../ui/llegada";
-import { crearInterfaz } from "../ui/menu";
+import { type AccionesDelNivel, crearInterfaz } from "../ui/menu";
 import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
@@ -91,6 +98,8 @@ export type EscenaNivel = EscenaDeJuego & {
   readonly orientacion: Orientacion;
   /** El sonido (TU-59). */
   readonly oido: Oido;
+  /** Lo que ofrece la pausa sobre el nivel (TU-60); en línea lo ajusta en-linea.ts. */
+  readonly pausa: AccionesDelNivel;
 };
 
 /** Baja el .glb del nivel que pide la dirección (`&nivel=`) y devuelve cómo armar su escena. */
@@ -154,7 +163,13 @@ export function armarEscenaNivel(
     crearAyuda(controles, { siempre: parametros.has("ayuda") });
   }
   const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
-  const interfaz = conPantalla ? crearInterfaz(juego, controles) : undefined;
+  // La pausa sobre el nivel (TU-60). En línea no ofrece nada hasta que en-linea.ts sepa quién es el anfitrión
+  const pausa: AccionesDelNivel = { puntoDeControl: () => nivel.avance.puntoDeControl() };
+  if (!enRed) {
+    pausa.volverAlPunto = () => avance.irA(nivel.avance.puntoDeControl());
+    if (conPantalla) pausa.empezarDeNuevo = () => irConFundido(direccionDesdeLaSalida(location.search));
+  }
+  const interfaz = conPantalla ? crearInterfaz(juego, controles, pausa) : undefined;
   if (conPantalla) avisarPremios(nivel.premios);
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
@@ -250,7 +265,13 @@ export function armarEscenaNivel(
   /** El paso en que llegaron a la meta, y si ya se mostró el panel (desde ahí los muñecos no reciben entrada). */
   let llegaronEn: number | undefined;
   let conElPanel = false;
+  // Retomar aquí (TU-60): jugando de día y sin reloj en este navegador (las capturas, con `?congelar`, no dejan rastro)
+  const guardaElPunto = !enRed && conPantalla && !reloj && !parametros.has("noche") && !parametros.has("congelar");
   nivel.avance.alCambiar((alcanzado) => {
+    if (guardaElPunto) {
+      if (alcanzado >= nivel.avance.meta) borrarPuntoAqui(clave);
+      else guardarPuntoAqui(clave, alcanzado);
+    }
     if (alcanzado < nivel.avance.meta) return;
     reloj?.llegar();
     if (!enRed && conPantalla) marcarGanadoAqui(clave);
@@ -309,6 +330,11 @@ export function armarEscenaNivel(
   const punto = Number(parametros.get("punto"));
   if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
   seguirConLaCamara();
+  // `&pausa`: ya en el punto de control, para que la pausa diga cuál es
+  if (conPantalla && parametros.has("pausa")) {
+    juego.jugar();
+    juego.pausar();
+  }
 
   return {
     nombre: "nivel",
@@ -327,6 +353,7 @@ export function armarEscenaNivel(
     noche,
     orientacion,
     oido,
+    pausa,
     pasar() {
       if (pasos === ganarEn) {
         nivel.avance.retomar(nivel.avance.meta);
