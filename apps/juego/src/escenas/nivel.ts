@@ -15,6 +15,8 @@
 //   &ganar=N         para probar (en desarrollo, o con `?congelar=` para las capturas): en el paso N la pareja
 //                    alcanza la meta sin caminar hasta ahí, como si llegara (en La medianoche se encienden los fuegos);
 //                    con `&punto=` la meta, cuenta como llegar ahí mismo
+//   &ayuda-mision    la hoja de la misión con la ayuda abierta (todos los pasos y los controles), como con la H
+//   &pausa           empieza en pausa, con lo que va de la misión en el panel (para las capturas)
 //
 // La meta (TU-57): fuera del contrarreloj, un rato después de llegar aparece «Nivel ganado» con «Siguiente nivel» y
 // «Menú» (src/ui/llegada.ts) y los muñecos dejan de recibir entrada; después de La medianoche, el final. En línea
@@ -33,6 +35,7 @@ import { crearAyuda } from "../entrada/ayuda";
 import { crearControles, entradaQuieta } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import { materialOjo, materialPanuelo, materialTela, type Panuelo } from "../imagen";
+import { GUIAS } from "../misiones/guias";
 import { objetivosDelNivel } from "../misiones/nivel";
 import { crearTablero } from "../misiones/tablero";
 import { PASO } from "../motor/bucle";
@@ -57,7 +60,7 @@ import {
   mostrarNivelGanado,
 } from "../ui/llegada";
 import { crearInterfaz } from "../ui/menu";
-import { crearHojaDeMision } from "../ui/mision";
+import { crearHojaDeMision, type HojaDeMision } from "../ui/mision";
 import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
@@ -145,7 +148,9 @@ export function armarEscenaNivel(
     crearAyuda(controles, { siempre: parametros.has("ayuda") });
   }
   const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
-  const interfaz = conPantalla ? crearInterfaz(juego, controles) : undefined;
+  // La hoja de la misión se arma más abajo; la pausa le pide lo que va cada vez que se abre
+  let hoja: HojaDeMision | undefined;
+  const interfaz = conPantalla ? crearInterfaz(juego, controles, { mision: () => hoja?.resumen() ?? null }) : undefined;
   if (conPantalla) avisarPremios(nivel.premios);
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
@@ -268,13 +273,25 @@ export function armarEscenaNivel(
 
   // La misión del nivel: llegar a la meta y, si quieren, el secreto y el logro. La hoja va arriba a la izquierda,
   // salvo en el contrarreloj (que tiene su reloj) y con la cámara quieta de las capturas del nivel entero
-  const tablero = crearTablero(objetivosDelNivel(nivel.avance, nivel.premios));
+  // Con la guía del nivel (src/misiones/guias.ts): de qué se trata, el tramo que toca y por dónde buscar el secreto
+  const tablero = crearTablero(objetivosDelNivel(nivel.avance, nivel.premios, GUIAS[clave]));
   if (conPantalla && !reloj && !vistaTodo)
-    crearHojaDeMision(tablero, { titulo: `Misión · ${plano.nombre}`, modo: "lista" });
+    hoja = crearHojaDeMision(tablero, {
+      titulo: `Misión · ${plano.nombre}`,
+      modo: "lista",
+      enLinea: enRed !== undefined,
+    });
+  if (hoja && parametros.has("ayuda-mision")) hoja.alternarAyuda(true);
 
   let pasos = 0;
   const punto = Number(parametros.get("punto"));
   if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
+  tablero.pasar();
+  // Ya en el punto de partida, para que la pausa muestre el tramo que va
+  if (parametros.has("pausa")) {
+    juego.jugar();
+    juego.pausar();
+  }
   seguirConLaCamara();
 
   return {

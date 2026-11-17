@@ -81,6 +81,11 @@ const TOMAS = [
   { archivo: "tutorial-listos", ruta: "/?escena=tutorial&leccion=6&j1=gesto:festejar&j2=gesto:saludar&congelar=120" },
   // La hoja de la misión en un nivel: la meta con sus puntos, el secreto y el logro
   { archivo: "nivel-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=60" },
+  // La guía de la misión: «Ahora» con el tramo que toca (en el pinar, después del punto 2), la ayuda abierta con la H
+  // (todos los pasos y los controles) y la pausa, que muestra lo mismo para quien juega con mando
+  { archivo: "mision-ahora", ruta: "/?escena=nivel&nivel=pinar&punto=2&j1=&j2=&congelar=60" },
+  { archivo: "mision-ayuda", ruta: "/?escena=nivel&nivel=calle&punto=3&j1=&j2=&ayuda-mision&congelar=60" },
+  { archivo: "mision-pausa", ruta: "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&pausa&congelar=60" },
   // TU-11: el nivel de prueba, armado con el formato nuevo (niveles/99-prueba): entero desde lejos y la salida. El
   // turquesa se cae del patio y reaparece junto al rojo; retomando desde el punto 1 la compuerta ya está hundida
   { archivo: "nivel-entero", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=&vista=todo&congelar=60" },

@@ -1,18 +1,23 @@
 // La misión de un nivel de la historia: llegar a la meta (por los puntos de control) y, si quieren, el secreto y el
-// logro, con los textos de convex/premios.ts. La hoja de la misión (src/ui/mision.ts) la muestra en la escena `nivel`.
+// logro, con los textos de convex/premios.ts. Con la guía del nivel (guias.ts), la meta dice de qué se trata el nivel
+// y trae el consejo de cada tramo, y el secreto dice por dónde buscar. La hoja de la misión (src/ui/mision.ts) la
+// muestra en la escena `nivel`.
 import { PREMIOS } from "../../../../convex/premios";
 import type { AvanceDeNivel, PremiosDeNivel } from "../escenas/tipos";
+import type { GuiaDeNivel } from "./guias";
 import type { Objetivo } from "./tablero";
 
 export function objetivosDelNivel(
   avance: Pick<AvanceDeNivel, "meta" | "puntoDeControl">,
   premios: Pick<PremiosDeNivel, "nivel" | "tiene">,
+  guia?: GuiaDeNivel,
 ): Objetivo[] {
   const objetivos: Objetivo[] = [
     {
       id: "meta",
       titulo: "Lleguen a la meta",
-      texto: "Crucen juntos los puntos de control. Si uno cae, reaparece al lado del otro.",
+      texto: guia?.meta ?? "Crucen juntos los puntos de control. Si uno cae, reaparece al lado del otro.",
+      ...(guia ? { pasos: guia.tramos } : {}),
       medir: () => {
         const punto = Math.min(avance.puntoDeControl(), avance.meta);
         return { hecho: punto >= avance.meta, cuenta: punto, total: avance.meta };
@@ -25,7 +30,7 @@ export function objetivosDelNivel(
     {
       id: "secreto",
       titulo: "Encuentren el secreto",
-      texto: "Algo quedó escondido fuera del camino. Da una prenda para el ropero.",
+      texto: guia?.secreto ?? "Algo quedó escondido fuera del camino. Da una prenda para el ropero.",
       opcional: true,
       medir: () => ({ hecho: premios.tiene("secreto") }),
     },

@@ -21,6 +21,16 @@ export interface Teclas {
   readonly mando: string;
 }
 
+/** Un tramo de la misión: qué hay que hacer para llegar al próximo punto de control, y cómo. */
+export interface Paso {
+  /** Corto y en imperativo: «Abran el portón». */
+  readonly que: string;
+  /** Cómo se hace, en una o dos líneas: qué agarrar, dónde y quién hace qué. */
+  readonly pista: string;
+  /** Si hace falta que los dos lo hagan a la vez. */
+  readonly deADos?: boolean;
+}
+
 export interface Objetivo {
   /** Para las pruebas y el `data-` de la hoja. */
   readonly id: string;
@@ -31,6 +41,8 @@ export interface Objetivo {
   readonly teclas?: Teclas;
   /** Opcional: no hace falta para terminar (el secreto y el logro de un nivel). */
   readonly opcional?: boolean;
+  /** Si se cuenta por tramos (la meta, por puntos de control), el consejo de cada uno: `pasos[cuenta]` es el que va. */
+  readonly pasos?: readonly Paso[];
   /** Cómo va ahora. Se llama una vez por paso mientras no esté cumplido. */
   medir(): Medida;
   /** Se llama una vez cuando le toca el turno (en orden) o al empezar (sueltos): para anotar desde dónde se mide. */
@@ -126,6 +138,12 @@ export function crearTablero(objetivos: readonly Objetivo[], { enOrden = false }
 export function textoDeCuenta(medida: Medida): string {
   if (medida.total === undefined || medida.total <= 1) return "";
   return `${medida.cuenta ?? 0} de ${medida.total}`;
+}
+
+/** El tramo que va ahora: el de la cuenta, o ninguno si el objetivo no tiene pasos o ya se cumplió. */
+export function pasoActual(objetivo: Pick<Objetivo, "pasos">, medida: Medida): Paso | null {
+  if (medida.hecho || !objetivo.pasos) return null;
+  return objetivo.pasos[medida.cuenta ?? 0] ?? null;
 }
 
 /** Cuenta cuántos de los dos jugadores ya lo hicieron: cada uno queda anotado la primera vez que `hizo(j)` es cierto. */

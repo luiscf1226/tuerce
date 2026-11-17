@@ -29,5 +29,8 @@ export const COMO_SE_JUEGA: readonly (readonly [string, string])[] = [
   ["Moverse", "Cada uno camina y gira con lo suyo; la cámara sigue a los dos y se parte si se alejan."],
   ["Agarrar", "Un brazo arriba agarra lo que toca mientras sostengan la tecla: cajas, bordes, la mano del otro."],
   ["De a dos", "Lo pesado se carga entre los dos. Para trepar, cuélguense con los dos brazos y salten."],
-  ["La misión", "Arriba a la izquierda dice qué hacer. Lo que lleva una banda clara es de la misión."],
+  [
+    "La misión",
+    "Arriba a la izquierda dice qué hacer ahora. H abre la ayuda con todos los pasos y los controles; la pausa también la muestra. Lo que lleva una banda clara es de la misión.",
+  ],
 ];

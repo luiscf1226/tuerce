@@ -44,6 +44,11 @@
   max-height: calc(100vh - 32px);
   overflow-y: auto;
 }
+/* En un nivel, la pausa trae la misión (src/ui/mision.ts): en una pantalla baja, la barra es del panel */
+.menu-panel.pausa {
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
 .menu-logo {
   display: flex;
   align-items: flex-end;

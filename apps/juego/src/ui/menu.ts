@@ -6,7 +6,8 @@
 //
 // Cómo jugar: la primera vez (sin tutorial ni niveles ganados en este navegador) el botón fuerte es «Cómo jugar»
 // (`?escena=tutorial`) y la historia va debajo; después, «Cómo jugar» queda como un botón más, también en la pausa.
-// La pantalla de controles empieza con lo básico en cuatro líneas.
+// La pantalla de controles empieza con lo básico en cuatro líneas. En un nivel, la pausa muestra también qué hay que
+// hacer ahora y los pasos de la misión.
 //
 // La historia y los niveles (TU-56): sin nivel abierto (la escena `dos`, de fondo), el botón fuerte lleva a la
 // historia (al patio, o al primero que la pareja no ganó en este navegador) y «Niveles» abre el panel de los 17,
@@ -164,7 +165,16 @@ function controles(): HTMLElement {
   return caja;
 }
 
-export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
+export function crearInterfaz(
+  juego: Juego,
+  mandos: Controles,
+  {
+    mision,
+  }: {
+    /** En un nivel: lo que va de la misión y sus pasos, para mostrarlo en la pausa (src/ui/mision.ts, `resumen`). */
+    mision?: () => HTMLElement | null;
+  } = {},
+): Interfaz {
   if (!document.querySelector("link[data-fuentes]")) {
     const fuentes = document.head.appendChild(document.createElement("link"));
     fuentes.rel = "stylesheet";
@@ -277,6 +287,9 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
       if (enEscritorio) hijos.push(boton("Salir", salirDelJuego));
     } else {
       hijos.push(elemento("h2", "menu-titulo", "Pausa"), elemento("hr", "costura"));
+      // En un nivel, qué hay que hacer ahora: así lo ve también quien juega con mando (la ayuda en juego es la H)
+      const resumen = mision?.();
+      if (resumen) hijos.push(resumen, elemento("hr", "costura"));
       hijos.push(boton("Seguir", () => juego.seguir(), "boton boton-fuerte"));
       hijos.push(botonQueAbre("Controles", "controles"));
       if (direccion.get("escena") !== "tutorial") hijos.push(enlace("Cómo jugar", DIRECCION_TUTORIAL));
