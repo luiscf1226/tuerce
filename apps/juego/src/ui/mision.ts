@@ -3,12 +3,15 @@
 //   lecciones  (el tutorial) la lección de turno en grande: qué hacer, con qué teclas cada jugador y cuánto falta,
 //              y abajo una fila de puntos con las lecciones que van.
 //   lista      (los niveles) todos los objetivos en una lista, tachados al cumplirse; los opcionales (el secreto y
-//              el logro) más chicos.
+//              el logro) más chicos. Si la meta trae la guía del nivel, debajo va «Ahora»: el tramo que toca hasta el
+//              próximo punto de control y cómo se hace. Con H se abre la ayuda: todos los tramos y los controles de
+//              los dos; en la pausa, el menú muestra lo mismo (`resumen`), así también la ve quien juega con mando.
 //
 // Solo toca la página cuando el tablero avisa que algo cambió. Los textos que no tocan la página (la ceja, el
 // estado de cada fila) se prueban en mision.test.ts.
+import { DESCRIPCION_CONTROLES } from "../entrada/ayuda";
 import { COLORES } from "../escenas/colores";
-import { type Medida, type Objetivo, type Tablero, textoDeCuenta } from "../misiones/tablero";
+import { type Medida, type Objetivo, type Paso, pasoActual, type Tablero, textoDeCuenta } from "../misiones/tablero";
 import { cargarFuentes } from "./contrarreloj";
 import "./mision.css";
 
@@ -24,6 +27,34 @@ export function cejaDeLecciones(titulo: string, tablero: Pick<Tablero, "actual" 
 export function estadoDeFila(medida: Medida, indice: number, actual: number): "hecho" | "turno" | "pendiente" {
   if (medida.hecho) return "hecho";
   return indice === actual ? "turno" : "pendiente";
+}
+
+/** La tecla que abre y cierra la ayuda de la misión. No es de ningún jugador (entrada/mandos.ts). */
+export const TECLA_AYUDA = "KeyH";
+
+/** Los controles en una línea por jugador, para la ayuda: lo de moverse y agarrar, sin los gestos. En línea cada
+ * pantalla maneja un solo muñeco con cualquiera de los dos lados del teclado (en-linea.ts): una línea con los dos. */
+export function controlesEnUnaLinea(
+  enLinea = false,
+): readonly { quien: string; color: number | null; linea: string }[] {
+  const filas = (i: number) => (DESCRIPCION_CONTROLES[i]?.filas ?? []).slice(0, 4);
+  const linea = (i: number) =>
+    filas(i)
+      .map(([tecla, que]) => `${tecla} ${que}`)
+      .join(" · ");
+  const mando = { quien: "Mando", color: null, linea: linea(2) };
+  if (enLinea) {
+    const otro = filas(1);
+    const teclado = filas(0)
+      .map(([tecla, que], i) => `${tecla} / ${otro[i]?.[0] ?? ""} ${que}`)
+      .join(" · ");
+    return [{ quien: "Teclado", color: null, linea: teclado }, mando];
+  }
+  return [
+    { quien: "Rojo", color: COLORES.panueloRojo, linea: linea(0) },
+    { quien: "Turquesa", color: COLORES.panueloTurquesa, linea: linea(1) },
+    mando,
+  ];
 }
 
 function elemento<K extends keyof HTMLElementTagNameMap>(
@@ -57,8 +88,46 @@ function teclasDe(objetivo: Objetivo): HTMLElement | null {
   return lista;
 }
 
+/** «Ahora»: el tramo que toca, con su pista, y si es de a dos. */
+function ahoraDe(paso: Paso): HTMLElement {
+  const caja = elemento("div", "mision-ahora");
+  caja.append(elemento("p", "mision-ahora-ceja", paso.deADos ? "Ahora · de a dos" : "Ahora"));
+  caja.append(elemento("strong", "mision-ahora-que", paso.que), elemento("p", "mision-ahora-pista", paso.pista));
+  return caja;
+}
+
+/** Todos los tramos de la meta, tachados los que ya pasaron. */
+function tramosDe(pasos: readonly Paso[], actual: number): HTMLElement {
+  const lista = elemento("ol", "mision-tramos");
+  pasos.forEach((p, i) => {
+    const estado = i < actual ? "hecho" : i === actual ? "turno" : "pendiente";
+    const fila = lista.appendChild(elemento("li", estado));
+    fila.append(elemento("strong", "", p.que));
+    if (p.deADos) fila.append(elemento("span", "de-a-dos", " · de a dos"));
+  });
+  return lista;
+}
+
+/** Los controles de los dos, una línea cada uno. */
+function controlesDe(enLinea: boolean): HTMLElement {
+  const lista = elemento("dl", "mision-controles");
+  for (const { quien, color, linea } of controlesEnUnaLinea(enLinea)) {
+    const dt = lista.appendChild(elemento("dt", ""));
+    if (color !== null) dt.appendChild(elemento("i", "panuelo")).style.background = hex(color);
+    dt.append(quien);
+    lista.appendChild(elemento("dd", "", linea));
+  }
+  return lista;
+}
+
 export interface HojaDeMision {
   readonly caja: HTMLElement;
+  /** Si la ayuda (todos los tramos y los controles) está abierta. */
+  readonly ayuda: boolean;
+  /** Abre o cierra la ayuda (lo hace la tecla H). */
+  alternarAyuda(abierta?: boolean): void;
+  /** Lo que va ahora y todos los tramos, para la pausa. Null si la misión no tiene guía. */
+  resumen(): HTMLElement | null;
   /** Una línea corta que aparece un rato debajo («¡Bien!»). */
   festejar(texto: string): void;
   quitar(): void;
@@ -66,13 +135,22 @@ export interface HojaDeMision {
 
 export function crearHojaDeMision(
   tablero: Tablero,
-  { titulo, modo }: { titulo: string; modo: ModoHoja },
+  { titulo, modo, enLinea = false }: { titulo: string; modo: ModoHoja; enLinea?: boolean },
 ): HojaDeMision {
   cargarFuentes();
   const caja = document.body.appendChild(elemento("aside", `mision mision-${modo}`));
   caja.setAttribute("aria-live", "polite");
   const festejo = elemento("p", "mision-festejo");
   let reloj: ReturnType<typeof setTimeout> | undefined;
+  let ayuda = false;
+  /** El objetivo con guía (la meta) y por qué tramo va. */
+  const guiado = () => {
+    const i = tablero.objetivos.findIndex((o) => o.pasos);
+    const objetivo = tablero.objetivos[i];
+    if (!objetivo?.pasos) return null;
+    const medida = tablero.medida(i);
+    return { pasos: objetivo.pasos, medida, paso: pasoActual(objetivo, medida) };
+  };
 
   const pintarLecciones = () => {
     const actual = tablero.actual;
@@ -110,20 +188,72 @@ export function crearHojaDeMision(
       );
       fila.dataset.objetivo = o.id;
       fila.appendChild(elemento("span", "marca", medida.hecho ? "✓" : "")).setAttribute("aria-hidden", "true");
-      const texto = fila.appendChild(elemento("span", "texto"));
+      const texto = fila.appendChild(elemento("div", "texto"));
       texto.append(elemento("strong", "", o.titulo));
       const cuenta = textoDeCuenta(medida);
       if (cuenta) texto.append(elemento("span", "cuenta", ` · ${cuenta}`));
       texto.append(elemento("small", "", o.texto));
+      // Debajo de la meta, el tramo que toca
+      const paso = pasoActual(o, medida);
+      if (paso) texto.append(ahoraDe(paso));
     });
-    caja.replaceChildren(elemento("p", "mision-ceja", titulo), lista, festejo);
+    const hijos: HTMLElement[] = [elemento("p", "mision-ceja", titulo), lista];
+    const guia = guiado();
+    if (ayuda) {
+      hijos.push(elemento("hr", "mision-raya"));
+      if (guia) {
+        hijos.push(
+          elemento("p", "mision-ceja", "Los pasos"),
+          tramosDe(guia.pasos, guia.medida.hecho ? guia.pasos.length : (guia.medida.cuenta ?? 0)),
+        );
+      }
+      hijos.push(elemento("p", "mision-ceja", "Controles"), controlesDe(enLinea));
+    }
+    hijos.push(festejo, elemento("p", "mision-pie", ayuda ? "H · cerrar la ayuda" : "H · ayuda y controles"));
+    caja.classList.toggle("con-ayuda", ayuda);
+    caja.replaceChildren(...hijos);
   };
 
-  const pintar = modo === "lecciones" ? pintarLecciones : pintarLista;
+  // El resumen de la pausa se repinta solo cuando cambia el tramo (en línea la partida sigue con la pausa abierta),
+  // sin tocar los botones del menú ni su foco
+  let resumen: HTMLElement | null = null;
+  const pintarResumen = () => {
+    const guia = guiado();
+    if (!resumen || !guia) return;
+    const hijos: HTMLElement[] = [elemento("p", "menu-ceja", titulo)];
+    if (guia.paso) hijos.push(ahoraDe(guia.paso));
+    hijos.push(tramosDe(guia.pasos, guia.medida.hecho ? guia.pasos.length : (guia.medida.cuenta ?? 0)));
+    resumen.replaceChildren(...hijos);
+  };
+  const pintar = () => {
+    if (modo === "lecciones") pintarLecciones();
+    else pintarLista();
+    if (resumen?.isConnected) pintarResumen();
+  };
   pintar();
   const dejar = tablero.alCambiar(pintar);
+  const alternarAyuda = (abierta = !ayuda) => {
+    if (modo !== "lista" || abierta === ayuda) return;
+    ayuda = abierta;
+    pintar();
+  };
+  const conTecla = (e: KeyboardEvent) => {
+    if (e.code !== TECLA_AYUDA || e.repeat) return;
+    alternarAyuda();
+  };
+  if (modo === "lista") window.addEventListener("keydown", conTecla);
   return {
     caja,
+    get ayuda() {
+      return ayuda;
+    },
+    alternarAyuda,
+    resumen() {
+      if (!guiado()) return null;
+      resumen = elemento("div", "mision-resumen");
+      pintarResumen();
+      return resumen;
+    },
     festejar(texto) {
       festejo.textContent = texto;
       festejo.classList.remove("se-va");
@@ -132,6 +262,7 @@ export function crearHojaDeMision(
     },
     quitar() {
       dejar();
+      window.removeEventListener("keydown", conTecla);
       caja.remove();
     },
   };
