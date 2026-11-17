@@ -178,14 +178,17 @@ export function mostrarNivelGanado({
   nombre,
   nota,
   acciones,
+  ceja = "Nivel ganado",
 }: {
   nombre: string;
   nota: string;
   acciones: readonly Accion[];
+  /** La línea de arriba (el tutorial dice «Cómo jugar»). */
+  ceja?: string;
 }): PanelDeMeta {
   const panel = elemento("div", "contrarreloj-panel llegada-panel");
   panel.append(
-    elemento("p", "contrarreloj-ceja", "Nivel ganado"),
+    elemento("p", "contrarreloj-ceja", ceja),
     elemento("h2", "llegada-nombre", nombre),
     panuelos("llegada-panuelos"),
   );

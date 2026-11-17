@@ -11,6 +11,7 @@ Latinoamérica resolviendo rompecabezas a puro agarrón. El plan completo está 
 | `apps/juego/`                     | El juego: TypeScript, Three.js, Rapier (físicas a paso fijo de 60 por segundo) y Vite. Se publica como Worker de Cloudflare con archivos estáticos (`wrangler.jsonc`). |
 | `apps/juego/src/motor/`           | Bucle de paso fijo (`bucle.ts`) y mundo de Rapier (`fisica.ts`).                                                                                                       |
 | `apps/juego/src/escenas/`         | Cada escena se abre con `?escena=<nombre>`; la lista está en `index.ts`.                                                                                               |
+| `apps/juego/src/misiones/`        | Misiones: el tablero de objetivos (`tablero.ts`), los objetos de misión (semilla, encargo, entrega) y la misión de cada nivel. El tutorial es `?escena=tutorial`.      |
 | `apps/juego/src/cuenta/`          | Entrar con Clerk y que Convex reconozca al usuario (`?escena=entrar`).                                                                                                 |
 | `apps/escritorio/`                | El mismo juego empacado para Steam con Tauri v2 (Rust): ventana, ícono, plantillas de Steam. Ver su `README.md`.                                                       |
 | `convex/`                         | Datos: `schema.ts`, `auth.config.ts` (Clerk) y funciones. `_generated/` se regenera con `pnpm convex:dev`.                                                             |

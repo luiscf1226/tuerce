@@ -40,6 +40,9 @@
 }
 .menu-panel.con-controles {
   width: min(620px, 100%);
+  /* Con «Cómo se juega» arriba no cabe en una pantalla baja: la barra es del panel */
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
 }
 .menu-logo {
   display: flex;
@@ -289,4 +292,21 @@
 .menu-nivel .ganado .turquesa {
   background: var(--turquesa);
   transform: rotate(16deg);
+}
+
+/* Cómo se juega: lo básico en cuatro líneas, arriba de los controles */
+.menu-como {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.menu-como dt {
+  font-weight: 800;
+}
+.menu-como dd {
+  margin: 0;
+  color: var(--tinta-suave);
 }

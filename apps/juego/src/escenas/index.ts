@@ -13,6 +13,7 @@ import { crearEscenaPinar } from "./pinar";
 import { crearEscenaPrueba } from "./prueba";
 import { crearEscenaRopero } from "./ropero";
 import type { Escena } from "./tipos";
+import { crearEscenaTutorial } from "./tutorial";
 
 /** Lo que una escena puede sumar a `Escena`: la pantalla partida de la cámara de los dos (TU-09), y el menú y la
  * pausa (TU-15): `main.ts` llama a `interfaz.cuadro()` en cada cuadro y no avanza las físicas si `juego.corren` es
@@ -39,6 +40,8 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
     nivel: crearEscenaNivel,
     // El ropero (TU-29): los dos muñecos con sus prendas y el panel para elegir; `&vitrina=1|2` las muestra todas.
     ropero: crearEscenaRopero,
+    // Cómo jugar: seis lecciones en orden, con la hoja de la misión y los objetos de misión (cacao, cántaro)
+    tutorial: crearEscenaTutorial,
   };
 export const ESCENA_INICIAL = "dos";
 

@@ -4,6 +4,10 @@
 // Con el teclado: ↑/↓ (o W/S) para elegir, Enter o Espacio para apretar, Esc para volver. Con un mando: cruceta o
 // palanca, A para apretar, B para volver. La pausa (Esc, P o Start) la pide cualquiera de los dos.
 //
+// Cómo jugar: la primera vez (sin tutorial ni niveles ganados en este navegador) el botón fuerte es «Cómo jugar»
+// (`?escena=tutorial`) y la historia va debajo; después, «Cómo jugar» queda como un botón más, también en la pausa.
+// La pantalla de controles empieza con lo básico en cuatro líneas.
+//
 // La historia y los niveles (TU-56): sin nivel abierto (la escena `dos`, de fondo), el botón fuerte lleva a la
 // historia (al patio, o al primero que la pareja no ganó en este navegador) y «Niveles» abre el panel de los 17,
 // para jugarlos aquí o en línea. Sobre un nivel, el botón fuerte juega ese nivel.
@@ -23,6 +27,7 @@ import {
   numeroConCeros,
 } from "./historia";
 import type { Juego } from "./juego";
+import { COMO_SE_JUEGA, DIRECCION_TUTORIAL, proponerTutorial, tutorialHecho } from "./tutorial";
 import "./menu.css";
 
 export const FUENTES =
@@ -63,12 +68,12 @@ function nombreCorto(n: { numero?: number; titulo: string }): string {
 }
 
 /** La historia: empezarla en el patio, seguirla en el primero que no ganaron aquí, o darle otra vuelta. */
-function botonHistoria(sigue: DondeSigue): HTMLAnchorElement {
+function botonHistoria(sigue: DondeSigue, fuerte = true): HTMLAnchorElement {
   const seguir = sigue.empezada && !sigue.terminada;
   const a = enlace(
     seguir ? "Seguir la historia" : "Historia",
     direccionDelNivel(sigue.nivel.clave, "aqui"),
-    "boton boton-fuerte con-sub",
+    fuerte ? "boton boton-fuerte con-sub" : "boton boton-claro con-sub",
   );
   a.append(
     elemento("small", "", sigue.terminada ? `Otra vuelta · ${nombreCorto(sigue.nivel)}` : nombreCorto(sigue.nivel)),
@@ -124,6 +129,24 @@ function logo(): HTMLElement {
   h.appendChild(elemento("span", "caida", "E"));
   for (const color of ["rojo", "turquesa"]) h.appendChild(elemento("i", color)).setAttribute("aria-hidden", "true");
   return h;
+}
+
+/** «Cómo jugar»: el tutorial. Fuerte (con su línea de abajo) cuando el menú lo propone primero. */
+function botonTutorial(fuerte: boolean): HTMLAnchorElement {
+  const a = enlace("Cómo jugar", DIRECCION_TUTORIAL, fuerte ? "boton boton-fuerte con-sub" : "boton boton-claro");
+  a.dataset.tutorial = "";
+  if (fuerte) a.append(elemento("small", "", "Primero: moverse, agarrar y cargar de a dos"));
+  return a;
+}
+
+/** Lo básico en cuatro líneas, arriba de la tabla de controles. */
+function comoSeJuega(): HTMLElement {
+  const lista = elemento("dl", "menu-como");
+  for (const [que, como] of COMO_SE_JUEGA) {
+    lista.appendChild(elemento("dt", "", que));
+    lista.appendChild(elemento("dd", "", como));
+  }
+  return lista;
 }
 
 /** La tabla de controles de los dos jugadores. */
@@ -185,8 +208,14 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
     const sigue = dondeSigue(ganados);
     const hijos: HTMLElement[] = [];
     if (vista === "controles") {
+      hijos.push(elemento("p", "menu-ceja", "Cómo se juega"), comoSeJuega(), elemento("hr", "costura"));
       hijos.push(elemento("p", "menu-ceja", "Controles"), controles(), elemento("hr", "costura"));
-      hijos.push(boton("Volver", () => volver()));
+      const linea = elemento("div", "menu-linea");
+      linea.append(
+        boton("Volver", () => volver(), "boton boton-claro"),
+        enlace("Cómo jugar", DIRECCION_TUTORIAL),
+      );
+      hijos.push(linea);
     } else if (vista === "niveles") {
       hijos.push(elemento("p", "menu-ceja", "Niveles"));
       const linea = elemento("div", "menu-linea");
@@ -226,7 +255,10 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
       const ceja = abierto ? `${nombreCorto(abierto)} · ${abierto.lugar}` : "Físicas flojas · amistad firme";
       hijos.push(logo(), elemento("p", "menu-ceja", ceja), elemento("hr", "costura"));
       // Sobre un nivel se juega ese; en la escena `dos` (la de fondo) se va a la historia
+      // La primera vez (sin tutorial ni niveles ganados en este navegador), «Cómo jugar» va primero
+      const primero = !claveAbierta && proponerTutorial(tutorialHecho(), ganados);
       if (claveAbierta) hijos.push(boton("Jugar aquí de a dos", () => juego.jugar(), "boton boton-fuerte"));
+      else if (primero) hijos.push(botonTutorial(true), botonHistoria(sigue, false));
       else hijos.push(botonHistoria(sigue));
       hijos.push(botonQueAbre("Niveles", "niveles"));
       const linea = elemento("div", "menu-linea");
@@ -240,12 +272,14 @@ export function crearInterfaz(juego: Juego, mandos: Controles): Interfaz {
       hijos.push(linea, contra, lineaNoche(claveAbierta ?? sigue.nivel.clave), elemento("hr", "costura"));
       // El ropero (TU-29): sombreros, peinados, máscaras y pañuelos, lo ganado y los logros
       hijos.push(enlace("Ropero", "?escena=ropero"));
+      if (!primero) hijos.push(botonTutorial(false));
       hijos.push(botonQueAbre("Controles", "controles"));
       if (enEscritorio) hijos.push(boton("Salir", salirDelJuego));
     } else {
       hijos.push(elemento("h2", "menu-titulo", "Pausa"), elemento("hr", "costura"));
       hijos.push(boton("Seguir", () => juego.seguir(), "boton boton-fuerte"));
       hijos.push(botonQueAbre("Controles", "controles"));
+      if (direccion.get("escena") !== "tutorial") hijos.push(enlace("Cómo jugar", DIRECCION_TUTORIAL));
       hijos.push(boton("Salir al menú", () => juego.salirAlMenu()));
     }
     panel.className = `menu-panel ${vista === "inicio" ? estado : `con-${vista}`}`;
