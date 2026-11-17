@@ -21,7 +21,7 @@
 // lo muestra en-linea.ts.
 //
 // El secreto y el logro del nivel (TU-29) se avisan arriba al centro (src/ropero/aviso.ts); en línea, además, se
-// guardan en Convex.
+// guardan en Convex. La hoja de la misión (src/ui/mision.ts), arriba a la izquierda, los lista con la meta.
 //
 // En línea (`?escena=en-linea`) se juega esta misma escena: `enRed` decide las entradas de cada paso, como en `dos`.
 // El invitado no simula: no corre el guion, ni los puntos de control, ni las caídas; los cuerpos (también la
@@ -33,6 +33,8 @@ import { crearAyuda } from "../entrada/ayuda";
 import { crearControles, entradaQuieta } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import { materialOjo, materialPanuelo, materialTela, type Panuelo } from "../imagen";
+import { objetivosDelNivel } from "../misiones/nivel";
+import { crearTablero } from "../misiones/tablero";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
@@ -55,6 +57,7 @@ import {
   mostrarNivelGanado,
 } from "../ui/llegada";
 import { crearInterfaz } from "../ui/menu";
+import { crearHojaDeMision } from "../ui/mision";
 import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
@@ -263,6 +266,12 @@ export function armarEscenaNivel(
     });
   }
 
+  // La misión del nivel: llegar a la meta y, si quieren, el secreto y el logro. La hoja va arriba a la izquierda,
+  // salvo en el contrarreloj (que tiene su reloj) y con la cámara quieta de las capturas del nivel entero
+  const tablero = crearTablero(objetivosDelNivel(nivel.avance, nivel.premios));
+  if (conPantalla && !reloj && !vistaTodo)
+    crearHojaDeMision(tablero, { titulo: `Misión · ${plano.nombre}`, modo: "lista" });
+
   let pasos = 0;
   const punto = Number(parametros.get("punto"));
   if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
@@ -309,6 +318,7 @@ export function armarEscenaNivel(
       jugadores[0].malla.guardar();
       jugadores[1].malla.guardar();
       armado.guardar();
+      tablero.pasar();
       seguirConLaCamara();
       pasos++;
     },

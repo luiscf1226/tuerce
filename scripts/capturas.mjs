@@ -71,6 +71,16 @@ const TOMAS = [
   { archivo: "menu-nivel", ruta: "/?escena=nivel&nivel=poza&j1=&j2=&menu&congelar=60" },
   { archivo: "dos-senalando", ruta: "/?escena=dos&j1=senalar,girar:-0.3&j2=senalar,girar:0.3&congelar=90" },
   { archivo: "dos-festejando", ruta: "/?escena=dos&j1=gesto:encoger&j2=gesto:festejar&congelar=80" },
+  // Cómo jugar: la portada la primera vez (el tutorial va primero), la pantalla de controles con lo básico, y el
+  // tutorial con la hoja de la misión: la primera lección, el cacao, el cántaro entre los dos y el final
+  { archivo: "menu-primera-vez", ruta: "/?escena=dos&j1=&j2=&menu&congelar=60" },
+  { archivo: "menu-como-se-juega", ruta: "/?escena=dos&j1=&j2=&menu&congelar=60", clic: "[data-abre=controles]" },
+  { archivo: "tutorial-caminen", ruta: "/?escena=tutorial&j1=&j2=&congelar=60" },
+  { archivo: "tutorial-cacao", ruta: "/?escena=tutorial&leccion=4&j1=andar:1,girar:0.25&j2=andar:1&congelar=150" },
+  { archivo: "tutorial-cantaro", ruta: "/?escena=tutorial&leccion=5&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=240" },
+  { archivo: "tutorial-listos", ruta: "/?escena=tutorial&leccion=6&j1=gesto:festejar&j2=gesto:saludar&congelar=120" },
+  // La hoja de la misión en un nivel: la meta con sus puntos, el secreto y el logro
+  { archivo: "nivel-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=60" },
   // TU-11: el nivel de prueba, armado con el formato nuevo (niveles/99-prueba): entero desde lejos y la salida. El
   // turquesa se cae del patio y reaparece junto al rojo; retomando desde el punto 1 la compuerta ya está hundida
   { archivo: "nivel-entero", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=&vista=todo&congelar=60" },

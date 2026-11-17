@@ -1,0 +1,173 @@
+/* La hoja de la misión: una tarjeta de niebla clara arriba a la izquierda, con la letra del menú. Solo modo claro; el
+   único color son los pañuelos de cada jugador. */
+.mision {
+  --tinta: #232321;
+  --tinta-suave: #5a5a56;
+  --honda: #1a1a1a;
+  --raya: rgb(35 35 33 / 0.2);
+  --display: "Fraunces", "Georgia", serif;
+  --cuerpo: "Karla", "Segoe UI", system-ui, sans-serif;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 4;
+  width: min(300px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 12px 16px 12px;
+  border-radius: 8px;
+  background: rgb(240 240 237 / 0.84);
+  box-shadow: 0 18px 34px -26px rgb(0 0 0 / 0.55);
+  color: var(--tinta);
+  font: 400 14px / 1.4 var(--cuerpo);
+  pointer-events: none;
+}
+.mision-ceja {
+  margin: 0 0 4px;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+.mision-titulo {
+  margin: 0;
+  font: 800 26px / 1.05 var(--display);
+  letter-spacing: -0.01em;
+  color: var(--honda);
+}
+.mision-texto {
+  margin: 6px 0 0;
+}
+.mision-teclas {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--raya);
+  font-size: 13px;
+}
+.mision-teclas dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+}
+.mision-teclas dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.mision-teclas .panuelo {
+  width: 9px;
+  height: 7px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.mision-cuenta {
+  margin: 8px 0 0;
+  font: 800 18px / 1 var(--display);
+  color: var(--honda);
+}
+.mision-puntos {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.mision-puntos li {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--tinta-suave);
+  box-sizing: border-box;
+}
+.mision-puntos li.hecho {
+  background: var(--tinta);
+  border-color: var(--tinta);
+}
+.mision-puntos li.turno {
+  border-style: dashed;
+  border-color: var(--tinta);
+  transform: scale(1.25);
+}
+.mision-festejo {
+  margin: 6px 0 0;
+  font: 800 16px / 1 var(--display);
+  color: var(--honda);
+  transition: opacity 0.6s ease;
+}
+.mision-festejo:empty {
+  display: none;
+}
+.mision-festejo.se-va {
+  opacity: 0;
+}
+
+/* En los niveles: la lista */
+.mision-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.mision-lista li {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 6px;
+  align-items: start;
+}
+.mision-lista .marca {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  border: 1.5px solid var(--tinta-suave);
+  border-radius: 3px;
+  box-sizing: border-box;
+  font: 800 11px / 11px var(--cuerpo);
+  text-align: center;
+}
+.mision-lista .texto {
+  display: block;
+}
+.mision-lista strong {
+  font-weight: 800;
+}
+.mision-lista small {
+  display: block;
+  color: var(--tinta-suave);
+  font-size: 12px;
+}
+.mision-lista .hecho strong {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+.mision-lista .hecho .marca {
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: #f0f0ed;
+}
+.mision-lista .opcional {
+  font-size: 13px;
+  opacity: 0.85;
+}
+.mision-lista .opcional .marca {
+  border-style: dashed;
+  border-radius: 50%;
+}
+
+@media (max-width: 560px) {
+  .mision {
+    top: 8px;
+    left: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .mision-titulo {
+    font-size: 20px;
+  }
+  .mision-lista small {
+    display: none;
+  }
+}
