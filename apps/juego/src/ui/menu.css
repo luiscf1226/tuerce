@@ -38,16 +38,13 @@
   background: rgb(240 240 237 / 0.86);
   box-shadow: 0 26px 46px -30px rgb(0 0 0 / 0.55);
 }
-.menu-panel.con-controles {
-  width: min(620px, 100%);
-  /* Con «Cómo se juega» arriba no cabe en una pantalla baja: la barra es del panel */
-  max-height: calc(100vh - 32px);
+/* Si no cabe (un teléfono acostado), la barra es del panel: nada queda fuera de alcance */
+.menu-capa .menu-panel {
+  max-height: calc(100dvh - 32px);
   overflow-y: auto;
 }
-/* En un nivel, la pausa trae la misión (src/ui/mision.ts): en una pantalla baja, la barra es del panel */
-.menu-panel.pausa {
-  max-height: calc(100vh - 32px);
-  overflow-y: auto;
+.menu-panel.con-controles {
+  width: min(620px, 100%);
 }
 .menu-logo {
   display: flex;
@@ -327,6 +324,32 @@
   }
   .menu-logo {
     font-size: clamp(44px, 15vw, 76px);
+  }
+}
+/* Pantallas bajas (un teléfono acostado): todo más junto, para que la portada casi entre sin desplazarse */
+@media (max-height: 520px) {
+  .menu-capa {
+    padding: 10px;
+  }
+  .menu-capa .menu-panel {
+    max-height: calc(100dvh - 20px);
+    padding: 16px 24px;
+    gap: 8px;
+  }
+  .menu-logo {
+    font-size: 52px;
+  }
+  .menu-titulo {
+    font-size: 30px;
+  }
+  .menu-capa .boton {
+    padding: 10px 18px;
+  }
+  .menu-capa .boton-claro {
+    padding: 8px 12px;
+  }
+  .menu-capa .boton.con-sub small {
+    margin-top: 4px;
   }
 }
 /* Mientras el menú o la pausa están abiertos, la hoja de la misión no se encima detrás (la pausa ya la resume) */

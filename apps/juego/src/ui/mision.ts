@@ -161,7 +161,8 @@ export function crearHojaDeMision(
   }: { titulo: string; modo: ModoHoja; enLinea?: boolean; tactil?: boolean },
 ): HojaDeMision {
   cargarFuentes();
-  const caja = document.body.appendChild(elemento("aside", `mision mision-${modo}`));
+  // `hoja-lista` y no `mision-lista`: esa es la clase de la lista de objetivos, y en la hoja le quitaba el relleno
+  const caja = document.body.appendChild(elemento("aside", `mision hoja-${modo}`));
   caja.setAttribute("aria-live", "polite");
   const festejo = elemento("p", "mision-festejo");
   let reloj: ReturnType<typeof setTimeout> | undefined;
@@ -201,25 +202,25 @@ export function crearHojaDeMision(
     caja.replaceChildren(...hijos);
   };
 
+  /** Una fila de la lista: la marca, el título con su cuenta y la descripción; debajo de la meta, el tramo que toca. */
+  const filaDe = (o: Objetivo, i: number, conAhora: boolean) => {
+    const medida = tablero.medida(i);
+    const fila = elemento("li", `${estadoDeFila(medida, i, tablero.actual)}${o.opcional ? " opcional" : ""}`);
+    fila.dataset.objetivo = o.id;
+    fila.appendChild(elemento("span", "marca", medida.hecho ? "✓" : "")).setAttribute("aria-hidden", "true");
+    const texto = fila.appendChild(elemento("div", "texto"));
+    texto.append(elemento("strong", "", o.titulo));
+    const cuenta = textoDeCuenta(medida);
+    if (cuenta) texto.append(elemento("span", "cuenta", ` · ${cuenta}`));
+    texto.append(elemento("small", "", o.texto));
+    const paso = conAhora ? pasoActual(o, medida) : null;
+    if (paso) texto.append(ahoraDe(paso));
+    return fila;
+  };
+
   const pintarLista = () => {
-    const actual = tablero.actual;
     const lista = elemento("ul", "mision-lista");
-    tablero.objetivos.forEach((o, i) => {
-      const medida = tablero.medida(i);
-      const fila = lista.appendChild(
-        elemento("li", `${estadoDeFila(medida, i, actual)}${o.opcional ? " opcional" : ""}`),
-      );
-      fila.dataset.objetivo = o.id;
-      fila.appendChild(elemento("span", "marca", medida.hecho ? "✓" : "")).setAttribute("aria-hidden", "true");
-      const texto = fila.appendChild(elemento("div", "texto"));
-      texto.append(elemento("strong", "", o.titulo));
-      const cuenta = textoDeCuenta(medida);
-      if (cuenta) texto.append(elemento("span", "cuenta", ` · ${cuenta}`));
-      texto.append(elemento("small", "", o.texto));
-      // Debajo de la meta, el tramo que toca
-      const paso = pasoActual(o, medida);
-      if (paso) texto.append(ahoraDe(paso));
-    });
+    lista.append(...tablero.objetivos.map((o, i) => filaDe(o, i, true)));
     const hijos: HTMLElement[] = [elemento("p", "mision-ceja", titulo), lista];
     const guia = guiado();
     if (ayuda) {
@@ -237,7 +238,11 @@ export function crearHojaDeMision(
       elemento(
         "p",
         "mision-pie",
-        tactil ? "Pausa (arriba a la derecha) · los pasos" : ayuda ? "H · cerrar la ayuda" : "H · ayuda y controles",
+        tactil
+          ? "Pausa (arriba a la derecha) · pasos y pistas"
+          : ayuda
+            ? "H · cerrar la ayuda"
+            : "H · ayuda y controles",
       ),
     );
     caja.classList.toggle("con-ayuda", ayuda);
@@ -253,6 +258,13 @@ export function crearHojaDeMision(
     const hijos: HTMLElement[] = [elemento("p", "menu-ceja", titulo)];
     if (guia.paso) hijos.push(ahoraDe(guia.paso));
     hijos.push(tramosDe(guia.pasos, guia.medida.hecho ? guia.pasos.length : (guia.medida.cuenta ?? 0)));
+    // El secreto y el logro con su pista: en una pantalla chica la hoja no la muestra
+    const extras = tablero.objetivos.flatMap((o, i) => (o.opcional ? [filaDe(o, i, false)] : []));
+    if (extras.length > 0) {
+      const lista = elemento("ul", "mision-lista");
+      lista.append(...extras);
+      hijos.push(lista);
+    }
     resumen.replaceChildren(...hijos);
   };
   const pintar = () => {

@@ -286,21 +286,28 @@ export function crearInterfaz(
       hijos.push(botonQueAbre("Controles", "controles"));
       if (enEscritorio) hijos.push(boton("Salir", salirDelJuego));
     } else {
-      hijos.push(elemento("h2", "menu-titulo", "Pausa"), elemento("hr", "costura"));
+      // «Seguir» primero: en una pantalla baja, la misión de abajo no lo deja fuera de la vista
+      hijos.push(
+        elemento("h2", "menu-titulo", "Pausa"),
+        boton("Seguir", () => juego.seguir(), "boton boton-fuerte"),
+      );
       // En un nivel, qué hay que hacer ahora: así lo ve también quien juega con mando (la ayuda en juego es la H)
       const resumen = mision?.();
+      hijos.push(elemento("hr", "costura"));
       if (resumen) hijos.push(resumen, elemento("hr", "costura"));
-      hijos.push(boton("Seguir", () => juego.seguir(), "boton boton-fuerte"));
       hijos.push(botonQueAbre("Controles", "controles"));
       if (direccion.get("escena") !== "tutorial") hijos.push(enlace("Cómo jugar", DIRECCION_TUTORIAL));
       hijos.push(boton("Salir al menú", () => juego.salirAlMenu()));
     }
     panel.className = `menu-panel ${vista === "inicio" ? estado : `con-${vista}`}`;
     panel.replaceChildren(...hijos);
-    const foco = (enfocar ? panel.querySelector<HTMLElement>(enfocar) : null) ?? elegibles()[0];
+    // Cada vista empieza arriba (en una pantalla baja el panel tiene barra); si se pidió un elegido (al volver, o donde
+    // sigue la historia en la lista de niveles), baja solo lo justo para que se vea
+    panel.scrollTop = 0;
+    const pedido = enfocar ? panel.querySelector<HTMLElement>(enfocar) : null;
+    const foco = pedido ?? elegibles()[0];
     foco?.focus({ preventScroll: true });
-    // En la lista de niveles (que puede tener barra en una pantalla chica), que se vea el elegido
-    if (foco?.closest(".menu-niveles")) foco.scrollIntoView({ block: "nearest" });
+    pedido?.scrollIntoView({ block: "nearest" });
   };
 
   const elegibles = () => [...panel.querySelectorAll<HTMLElement>("button, a")];

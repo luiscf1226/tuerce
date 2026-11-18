@@ -209,9 +209,7 @@
   padding-left: 22px;
   font-size: 13px;
 }
-/* La hoja misma es `.mision-lista`: sus pasos no van en la grilla de las filas de objetivos */
 .mision-tramos li {
-  display: list-item;
   margin: 1px 0;
   color: var(--tinta-suave);
 }
@@ -266,6 +264,11 @@
   --honda: #1a1a1a;
   margin: 0;
 }
+.mision-resumen .mision-lista {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
 
 @media (max-width: 560px) {
   .mision {
@@ -282,5 +285,57 @@
   }
   .mision-ahora-que {
     font-size: 15px;
+  }
+}
+/* Pantallas bajas (un teléfono acostado): la hoja se achica para no taparle la palanca al rojo. Lo que se esconde
+   (la descripción de cada objetivo) está en la pausa. */
+@media (max-height: 520px) {
+  .mision {
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    width: min(320px, calc(100vw - 76px));
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .mision-titulo {
+    font-size: 20px;
+  }
+  .mision-texto {
+    margin-top: 4px;
+  }
+  .mision-teclas {
+    margin-top: 6px;
+    padding-top: 6px;
+    font-size: 12px;
+  }
+  .mision-cuenta {
+    margin-top: 6px;
+    font-size: 16px;
+  }
+  .mision-puntos {
+    margin-top: 8px;
+  }
+  .mision:not(.con-ayuda) .mision-lista small {
+    display: none;
+  }
+  .mision-lista {
+    gap: 3px;
+  }
+  .mision-ahora {
+    margin: 4px 0 2px;
+    padding: 4px 8px 5px;
+  }
+  .mision-ahora-que {
+    font-size: 15px;
+  }
+  .mision-ahora-pista {
+    font-size: 12px;
+  }
+  .mision-pie {
+    margin-top: 4px;
+  }
+  .mision.con-ayuda {
+    max-height: calc(100vh - 20px);
   }
 }
