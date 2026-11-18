@@ -253,20 +253,34 @@ async function jugarElTutorial(pagina, manos, foto) {
   console.log("  ✓ cacao");
 
   // El cántaro: cada uno a su lado del tocón, mirando hacia el círculo, y adelante juntos con los brazos arriba
-  // Por detrás, sin pasar al lado del tocón
+  // El cántaro. Si alguien lo tiró al juntar el cacao, el juego lo devuelve al tocón al rato: se espera quieto.
+  // Después cada uno va a su lado por detrás (sin pasar junto al tocón), mira hacia el círculo y caminan juntos con
+  // los brazos arriba. Si caminando no agarran nada, vuelven a empezar, como haría cualquiera.
+  const TOCON = { x: 1.35, z: 0 };
   const lados = [0.5, -0.5].map((z) => [
-    { x: -0.9, z: Math.sign(z) * 1.7 },
-    { x: -0.9, z },
-    { x: 0, z },
+    { x: TOCON.x - 2.2, z: Math.sign(z) * 1.7 },
+    { x: TOCON.x - 2.2, z },
+    { x: TOCON.x - 1.35, z },
   ]);
-  const tramo = [0, 0];
-  const derechos = [false, false];
+  let tramo = [0, 0];
+  let derechos = [false, false];
   let listos = false;
+  let caminando = 0;
   await hastaQuePase(
     pagina,
     manos,
     "cantaro",
-    ({ jugadores }) => {
+    ({ jugadores, pendientes }) => {
+      const cantaro = pendientes[0];
+      const agarran = jugadores.some((j) => j.manos > 0);
+      const enElTocon = cantaro && Math.hypot(cantaro.x - TOCON.x, cantaro.z - TOCON.z) < 0.4;
+      if (!agarran && !enElTocon) {
+        // Tirado: esperar a que vuelva al tocón, y empezar de nuevo
+        tramo = [0, 0];
+        derechos = [false, false];
+        listos = false;
+        return [QUIETO, QUIETO];
+      }
       if (!listos) {
         const pide = jugadores.map((j, i) => {
           // Primero los tramos del camino; ya en su lugar (tramo = largo), que mire hacia +x
@@ -286,12 +300,23 @@ async function jugarElTutorial(pagina, manos, foto) {
           return { ...QUIETO, girar: derecho || !toque ? 0 : Math.sign(error), llego: derecho };
         });
         vuelta++;
-        if (pide.every((p) => p.llego)) listos = true;
+        if (pide.every((p) => p.llego)) {
+          listos = true;
+          caminando = 0;
+        }
         return pide;
+      }
+      // Caminando juntos: si a la altura del tocón nadie agarró nada, otra vez desde atrás
+      caminando++;
+      if (!agarran && (caminando > 60 || jugadores.some((j) => j.x > TOCON.x + 0.6))) {
+        tramo = [0, 0];
+        derechos = [false, false];
+        listos = false;
+        return [QUIETO, QUIETO];
       }
       return jugadores.map(() => ({ ...QUIETO, avanzar: 0.6, agarrar: true }));
     },
-    300,
+    400,
   );
   console.log("  ✓ cántaro");
   await foto("4-cantaro");

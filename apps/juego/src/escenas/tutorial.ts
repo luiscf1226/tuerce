@@ -345,7 +345,14 @@ export function crearEscenaTutorial(
     ...(interfaz ? { interfaz } : {}),
     munecos,
     tablero,
-    pendientes: () => semillas.quedan().flatMap((i) => (CACAO[i] ? [{ x: CACAO[i].x, z: CACAO[i].z }] : [])),
+    // Lo que falta: las mazorcas que quedan y, en la lección del cántaro, el cántaro
+    pendientes: () => {
+      if (tablero.objetivos[tablero.actual]?.id === "cantaro") {
+        const p = cantaro.cuerpo.translation();
+        return [{ x: p.x, z: p.z }];
+      }
+      return semillas.quedan().flatMap((i) => (CACAO[i] ? [{ x: CACAO[i].x, z: CACAO[i].z }] : []));
+    },
     pasar() {
       cajas.guardar();
       cantaro.guardar();
