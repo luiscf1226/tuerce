@@ -108,10 +108,14 @@ async function manosTactiles(pagina) {
     dedos.set(id, p);
     await mandar("touchMove");
   };
-  // Chromium suelta los dedos que faltan en la lista: con otros apoyados va un touchMove; touchEnd, sin ninguno
+  // touchEnd termina los dedos que van en la lista: solo el que se levanta (los demás siguen apoyados)
   const levantar = async (id) => {
+    const p = dedos.get(id);
     dedos.delete(id);
-    await mandar(dedos.size > 0 ? "touchMove" : "touchEnd");
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [{ id, x: Math.round(p.x), y: Math.round(p.y) }],
+    });
   };
   return {
     async poner(entradas) {

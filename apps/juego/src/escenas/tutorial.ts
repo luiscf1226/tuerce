@@ -45,6 +45,7 @@ import { MENU, mostrarNivelGanado } from "../ui/llegada";
 import { crearInterfaz } from "../ui/menu";
 import { crearHojaDeMision } from "../ui/mision";
 import { anotarTutorial } from "../ui/tutorial";
+import { reaparecerSiCayeron } from "./borde";
 import { crearCajas } from "./cajas";
 import { COLORES } from "./colores";
 import type { EscenaDeJuego } from "./index";
@@ -353,6 +354,8 @@ export function crearEscenaTutorial(
       munecos[0].pasar(senas.entrada(0, leidas[0]));
       munecos[1].pasar(senas.entrada(1, leidas[1]));
       mundo.step();
+      // El que se cae por el borde del claro vuelve a donde empezó (la malla salta, sin dibujar el viaje)
+      reaparecerSiCayeron(munecos, SALIDAS, (j) => jugadores[j].malla.guardar());
       semillas.pasar(munecos);
       tablero.pasar();
       // En la lección del cántaro, si se cae y nadie lo levanta, vuelve solo al tocón
