@@ -364,7 +364,11 @@ const navegador = await chromium.launch({ args: ARGS });
 try {
   const solo = process.env.SOLO;
   if (!solo || solo === "escritorio") await probar(navegador, "escritorio", { viewport: { width: 1280, height: 720 } });
-  if (!solo || solo === "movil") await probar(navegador, "movil", devices["Pixel 7"]);
+  // El Pixel 7 tal cual (412×915, táctil) pero con densidad 1: sin tarjeta de video, a 2.6× las físicas van a un
+  // tercio de su ritmo y los toques llegan tarde. `DENSIDAD=2.625` para la de verdad.
+  const densidad = Number(process.env.DENSIDAD ?? 1);
+  if (!solo || solo === "movil")
+    await probar(navegador, "movil", { ...devices["Pixel 7"], deviceScaleFactor: densidad });
   console.log("Listo: el tutorial se completa de punta a punta.");
 } finally {
   await navegador.close();
