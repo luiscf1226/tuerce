@@ -329,7 +329,7 @@ export function crearEscenaTutorial(
       nombre: "¡Ya saben jugar!",
       nota: "Ahora, la historia: El patio, Tegucigalpa, la mañana del 31 de diciembre.",
       acciones: [
-        { texto: "Empezar la historia", fuerte: true, href: `?escena=nivel&nivel=${PRIMER_NIVEL}` },
+        { texto: "Empezar la historia", fuerte: true, href: `?escena=nivel&nivel=${PRIMER_NIVEL}&jugar` },
         { texto: "Menú", href: MENU },
       ],
     });

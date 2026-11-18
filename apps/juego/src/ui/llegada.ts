@@ -44,6 +44,8 @@ export function direccionDelNivel(clave: string, enLinea: boolean, actual?: URLS
       if (valor !== null) nueva.set(nombre, valor);
     }
   }
+  // Aquí, el siguiente nivel empieza jugando (sin el menú del nivel encima)
+  if (!enLinea) nueva.set("jugar", "");
   return `?${nueva}`;
 }
 

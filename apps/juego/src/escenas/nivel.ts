@@ -15,6 +15,7 @@
 //   &ganar=N         para probar (en desarrollo, o con `?congelar=` para las capturas): en el paso N la pareja
 //                    alcanza la meta sin caminar hasta ahí, como si llegara (en La medianoche se encienden los fuegos);
 //                    con `&punto=` la meta, cuenta como llegar ahí mismo
+//   &jugar           empieza jugando, sin el menú del nivel (los enlaces del menú, del tutorial y de la llegada)
 //   &ayuda-mision    la hoja de la misión con la ayuda abierta (todos los pasos y los controles), como con la H
 //   &pausa           empieza en pausa, con lo que va de la misión en el panel (para las capturas)
 //
@@ -148,7 +149,9 @@ export function armarEscenaNivel(
   if (conPantalla && (!controles.fija || parametros.has("ayuda"))) {
     crearAyuda(controles, { siempre: parametros.has("ayuda") });
   }
-  const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
+  // Con `&jugar` (venir del menú, del tutorial o del nivel anterior) empieza jugando: el menú ya se vio
+  const conMenu = conPantalla && !parametros.has("jugar") && (!controles.fija || parametros.has("menu"));
+  const juego = crearJuego(conMenu ? "menu" : "jugando");
   // La hoja de la misión se arma más abajo; la pausa le pide lo que va cada vez que se abre
   let hoja: HojaDeMision | undefined;
   const interfaz = conPantalla ? crearInterfaz(juego, controles, { mision: () => hoja?.resumen() ?? null }) : undefined;

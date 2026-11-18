@@ -315,3 +315,21 @@
   margin: 0;
   color: var(--tinta-suave);
 }
+/* Pantallas angostas (teléfonos de pie): el logo y el panel se achican para entrar enteros */
+@media (max-width: 460px) {
+  .menu-capa {
+    padding: 10px;
+  }
+  .menu-panel {
+    min-width: 0;
+    padding: 20px 18px 18px;
+    gap: 10px;
+  }
+  .menu-logo {
+    font-size: clamp(44px, 15vw, 76px);
+  }
+}
+/* Mientras el menú o la pausa están abiertos, la hoja de la misión no se encima detrás (la pausa ya la resume) */
+body:has(.menu-capa:not([hidden])) .mision {
+  visibility: hidden;
+}
