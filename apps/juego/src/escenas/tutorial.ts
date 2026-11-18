@@ -45,6 +45,7 @@ import { MENU, mostrarNivelGanado } from "../ui/llegada";
 import { crearInterfaz } from "../ui/menu";
 import { crearHojaDeMision } from "../ui/mision";
 import { anotarTutorial } from "../ui/tutorial";
+import { reaparecerSiCayeron } from "./borde";
 import { crearCajas } from "./cajas";
 import { COLORES } from "./colores";
 import type { EscenaDeJuego } from "./index";
@@ -71,9 +72,16 @@ const CACAO = [
   { x: 3.2, y: 0, z: -1.9 },
   { x: 6.0, y: 0, z: 1.8 },
 ] as const;
+/** Si el cántaro se cae al suelo fuera del círculo y nadie lo toca, cuántos pasos hasta que vuelve al tocón. */
+export const PASOS_PARA_VOLVER = 4 * 60;
 /** Cuánto esperar (pasos) entre terminar y mostrar el panel. */
 const ESPERA_FINAL = 75;
-const CAMINAR = { rojo: "W S camina · A D gira", turquesa: "↑ ↓ camina · ← → gira", mando: "palanca" } as const;
+const CAMINAR = {
+  rojo: "W S camina · A D gira",
+  turquesa: "↑ ↓ camina · ← → gira",
+  mando: "palanca",
+  tactil: "arrastren la palanca",
+} as const;
 
 export type EscenaTutorial = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
@@ -149,8 +157,9 @@ export function crearEscenaTutorial(
   const entrega = crearEntrega(escena, ENTREGA, ENTREGA.radio);
   const semillas = crearSemillas(escena, CACAO);
   const cajas = crearCajas(rapier, mundo, escena, corteza);
-  cajas.poner(-1.6, 0.2, 1.7, 0.4, 3, 0.4);
-  cajas.poner(-1.4, 0.18, -1.9, 0.36, 2, -0.3);
+  // Lejos de las mazorcas: si una caja queda debajo de una, los muñecos chocan con ella y no llegan al cacao
+  cajas.poner(-0.7, 0.2, 2.4, 0.4, 3, 0.4);
+  cajas.poner(-0.9, 0.18, -2.5, 0.36, 2, -0.3);
 
   const tronco = crearTroncoCaido({ largo: 7, radio: 0.22, semilla: 5, largoMusgo: 0.2, musgo: 30 });
   tronco.position.set(1.5, 0.2, -4.6);
@@ -213,6 +222,13 @@ export function crearEscenaTutorial(
     (j) => munecos[j].agarrado("brazoIzquierdo") !== null || munecos[j].agarrado("brazoDerecho") !== null,
   );
   const festejar = porJugador((j) => ultimas[j].gesto !== null);
+  /** Si el cántaro sigue arriba del tocón (más o menos donde empezó). */
+  const enElTocon = () => {
+    const p = cantaro.cuerpo.translation();
+    return Math.hypot(p.x - TOCON.x, p.z) < TOCON.radio + 0.1 && p.y > TOCON.alto;
+  };
+  /** Desde qué paso está el cántaro tirado en el suelo, fuera del círculo y sin nadie que lo agarre. */
+  let tiradoDesde: number | undefined;
 
   const lecciones: Objetivo[] = [
     {
@@ -229,15 +245,20 @@ export function crearEscenaTutorial(
       id: "saltar",
       titulo: "Salten",
       texto: "Cada uno salta una vez. Saltando se sube a lo bajo y se cruzan los huecos chicos.",
-      teclas: { rojo: "Espacio", turquesa: "Enter", mando: "A" },
+      teclas: { rojo: "Espacio", turquesa: "Enter", mando: "A", tactil: "botón Saltar" },
       medir: saltar.medir,
     },
     {
       id: "agarrar",
       titulo: "Agarren algo",
       texto:
-        "Mantengan un brazo arriba y toquen algo: una caja, el tronco o la mano del otro. La mano agarra mientras sostengan la tecla.",
-      teclas: { rojo: "Q brazo izq. · E der.", turquesa: ", brazo izq. · . der.", mando: "LB · RB" },
+        "Mantengan un brazo arriba y toquen algo: una caja, el tronco o la mano del otro. La mano agarra mientras sostengan el brazo arriba.",
+      teclas: {
+        rojo: "Q brazo izq. · E der.",
+        turquesa: ", brazo izq. · . der.",
+        mando: "LB · RB",
+        tactil: "sostengan Agarrar",
+      },
       medir: agarrar.medir,
     },
     {
@@ -252,7 +273,17 @@ export function crearEscenaTutorial(
       titulo: "Lleven el cántaro",
       texto:
         "Pesa mucho para uno solo. Párense a cada lado del tocón, agárrenlo con el brazo de adentro y llévenlo juntos al círculo de piedras.",
-      teclas: { rojo: "Q (brazo izq.) + caminar", turquesa: ". (brazo der.) + caminar", mando: "LB o RB + palanca" },
+      teclas: {
+        rojo: "Q (brazo izq.) + caminar",
+        turquesa: ". (brazo der.) + caminar",
+        mando: "LB o RB + palanca",
+        tactil: "sostengan Agarrar + palanca",
+      },
+      // Si al juntar el cacao alguien lo tiró, la lección empieza con el cántaro de vuelta en el tocón
+      empezar() {
+        if (!enElTocon()) cantaro.volver();
+        tiradoDesde = undefined;
+      },
       medir: () => {
         const adentro = entrega.contiene(cantaro.cuerpo);
         entrega.llenar(adentro);
@@ -264,7 +295,7 @@ export function crearEscenaTutorial(
       titulo: "Festejen",
       texto:
         "Los gestos sirven para entenderse sin hablar: tecla de gesto y una dirección. Adelante festeja, atrás se encoge, a los lados saluda o llama.",
-      teclas: { rojo: "X + W A S D", turquesa: "Shift der. + flechas", mando: "X + palanca" },
+      teclas: { rojo: "X + W A S D", turquesa: "Shift der. + flechas", mando: "X + palanca", tactil: "botón ¡Eh!" },
       medir: festejar.medir,
     },
   ];
@@ -272,7 +303,9 @@ export function crearEscenaTutorial(
   const saltear = Math.max(0, Math.min(lecciones.length, Number(parametros.get("leccion") ?? 1) - 1 || 0));
   const objetivos = lecciones.map((l, i) => (i < saltear ? { ...l, medir: () => ({ hecho: true }) } : l));
   const tablero = crearTablero(objetivos, { enOrden: true });
-  const hoja = conPantalla ? crearHojaDeMision(tablero, { titulo: "Cómo jugar", modo: "lecciones" }) : undefined;
+  const hoja = conPantalla
+    ? crearHojaDeMision(tablero, { titulo: "Cómo jugar", modo: "lecciones", tactil: controles.tactil })
+    : undefined;
   const FESTEJOS = ["¡Eso!", "¡Bien!", "¡Así se hace!", "¡De a dos!", "¡Listo!", "¡Ya está!"];
   let festejos = 0;
   tablero.alCambiar((cumplido) => {
@@ -296,7 +329,7 @@ export function crearEscenaTutorial(
       nombre: "¡Ya saben jugar!",
       nota: "Ahora, la historia: El patio, Tegucigalpa, la mañana del 31 de diciembre.",
       acciones: [
-        { texto: "Empezar la historia", fuerte: true, href: `?escena=nivel&nivel=${PRIMER_NIVEL}` },
+        { texto: "Empezar la historia", fuerte: true, href: `?escena=nivel&nivel=${PRIMER_NIVEL}&jugar` },
         { texto: "Menú", href: MENU },
       ],
     });
@@ -312,6 +345,14 @@ export function crearEscenaTutorial(
     ...(interfaz ? { interfaz } : {}),
     munecos,
     tablero,
+    // Lo que falta: las mazorcas que quedan y, en la lección del cántaro, el cántaro
+    pendientes: () => {
+      if (tablero.objetivos[tablero.actual]?.id === "cantaro") {
+        const p = cantaro.cuerpo.translation();
+        return [{ x: p.x, z: p.z }];
+      }
+      return semillas.quedan().flatMap((i) => (CACAO[i] ? [{ x: CACAO[i].x, z: CACAO[i].z }] : []));
+    },
     pasar() {
       cajas.guardar();
       cantaro.guardar();
@@ -320,8 +361,24 @@ export function crearEscenaTutorial(
       munecos[0].pasar(senas.entrada(0, leidas[0]));
       munecos[1].pasar(senas.entrada(1, leidas[1]));
       mundo.step();
+      // El que se cae por el borde del claro vuelve a donde empezó (la malla salta, sin dibujar el viaje)
+      reaparecerSiCayeron(munecos, SALIDAS, (j) => jugadores[j].malla.guardar());
       semillas.pasar(munecos);
       tablero.pasar();
+      // En la lección del cántaro, si se cae y nadie lo levanta, vuelve solo al tocón
+      if (tablero.objetivos[tablero.actual]?.id === "cantaro") {
+        const tirado =
+          cantaro.cuerpo.translation().y < TOCON.alto * 0.6 &&
+          !entrega.contiene(cantaro.cuerpo) &&
+          cantaro.cargadores(munecos) === 0;
+        if (!tirado) tiradoDesde = undefined;
+        else if (tiradoDesde === undefined) tiradoDesde = pasos;
+        else if (pasos - tiradoDesde >= PASOS_PARA_VOLVER) {
+          cantaro.volver();
+          tiradoDesde = undefined;
+          hoja?.festejar("El cántaro volvió al tocón");
+        }
+      }
       if (tablero.terminado) terminoEn ??= pasos;
       if (conPantalla && !conElPanel && terminoEn !== undefined && pasos - terminoEn >= ESPERA_FINAL) mostrarFin();
       senas.apuntar();

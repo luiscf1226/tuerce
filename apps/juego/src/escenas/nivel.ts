@@ -15,6 +15,7 @@
 //   &ganar=N         para probar (en desarrollo, o con `?congelar=` para las capturas): en el paso N la pareja
 //                    alcanza la meta sin caminar hasta ahí, como si llegara (en La medianoche se encienden los fuegos);
 //                    con `&punto=` la meta, cuenta como llegar ahí mismo
+//   &jugar           empieza jugando, sin el menú del nivel (los enlaces del menú, del tutorial y de la llegada)
 //   &ayuda-mision    la hoja de la misión con la ayuda abierta (todos los pasos y los controles), como con la H
 //   &pausa           empieza en pausa, con lo que va de la misión en el panel (para las capturas)
 //
@@ -37,7 +38,7 @@ import { parametrosDeLaDireccion } from "../entrada/teclado";
 import { materialOjo, materialPanuelo, materialTela, type Panuelo } from "../imagen";
 import { GUIAS } from "../misiones/guias";
 import { objetivosDelNivel } from "../misiones/nivel";
-import { crearTablero } from "../misiones/tablero";
+import { crearTablero, type Tablero } from "../misiones/tablero";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
@@ -80,6 +81,7 @@ const MIRAR_AL_CIELO = { atras: 3, angulo: 0.3 };
 
 export type EscenaNivel = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
+  readonly tablero: Tablero;
   readonly nivel: Nivel;
   readonly camaraDeDos: CamaraDeDos;
   readonly vestir: Vestir;
@@ -147,7 +149,9 @@ export function armarEscenaNivel(
   if (conPantalla && (!controles.fija || parametros.has("ayuda"))) {
     crearAyuda(controles, { siempre: parametros.has("ayuda") });
   }
-  const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
+  // Con `&jugar` (venir del menú, del tutorial o del nivel anterior) empieza jugando: el menú ya se vio
+  const conMenu = conPantalla && !parametros.has("jugar") && (!controles.fija || parametros.has("menu"));
+  const juego = crearJuego(conMenu ? "menu" : "jugando");
   // La hoja de la misión se arma más abajo; la pausa le pide lo que va cada vez que se abre
   let hoja: HojaDeMision | undefined;
   const interfaz = conPantalla ? crearInterfaz(juego, controles, { mision: () => hoja?.resumen() ?? null }) : undefined;
@@ -280,6 +284,7 @@ export function armarEscenaNivel(
       titulo: `Misión · ${plano.nombre}`,
       modo: "lista",
       enLinea: enRed !== undefined,
+      tactil: controles.tactil,
     });
   if (hoja && parametros.has("ayuda-mision")) hoja.alternarAyuda(true);
 
@@ -303,6 +308,7 @@ export function armarEscenaNivel(
     juego,
     ...(interfaz ? { interfaz } : {}),
     munecos,
+    tablero,
     nivel,
     avance,
     ...(reloj ? { reloj } : {}),

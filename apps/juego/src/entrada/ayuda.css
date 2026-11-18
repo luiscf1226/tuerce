@@ -57,3 +57,7 @@
   text-align: center;
   opacity: 0.65;
 }
+/* Detrás del menú no se lee: se esconde mientras el menú o la pausa están abiertos */
+body:has(.menu-capa:not([hidden])) .ayuda-jugadores {
+  display: none;
+}

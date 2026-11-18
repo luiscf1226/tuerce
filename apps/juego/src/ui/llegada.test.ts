@@ -28,7 +28,7 @@ describe("la meta", () => {
   it("en el mismo lugar: «Siguiente nivel» lleva al siguiente y «Menú» al menú", () => {
     const acciones = accionesDeLaMeta(finDeNivel("trenzas"));
     expect(acciones.map((a) => a.texto)).toEqual(["Siguiente nivel", "Menú"]);
-    expect(acciones[0]).toMatchObject({ fuerte: true, href: "?escena=nivel&nivel=cafetal" });
+    expect(acciones[0]).toMatchObject({ fuerte: true, href: "?escena=nivel&nivel=cafetal&jugar=" });
     expect(acciones[1]).toMatchObject({ href: MENU });
     expect(MENU).toBe("/");
   });
@@ -53,7 +53,7 @@ describe("la meta", () => {
   });
 
   it("la dirección del siguiente: en línea pasa la sala y el pase de prueba, y nada más", () => {
-    expect(direccionDelNivel("pinar", false)).toBe("?escena=nivel&nivel=pinar");
+    expect(direccionDelNivel("pinar", false)).toBe("?escena=nivel&nivel=pinar&jugar=");
     expect(direccionDelNivel("pinar", true)).toBe("?escena=en-linea&nivel=pinar");
     const actual = new URLSearchParams("escena=en-linea&nivel=patio&sala=http://x/sala/a&pase=abc&j1=andar:1&noche");
     expect(direccionDelNivel("pinar", true, actual)).toBe(

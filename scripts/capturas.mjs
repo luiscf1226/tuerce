@@ -78,6 +78,8 @@ const TOMAS = [
   { archivo: "tutorial-caminen", ruta: "/?escena=tutorial&j1=&j2=&congelar=60" },
   { archivo: "tutorial-cacao", ruta: "/?escena=tutorial&leccion=4&j1=andar:1,girar:0.25&j2=andar:1&congelar=150" },
   { archivo: "tutorial-cantaro", ruta: "/?escena=tutorial&leccion=5&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=240" },
+  // Con los dedos (teléfonos y tabletas): las dos mitades con palanca y botones, y la hoja dice qué tocar
+  { archivo: "tutorial-tactil", ruta: "/?escena=tutorial&leccion=3&j1=&j2=&tactil&congelar=60" },
   { archivo: "tutorial-listos", ruta: "/?escena=tutorial&leccion=6&j1=gesto:festejar&j2=gesto:saludar&congelar=120" },
   // La hoja de la misión en un nivel: la meta con sus puntos, el secreto y el logro
   { archivo: "nivel-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=60" },

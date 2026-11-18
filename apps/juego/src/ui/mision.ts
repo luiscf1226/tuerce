@@ -70,15 +70,27 @@ function elemento<K extends keyof HTMLElementTagNameMap>(
 
 const hex = (color: number) => `#${color.toString(16).padStart(6, "0")}`;
 
-/** Las teclas de la lección: una fila por jugador, con su pañuelo, y la del mando. */
-function teclasDe(objetivo: Objetivo): HTMLElement | null {
+/** Lo táctil de una lección para cada jugador: «izquierda · palanca». */
+export function filasTactiles(tactil: string): readonly [string, string][] {
+  return [
+    ["Rojo", `mitad izquierda · ${tactil}`],
+    ["Turquesa", `mitad derecha · ${tactil}`],
+  ];
+}
+
+/** Las teclas de la lección: una fila por jugador, con su pañuelo, y la del mando. Con los dedos, lo táctil. */
+function teclasDe(objetivo: Objetivo, tactil: boolean): HTMLElement | null {
   if (!objetivo.teclas) return null;
   const lista = elemento("dl", "mision-teclas");
-  const filas: [string, string, number | null][] = [
-    ["Rojo", objetivo.teclas.rojo, COLORES.panueloRojo],
-    ["Turquesa", objetivo.teclas.turquesa, COLORES.panueloTurquesa],
-    ["Mando", objetivo.teclas.mando, null],
-  ];
+  const colores = [COLORES.panueloRojo, COLORES.panueloTurquesa];
+  const filas: [string, string, number | null][] =
+    tactil && objetivo.teclas.tactil
+      ? filasTactiles(objetivo.teclas.tactil).map(([q, t], i) => [q, t, colores[i] ?? null])
+      : [
+          ["Rojo", objetivo.teclas.rojo, COLORES.panueloRojo],
+          ["Turquesa", objetivo.teclas.turquesa, COLORES.panueloTurquesa],
+          ["Mando", objetivo.teclas.mando, null],
+        ];
   for (const [quien, teclas, color] of filas) {
     const dt = lista.appendChild(elemento("dt", ""));
     if (color !== null) dt.appendChild(elemento("i", "panuelo")).style.background = hex(color);
@@ -108,10 +120,16 @@ function tramosDe(pasos: readonly Paso[], actual: number): HTMLElement {
   return lista;
 }
 
+/** Los controles táctiles en una línea por jugador. */
+export const CONTROLES_TACTILES: readonly { quien: string; color: number | null; linea: string }[] = [
+  { quien: "Rojo", color: COLORES.panueloRojo, linea: "mitad izquierda · palanca, Agarrar, Saltar, ¡Eh!" },
+  { quien: "Turquesa", color: COLORES.panueloTurquesa, linea: "mitad derecha · palanca, Agarrar, Saltar, ¡Eh!" },
+];
+
 /** Los controles de los dos, una línea cada uno. */
-function controlesDe(enLinea: boolean): HTMLElement {
+function controlesDe(enLinea: boolean, tactil: boolean): HTMLElement {
   const lista = elemento("dl", "mision-controles");
-  for (const { quien, color, linea } of controlesEnUnaLinea(enLinea)) {
+  for (const { quien, color, linea } of tactil ? CONTROLES_TACTILES : controlesEnUnaLinea(enLinea)) {
     const dt = lista.appendChild(elemento("dt", ""));
     if (color !== null) dt.appendChild(elemento("i", "panuelo")).style.background = hex(color);
     dt.append(quien);
@@ -135,7 +153,12 @@ export interface HojaDeMision {
 
 export function crearHojaDeMision(
   tablero: Tablero,
-  { titulo, modo, enLinea = false }: { titulo: string; modo: ModoHoja; enLinea?: boolean },
+  {
+    titulo,
+    modo,
+    enLinea = false,
+    tactil = false,
+  }: { titulo: string; modo: ModoHoja; enLinea?: boolean; tactil?: boolean },
 ): HojaDeMision {
   cargarFuentes();
   const caja = document.body.appendChild(elemento("aside", `mision mision-${modo}`));
@@ -159,7 +182,7 @@ export function crearHojaDeMision(
     if (objetivo) {
       const medida = tablero.medida(actual);
       hijos.push(elemento("h2", "mision-titulo", objetivo.titulo), elemento("p", "mision-texto", objetivo.texto));
-      const teclas = teclasDe(objetivo);
+      const teclas = teclasDe(objetivo, tactil);
       if (teclas) hijos.push(teclas);
       const cuenta = textoDeCuenta(medida);
       if (cuenta) hijos.push(elemento("p", "mision-cuenta", cuenta));
@@ -207,9 +230,16 @@ export function crearHojaDeMision(
           tramosDe(guia.pasos, guia.medida.hecho ? guia.pasos.length : (guia.medida.cuenta ?? 0)),
         );
       }
-      hijos.push(elemento("p", "mision-ceja", "Controles"), controlesDe(enLinea));
+      hijos.push(elemento("p", "mision-ceja", "Controles"), controlesDe(enLinea, tactil));
     }
-    hijos.push(festejo, elemento("p", "mision-pie", ayuda ? "H · cerrar la ayuda" : "H · ayuda y controles"));
+    hijos.push(
+      festejo,
+      elemento(
+        "p",
+        "mision-pie",
+        tactil ? "Pausa (arriba a la derecha) · los pasos" : ayuda ? "H · cerrar la ayuda" : "H · ayuda y controles",
+      ),
+    );
     caja.classList.toggle("con-ayuda", ayuda);
     caja.replaceChildren(...hijos);
   };

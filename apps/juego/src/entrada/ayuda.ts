@@ -76,6 +76,11 @@ export function crearAyuda(controles: Controles, { siempre = false } = {}): HTML
   let reloj: ReturnType<typeof setTimeout> | undefined;
 
   const mostrar = (asignacion: Asignacion) => {
+    // Con los dedos, los botones en pantalla ya dicen qué hace cada uno: no hay teclas que explicar
+    if (controles.tactil && !siempre) {
+      caja.classList.add("oculta");
+      return;
+    }
     caja.replaceChildren(
       ...JUGADORES.map((j) => {
         const bloque = document.createElement("section");
