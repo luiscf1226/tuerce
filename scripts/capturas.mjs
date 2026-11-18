@@ -85,7 +85,11 @@ const TOMAS = [
   { archivo: "telefono-menu", ruta: "/?escena=dos&j1=&j2=&menu&tactil&congelar=60", telefono: true },
   { archivo: "telefono-tutorial", ruta: "/?escena=tutorial&leccion=4&j1=&j2=&tactil&congelar=60", telefono: true },
   { archivo: "telefono-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&tactil&congelar=60", telefono: true },
-  { archivo: "telefono-pausa", ruta: "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&pausa&tactil&congelar=60", telefono: true },
+  {
+    archivo: "telefono-pausa",
+    ruta: "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&pausa&tactil&congelar=60",
+    telefono: true,
+  },
   { archivo: "tutorial-listos", ruta: "/?escena=tutorial&leccion=6&j1=gesto:festejar&j2=gesto:saludar&congelar=120" },
   // La hoja de la misión en un nivel: la meta con sus puntos, el secreto y el logro
   { archivo: "nivel-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=60" },
