@@ -74,3 +74,15 @@ export function crearResolucionAdaptable(opciones: OpcionesResolucion = {}): Res
     },
   };
 }
+
+/** Densidad máxima a la que se dibuja: 2 en la computadora, 1.5 con los dedos (teléfonos y tabletas). */
+export const DENSIDAD_MAXIMA = { computadora: 2, tactil: 1.5 } as const;
+
+/**
+ * Cuántos píxeles por punto se dibujan. Un teléfono tiene densidad 2.5 a 3.5: dibujar a 2 son 1.8 veces los píxeles
+ * de 1.5 (escala²), con niebla y grano encima no se nota, y el teléfono se calienta y baja los cuadros.
+ */
+export function densidadDeDibujo(densidadPantalla: number, tactil: boolean): number {
+  const maxima = tactil ? DENSIDAD_MAXIMA.tactil : DENSIDAD_MAXIMA.computadora;
+  return Math.min(densidadPantalla, maxima);
+}

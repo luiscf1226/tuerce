@@ -6,7 +6,7 @@
 import { spawn, spawnSync } from "node:child_process";
 import { mkdir, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { chromium } from "playwright";
+import { chromium, devices } from "playwright";
 
 // Para sumar una escena: agregala en apps/juego/src/escenas/index.ts y acá.
 // `congelar` corre ese número exacto de pasos de físicas, así la imagen sale igual en cada corrida.
@@ -80,6 +80,12 @@ const TOMAS = [
   { archivo: "tutorial-cantaro", ruta: "/?escena=tutorial&leccion=5&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=240" },
   // Con los dedos (teléfonos y tabletas): las dos mitades con palanca y botones, y la hoja dice qué tocar
   { archivo: "tutorial-tactil", ruta: "/?escena=tutorial&leccion=3&j1=&j2=&tactil&congelar=60" },
+  // Un teléfono acostado (`telefono`, 839×412): la portada entra en su panel, la hoja de la misión y la del tutorial
+  // no le tapan la palanca al rojo, y la pausa muestra «Seguir» arriba
+  { archivo: "telefono-menu", ruta: "/?escena=dos&j1=&j2=&menu&tactil&congelar=60", telefono: true },
+  { archivo: "telefono-tutorial", ruta: "/?escena=tutorial&leccion=4&j1=&j2=&tactil&congelar=60", telefono: true },
+  { archivo: "telefono-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&tactil&congelar=60", telefono: true },
+  { archivo: "telefono-pausa", ruta: "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&pausa&tactil&congelar=60", telefono: true },
   { archivo: "tutorial-listos", ruta: "/?escena=tutorial&leccion=6&j1=gesto:festejar&j2=gesto:saludar&congelar=120" },
   // La hoja de la misión en un nivel: la meta con sus puntos, el secreto y el logro
   { archivo: "nivel-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=60" },
@@ -512,6 +518,7 @@ const TOMAS = [
 ];
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
+const TELEFONO = { ...devices["Pixel 7"], viewport: { width: 839, height: 412 } };
 const SALIDA = "capturas";
 const PUERTO = 4173;
 
@@ -597,8 +604,15 @@ try {
   const pagina = await contexto.newPage();
   pagina.on("pageerror", (e) => errores.push(e.message));
   for (const toma of TOMAS) {
-    // `ganados`: en un navegador aparte que recuerda esos niveles ganados (el menú los marca); `clic`: qué apretar
-    const aparte = toma.ganados ? await navegador.newContext({ viewport: TAMANO, storageState: recuerdo(toma) }) : null;
+    // `ganados`: en un navegador aparte que recuerda esos niveles ganados (el menú los marca); `telefono`: en un
+    // Pixel 7 acostado, con los dedos; `clic`: qué apretar
+    const aparte =
+      toma.ganados || toma.telefono
+        ? await navegador.newContext({
+            ...(toma.telefono ? TELEFONO : { viewport: TAMANO }),
+            ...(toma.ganados ? { storageState: recuerdo(toma) } : {}),
+          })
+        : null;
     const enEsta = aparte ? await aparte.newPage() : pagina;
     if (aparte) enEsta.on("pageerror", (e) => errores.push(e.message));
     await enEsta.goto(servidor.base + toma.ruta);

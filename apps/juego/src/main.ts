@@ -1,7 +1,9 @@
 import * as THREE from "three";
+import { hayPantallaTactil } from "./entrada/tactil";
 import { ESCENA_INICIAL, ESCENAS, PANTALLAS } from "./escenas";
 import { publicarEstado } from "./estado";
 import { crearImagen } from "./imagen";
+import { densidadDeDibujo } from "./imagen/resolucion";
 import { crearBucle, PASOS_POR_SEGUNDO } from "./motor/bucle";
 import { crearMundo } from "./motor/fisica";
 import { prepararEscritorio } from "./ui/escritorio";
@@ -55,8 +57,14 @@ async function arrancar() {
 
   const lienzo = document.createElement("canvas");
   document.body.append(lienzo);
-  const pintor = new THREE.WebGLRenderer({ canvas: lienzo, antialias: false, preserveDrawingBuffer: true });
-  pintor.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // Guardar el cuadro ya mostrado solo hace falta para fotografiar una escena congelada: a cada cuadro le cuesta a la
+  // tarjeta de video (sobre todo en los teléfonos)
+  const pintor = new THREE.WebGLRenderer({
+    canvas: lienzo,
+    antialias: false,
+    preserveDrawingBuffer: Number.isFinite(congelar),
+  });
+  pintor.setPixelRatio(densidadDeDibujo(window.devicePixelRatio, hayPantallaTactil(parametros)));
   // Todo se dibuja a través de la imagen (src/imagen): tono, antialias, grano y viñeta de las referencias.
   // Con la cámara de los dos, la pantalla se parte cuando se separan (TU-09).
   const imagen = crearImagen(pintor, escena.escena, escena.camara, escena.vistas ? { vistas: escena.vistas } : {});
