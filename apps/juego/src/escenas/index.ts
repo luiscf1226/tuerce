@@ -1,6 +1,8 @@
 import type RAPIER from "@dimforge/rapier3d-compat";
 import type { VistasPartidas } from "../imagen";
+import type { Tablero } from "../misiones/tablero";
 import type { Rapier } from "../motor/fisica";
+import type { Muneco } from "../muneco";
 import type { Juego } from "../ui";
 import type { Interfaz } from "../ui/menu";
 import { crearEscenaAgarre } from "./agarre";
@@ -19,6 +21,11 @@ import { crearEscenaTutorial } from "./tutorial";
  * pausa (TU-15): `main.ts` llama a `interfaz.cuadro()` en cada cuadro y no avanza las físicas si `juego.corren` es
  * falso. */
 export type EscenaDeJuego = Escena & {
+  /** Los dos muñecos y la misión, si la escena los tiene: `main.ts` los deja ver en `window.__tuerce` (pruebas). */
+  readonly munecos?: readonly [Muneco, Muneco];
+  readonly tablero?: Tablero;
+  /** Dónde quedan cosas por juntar (el cacao del tutorial), para las pruebas. */
+  pendientes?(): readonly { x: number; z: number }[];
   readonly vistas?: VistasPartidas;
   readonly juego?: Juego;
   readonly interfaz?: Interfaz;

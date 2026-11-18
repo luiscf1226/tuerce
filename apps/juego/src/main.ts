@@ -28,6 +28,30 @@ async function arrancar() {
   const { rapier, mundo } = await crearMundo();
   const escena = await crear(rapier, mundo);
   const estado = publicarEstado({ escena: nombre, listo: false, pasosTotales: 0, pasosPorSegundo: 0 });
+  // La misión y los muñecos, para las pruebas en Chromium (se leen al preguntar, sin costo por cuadro)
+  const { tablero, munecos } = escena;
+  if (tablero)
+    Object.defineProperty(estado, "mision", {
+      enumerable: true,
+      get: () => ({
+        actual: tablero.objetivos[tablero.actual]?.id ?? null,
+        cumplidos: tablero.objetivos.filter((_, i) => tablero.medida(i).hecho).length,
+        total: tablero.objetivos.length,
+        terminada: tablero.terminado,
+      }),
+    });
+  const pendientes = escena.pendientes?.bind(escena);
+  if (pendientes) Object.defineProperty(estado, "pendientes", { enumerable: true, get: pendientes });
+  if (munecos)
+    Object.defineProperty(estado, "jugadores", {
+      enumerable: true,
+      get: () =>
+        munecos.map((m) => {
+          const p = m.partes.pelvis.translation();
+          const manos = [m.agarrado("brazoIzquierdo"), m.agarrado("brazoDerecho")].filter((c) => c !== null).length;
+          return { x: p.x, y: p.y, z: p.z, rumbo: m.rumboReal(), estado: m.estado, manos };
+        }),
+    });
 
   const lienzo = document.createElement("canvas");
   document.body.append(lienzo);

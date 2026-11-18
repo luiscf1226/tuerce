@@ -19,6 +19,8 @@ export interface Teclas {
   readonly rojo: string;
   readonly turquesa: string;
   readonly mando: string;
+  /** Con los controles táctiles, lo mismo para los dos (cada uno en su mitad de la pantalla). */
+  readonly tactil?: string;
 }
 
 /** Un tramo de la misión: qué hay que hacer para llegar al próximo punto de control, y cómo. */

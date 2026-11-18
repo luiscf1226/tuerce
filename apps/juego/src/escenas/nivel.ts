@@ -37,7 +37,7 @@ import { parametrosDeLaDireccion } from "../entrada/teclado";
 import { materialOjo, materialPanuelo, materialTela, type Panuelo } from "../imagen";
 import { GUIAS } from "../misiones/guias";
 import { objetivosDelNivel } from "../misiones/nivel";
-import { crearTablero } from "../misiones/tablero";
+import { crearTablero, type Tablero } from "../misiones/tablero";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
@@ -80,6 +80,7 @@ const MIRAR_AL_CIELO = { atras: 3, angulo: 0.3 };
 
 export type EscenaNivel = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
+  readonly tablero: Tablero;
   readonly nivel: Nivel;
   readonly camaraDeDos: CamaraDeDos;
   readonly vestir: Vestir;
@@ -280,6 +281,7 @@ export function armarEscenaNivel(
       titulo: `Misión · ${plano.nombre}`,
       modo: "lista",
       enLinea: enRed !== undefined,
+      tactil: controles.tactil,
     });
   if (hoja && parametros.has("ayuda-mision")) hoja.alternarAyuda(true);
 
@@ -303,6 +305,7 @@ export function armarEscenaNivel(
     juego,
     ...(interfaz ? { interfaz } : {}),
     munecos,
+    tablero,
     nivel,
     avance,
     ...(reloj ? { reloj } : {}),
