@@ -51,7 +51,8 @@
   align-items: flex-end;
   justify-content: center;
   margin: 4px 0 0;
-  font: 800 76px / 0.82 var(--display);
+  /* A 76 px no cabía en el panel y los pañuelos, que encogían, desaparecían */
+  font: 800 68px / 0.82 var(--display);
   letter-spacing: -0.03em;
   color: var(--honda);
 }
@@ -68,6 +69,7 @@
 }
 .menu-logo i {
   display: inline-block;
+  flex-shrink: 0;
   width: 0.2em;
   height: 0.15em;
   margin-bottom: 0.5em;
@@ -323,7 +325,7 @@
     gap: 10px;
   }
   .menu-logo {
-    font-size: clamp(44px, 15vw, 76px);
+    font-size: clamp(44px, 15vw, 68px);
   }
 }
 /* Pantallas bajas (un teléfono acostado): todo más junto, para que la portada casi entre sin desplazarse */
