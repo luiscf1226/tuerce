@@ -1,5 +1,5 @@
-// El cartel de la Noche de tuerce (TU-33): al empezar, qué trampa les tocó. Una tarjeta clara en el tercio de
-// abajo que se va sola: no tapa a los muñecos (al centro), ni la ayuda de los controles, ni el reloj de arriba.
+// El cartel de la Noche de tuerce (TU-33): al empezar, qué trampa les tocó. Una tarjeta clara que se va sola y termina
+// justo encima de la mitad de abajo: no tapa los controles táctiles ni la ayuda de las teclas (ver noche.css).
 import type { Trampa } from "../niveles/noche";
 import { FUENTES } from "./menu";
 import "./noche.css";
