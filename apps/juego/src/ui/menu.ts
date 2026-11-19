@@ -12,7 +12,7 @@
 // La historia y los niveles (TU-56): sin nivel abierto (la escena `dos`, de fondo), el botón fuerte lleva a la
 // historia (al patio, o al primero que la pareja no ganó en este navegador) y «Niveles» abre el panel de los 17,
 // para jugarlos aquí o en línea. Sobre un nivel, el botón fuerte juega ese nivel.
-import { DESCRIPCION_CONTROLES } from "../entrada/ayuda";
+import { DESCRIPCION_CONTROLES, DESCRIPCION_TACTIL } from "../entrada/ayuda";
 import type { Controles } from "../entrada/mandos";
 import { ganadosAqui } from "../niveles/contrarreloj";
 import { nivelDeLaHistoria, PRIMER_NIVEL } from "../niveles/orden";
@@ -28,7 +28,7 @@ import {
   numeroConCeros,
 } from "./historia";
 import type { Juego } from "./juego";
-import { COMO_SE_JUEGA, DIRECCION_TUTORIAL, proponerTutorial, tutorialHecho } from "./tutorial";
+import { COMO_SE_JUEGA, COMO_SE_JUEGA_TACTIL, DIRECCION_TUTORIAL, proponerTutorial, tutorialHecho } from "./tutorial";
 import "./menu.css";
 
 export const FUENTES =
@@ -140,20 +140,20 @@ function botonTutorial(fuerte: boolean): HTMLAnchorElement {
   return a;
 }
 
-/** Lo básico en cuatro líneas, arriba de la tabla de controles. */
-function comoSeJuega(): HTMLElement {
+/** Lo básico en cuatro líneas, arriba de la tabla de controles. Con los dedos, sin teclas. */
+function comoSeJuega(tactil: boolean): HTMLElement {
   const lista = elemento("dl", "menu-como");
-  for (const [que, como] of COMO_SE_JUEGA) {
+  for (const [que, como] of tactil ? COMO_SE_JUEGA_TACTIL : COMO_SE_JUEGA) {
     lista.appendChild(elemento("dt", "", que));
     lista.appendChild(elemento("dd", "", como));
   }
   return lista;
 }
 
-/** La tabla de controles de los dos jugadores. */
-function controles(): HTMLElement {
+/** La tabla de controles de los dos jugadores: teclado y mando, o lo táctil si se juega con los dedos. */
+function controles(tactil: boolean): HTMLElement {
   const caja = elemento("div", "menu-controles");
-  for (const jugador of DESCRIPCION_CONTROLES) {
+  for (const jugador of tactil ? DESCRIPCION_TACTIL : DESCRIPCION_CONTROLES) {
     const bloque = caja.appendChild(elemento("section", `j ${jugador.clase}`));
     bloque.appendChild(elemento("h3", "", jugador.nombre));
     const lista = bloque.appendChild(elemento("dl", ""));
@@ -218,8 +218,8 @@ export function crearInterfaz(
     const sigue = dondeSigue(ganados);
     const hijos: HTMLElement[] = [];
     if (vista === "controles") {
-      hijos.push(elemento("p", "menu-ceja", "Cómo se juega"), comoSeJuega(), elemento("hr", "costura"));
-      hijos.push(elemento("p", "menu-ceja", "Controles"), controles(), elemento("hr", "costura"));
+      hijos.push(elemento("p", "menu-ceja", "Cómo se juega"), comoSeJuega(mandos.tactil), elemento("hr", "costura"));
+      hijos.push(elemento("p", "menu-ceja", "Controles"), controles(mandos.tactil), elemento("hr", "costura"));
       const linea = elemento("div", "menu-linea");
       linea.append(
         boton("Volver", () => volver(), "boton boton-claro"),

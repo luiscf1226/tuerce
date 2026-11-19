@@ -34,3 +34,20 @@ export const COMO_SE_JUEGA: readonly (readonly [string, string])[] = [
     "Arriba a la izquierda dice qué hacer ahora. H abre la ayuda con todos los pasos y los controles; la pausa también la muestra. Lo que lleva una banda clara es de la misión.",
   ],
 ];
+
+/** Lo básico con los dedos: sin teclas, cada uno en su mitad de la pantalla. */
+export const COMO_SE_JUEGA_TACTIL: readonly (readonly [string, string])[] = [
+  [
+    "Moverse",
+    "El rojo juega en la mitad izquierda y el turquesa en la derecha: cada uno arrastra su palanca. La cámara sigue a los dos y se parte si se alejan.",
+  ],
+  [
+    "Agarrar",
+    "Mientras sostienen Agarrar, los brazos van arriba y agarran lo que tocan: cajas, bordes, la mano del otro.",
+  ],
+  ["De a dos", "Lo pesado se carga entre los dos. Para trepar, sostengan Agarrar contra el borde y salten."],
+  [
+    "La misión",
+    "Arriba a la izquierda dice qué hacer ahora; la pausa (arriba a la derecha) muestra todos los pasos y las pistas. Lo que lleva una banda clara es de la misión.",
+  ],
+];
