@@ -36,10 +36,10 @@
 .con-tactil .noche-cartel {
   bottom: max(54%, 240px);
 }
-/* En una pantalla baja (un teléfono acostado) no hay lugar libre: los 6 segundos que dura el cartel, la hoja de la
-   misión se esconde en lugar de quedar a medias debajo */
+/* En una pantalla baja (un teléfono acostado) no hay lugar libre: mientras está el cartel (6.5 s, con el fundido), la
+   hoja de la misión se esconde en lugar de quedar a medias debajo */
 @media (max-height: 520px) {
-  body:has(.noche-cartel:not(.se-va)) .mision {
+  body:has(.noche-cartel) .mision {
     visibility: hidden;
   }
 }
