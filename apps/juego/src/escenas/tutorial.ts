@@ -138,7 +138,8 @@ export function crearEscenaTutorial(
   if (conPantalla && parametros.has("ayuda")) crearAyuda(controles, { siempre: true });
   // El tutorial arranca jugando: la hoja de la misión ya dice qué hacer. La pausa (Esc, P o Start) abre el menú.
   const juego = crearJuego("jugando");
-  const interfaz = conPantalla ? crearInterfaz(juego, controles) : undefined;
+  // La pausa muestra la lección de turno (la hoja se arma más abajo y se pide al abrirla)
+  const interfaz = conPantalla ? crearInterfaz(juego, controles, { mision: () => hoja?.resumen() ?? null }) : undefined;
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
 

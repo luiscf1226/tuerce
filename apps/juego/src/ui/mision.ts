@@ -144,7 +144,8 @@ export interface HojaDeMision {
   readonly ayuda: boolean;
   /** Abre o cierra la ayuda (lo hace la tecla H). */
   alternarAyuda(abierta?: boolean): void;
-  /** Lo que va ahora y todos los tramos, para la pausa. Null si la misión no tiene guía. */
+  /** Para la pausa: en un nivel, lo que va ahora y todos los tramos (null si la misión no tiene guía); en el
+   * tutorial, la lección de turno. */
   resumen(): HTMLElement | null;
   /** Una línea corta que aparece un rato debajo («¡Bien!»). */
   festejar(texto: string): void;
@@ -252,7 +253,29 @@ export function crearHojaDeMision(
   // El resumen de la pausa se repinta solo cuando cambia el tramo (en línea la partida sigue con la pausa abierta),
   // sin tocar los botones del menú ni su foco
   let resumen: HTMLElement | null = null;
+  /** En la pausa del tutorial: la lección de turno, con qué se hace y cuánto falta. */
+  const leccionEnLaPausa = (): HTMLElement[] => {
+    const hijos: HTMLElement[] = [elemento("p", "menu-ceja", cejaDeLecciones(titulo, tablero))];
+    const objetivo = tablero.objetivos[tablero.actual];
+    if (!objetivo) return hijos;
+    const caja = elemento("div", "mision-ahora");
+    caja.append(
+      elemento("p", "mision-ahora-ceja", "Ahora"),
+      elemento("strong", "mision-ahora-que", objetivo.titulo),
+      elemento("p", "mision-ahora-pista", objetivo.texto),
+    );
+    const teclas = teclasDe(objetivo, tactil);
+    if (teclas) caja.append(teclas);
+    const cuenta = textoDeCuenta(tablero.medida(tablero.actual));
+    if (cuenta) caja.append(elemento("p", "mision-ahora-ceja mision-resumen-cuenta", cuenta));
+    hijos.push(caja);
+    return hijos;
+  };
   const pintarResumen = () => {
+    if (resumen && modo === "lecciones") {
+      resumen.replaceChildren(...leccionEnLaPausa());
+      return;
+    }
     const guia = guiado();
     if (!resumen || !guia) return;
     const hijos: HTMLElement[] = [elemento("p", "menu-ceja", titulo)];
@@ -291,7 +314,7 @@ export function crearHojaDeMision(
     },
     alternarAyuda,
     resumen() {
-      if (!guiado()) return null;
+      if (modo === "lista" && !guiado()) return null;
       resumen = elemento("div", "mision-resumen");
       pintarResumen();
       return resumen;
