@@ -7,8 +7,10 @@
   --honda: #1a1a1a;
   --display: "Fraunces", "Georgia", serif;
   --cuerpo: "Karla", "Segoe UI", system-ui, sans-serif;
+  /* Termina justo encima de la mitad de abajo: ahí están los controles táctiles y, en la computadora, la ayuda de
+     teclas, que también aparece al empezar */
   position: fixed;
-  bottom: 20%;
+  bottom: 54%;
   left: 50%;
   z-index: 5;
   width: min(440px, calc(100vw - 32px));
