@@ -264,6 +264,14 @@
   --honda: #1a1a1a;
   margin: 0;
 }
+.mision-resumen .mision-teclas {
+  --raya: rgb(35 35 33 / 0.2);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+.mision-resumen-cuenta {
+  margin-top: 6px;
+}
 .mision-resumen .mision-lista {
   margin: 10px 0 0;
   font-size: 14px;
