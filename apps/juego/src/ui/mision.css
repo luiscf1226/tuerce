@@ -339,3 +339,7 @@
     max-height: calc(100vh - 20px);
   }
 }
+/* Con el panel de la meta («Nivel ganado», el final del tutorial o de la historia) la hoja no se le encima */
+body:has(.contrarreloj-capa:not([hidden])) .mision {
+  visibility: hidden;
+}
