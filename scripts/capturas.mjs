@@ -83,6 +83,12 @@ const TOMAS = [
   // Un teléfono acostado (`telefono`, 839×412): la portada entra en su panel, la hoja de la misión y la del tutorial
   // no le tapan la palanca al rojo, y la pausa muestra «Seguir» arriba
   { archivo: "telefono-menu", ruta: "/?escena=dos&j1=&j2=&menu&tactil&congelar=60", telefono: true },
+  {
+    archivo: "telefono-controles",
+    ruta: "/?escena=dos&j1=&j2=&menu&tactil&congelar=60",
+    telefono: true,
+    clic: "[data-abre=controles]",
+  },
   { archivo: "telefono-tutorial", ruta: "/?escena=tutorial&leccion=4&j1=&j2=&tactil&congelar=60", telefono: true },
   { archivo: "telefono-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&tactil&congelar=60", telefono: true },
   {
