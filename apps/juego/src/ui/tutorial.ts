@@ -28,7 +28,10 @@ export function proponerTutorial(hecho: boolean, ganados: readonly string[]): bo
 export const COMO_SE_JUEGA: readonly (readonly [string, string])[] = [
   ["Moverse", "Cada uno camina y gira con lo suyo; la cámara sigue a los dos y se parte si se alejan."],
   ["Agarrar", "Un brazo arriba agarra lo que toca mientras sostengan la tecla: cajas, bordes, la mano del otro."],
-  ["De a dos", "Lo pesado se carga entre los dos. Para trepar, cuélguense con los dos brazos y salten."],
+  [
+    "De a dos",
+    "Lo pesado se carga entre los dos. Para trepar, cuélguense de un borde con los dos brazos y caminen hacia adelante.",
+  ],
   [
     "La misión",
     "Arriba a la izquierda dice qué hacer ahora. H abre la ayuda con todos los pasos y los controles; la pausa también la muestra. Lo que lleva una banda clara es de la misión.",
@@ -45,9 +48,12 @@ export const COMO_SE_JUEGA_TACTIL: readonly (readonly [string, string])[] = [
     "Agarrar",
     "Mientras sostienen Agarrar, los brazos van arriba y agarran lo que tocan: cajas, bordes, la mano del otro.",
   ],
-  ["De a dos", "Lo pesado se carga entre los dos. Para trepar, sostengan Agarrar contra el borde y salten."],
+  [
+    "De a dos",
+    "Lo pesado se carga entre los dos. Para trepar, cuélguense de un borde con Agarrar y empujen la palanca hacia adelante.",
+  ],
   [
     "La misión",
-    "Arriba a la izquierda dice qué hacer ahora; la pausa (arriba a la derecha) muestra todos los pasos y las pistas. Lo que lleva una banda clara es de la misión.",
+    "Arriba a la izquierda dice qué hacer ahora; en los niveles, la pausa (arriba a la derecha) muestra todos los pasos y las pistas. Lo que lleva una banda clara es de la misión.",
   ],
 ];
