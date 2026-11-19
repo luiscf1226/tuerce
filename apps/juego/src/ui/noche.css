@@ -31,6 +31,18 @@
 .noche-cartel.se-va {
   opacity: 0;
 }
+/* Con los dedos, además, por encima de los botones de cada lado (entrada/tactil.css): Agarrar, Saltar y ¡Eh! apilados
+   miden unos 224 px desde abajo, más que la mitad de un teléfono acostado */
+.con-tactil .noche-cartel {
+  bottom: max(54%, 240px);
+}
+/* En una pantalla baja (un teléfono acostado) no hay lugar libre: los 6 segundos que dura el cartel, la hoja de la
+   misión se esconde en lugar de quedar a medias debajo */
+@media (max-height: 520px) {
+  body:has(.noche-cartel:not(.se-va)) .mision {
+    visibility: hidden;
+  }
+}
 .noche-ceja {
   margin: 0;
   font-weight: 800;
