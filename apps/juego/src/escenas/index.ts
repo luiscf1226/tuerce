@@ -1,6 +1,8 @@
 import type RAPIER from "@dimforge/rapier3d-compat";
 import type { VistasPartidas } from "../imagen";
+import type { Tablero } from "../misiones/tablero";
 import type { Rapier } from "../motor/fisica";
+import type { Muneco } from "../muneco";
 import type { Juego } from "../ui";
 import type { Interfaz } from "../ui/menu";
 import { crearEscenaAgarre } from "./agarre";
@@ -13,11 +15,17 @@ import { crearEscenaPinar } from "./pinar";
 import { crearEscenaPrueba } from "./prueba";
 import { crearEscenaRopero } from "./ropero";
 import type { Escena } from "./tipos";
+import { crearEscenaTutorial } from "./tutorial";
 
 /** Lo que una escena puede sumar a `Escena`: la pantalla partida de la cámara de los dos (TU-09), y el menú y la
  * pausa (TU-15): `main.ts` llama a `interfaz.cuadro()` en cada cuadro y no avanza las físicas si `juego.corren` es
  * falso. */
 export type EscenaDeJuego = Escena & {
+  /** Los dos muñecos y la misión, si la escena los tiene: `main.ts` los deja ver en `window.__tuerce` (pruebas). */
+  readonly munecos?: readonly [Muneco, Muneco];
+  readonly tablero?: Tablero;
+  /** Dónde quedan cosas por juntar (el cacao del tutorial), para las pruebas. */
+  pendientes?(): readonly { x: number; z: number }[];
   readonly vistas?: VistasPartidas;
   readonly juego?: Juego;
   readonly interfaz?: Interfaz;
@@ -39,6 +47,8 @@ export const ESCENAS: Record<string, (rapier: Rapier, mundo: RAPIER.World) => Es
     nivel: crearEscenaNivel,
     // El ropero (TU-29): los dos muñecos con sus prendas y el panel para elegir; `&vitrina=1|2` las muestra todas.
     ropero: crearEscenaRopero,
+    // Cómo jugar: seis lecciones en orden, con la hoja de la misión y los objetos de misión (cacao, cántaro)
+    tutorial: crearEscenaTutorial,
   };
 export const ESCENA_INICIAL = "dos";
 

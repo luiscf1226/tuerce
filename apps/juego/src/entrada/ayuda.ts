@@ -63,6 +63,18 @@ export const DESCRIPCION_CONTROLES: readonly {
   },
 ];
 
+/** Lo mismo con los dedos (src/entrada/tactil.ts): cada uno en su mitad de la pantalla. La pausa la dice «Cómo se juega». */
+const DEDOS: readonly (readonly [string, string])[] = [
+  ["palanca", "caminar y girar (arrastren el dedo)"],
+  ["Agarrar", "mientras lo sostienen, los dos brazos arriba"],
+  ["Saltar", "saltar"],
+  ["¡Eh!", "festejar"],
+];
+export const DESCRIPCION_TACTIL: typeof DESCRIPCION_CONTROLES = [
+  { nombre: "Rojo · mitad izquierda", clase: "j1", filas: DEDOS },
+  { nombre: "Turquesa · mitad derecha", clase: "j2", filas: DEDOS },
+];
+
 /** Con qué juega cada jugador, en palabras. */
 export function dispositivoDe(asignacion: Asignacion, jugador: Jugador): string {
   const mando = asignacion[jugador];
@@ -76,6 +88,11 @@ export function crearAyuda(controles: Controles, { siempre = false } = {}): HTML
   let reloj: ReturnType<typeof setTimeout> | undefined;
 
   const mostrar = (asignacion: Asignacion) => {
+    // Con los dedos, los botones en pantalla ya dicen qué hace cada uno: no hay teclas que explicar
+    if (controles.tactil && !siempre) {
+      caja.classList.add("oculta");
+      return;
+    }
     caja.replaceChildren(
       ...JUGADORES.map((j) => {
         const bloque = document.createElement("section");

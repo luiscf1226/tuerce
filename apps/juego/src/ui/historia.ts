@@ -109,7 +109,9 @@ export type Modo = "aqui" | "en-linea" | "contrarreloj" | "noche-aqui" | "noche-
 export function direccionDelNivel(clave: string, modo: Modo): string {
   const escena = modo === "en-linea" || modo === "noche-en-linea" ? "en-linea" : "nivel";
   const extra = modo === "contrarreloj" ? "&contrarreloj" : modo.startsWith("noche") ? "&noche" : "";
-  return `?escena=${escena}&nivel=${encodeURIComponent(clave)}${extra}`;
+  // Desde el menú ya se eligió jugar aquí: el nivel empieza jugando, sin otro menú encima (`&jugar`)
+  const jugar = modo === "aqui" || modo === "noche-aqui" ? "&jugar" : "";
+  return `?escena=${escena}&nivel=${encodeURIComponent(clave)}${extra}${jugar}`;
 }
 
 /** Un nivel como lo muestra el panel: los de la historia con su número y su lugar; los otros (el de prueba y el de

@@ -32,6 +32,7 @@
 //   &j2=andar:0.8                    entrada fija del jugador 2
 //   &andar=…&girar=…                 lo de siempre: entrada fija del jugador 1 (si no hay `j1`)
 // El jugador que no aparece se queda quieto.
+import { crearTactil, hayPantallaTactil, type Tactil } from "./tactil";
 import { parametrosDeLaDireccion } from "./teclado";
 
 /** Lo que pide cada jugador en un paso. Sirve tal cual como `EntradaMuneco`. */
@@ -365,6 +366,8 @@ export interface Controles {
   readonly asignacion: Asignacion;
   /** Si la entrada viene fija de la dirección (capturas): teclado y mandos no cuentan. */
   readonly fija: boolean;
+  /** Si se juega con los dedos (controles táctiles en pantalla). */
+  readonly tactil: boolean;
   /** Avisa cuando un mando se suma, se va o cambia de jugador. */
   alCambiar(aviso: (asignacion: Asignacion) => void): void;
   /** Si alguno de los dos apretó pausa (Esc, P o Start de cualquier mando) desde la última vez que se preguntó.
@@ -378,6 +381,8 @@ export interface OpcionesControles {
   mandos?: () => readonly (MandoLeido | null)[];
   /** Dónde se escucha el teclado; por defecto `window` (no hay en Node). */
   teclado?: Pick<Window, "addEventListener">;
+  /** Los controles táctiles; por defecto se ponen solos en pantallas táctiles (ver tactil.ts). */
+  tactil?: Tactil | null;
 }
 
 function mandosDelNavegador(): readonly (MandoLeido | null)[] {
@@ -398,6 +403,16 @@ export function crearControles(opciones: OpcionesControles = {}): Controles {
   /** Lo mismo con Start, para la pausa; y las veces que se apretó una tecla de pausa sin preguntar todavía. */
   const startAntes = new Map<number, boolean>();
   let pausasPedidas = 0;
+
+  const tactil =
+    opciones.tactil !== undefined
+      ? opciones.tactil
+      : // Con entrada fija no hay dedos, salvo `&tactil` (para las capturas de los controles)
+        (!fijas || parametrosFijos.has("tactil")) &&
+          typeof document !== "undefined" &&
+          hayPantallaTactil(parametrosFijos)
+        ? crearTactil()
+        : null;
 
   const apretadas = new Set<string>();
   const teclado = opciones.teclado ?? (typeof window === "undefined" ? undefined : window);
@@ -425,11 +440,12 @@ export function crearControles(opciones: OpcionesControles = {}): Controles {
       return asignacion;
     },
     fija: fijas !== undefined,
+    tactil: tactil !== null,
     alCambiar(aviso) {
       avisos.push(aviso);
     },
     pedirPausa() {
-      let pedida = pausasPedidas > 0;
+      let pedida = pausasPedidas > 0 || (tactil?.pedirPausa() ?? false);
       pausasPedidas = 0;
       if (fijas) return pedida;
       for (const m of obtenerMandos()) {
@@ -473,7 +489,8 @@ export function crearControles(opciones: OpcionesControles = {}): Controles {
         const deTeclado = leerTeclasDe(j, apretadas);
         const indice = asignacion[j];
         const mando = indice === null ? undefined : conectados.get(indice);
-        return mando ? juntarEntradas(deTeclado, leerMando(mando)) : deTeclado;
+        const conMando = mando ? juntarEntradas(deTeclado, leerMando(mando)) : deTeclado;
+        return tactil ? juntarEntradas(conMando, tactil.leer(j)) : conMando;
       });
       return [salida[0] ?? entradaQuieta(), salida[1] ?? entradaQuieta()];
     },

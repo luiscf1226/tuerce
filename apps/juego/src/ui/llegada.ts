@@ -44,6 +44,8 @@ export function direccionDelNivel(clave: string, enLinea: boolean, actual?: URLS
       if (valor !== null) nueva.set(nombre, valor);
     }
   }
+  // Aquí, el siguiente nivel empieza jugando (sin el menú del nivel encima)
+  if (!enLinea) nueva.set("jugar", "");
   return `?${nueva}`;
 }
 
@@ -178,14 +180,17 @@ export function mostrarNivelGanado({
   nombre,
   nota,
   acciones,
+  ceja = "Nivel ganado",
 }: {
   nombre: string;
   nota: string;
   acciones: readonly Accion[];
+  /** La línea de arriba (el tutorial dice «Cómo jugar»). */
+  ceja?: string;
 }): PanelDeMeta {
   const panel = elemento("div", "contrarreloj-panel llegada-panel");
   panel.append(
-    elemento("p", "contrarreloj-ceja", "Nivel ganado"),
+    elemento("p", "contrarreloj-ceja", ceja),
     elemento("h2", "llegada-nombre", nombre),
     panuelos("llegada-panuelos"),
   );

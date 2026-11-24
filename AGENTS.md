@@ -11,6 +11,7 @@ Latinoamérica resolviendo rompecabezas a puro agarrón. El plan completo está 
 | `apps/juego/`                     | El juego: TypeScript, Three.js, Rapier (físicas a paso fijo de 60 por segundo) y Vite. Se publica como Worker de Cloudflare con archivos estáticos (`wrangler.jsonc`). |
 | `apps/juego/src/motor/`           | Bucle de paso fijo (`bucle.ts`) y mundo de Rapier (`fisica.ts`).                                                                                                       |
 | `apps/juego/src/escenas/`         | Cada escena se abre con `?escena=<nombre>`; la lista está en `index.ts`.                                                                                               |
+| `apps/juego/src/misiones/`        | Misiones: el tablero de objetivos (`tablero.ts`), los objetos de misión (semilla, encargo, entrega) y la misión de cada nivel. El tutorial es `?escena=tutorial`.      |
 | `apps/juego/src/cuenta/`          | Entrar con Clerk y que Convex reconozca al usuario (`?escena=entrar`).                                                                                                 |
 | `apps/escritorio/`                | El mismo juego empacado para Steam con Tauri v2 (Rust): ventana, ícono, plantillas de Steam. Ver su `README.md`.                                                       |
 | `convex/`                         | Datos: `schema.ts`, `auth.config.ts` (Clerk) y funciones. `_generated/` se regenera con `pnpm convex:dev`.                                                             |
@@ -26,6 +27,7 @@ pnpm dev           # juego en http://localhost:5173 y sala en :8798
 pnpm check         # Biome (lint y formato) + TypeScript estricto en todo
 pnpm test          # pruebas del juego (Vitest), de la sala (dos clientes reales contra wrangler dev) y de la red
 pnpm prueba:red    # la red de verdad: dos Chromium, directo, caída al repetidor, repetidor forzado y se_fue
+pnpm prueba:mision # juega el tutorial de punta a punta en Chromium: teclado (escritorio) y dedos (teléfono)
 pnpm red:local     # dos direcciones de `?escena=red` para mirar la red a mano (con `pnpm dev` corriendo)
 pnpm build         # construye el juego y la sala
 pnpm capturas      # abre el juego en Chromium sin ventana y guarda imágenes y video en capturas/
@@ -48,7 +50,11 @@ Si tocás algo visible, mirá las imágenes de `capturas/` antes de decir que qu
 - **Red**: la prueba de la sala levanta `wrangler dev` y conecta dos clientes de verdad. La de la red
   (`scripts/prueba-red.mjs`) abre dos Chromium en `?escena=red` y mira `window.__red`; la máquina de estados de
   `src/red/` se prueba con una sala y un WebRTC de mentira (`conexion.test.ts`).
-- El juego expone `window.__tuerce` (`escena`, `listo`, `pasosTotales`, `pasosPorSegundo`) para las pruebas en Chromium.
+- El juego expone `window.__tuerce` (`escena`, `listo`, `pasosTotales`, `pasosPorSegundo` y, si la escena los tiene,
+  `mision`, `jugadores` y `pendientes`) para las pruebas en Chromium.
+- **Teléfonos**: los controles táctiles (`src/entrada/tactil.ts`) salen solos en pantallas sin mouse; `?tactil` los
+  fuerza en la computadora. `pnpm prueba:mision` (con `pnpm dev` corriendo) juega el tutorial completo con el teclado
+  y con dedos de verdad en un Pixel 7 emulado.
 
 ## Reglas
 

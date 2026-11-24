@@ -7,7 +7,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { mkdir, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { join } from "node:path";
-import { chromium } from "playwright";
+import { chromium, devices } from "playwright";
 
 // Para sumar una escena: agregala en apps/juego/src/escenas/index.ts y acá.
 // `congelar` corre ese número exacto de pasos de físicas, así la imagen sale igual en cada corrida.
@@ -72,6 +72,39 @@ const TOMAS = [
   { archivo: "menu-nivel", ruta: "/?escena=nivel&nivel=poza&j1=&j2=&menu&congelar=60" },
   { archivo: "dos-senalando", ruta: "/?escena=dos&j1=senalar,girar:-0.3&j2=senalar,girar:0.3&congelar=90" },
   { archivo: "dos-festejando", ruta: "/?escena=dos&j1=gesto:encoger&j2=gesto:festejar&congelar=80" },
+  // Cómo jugar: la portada la primera vez (el tutorial va primero), la pantalla de controles con lo básico, y el
+  // tutorial con la hoja de la misión: la primera lección, el cacao, el cántaro entre los dos y el final
+  { archivo: "menu-primera-vez", ruta: "/?escena=dos&j1=&j2=&menu&congelar=60" },
+  { archivo: "menu-como-se-juega", ruta: "/?escena=dos&j1=&j2=&menu&congelar=60", clic: "[data-abre=controles]" },
+  { archivo: "tutorial-caminen", ruta: "/?escena=tutorial&j1=&j2=&congelar=60" },
+  { archivo: "tutorial-cacao", ruta: "/?escena=tutorial&leccion=4&j1=andar:1,girar:0.25&j2=andar:1&congelar=150" },
+  { archivo: "tutorial-cantaro", ruta: "/?escena=tutorial&leccion=5&j1=andar:0.6,izq&j2=andar:0.6,der&congelar=240" },
+  // Con los dedos (teléfonos y tabletas): las dos mitades con palanca y botones, y la hoja dice qué tocar
+  { archivo: "tutorial-tactil", ruta: "/?escena=tutorial&leccion=3&j1=&j2=&tactil&congelar=60" },
+  // Un teléfono acostado (`telefono`, 839×412): la portada entra en su panel, la hoja de la misión y la del tutorial
+  // no le tapan la palanca al rojo, y la pausa muestra «Seguir» arriba
+  { archivo: "telefono-menu", ruta: "/?escena=dos&j1=&j2=&menu&tactil&congelar=60", telefono: true },
+  {
+    archivo: "telefono-controles",
+    ruta: "/?escena=dos&j1=&j2=&menu&tactil&congelar=60",
+    telefono: true,
+    clic: "[data-abre=controles]",
+  },
+  { archivo: "telefono-tutorial", ruta: "/?escena=tutorial&leccion=4&j1=&j2=&tactil&congelar=60", telefono: true },
+  { archivo: "telefono-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&tactil&congelar=60", telefono: true },
+  {
+    archivo: "telefono-pausa",
+    ruta: "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&pausa&tactil&congelar=60",
+    telefono: true,
+  },
+  { archivo: "tutorial-listos", ruta: "/?escena=tutorial&leccion=6&j1=gesto:festejar&j2=gesto:saludar&congelar=120" },
+  // La hoja de la misión en un nivel: la meta con sus puntos, el secreto y el logro
+  { archivo: "nivel-mision", ruta: "/?escena=nivel&nivel=patio&j1=&j2=&congelar=60" },
+  // La guía de la misión: «Ahora» con el tramo que toca (en el pinar, después del punto 2), la ayuda abierta con la H
+  // (todos los pasos y los controles) y la pausa, que muestra lo mismo para quien juega con mando
+  { archivo: "mision-ahora", ruta: "/?escena=nivel&nivel=pinar&punto=2&j1=&j2=&congelar=60" },
+  { archivo: "mision-ayuda", ruta: "/?escena=nivel&nivel=calle&punto=3&j1=&j2=&ayuda-mision&congelar=60" },
+  { archivo: "mision-pausa", ruta: "/?escena=nivel&nivel=poza&punto=1&j1=&j2=&pausa&congelar=60" },
   // TU-11: el nivel de prueba, armado con el formato nuevo (niveles/99-prueba): entero desde lejos y la salida. El
   // turquesa se cae del patio y reaparece junto al rojo; retomando desde el punto 1 la compuerta ya está hundida
   { archivo: "nivel-entero", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=&vista=todo&congelar=60" },
@@ -527,6 +560,7 @@ const TOMAS = [
 const mudo = (ruta) => `${ruta}${ruta.includes("?") ? "&" : "?"}mudo`;
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
+const TELEFONO = { ...devices["Pixel 7"], viewport: { width: 839, height: 412 } };
 const SALIDA = "capturas";
 
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -635,10 +669,14 @@ try {
   const pagina = await contexto.newPage();
   pagina.on("pageerror", (e) => errores.push(e.message));
   for (const toma of TOMAS) {
-    // `ganados`: en un navegador aparte que recuerda esos niveles ganados (el menú los marca); `clic`: qué apretar
+    // `ganados` y `retomar`: en un navegador aparte que recuerda esos niveles ganados y puntos de control (el menú
+    // los marca); `telefono`: en un Pixel 7 acostado, con los dedos; `clic`: qué apretar
     const aparte =
-      toma.ganados || toma.retomar
-        ? await navegador.newContext({ viewport: TAMANO, storageState: recuerdo(toma) })
+      toma.ganados || toma.retomar || toma.telefono
+        ? await navegador.newContext({
+            ...(toma.telefono ? TELEFONO : { viewport: TAMANO }),
+            ...(toma.ganados || toma.retomar ? { storageState: recuerdo(toma) } : {}),
+          })
         : null;
     const enEsta = aparte ? await aparte.newPage() : pagina;
     if (aparte) enEsta.on("pageerror", (e) => errores.push(e.message));

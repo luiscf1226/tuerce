@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { crearResolucionAdaptable } from "./resolucion";
+import { crearResolucionAdaptable, densidadDeDibujo } from "./resolucion";
 
 /** Dibuja `cuadros` cuadros separados por `cada` segundos, desde `desde`. Devuelve el último instante. */
 function dibujar(r: ReturnType<typeof crearResolucionAdaptable>, desde: number, cuadros: number, cada: number) {
@@ -74,5 +74,18 @@ describe("resolución que se adapta", () => {
     expect(r.escala).toBe(0.35);
     dibujar(r, 0, 20, 1);
     expect(r.escala).toBe(0.35);
+  });
+});
+
+describe("densidad de dibujo", () => {
+  it("en la computadora llega hasta 2", () => {
+    expect(densidadDeDibujo(1, false)).toBe(1);
+    expect(densidadDeDibujo(2, false)).toBe(2);
+    expect(densidadDeDibujo(3, false)).toBe(2);
+  });
+  it("con los dedos se queda en 1.5 aunque la pantalla tenga más", () => {
+    expect(densidadDeDibujo(2.625, true)).toBe(1.5);
+    expect(densidadDeDibujo(3.5, true)).toBe(1.5);
+    expect(densidadDeDibujo(1, true)).toBe(1);
   });
 });

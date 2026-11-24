@@ -16,7 +16,9 @@
 //                    alcanza la meta sin caminar hasta ahí, como si llegara (en La medianoche se encienden los fuegos);
 //                    con `&punto=` la meta, cuenta como llegar ahí mismo
 //   &pista           la luciérnaga que señala hacia dónde seguir, sin esperar los 2 minutos (TU-62)
-//   &pausa           abre en la pausa (para las capturas de la pausa y las opciones, TU-60)
+//   &jugar           empieza jugando, sin el menú del nivel (los enlaces del menú, del tutorial y de la llegada)
+//   &ayuda-mision    la hoja de la misión con la ayuda abierta (todos los pasos y los controles), como con la H
+//   &pausa           empieza en pausa, con lo que va de la misión y las acciones de la pausa (para las capturas)
 //
 // La pausa (TU-60): «Volver al punto de control» pone a los dos juntos en el último de la pareja y «Empezar el nivel
 // de nuevo» lo vuelve a abrir desde la salida, por la niebla. Retomar aquí: cada punto de control que la pareja
@@ -31,7 +33,7 @@
 // lo muestra en-linea.ts.
 //
 // El secreto y el logro del nivel (TU-29) se avisan arriba al centro (src/ropero/aviso.ts); en línea, además, se
-// guardan en Convex.
+// guardan en Convex. La hoja de la misión (src/ui/mision.ts), arriba a la izquierda, los lista con la meta.
 //
 // En línea (`?escena=en-linea`) se juega esta misma escena: `enRed` decide las entradas de cada paso, como en `dos`.
 // El invitado no simula: no corre el guion, ni los puntos de control, ni las caídas; los cuerpos (también la
@@ -43,6 +45,9 @@ import { crearAyuda } from "../entrada/ayuda";
 import { crearControles, entradaQuieta } from "../entrada/mandos";
 import { parametrosDeLaDireccion } from "../entrada/teclado";
 import { materialOjo, materialPanuelo, materialTela, type Panuelo } from "../imagen";
+import { GUIAS } from "../misiones/guias";
+import { objetivosDelNivel } from "../misiones/nivel";
+import { crearTablero, type Tablero } from "../misiones/tablero";
 import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
@@ -69,6 +74,7 @@ import {
   mostrarNivelGanado,
 } from "../ui/llegada";
 import { type AccionesDelNivel, crearInterfaz } from "../ui/menu";
+import { crearHojaDeMision, type HojaDeMision } from "../ui/mision";
 import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
@@ -89,6 +95,7 @@ const MIRAR_AL_CIELO = { atras: 3, angulo: 0.3 };
 
 export type EscenaNivel = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
+  readonly tablero: Tablero;
   readonly nivel: Nivel;
   readonly camaraDeDos: CamaraDeDos;
   readonly vestir: Vestir;
@@ -163,7 +170,9 @@ export function armarEscenaNivel(
   if (conPantalla && (!controles.fija || parametros.has("ayuda"))) {
     crearAyuda(controles, { siempre: parametros.has("ayuda") });
   }
-  const juego = crearJuego(conPantalla && (!controles.fija || parametros.has("menu")) ? "menu" : "jugando");
+  // Con `&jugar` (venir del menú, del tutorial o del nivel anterior) empieza jugando: el menú ya se vio
+  const conMenu = conPantalla && !parametros.has("jugar") && (!controles.fija || parametros.has("menu"));
+  const juego = crearJuego(conMenu ? "menu" : "jugando");
   // La pausa sobre el nivel (TU-60). En línea no ofrece nada hasta que en-linea.ts sepa quién es el anfitrión
   const pausa: AccionesDelNivel = { puntoDeControl: () => nivel.avance.puntoDeControl() };
   // En el contrarreloj no: volver al punto en plena carrera es un atajo
@@ -178,7 +187,11 @@ export function armarEscenaNivel(
       irConFundido(direccionDesdeLaSalida(location.search));
     };
   }
-  const interfaz = conPantalla ? crearInterfaz(juego, controles, pausa) : undefined;
+  // La hoja de la misión se arma más abajo; la pausa le pide lo que va cada vez que se abre
+  let hoja: HojaDeMision | undefined;
+  const interfaz = conPantalla
+    ? crearInterfaz(juego, controles, { mision: () => hoja?.resumen() ?? null, nivel: pausa })
+    : undefined;
   if (conPantalla) avisarPremios(nivel.premios);
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
@@ -342,6 +355,19 @@ export function armarEscenaNivel(
     juego,
   });
 
+  // La misión del nivel: llegar a la meta y, si quieren, el secreto y el logro. La hoja va arriba a la izquierda,
+  // salvo en el contrarreloj (que tiene su reloj) y con la cámara quieta de las capturas del nivel entero
+  // Con la guía del nivel (src/misiones/guias.ts): de qué se trata, el tramo que toca y por dónde buscar el secreto
+  const tablero = crearTablero(objetivosDelNivel(nivel.avance, nivel.premios, GUIAS[clave]));
+  if (conPantalla && !reloj && !vistaTodo)
+    hoja = crearHojaDeMision(tablero, {
+      titulo: `Misión · ${plano.nombre}`,
+      modo: "lista",
+      enLinea: enRed !== undefined,
+      tactil: controles.tactil,
+    });
+  if (hoja && parametros.has("ayuda-mision")) hoja.alternarAyuda(true);
+
   let pasos = 0;
   let punto = Number(parametros.get("punto"));
   // Un punto guardado aquí que ya es la meta o no existe (de una versión vieja del nivel, con más puntos) dejaría a
@@ -352,12 +378,13 @@ export function armarEscenaNivel(
     punto = 0;
   }
   if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
-  seguirConLaCamara();
-  // `&pausa`: ya en el punto de control, para que la pausa diga cuál es
+  tablero.pasar();
+  // Ya en el punto de partida, para que la pausa muestre el tramo que va y en qué punto de control están
   if (conPantalla && parametros.has("pausa")) {
     juego.jugar();
     juego.pausar();
   }
+  seguirConLaCamara();
 
   return {
     nombre: "nivel",
@@ -368,6 +395,7 @@ export function armarEscenaNivel(
     juego,
     ...(interfaz ? { interfaz } : {}),
     munecos,
+    tablero,
     nivel,
     avance,
     ...(reloj ? { reloj } : {}),
@@ -403,6 +431,7 @@ export function armarEscenaNivel(
       jugadores[0].malla.guardar();
       jugadores[1].malla.guardar();
       armado.guardar();
+      tablero.pasar();
       seguirConLaCamara();
       orientacion.pasar(juego.atienden && !conElPanel);
       oido.pasar();

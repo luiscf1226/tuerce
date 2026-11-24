@@ -41,6 +41,7 @@ import { vestuarioDe } from "../ropero/vestuario";
 import { crearOido, type Oido } from "../sonido";
 import { crearJuego, crearSenas } from "../ui";
 import { crearInterfaz } from "../ui/menu";
+import { reaparecerSiCayeron } from "./borde";
 import { crearCajas } from "./cajas";
 import { COLORES } from "./colores";
 import type { EscenaDeJuego } from "./index";
@@ -252,6 +253,8 @@ export function crearEscenaDos(
         rojo.muneco.pasar(senas.entrada(0, entradas[0]));
         turquesa.muneco.pasar(senas.entrada(1, entradas[1]));
         mundo.step();
+        // El que se cae por el borde del claro vuelve a donde empezó (la malla salta, sin dibujar el viaje)
+        reaparecerSiCayeron([rojo.muneco, turquesa.muneco], SALIDAS, (j) => [rojo, turquesa][j]?.malla.guardar());
       }
       senas.apuntar();
       rojo.malla.guardar();

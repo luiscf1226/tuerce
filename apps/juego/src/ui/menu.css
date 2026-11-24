@@ -38,6 +38,11 @@
   background: rgb(240 240 237 / 0.86);
   box-shadow: 0 26px 46px -30px rgb(0 0 0 / 0.55);
 }
+/* Si no cabe (un teléfono acostado), la barra es del panel: nada queda fuera de alcance */
+.menu-capa .menu-panel {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
 .menu-panel.con-controles {
   width: min(620px, 100%);
 }
@@ -46,7 +51,8 @@
   align-items: flex-end;
   justify-content: center;
   margin: 4px 0 0;
-  font: 800 76px / 0.82 var(--display);
+  /* A 76 px no cabía en el panel y los pañuelos, que encogían, desaparecían */
+  font: 800 68px / 0.82 var(--display);
   letter-spacing: -0.03em;
   color: var(--honda);
 }
@@ -63,6 +69,7 @@
 }
 .menu-logo i {
   display: inline-block;
+  flex-shrink: 0;
   width: 0.2em;
   height: 0.15em;
   margin-bottom: 0.5em;
@@ -402,4 +409,65 @@
 /* En la pausa, la línea chica de «Volver al punto de control» */
 .menu-capa .boton.con-sub:not(.boton-fuerte) small {
   opacity: 0.6;
+}
+
+/* Cómo se juega: lo básico en cuatro líneas, arriba de los controles */
+.menu-como {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.menu-como dt {
+  font-weight: 800;
+}
+.menu-como dd {
+  margin: 0;
+  color: var(--tinta-suave);
+}
+/* Pantallas angostas (teléfonos de pie): el logo y el panel se achican para entrar enteros */
+@media (max-width: 460px) {
+  .menu-capa {
+    padding: 10px;
+  }
+  .menu-panel {
+    min-width: 0;
+    padding: 20px 18px 18px;
+    gap: 10px;
+  }
+  .menu-logo {
+    font-size: clamp(44px, 15vw, 68px);
+  }
+}
+/* Pantallas bajas (un teléfono acostado): todo más junto, para que la portada casi entre sin desplazarse */
+@media (max-height: 520px) {
+  .menu-capa {
+    padding: 10px;
+  }
+  .menu-capa .menu-panel {
+    max-height: calc(100dvh - 20px);
+    padding: 16px 24px;
+    gap: 8px;
+  }
+  .menu-logo {
+    font-size: 52px;
+  }
+  .menu-titulo {
+    font-size: 30px;
+  }
+  .menu-capa .boton {
+    padding: 10px 18px;
+  }
+  .menu-capa .boton-claro {
+    padding: 8px 12px;
+  }
+  .menu-capa .boton.con-sub small {
+    margin-top: 4px;
+  }
+}
+/* Mientras el menú o la pausa están abiertos, la hoja de la misión no se encima detrás (la pausa ya la resume) */
+body:has(.menu-capa:not([hidden])) .mision {
+  visibility: hidden;
 }

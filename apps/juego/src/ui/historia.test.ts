@@ -58,10 +58,10 @@ describe("dónde sigue la historia", () => {
 
 describe("direcciones de los niveles", () => {
   it("aquí, en línea, contra el reloj y de noche", () => {
-    expect(direccionDelNivel("patio", "aqui")).toBe("?escena=nivel&nivel=patio");
+    expect(direccionDelNivel("patio", "aqui")).toBe("?escena=nivel&nivel=patio&jugar");
     expect(direccionDelNivel("rio", "en-linea")).toBe("?escena=en-linea&nivel=rio");
     expect(direccionDelNivel("pinar", "contrarreloj")).toBe("?escena=nivel&nivel=pinar&contrarreloj");
-    expect(direccionDelNivel("poza", "noche-aqui")).toBe("?escena=nivel&nivel=poza&noche");
+    expect(direccionDelNivel("poza", "noche-aqui")).toBe("?escena=nivel&nivel=poza&noche&jugar");
     expect(direccionDelNivel("poza", "noche-en-linea")).toBe("?escena=en-linea&nivel=poza&noche");
   });
 });

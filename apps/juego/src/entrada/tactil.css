@@ -1,0 +1,142 @@
+/* Controles táctiles: dos mitades abajo (rojo a la izquierda, turquesa a la derecha), la palanca donde se apoya el
+   dedo y los botones del lado de adentro. Claros sobre la niebla; el único color son los pañuelos. */
+.con-tactil,
+.con-tactil body {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+}
+.tactil {
+  --tinta: #232321;
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  font:
+    800 13px / 1 "Karla",
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+}
+.tactil-lado {
+  position: absolute;
+  bottom: 0;
+  width: 50%;
+  height: 52%;
+  pointer-events: auto;
+  touch-action: none;
+}
+.tactil-lado.rojo {
+  left: 0;
+  --panuelo: #d2463a;
+}
+.tactil-lado.turquesa {
+  right: 0;
+  --panuelo: #2bb1ad;
+}
+.tactil-base {
+  position: absolute;
+  left: 34%;
+  top: 62%;
+  width: 112px;
+  height: 112px;
+  margin: -56px 0 0 -56px;
+  border-radius: 50%;
+  border: 2px dashed rgb(35 35 33 / 0.35);
+  background: rgb(240 240 237 / 0.35);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+.tactil-lado.turquesa .tactil-base {
+  left: 66%;
+}
+.tactil-lado.activa .tactil-base {
+  opacity: 1;
+  transition: none;
+}
+.tactil-perilla {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  border-radius: 50%;
+  background: rgb(35 35 33 / 0.78);
+  box-shadow: inset 0 -5px 0 var(--panuelo);
+}
+.tactil-botones {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.tactil-lado.rojo .tactil-botones {
+  right: 10px;
+}
+.tactil-lado.turquesa .tactil-botones {
+  left: 10px;
+}
+.tactil-boton {
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--tinta);
+  background: rgb(240 240 237 / 0.82);
+  color: var(--tinta);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tactil-boton.agarrar {
+  width: 76px;
+  height: 76px;
+  box-shadow: inset 0 -6px 0 var(--panuelo);
+}
+.tactil-boton.gesto {
+  width: 48px;
+  height: 48px;
+  font-size: 11px;
+  text-transform: none;
+}
+.tactil-boton.apretado {
+  background: var(--tinta);
+  color: #f0f0ed;
+}
+.tactil-pausa {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--tinta);
+  background:
+    rgb(240 240 237 / 0.82) no-repeat center / 14px 16px
+    linear-gradient(90deg, var(--tinta) 0 35%, transparent 35% 65%, var(--tinta) 65%);
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Mientras el menú, la pausa o el panel de llegada están abiertos, no hay controles encima */
+body:has(.menu-capa:not([hidden])) .tactil,
+body:has(.contrarreloj-capa:not([hidden])) .tactil {
+  display: none;
+}
+/* En pantallas chicas la hoja de la misión se achica para dejar ver el juego */
+@media (max-width: 560px) {
+  .con-tactil .mision {
+    top: max(10px, env(safe-area-inset-top));
+    left: 10px;
+    width: calc(100vw - 76px);
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
