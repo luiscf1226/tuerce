@@ -40,6 +40,7 @@ import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
 import { PRIMER_NIVEL } from "../niveles/orden";
 import { vestuarioDe } from "../ropero/vestuario";
+import { crearOido, type Oido } from "../sonido";
 import { crearJuego, crearSenas } from "../ui";
 import { MENU, mostrarNivelGanado } from "../ui/llegada";
 import { crearInterfaz } from "../ui/menu";
@@ -87,6 +88,7 @@ export type EscenaTutorial = EscenaDeJuego & {
   readonly munecos: readonly [Muneco, Muneco];
   readonly tablero: Tablero;
   readonly camaraDeDos: CamaraDeDos;
+  readonly oido: Oido;
 };
 
 export function crearEscenaTutorial(
@@ -159,8 +161,7 @@ export function crearEscenaTutorial(
   const semillas = crearSemillas(escena, CACAO);
   const cajas = crearCajas(rapier, mundo, escena, corteza);
   // Lejos de las mazorcas: si una caja queda debajo de una, los muñecos chocan con ella y no llegan al cacao
-  cajas.poner(-0.7, 0.2, 2.4, 0.4, 3, 0.4);
-  cajas.poner(-0.9, 0.18, -2.5, 0.36, 2, -0.3);
+  const cajasChicas = [cajas.poner(-0.7, 0.2, 2.4, 0.4, 3, 0.4), cajas.poner(-0.9, 0.18, -2.5, 0.36, 2, -0.3)];
 
   const tronco = crearTroncoCaido({ largo: 7, radio: 0.22, semilla: 5, largoMusgo: 0.2, musgo: 30 });
   tronco.position.set(1.5, 0.2, -4.6);
@@ -318,6 +319,14 @@ export function crearEscenaTutorial(
   const seguirConLaCamara = () =>
     camaraDeDos.seguir(munecos[0].partes.pelvis.translation(), munecos[1].partes.pelvis.translation());
   seguirConLaCamara();
+  // El sonido (TU-59): el claro del pinar, como en la escena `dos`, con las cajas y el cántaro
+  const oido = crearOido({
+    munecos,
+    cuerpos: [...cajasChicas, cantaro.cuerpo].map((cuerpo) => ({ voz: "madera" as const, cuerpo })),
+    suelo: "hojas",
+    ambiente: "dos",
+    juego,
+  });
 
   let pasos = 0;
   let terminoEn: number | undefined;
@@ -338,6 +347,7 @@ export function crearEscenaTutorial(
 
   return {
     nombre: "tutorial",
+    oido,
     escena,
     camara,
     vistas: camaraDeDos.vistas,
@@ -386,6 +396,7 @@ export function crearEscenaTutorial(
       jugadores[0].malla.guardar();
       jugadores[1].malla.guardar();
       seguirConLaCamara();
+      oido.pasar();
       pasos++;
     },
     dibujar(alfa) {

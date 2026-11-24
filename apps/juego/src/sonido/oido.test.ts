@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { crearEscenaDos } from "../escenas/dos";
 import { armarEscenaNivel } from "../escenas/nivel";
+import { crearEscenaTutorial } from "../escenas/tutorial";
 import { crearMundo } from "../motor/fisica";
 import { NIVELES } from "../niveles/lista";
 import { leerDelDisco } from "../niveles/prueba";
@@ -30,6 +31,14 @@ describe("oído de la escena", () => {
     expect(pasos.filter((e) => e.jugador === 0).length).toBeGreaterThan(3);
     expect(pasos.filter((e) => e.jugador === 1).length).toBeGreaterThan(3);
     expect(pasos.every((e) => e.cual === "paso" && e.suelo === "hojas")).toBe(true);
+  });
+
+  it("en el tutorial también: andar suena a pasos sobre pinocha", async () => {
+    const { rapier, mundo } = await crearMundo();
+    const eventos = correr(crearEscenaTutorial(rapier, mundo, new URLSearchParams("j1=andar:1&j2=andar:1")), 150);
+    const pasos = eventos.filter((e) => e.cual === "paso");
+    expect(pasos.filter((e) => e.jugador === 0).length).toBeGreaterThan(3);
+    expect(pasos.filter((e) => e.jugador === 1).length).toBeGreaterThan(3);
   });
 
   it("quietos no suena nada (ni al aparecer)", async () => {
