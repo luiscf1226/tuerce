@@ -12,6 +12,12 @@
 // La historia y los niveles (TU-56): sin nivel abierto (la escena `dos`, de fondo), el botón fuerte lleva a la
 // historia (al patio, o al primero que la pareja no ganó en este navegador) y «Niveles» abre el panel de los 17,
 // para jugarlos aquí o en línea. Sobre un nivel, el botón fuerte juega ese nivel.
+//
+// Pausa, opciones y retomar aquí (TU-60): sobre un nivel, la pausa ofrece «Volver al punto de control» (los dos
+// reaparecen juntos en el último de la pareja) y «Empezar el nivel de nuevo» (desde la salida); qué hace cada uno lo
+// pone la escena (`AccionesDelNivel`; en línea solo el anfitrión vuelve al punto). «Opciones» (desde el inicio y la
+// pausa) abre el panel de opciones.ts. «Seguir la historia» retoma en el punto de control donde la pareja se quedó
+// en este navegador. Con el foco en un volumen, ←/→ (o A/D, o la cruceta) lo mueven.
 import { DESCRIPCION_CONTROLES, DESCRIPCION_TACTIL } from "../entrada/ayuda";
 import type { Controles } from "../entrada/mandos";
 import { ganadosAqui } from "../niveles/contrarreloj";
@@ -20,14 +26,17 @@ import { enEscritorio, salirDelJuego } from "./escritorio";
 import {
   type DondeSigue,
   direccionDelNivel,
+  direccionParaSeguir,
   dondeSigue,
   type Modo,
   type NivelEnElPanel,
   nivelesDeLaHistoria,
   nivelesDelContrarreloj,
   numeroConCeros,
+  puntosGuardadosAqui,
 } from "./historia";
 import type { Juego } from "./juego";
+import { filasDeOpciones, moverDeslizador } from "./opciones";
 import { COMO_SE_JUEGA, COMO_SE_JUEGA_TACTIL, DIRECCION_TUTORIAL, proponerTutorial, tutorialHecho } from "./tutorial";
 import "./menu.css";
 
@@ -37,6 +46,19 @@ export const FUENTES =
 export interface Interfaz {
   /** Una vez por cuadro (aunque las físicas estén paradas): mira si alguien pidió pausa y lee el mando en el menú. */
   cuadro(): void;
+}
+
+/** Lo que la pausa puede hacer sobre un nivel (TU-60). Lo arma la escena del nivel; en línea, en-linea.ts lo ajusta
+ * cuando ya se sabe quién es el anfitrión. Lo que falta no se ofrece. */
+export interface AccionesDelNivel {
+  /** El último punto de control de la pareja (0 es la salida), para decirlo en el botón. */
+  puntoDeControl(): number;
+  /** Los dos reaparecen juntos en el último punto de control de la pareja, sin perder el avance. */
+  volverAlPunto?: () => void;
+  /** El nivel otra vez, desde la salida. */
+  empezarDeNuevo?: () => void;
+  /** Una nota chica en la pausa (en línea, para el invitado: el punto de control lo decide su pareja). */
+  nota?: string;
 }
 
 function elemento<K extends keyof HTMLElementTagNameMap>(
@@ -73,13 +95,26 @@ function botonHistoria(sigue: DondeSigue, fuerte = true): HTMLAnchorElement {
   const seguir = sigue.empezada && !sigue.terminada;
   const a = enlace(
     seguir ? "Seguir la historia" : "Historia",
-    direccionDelNivel(sigue.nivel.clave, "aqui"),
+    direccionParaSeguir(sigue),
     fuerte ? "boton boton-fuerte con-sub" : "boton boton-claro con-sub",
   );
+  // Si se quedaron a mitad del nivel (TU-60), en qué punto de control retoma
+  const donde = sigue.punto === undefined ? "" : ` · punto ${sigue.punto}`;
   a.append(
-    elemento("small", "", sigue.terminada ? `Otra vuelta · ${nombreCorto(sigue.nivel)}` : nombreCorto(sigue.nivel)),
+    elemento(
+      "small",
+      "",
+      sigue.terminada ? `Otra vuelta · ${nombreCorto(sigue.nivel)}` : `${nombreCorto(sigue.nivel)}${donde}`,
+    ),
   );
   return a;
+}
+
+/** Un botón ancho con una línea chica abajo, como el de la historia. */
+function botonConSub(texto: string, sub: string, alApretar: () => void): HTMLButtonElement {
+  const b = boton(texto, alApretar, "boton con-sub");
+  b.append(elemento("small", "", sub));
+  return b;
 }
 
 /** Un nivel en el panel: número, título y lugar; los dos pañuelos si la pareja ya lo ganó en este navegador. */
@@ -170,9 +205,12 @@ export function crearInterfaz(
   mandos: Controles,
   {
     mision,
+    nivel,
   }: {
     /** En un nivel: lo que va de la misión y sus pasos, para mostrarlo en la pausa (src/ui/mision.ts, `resumen`). */
     mision?: () => HTMLElement | null;
+    /** En un nivel: volver al punto de control o empezarlo de nuevo desde la pausa (TU-60). */
+    nivel?: AccionesDelNivel;
   } = {},
 ): Interfaz {
   if (!document.querySelector("link[data-fuentes]")) {
@@ -186,7 +224,7 @@ export function crearInterfaz(
   const panel = capa.appendChild(elemento("div", "menu-panel"));
   panel.setAttribute("role", "dialog");
   // Lo que muestra el panel: la portada (o la pausa), los controles, los niveles o los del contrarreloj
-  type Vista = "inicio" | "controles" | "niveles" | "contrarreloj";
+  type Vista = "inicio" | "controles" | "niveles" | "contrarreloj" | "opciones";
   let vista: Vista = "inicio";
   // En el panel de niveles: jugarlos aquí o en línea
   let modoNiveles: "aqui" | "en-linea" = "aqui";
@@ -215,9 +253,13 @@ export function crearInterfaz(
       return;
     }
     const ganados = ganadosAqui();
-    const sigue = dondeSigue(ganados);
+    const sigue = dondeSigue(ganados, puntosGuardadosAqui());
     const hijos: HTMLElement[] = [];
-    if (vista === "controles") {
+    if (vista === "opciones") {
+      hijos.push(elemento("p", "menu-ceja", "Opciones"), ...filasDeOpciones((foco) => pintar(foco)));
+      hijos.push(elemento("p", "menu-nota centrada", "Se guardan en este navegador."), elemento("hr", "costura"));
+      hijos.push(boton("Volver", () => volver()));
+    } else if (vista === "controles") {
       hijos.push(elemento("p", "menu-ceja", "Cómo se juega"), comoSeJuega(mandos.tactil), elemento("hr", "costura"));
       hijos.push(elemento("p", "menu-ceja", "Controles"), controles(mandos.tactil), elemento("hr", "costura"));
       const linea = elemento("div", "menu-linea");
@@ -283,7 +325,7 @@ export function crearInterfaz(
       // El ropero (TU-29): sombreros, peinados, máscaras y pañuelos, lo ganado y los logros
       hijos.push(enlace("Ropero", "?escena=ropero"));
       if (!primero) hijos.push(botonTutorial(false));
-      hijos.push(botonQueAbre("Controles", "controles"));
+      hijos.push(lineaDeAjustes());
       if (enEscritorio) hijos.push(boton("Salir", salirDelJuego));
     } else {
       // «Seguir» primero: en una pantalla baja, la misión de abajo no lo deja fuera de la vista
@@ -295,7 +337,26 @@ export function crearInterfaz(
       const resumen = mision?.();
       hijos.push(elemento("hr", "costura"));
       if (resumen) hijos.push(resumen, elemento("hr", "costura"));
-      hijos.push(botonQueAbre("Controles", "controles"));
+      // Sobre un nivel (TU-60): volver al punto de control de la pareja, o empezarlo de nuevo desde la salida
+      const volverAlPunto = nivel?.volverAlPunto;
+      if (volverAlPunto) {
+        const punto = nivel?.puntoDeControl() ?? 0;
+        const b = botonConSub("Volver al punto de control", punto > 0 ? `El punto ${punto}` : "La salida", () => {
+          volverAlPunto();
+          juego.seguir();
+        });
+        b.dataset.pausa = "punto";
+        hijos.push(b);
+      }
+      const empezarDeNuevo = nivel?.empezarDeNuevo;
+      if (empezarDeNuevo) {
+        const b = boton("Empezar el nivel de nuevo", empezarDeNuevo);
+        b.dataset.pausa = "de-nuevo";
+        hijos.push(b);
+      }
+      if (nivel?.nota) hijos.push(elemento("p", "menu-nota centrada", nivel.nota));
+      if (volverAlPunto || empezarDeNuevo || nivel?.nota) hijos.push(elemento("hr", "costura"));
+      hijos.push(lineaDeAjustes());
       if (direccion.get("escena") !== "tutorial") hijos.push(enlace("Cómo jugar", DIRECCION_TUTORIAL));
       hijos.push(boton("Salir al menú", () => juego.salirAlMenu()));
     }
@@ -310,7 +371,17 @@ export function crearInterfaz(
     pedido?.scrollIntoView({ block: "nearest" });
   };
 
-  const elegibles = () => [...panel.querySelectorAll<HTMLElement>("button, a")];
+  /** «Opciones» y «Controles», uno al lado del otro. */
+  const lineaDeAjustes = () => {
+    const linea = elemento("div", "menu-linea");
+    linea.append(
+      botonQueAbre("Opciones", "opciones", "boton boton-claro"),
+      botonQueAbre("Controles", "controles", "boton boton-claro"),
+    );
+    return linea;
+  };
+
+  const elegibles = () => [...panel.querySelectorAll<HTMLElement>("button, a, input")];
   const mover = (paso: number) => {
     const lista = elegibles();
     const actual = lista.indexOf(document.activeElement as HTMLElement);
@@ -325,7 +396,15 @@ export function crearInterfaz(
 
   // El teclado del juego no deja que Enter o las flechas lleguen a los botones: el menú los atiende por su cuenta.
   window.addEventListener("keydown", (e) => {
-    if (capa.hidden || e.repeat) return;
+    if (capa.hidden) return;
+    // Un volumen se mueve con ←/→ (o A/D), también manteniendo la tecla
+    const lado =
+      e.code === "ArrowLeft" || e.code === "KeyA" ? -1 : e.code === "ArrowRight" || e.code === "KeyD" ? 1 : 0;
+    if (lado !== 0 && moverDeslizador(lado)) {
+      e.preventDefault();
+      return;
+    }
+    if (e.repeat) return;
     if (e.code === "ArrowDown" || e.code === "KeyS" || e.code === "Tab") mover(e.shiftKey ? -1 : 1);
     else if (e.code === "ArrowUp" || e.code === "KeyW") mover(-1);
     else if (e.code === "Enter" || e.code === "NumpadEnter" || e.code === "Space")
@@ -335,11 +414,15 @@ export function crearInterfaz(
   });
 
   juego.alCambiar(() => pintar());
+  // La pantalla completa cambia también sin el menú (Esc, F11): el botón de las Opciones dice cómo está
+  document.addEventListener("fullscreenchange", () => {
+    if (!capa.hidden && vista === "opciones") pintar('[data-ajuste="pantalla"]');
+  });
   pintar();
 
   // El mando en el menú: botones apretados en el cuadro anterior, para reaccionar al apretar y no al mantener.
   let antes = 0;
-  const BITS = { a: 1, b: 2, arriba: 4, abajo: 8 };
+  const BITS = { a: 1, b: 2, arriba: 4, abajo: 8, izquierda: 16, derecha: 32 };
   return {
     cuadro() {
       // Viendo los controles o un panel, la pausa (Esc) vuelve; si no, alterna la pausa (en el menú no hace nada)
@@ -356,11 +439,16 @@ export function crearInterfaz(
         if (m.buttons[1]?.pressed) ahora |= BITS.b;
         if (m.buttons[12]?.pressed || y < -0.6) ahora |= BITS.arriba;
         if (m.buttons[13]?.pressed || y > 0.6) ahora |= BITS.abajo;
+        const x = m.axes[0] ?? 0;
+        if (m.buttons[14]?.pressed || x < -0.6) ahora |= BITS.izquierda;
+        if (m.buttons[15]?.pressed || x > 0.6) ahora |= BITS.derecha;
       }
       const recien = ahora & ~antes;
       antes = ahora;
       if (recien & BITS.arriba) mover(-1);
       if (recien & BITS.abajo) mover(1);
+      if (recien & BITS.izquierda) moverDeslizador(-1);
+      if (recien & BITS.derecha) moverDeslizador(1);
       if (recien & BITS.a) (document.activeElement as HTMLElement | null)?.click();
       if (recien & BITS.b) {
         if (vista !== "inicio") volver();

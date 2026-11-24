@@ -15,9 +15,18 @@
 //   &ganar=N         para probar (en desarrollo, o con `?congelar=` para las capturas): en el paso N la pareja
 //                    alcanza la meta sin caminar hasta ahí, como si llegara (en La medianoche se encienden los fuegos);
 //                    con `&punto=` la meta, cuenta como llegar ahí mismo
+//   &pista           la luciérnaga que señala hacia dónde seguir, sin esperar los 2 minutos (TU-62)
 //   &jugar           empieza jugando, sin el menú del nivel (los enlaces del menú, del tutorial y de la llegada)
 //   &ayuda-mision    la hoja de la misión con la ayuda abierta (todos los pasos y los controles), como con la H
-//   &pausa           empieza en pausa, con lo que va de la misión en el panel (para las capturas)
+//   &pausa           empieza en pausa, con lo que va de la misión y las acciones de la pausa (para las capturas)
+//
+// La pausa (TU-60): «Volver al punto de control» pone a los dos juntos en el último de la pareja y «Empezar el nivel
+// de nuevo» lo vuelve a abrir desde la salida, por la niebla. Retomar aquí: cada punto de control que la pareja
+// alcanza jugando en este navegador (no en el contrarreloj ni de noche) queda guardado para «Seguir la historia», y
+// al ganar el nivel se borra (ui/historia.ts). En línea, en-linea.ts decide qué ofrece la pausa.
+//
+// Al entrar (TU-62): el cartel con el número, el nombre y el lugar del nivel, el fundido en niebla al abrirlo y al
+// reaparecer, y la luciérnaga si pasan 2 minutos sin llegar al próximo punto de control (escenas/orientacion.ts).
 //
 // La meta (TU-57): fuera del contrarreloj, un rato después de llegar aparece «Nivel ganado» con «Siguiente nivel» y
 // «Menú» (src/ui/llegada.ts) y los muñecos dejan de recibir entrada; después de La medianoche, el final. En línea
@@ -50,22 +59,27 @@ import { crearNoche, leerNoche, type Noche } from "../niveles/noche";
 import type { Fuegos } from "../niveles/piezas-medianoche";
 import { avisarPremios } from "../ropero/aviso";
 import { vestuarioDe } from "../ropero/vestuario";
+import { crearOido, cuerposQueSuenan, type Oido, sueloDelMaterial } from "../sonido";
 import { crearJuego, crearSenas } from "../ui";
 import { crearMarcador, mostrarLlegada } from "../ui/contrarreloj";
+import { irConFundido } from "../ui/fundido";
+import { borrarPuntoAqui, direccionDesdeLaSalida, guardarPuntoAqui, puntosGuardadosAqui } from "../ui/historia";
 import {
   accionesDeLaMeta,
+  direccionDelNivel,
   esperaDelPanel,
   finDeNivel,
   loQueSigue,
   mostrarFinal,
   mostrarNivelGanado,
 } from "../ui/llegada";
-import { crearInterfaz } from "../ui/menu";
+import { type AccionesDelNivel, crearInterfaz } from "../ui/menu";
 import { crearHojaDeMision, type HojaDeMision } from "../ui/mision";
 import { mostrarCartel } from "../ui/noche";
 import { COLORES } from "./colores";
 import type { PasoEnRed } from "./dos";
 import type { EscenaDeJuego } from "./index";
+import { crearOrientacion, type Orientacion } from "./orientacion";
 import type { AvanceDeNivel, Vestir } from "./tipos";
 
 /** La cámara: hacia dónde queda de lo que mira, un poco más alta que en `dos` para ver los huecos. */
@@ -87,6 +101,12 @@ export type EscenaNivel = EscenaDeJuego & {
   readonly vestir: Vestir;
   /** La Noche de tuerce (TU-33): de día mientras no tenga trampa. */
   readonly noche: Noche;
+  /** El cartel, el fundido y la luciérnaga (TU-62). */
+  readonly orientacion: Orientacion;
+  /** El sonido (TU-59). */
+  readonly oido: Oido;
+  /** Lo que ofrece la pausa sobre el nivel (TU-60); en línea lo ajusta en-linea.ts. */
+  readonly pausa: AccionesDelNivel;
 };
 
 /** Baja el .glb del nivel que pide la dirección (`&nivel=`) y devuelve cómo armar su escena. */
@@ -142,6 +162,7 @@ export function armarEscenaNivel(
   };
   const jugadores = [vestir(0, "rojo"), vestir(1, "turquesa")] as const;
   const munecos = [jugadores[0].muneco, jugadores[1].muneco] as const;
+  armado.sombrear(munecos); // la sombra de contacto (TU-61)
   const nivel = crearNivel({ rapier, mundo, plano, armado, munecos, guion });
 
   const controles = crearControles({ parametros });
@@ -152,9 +173,25 @@ export function armarEscenaNivel(
   // Con `&jugar` (venir del menú, del tutorial o del nivel anterior) empieza jugando: el menú ya se vio
   const conMenu = conPantalla && !parametros.has("jugar") && (!controles.fija || parametros.has("menu"));
   const juego = crearJuego(conMenu ? "menu" : "jugando");
+  // La pausa sobre el nivel (TU-60). En línea no ofrece nada hasta que en-linea.ts sepa quién es el anfitrión
+  const pausa: AccionesDelNivel = { puntoDeControl: () => nivel.avance.puntoDeControl() };
+  // En el contrarreloj no: volver al punto en plena carrera es un atajo
+  if (!enRed && !parametros.has("contrarreloj")) {
+    pausa.volverAlPunto = () => avance.irA(nivel.avance.puntoDeControl());
+  }
+  if (!enRed && conPantalla) {
+    // Empezar de nuevo también olvida el punto guardado: si se van antes del primero, «Seguir la historia» no los
+    // devuelve al punto viejo
+    pausa.empezarDeNuevo = () => {
+      borrarPuntoAqui(clave);
+      irConFundido(direccionDesdeLaSalida(location.search));
+    };
+  }
   // La hoja de la misión se arma más abajo; la pausa le pide lo que va cada vez que se abre
   let hoja: HojaDeMision | undefined;
-  const interfaz = conPantalla ? crearInterfaz(juego, controles, { mision: () => hoja?.resumen() ?? null }) : undefined;
+  const interfaz = conPantalla
+    ? crearInterfaz(juego, controles, { mision: () => hoja?.resumen() ?? null, nivel: pausa })
+    : undefined;
   if (conPantalla) avisarPremios(nivel.premios);
   const quietas = [entradaQuieta(), entradaQuieta()] as const;
   const senas = crearSenas(rapier, mundo, escena, munecos);
@@ -195,6 +232,7 @@ export function armarEscenaNivel(
     }
   }
   if (vistaTodo) {
+    armado.primerPlano.visible = vistaPunto !== null; // el nivel entero se ve sin plantas delante (TU-61)
     // Desde lejos, la niebla se corre para que el nivel entero se lea
     if (escena.fog instanceof THREE.Fog) {
       const atras = VISTA_TODO.desde.z * (lejos - 1);
@@ -204,6 +242,18 @@ export function armarEscenaNivel(
   }
   // La medianoche (TU-49): los fuegos artificiales del nivel, que piden mirar al cielo
   const fuegos = armado.piezasDeJuego.lista.filter((p): p is Fuegos => p.cual === "fuegos");
+  // Entrar a un nivel y no perderse (TU-62)
+  const orientacion = crearOrientacion({
+    escena,
+    plano,
+    clave: parametros.get("nivel") ?? NIVEL_INICIAL,
+    avance: nivel.avance,
+    munecos,
+    ...(vistaTodo ? {} : { camaraDeDos }),
+    parametros,
+    conPantalla,
+    enRed: enRed !== undefined,
+  });
   const seguirConLaCamara = () =>
     camaraDeDos.seguir(munecos[0].partes.pelvis.translation(), munecos[1].partes.pelvis.translation());
 
@@ -238,12 +288,26 @@ export function armarEscenaNivel(
   /** El paso en que llegaron a la meta, y si ya se mostró el panel (desde ahí los muñecos no reciben entrada). */
   let llegaronEn: number | undefined;
   let conElPanel = false;
+  // Retomar aquí (TU-60): jugando de día y sin reloj en este navegador (las capturas, con `?congelar`, no dejan rastro)
+  const guardaElPunto =
+    !enRed &&
+    conPantalla &&
+    !reloj &&
+    !parametros.has("noche") &&
+    !parametros.has("trampa") &&
+    !parametros.has("congelar");
   nivel.avance.alCambiar((alcanzado) => {
+    if (guardaElPunto) {
+      if (alcanzado >= nivel.avance.meta) borrarPuntoAqui(clave);
+      else guardarPuntoAqui(clave, alcanzado);
+    }
     if (alcanzado < nivel.avance.meta) return;
     reloj?.llegar();
     if (!enRed && conPantalla) marcarGanadoAqui(clave);
     llegaronEn ??= pasos;
   });
+  const siguienteConFundido =
+    fin.cual === "siguiente" ? () => irConFundido(direccionDelNivel(fin.siguiente.clave, false)) : undefined;
   const mostrarLaMeta = () => {
     conElPanel = true;
     if (fin.cual === "final") mostrarFinal();
@@ -251,7 +315,8 @@ export function armarEscenaNivel(
       mostrarNivelGanado({
         nombre: plano.nombre,
         nota: fin.cual === "siguiente" ? loQueSigue(fin.siguiente) : "",
-        acciones: accionesDeLaMeta(fin),
+        // Al siguiente, por la niebla (TU-62)
+        acciones: accionesDeLaMeta(fin, siguienteConFundido),
       });
   };
   const ganar = Number(parametros.get("ganar"));
@@ -275,6 +340,21 @@ export function armarEscenaNivel(
     });
   }
 
+  // El sonido (TU-59): lo que pisa cada uno según el material de cada sólido, las piezas y el ambiente del nivel
+  const oido = crearOido({
+    munecos,
+    cuerpos: cuerposQueSuenan(armado),
+    aguas: armado.aguas,
+    pisables: [
+      ...plano.solidos.map((s) => ({ objeto: s.objeto, suelo: sueloDelMaterial(s.material, clave) })),
+      ...armado.piezasDeJuego.solidas.map((p) => ({ objeto: p.objeto, suelo: "madera" as const })),
+    ],
+    suelo: sueloDelMaterial("suelo", clave),
+    ambiente: clave,
+    deNoche: () => noche.trampa !== undefined,
+    juego,
+  });
+
   // La misión del nivel: llegar a la meta y, si quieren, el secreto y el logro. La hoja va arriba a la izquierda,
   // salvo en el contrarreloj (que tiene su reloj) y con la cámara quieta de las capturas del nivel entero
   // Con la guía del nivel (src/misiones/guias.ts): de qué se trata, el tramo que toca y por dónde buscar el secreto
@@ -289,11 +369,18 @@ export function armarEscenaNivel(
   if (hoja && parametros.has("ayuda-mision")) hoja.alternarAyuda(true);
 
   let pasos = 0;
-  const punto = Number(parametros.get("punto"));
+  let punto = Number(parametros.get("punto"));
+  // Un punto guardado aquí que ya es la meta o no existe (de una versión vieja del nivel, con más puntos) dejaría a
+  // la pareja en la meta sin «Nivel ganado» y sin borrarlo: se olvida y se empieza en la salida. Un `&punto=` que
+  // no viene de lo guardado (las capturas, `&ganar=`) se respeta
+  if (punto >= nivel.avance.meta && puntosGuardadosAqui()[clave] === punto) {
+    borrarPuntoAqui(clave);
+    punto = 0;
+  }
   if (parametros.has("punto") && Number.isFinite(punto) && !(reloj && enRed)) avance.irA(punto);
   tablero.pasar();
-  // Ya en el punto de partida, para que la pausa muestre el tramo que va
-  if (parametros.has("pausa")) {
+  // Ya en el punto de partida, para que la pausa muestre el tramo que va y en qué punto de control están
+  if (conPantalla && parametros.has("pausa")) {
     juego.jugar();
     juego.pausar();
   }
@@ -315,6 +402,9 @@ export function armarEscenaNivel(
     premios: nivel.premios,
     vestir: (jugador, vestuario) => jugadores[jugador].malla.vestir(vestuario),
     noche,
+    orientacion,
+    oido,
+    pausa,
     pasar() {
       if (pasos === ganarEn) {
         nivel.avance.retomar(nivel.avance.meta);
@@ -343,6 +433,8 @@ export function armarEscenaNivel(
       armado.guardar();
       tablero.pasar();
       seguirConLaCamara();
+      orientacion.pasar(juego.atienden && !conElPanel);
+      oido.pasar();
       pasos++;
     },
     dibujar(alfa) {
@@ -367,6 +459,8 @@ export function armarEscenaNivel(
         escena.fog.near = plano.niebla.cerca * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca + atras;
         escena.fog.far = plano.niebla.lejos * noche.niebla + camaraDeDos.distancia - ENCUADRE.cerca + atras;
       }
+      // Con la cámara ya puesta: el cartel, la niebla del fundido y la luciérnaga en el cuadro (TU-62)
+      orientacion.dibujar(alfa);
     },
   };
 }

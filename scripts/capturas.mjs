@@ -5,6 +5,7 @@
 //   CAPTURAS_URL=https://… pnpm capturas  usa una vista previa ya publicada
 import { spawn, spawnSync } from "node:child_process";
 import { mkdir, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { createServer } from "node:net";
 import { join } from "node:path";
 import { chromium, devices } from "playwright";
 
@@ -525,18 +526,65 @@ const TOMAS = [
   { archivo: "pampa-5-candil", ruta: "/?escena=nivel&nivel=pampa&punto=5&j1=&j2=&vista=37.5,1.2,-2.3&congelar=60" },
   { archivo: "pampa-5-meta", ruta: "/?escena=nivel&nivel=pampa&punto=5&j1=&j2=&congelar=60" },
   { archivo: "pampa-secreto", ruta: "/?escena=nivel&nivel=pampa&punto=4&j1=&j2=&vista=25,4,-1.9&congelar=30" },
+  // TU-62: entrar a un nivel y no perderse. El cartel con el número, el nombre y el lugar mientras la escena sale de
+  // la niebla (y de noche, con el de la trampa abajo); el turquesa se cae del nivel de prueba y la niebla sube
+  // mientras cae y se levanta al reaparecer; y la luciérnaga que, tras 2 minutos sin llegar al próximo punto de
+  // control, vuela hacia allá (`&pista` la enciende sin esperar), de día y de noche
+  { archivo: "cartel-calle", ruta: "/?escena=nivel&nivel=calle&j1=&j2=&congelar=40" },
+  { archivo: "cartel-medianoche", ruta: "/?escena=nivel&nivel=medianoche&j1=&j2=&congelar=120" },
+  { archivo: "cartel-noche", ruta: "/?escena=nivel&nivel=pinar&noche=4&trampa=cruzados&j1=&j2=&congelar=90" },
+  { archivo: "fundido-cayendo", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=andar:1,girar:-0.15&congelar=296" },
+  { archivo: "fundido-reaparece", ruta: "/?escena=nivel&nivel=prueba&j1=&j2=andar:1,girar:-0.15&congelar=306" },
+  { archivo: "pista-calle", ruta: "/?escena=nivel&nivel=calle&punto=1&pista&j1=&j2=&congelar=170" },
+  { archivo: "pista-tren", ruta: "/?escena=nivel&nivel=tren&punto=2&pista&j1=&j2=&congelar=170" },
+  {
+    archivo: "pista-noche",
+    ruta: "/?escena=nivel&nivel=xibalba&punto=1&pista&noche=3&trampa=cruzados&j1=&j2=&congelar=170",
+  },
+  // TU-60: la pausa sobre un nivel (volver al punto de control, empezar de nuevo, opciones), el panel de opciones,
+  // y la portada que retoma la historia en el punto de control donde la pareja se quedó en este navegador
+  { archivo: "pausa-nivel", ruta: "/?escena=nivel&nivel=pinar&punto=2&j1=&j2=&pausa&congelar=60" },
+  {
+    archivo: "pausa-opciones",
+    ruta: "/?escena=nivel&nivel=pinar&punto=2&j1=&j2=&pausa&congelar=60",
+    clic: "[data-abre=opciones]",
+  },
+  {
+    archivo: "menu-retomar",
+    ruta: "/?escena=dos&j1=&j2=&menu&congelar=60",
+    ganados: ["patio", "pinar"],
+    retomar: { poza: 2 },
+  },
 ];
+/** Todo se abre mudo (TU-59): el sonido no se graba y Chromium sin ventana no tiene por qué sonar. */
+const mudo = (ruta) => `${ruta}${ruta.includes("?") ? "&" : "?"}mudo`;
 const VIDEO = { archivo: "dos", ruta: "/?escena=dos&j1=andar:0.6,izq&j2=andar:0.6,der&depurar", segundos: 5 };
 const TAMANO = { width: 1280, height: 720 };
 const TELEFONO = { ...devices["Pixel 7"], viewport: { width: 839, height: 412 } };
 const SALIDA = "capturas";
-const PUERTO = 4173;
 
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
 // Chromium sin ventana no tiene GPU: SwiftShader dibuja WebGL por software.
 const ARGS = ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"];
 
+/** Un puerto libre que da el sistema: con un puerto fijo, si otro lo tenía ocupado, `vite preview` se moría y las
+ * capturas salían del servidor de otro (otra rama, otro agente) sin avisar. `CAPTURAS_PUERTO` fija uno. */
+async function puertoLibre() {
+  if (process.env.CAPTURAS_PUERTO) return Number(process.env.CAPTURAS_PUERTO);
+  return await new Promise((resolver, fallar) => {
+    const s = createServer();
+    s.once("error", fallar);
+    s.listen(0, "127.0.0.1", () => {
+      const direccion = s.address();
+      s.close(() =>
+        direccion && typeof direccion === "object" ? resolver(direccion.port) : fallar(new Error("sin puerto")),
+      );
+    });
+  });
+}
+
 async function servirJuego() {
+  const PUERTO = await puertoLibre();
   const build = spawnSync("pnpm", ["--filter", "tuerce-juego", "build"], { stdio: "inherit" });
   if (build.status !== 0) throw new Error("no se pudo construir el juego");
   const vite = spawn(
@@ -547,8 +595,13 @@ async function servirJuego() {
       stdio: "ignore",
     },
   );
+  let murio = false;
+  vite.once("exit", () => {
+    murio = true;
+  });
   const base = `http://127.0.0.1:${PUERTO}`;
   for (let i = 0; ; i++) {
+    if (murio) throw new Error(`vite preview no pudo usar el puerto ${PUERTO}`);
     try {
       if ((await fetch(base)).ok) break;
     } catch {}
@@ -583,7 +636,8 @@ async function esperarListo(pagina) {
   await pagina.evaluate(() => document.fonts.ready);
 }
 
-/** Lo que guarda el navegador de una toma con `ganados`: lo mismo que deja el juego al ganar (niveles/contrarreloj.ts). */
+/** Lo que guarda el navegador de una toma con `ganados`: lo mismo que deja el juego al ganar (niveles/contrarreloj.ts);
+ * con `retomar`, también los puntos de control donde se quedaron (ui/historia.ts, TU-60). */
 const recuerdo = (toma) => ({
   cookies: [],
   origins: [
@@ -592,8 +646,9 @@ const recuerdo = (toma) => ({
       localStorage: [
         {
           name: "tuerce.contrarreloj",
-          value: JSON.stringify(Object.fromEntries(toma.ganados.map((nivel) => [nivel, { ganado: true }]))),
+          value: JSON.stringify(Object.fromEntries((toma.ganados ?? []).map((nivel) => [nivel, { ganado: true }]))),
         },
+        ...(toma.retomar ? [{ name: "tuerce:retomar", value: JSON.stringify(toma.retomar) }] : []),
       ],
     },
   ],
@@ -614,18 +669,18 @@ try {
   const pagina = await contexto.newPage();
   pagina.on("pageerror", (e) => errores.push(e.message));
   for (const toma of TOMAS) {
-    // `ganados`: en un navegador aparte que recuerda esos niveles ganados (el menú los marca); `telefono`: en un
-    // Pixel 7 acostado, con los dedos; `clic`: qué apretar
+    // `ganados` y `retomar`: en un navegador aparte que recuerda esos niveles ganados y puntos de control (el menú
+    // los marca); `telefono`: en un Pixel 7 acostado, con los dedos; `clic`: qué apretar
     const aparte =
-      toma.ganados || toma.telefono
+      toma.ganados || toma.retomar || toma.telefono
         ? await navegador.newContext({
             ...(toma.telefono ? TELEFONO : { viewport: TAMANO }),
-            ...(toma.ganados ? { storageState: recuerdo(toma) } : {}),
+            ...(toma.ganados || toma.retomar ? { storageState: recuerdo(toma) } : {}),
           })
         : null;
     const enEsta = aparte ? await aparte.newPage() : pagina;
     if (aparte) enEsta.on("pageerror", (e) => errores.push(e.message));
-    await enEsta.goto(servidor.base + toma.ruta);
+    await enEsta.goto(servidor.base + mudo(toma.ruta));
     await esperarListo(enEsta);
     if (toma.clic) await enEsta.click(toma.clic);
     await enEsta.screenshot({ path: join(SALIDA, `${toma.archivo}.png`) });
@@ -639,7 +694,7 @@ try {
   const grabando = await navegador.newContext({ viewport: TAMANO, recordVideo: { dir: carpetaVideo, size: TAMANO } });
   const enVivo = await grabando.newPage();
   enVivo.on("pageerror", (e) => errores.push(e.message));
-  await enVivo.goto(servidor.base + VIDEO.ruta);
+  await enVivo.goto(servidor.base + mudo(VIDEO.ruta));
   await esperarListo(enVivo);
   await dormir(VIDEO.segundos * 1000);
   const estado = await enVivo.evaluate(() => window.__tuerce);

@@ -5,6 +5,8 @@
 //   crearCapasDeNiebla([...])            jirones de niebla a distintas profundidades que se corren
 //   crearVelo({...})                     niebla que se espesa hacia arriba, detrás de lo cercano
 //   materialTela(color?) / materialPanuelo("rojo" | "turquesa") / materialOjo()   para vestir mallas
+//   materialSuelo(suelo) / uvDelMundo(...)  los suelos de los niveles con la textura de su lugar (suelos.ts)
+//   crearSombras() / crearPrimerPlano({...})   sombras de contacto y plantas oscuras delante de la cámara
 //   crearPino, crearAbeto, crearTroncoCaido, crearRoca, crearMata               formas de las referencias
 export {
   type CapaDeNiebla,
@@ -30,8 +32,12 @@ export {
   materialOjo,
   materialPanuelo,
   materialRecorte,
+  materialSuelo,
   materialTela,
   type OpcionesTela,
 } from "./materiales";
 export { COLOR_PANUELO, coloresSaturados, esSaturado, type Panuelo, saturacion } from "./paleta";
 export { crearImagen, type Imagen, type OpcionesImagen, type VistasPartidas } from "./post";
+export { crearPrimerPlano, type PlantaDeAbajo, type PrimerPlano, type RamaDeArriba } from "./primer-plano";
+export { crearSombras, type FuenteDeSombra, type Sombras, sombraSegunAltura } from "./sombras";
+export { DATOS_DE_SUELO, pintarSuelo, SUELOS, type Suelo, uvDelMundo } from "./suelos";

@@ -38,6 +38,7 @@ import { PASO } from "../motor/bucle";
 import type { Rapier } from "../motor/fisica";
 import { crearMallaMuneco, crearMuneco, type Muneco } from "../muneco";
 import { vestuarioDe } from "../ropero/vestuario";
+import { crearOido, type Oido } from "../sonido";
 import { crearJuego, crearSenas } from "../ui";
 import { crearInterfaz } from "../ui/menu";
 import { reaparecerSiCayeron } from "./borde";
@@ -72,6 +73,7 @@ export function crearEscenaDos(
   readonly munecos: readonly [Muneco, Muneco];
   readonly camaraDeDos: CamaraDeDos;
   readonly vestir: Vestir;
+  readonly oido: Oido;
 } {
   const escena = new THREE.Scene();
   vestirDeDia(escena, { cerca: NIEBLA.cerca, lejos: NIEBLA.lejos });
@@ -135,9 +137,11 @@ export function crearEscenaDos(
     rapier.ColliderDesc.cylinder(TOCON.alto / 2, TOCON.radio).setTranslation(TOCON.x, TOCON.alto / 2, 0),
   );
   const cajas = crearCajas(rapier, mundo, escena, corteza);
-  cajas.poner(TOCON.x, TOCON.alto + 0.3, 0, 0.6, 8);
-  cajas.poner(2.6, 0.18, 1.6, 0.36, 2, 0.5);
-  cajas.poner(-1.8, 0.2, -1.4, 0.4, 3, -0.3);
+  const huacales = [
+    cajas.poner(TOCON.x, TOCON.alto + 0.3, 0, 0.6, 8),
+    cajas.poner(2.6, 0.18, 1.6, 0.36, 2, 0.5),
+    cajas.poner(-1.8, 0.2, -1.4, 0.4, 3, -0.3),
+  ];
 
   // Un tronco caído al fondo del claro, con su colisionador
   const tronco = crearTroncoCaido({ largo: 7, radio: 0.22, semilla: 5, largoMusgo: 0.2, musgo: 30 });
@@ -220,6 +224,14 @@ export function crearEscenaDos(
   const senas = crearSenas(rapier, mundo, escena, [rojo.muneco, turquesa.muneco]);
   const inclinacion = matas.map((m) => m.rotation.z);
   let pasos = 0;
+  // El sonido (TU-59): el claro del pinar, con pinocha bajo los pies y los huacales de madera
+  const oido = crearOido({
+    munecos: [rojo.muneco, turquesa.muneco],
+    cuerpos: huacales.map((cuerpo) => ({ voz: "madera" as const, cuerpo })),
+    suelo: "hojas",
+    ambiente: "dos",
+    juego,
+  });
 
   return {
     nombre: "dos",
@@ -231,6 +243,7 @@ export function crearEscenaDos(
     ...(interfaz ? { interfaz } : {}),
     munecos: [rojo.muneco, turquesa.muneco],
     vestir: (jugador, vestuario) => [rojo, turquesa][jugador]?.malla.vestir(vestuario),
+    oido,
     pasar() {
       // En el menú la escena sigue viva, pero los muñecos no escuchan a nadie
       cajas.guardar();
@@ -247,6 +260,7 @@ export function crearEscenaDos(
       rojo.malla.guardar();
       turquesa.malla.guardar();
       seguirConLaCamara();
+      oido.pasar();
       pasos++;
     },
     dibujar(alfa) {

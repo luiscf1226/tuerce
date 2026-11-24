@@ -43,6 +43,35 @@ Hacia dónde mira algo (salidas y puntos de control): su adelante de glTF, el +Z
 El nombre de cada objeto es libre, pero el guion encuentra las piezas por nombre (`nivel.pieza("compuerta")`), y los
 errores del formato lo nombran: «"masa-rara": `masa` tiene que ser un número».
 
+### Cómo se ve cada nivel (TU-61)
+
+El color de Blender no se usa. Lo que lleva `material: suelo` se viste con la textura del lugar, en grises, y eso se
+elige en código, por el `numero` de la escena, en `apps/juego/src/niveles/vestido.ts` (no hace falta volver a
+exportar el `.glb`):
+
+| `suelo`     | Qué es                                   | Niveles                         |
+| ----------- | ---------------------------------------- | ------------------------------- |
+| `tierra`    | Tierra apisonada con piedritas y grietas | patio, calle, cafetal, pruebas  |
+| `pinocha`   | Agujas de pino caídas                    | pinar                           |
+| `arena`     | Arena de río o de playa, con ondas       | poza, minga                     |
+| `sillar`    | Bloques de piedra labrada con musgo      | Xibalbá                         |
+| `grava`     | Balasto de la vía, piedra suelta         | tren, puente                    |
+| `hojarasca` | Hojas caídas de la selva                 | río, medianoche                 |
+| `empedrado` | Piedras bola con juntas oscuras          | trenzas                         |
+| `pasto`     | Briznas cortas y tupidas                 | canales, garrucha, llano, pampa |
+| `piedra`    | Roca oscura con grietas                  | mina                            |
+
+La textura va en metros del mundo (no se estira según el tamaño de cada caja), por arriba; los costados llevan tierra
+cortada (la roca y el sillar siguen con lo suyo) y quedan más oscuros, así se lee el borde de cada plataforma. La
+calle pone además sus piedras bola encima (su guion).
+
+En `vestido.ts` también va el **primer plano**: `abajo` (`hojas`, `pasto` o `piedras`) crece en el borde de abajo de
+la imagen y `arriba` (`pino` u `hojas`) cuelga en las esquinas de arriba, casi negras y desenfocadas, altas en las
+orillas y apenas asomadas al medio; se corren con la cámara (paralaje). Con `&vista=todo` no se ven.
+
+Los muñecos y las piezas sueltas de más de 30 cm (`cuerpo: dinamico`) llevan una **sombra de contacto** debajo, que se
+achica y se aclara con la altura (`apps/juego/src/imagen/sombras.ts`): no hay que hacer nada en Blender.
+
 ## Las piezas de juego (TU-12)
 
 Un objeto con `tipo: pieza` y `pieza: <cuál>`. Su malla no se dibuja: solo dice dónde va la pieza y cuánto mide (su
