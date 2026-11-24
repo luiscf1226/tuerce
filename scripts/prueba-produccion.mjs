@@ -63,16 +63,21 @@ async function pasosPorSegundo(pagina, nombre) {
   return { pasosPorSegundo: mejor, pasosTotales: await pagina.evaluate(() => window.__tuerce?.pasosTotales) };
 }
 
-/** La imagen achicada a 64×36, en grises: para comparar cuadros sin que el grano cuente. */
-const imagenChica = (pagina) =>
-  pagina.evaluate(() => {
-    const lienzo = document.querySelector("canvas");
+/** La imagen achicada a 64×36, en grises: para comparar cuadros sin que el grano cuente. Sale de una captura de
+ * pantalla y no del lienzo: WebGL no conserva lo dibujado entre cuadros, y leerlo desde afuera da negro. */
+const imagenChica = async (pagina) => {
+  const png = (await pagina.screenshot()).toString("base64");
+  return pagina.evaluate(async (datos) => {
+    const imagen = new Image();
+    imagen.src = `data:image/png;base64,${datos}`;
+    await imagen.decode();
     const chico = Object.assign(document.createElement("canvas"), { width: 64, height: 36 });
     const ctx = chico.getContext("2d", { willReadFrequently: true });
-    ctx.drawImage(lienzo, 0, 0, 64, 36);
+    ctx.drawImage(imagen, 0, 0, 64, 36);
     const { data } = ctx.getImageData(0, 0, 64, 36);
     return Array.from({ length: 64 * 36 }, (_, i) => (data[i * 4] + data[i * 4 + 1] + data[i * 4 + 2]) / 3);
-  });
+  }, png);
+};
 const diferencia = (a, b) => a.reduce((suma, v, i) => suma + Math.abs(v - (b[i] ?? 0)), 0) / a.length;
 
 /** Entra con Clerk con una cuenta de prueba (código 424242); si la cuenta no existe, la registra. */
