@@ -123,11 +123,11 @@ describe("retomar aquí", () => {
     const sigue = dondeSigue(["patio", "pinar"], puntosGuardadosAqui(a));
     expect(sigue.nivel.clave).toBe("poza");
     expect(sigue.punto).toBe(2);
-    expect(direccionParaSeguir(sigue)).toBe("?escena=nivel&nivel=poza&punto=2");
+    expect(direccionParaSeguir(sigue)).toBe("?escena=nivel&nivel=poza&jugar&punto=2");
     // Sin punto guardado en el que sigue, desde la salida
     const sinPunto = dondeSigue(["patio"], puntosGuardadosAqui(a));
     expect(sinPunto.punto).toBeUndefined();
-    expect(direccionParaSeguir(sinPunto)).toBe("?escena=nivel&nivel=pinar");
+    expect(direccionParaSeguir(sinPunto)).toBe("?escena=nivel&nivel=pinar&jugar");
   });
 
   it("un punto en el patio ya cuenta como historia empezada", () => {
